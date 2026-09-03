@@ -16,7 +16,11 @@
 - **Universal Parser**: Must automatically detect `Họ và tên học sinh` columns when teachers import student roster Excel files for Đua Vịt & Đua Rùa.
 
 ## 4. Vercel Deployment & Alias Synchronization
-- Whenever creating or modifying teacher accounts, system user configurations, or system updates, ALWAYS automatically run `npm run deploy` (or `node scripts/deploy_vercel.cjs`) to trigger direct deployment to Vercel Production and bind production domain aliases (`eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`) automatically, ensuring live Production is instantly updated without requiring manual user intervention.
+- **Automatic 4-Step Production Pipeline**: Whenever creating, updating, or configuring any teacher account or system feature, the agent MUST automatically execute the complete 4-step pipeline without requiring ANY manual user action:
+  1. Seed the account into `INITIAL_USERS` in `src/services/storage.js` & `public/cloud_users.json`.
+  2. Execute `npx vercel --temporary --yes` to trigger Vercel Production build.
+  3. Execute `npx vercel alias set <deploymentId> eduvth.vercel.app` & `npx vercel alias set <deploymentId> giao-vien-sky-line.vercel.app`.
+  4. Verify the live Production HTTP response silently before declaring completion.
 - Always inspect runtime errors silently and verify visually before reporting completion to the user.
 
 ## 5. Strict Per-User Data Isolation & Permanent Storage Invariants
