@@ -82,6 +82,46 @@ const INITIAL_USERS = [
     subject: 'Sinh học',
     school: 'Hệ thống Giáo Dục Sky-Line',
     createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_thao_duyen',
+    username: 'thaoduyen',
+    password: '123456',
+    name: 'Thảo Duyên',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_quoc_hoang',
+    username: 'quochoang',
+    password: '123456',
+    name: 'Quốc Hoàng',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_thi_van',
+    username: 'thivan',
+    password: '123456',
+    name: 'Thi Văn',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_mai_giang',
+    username: 'maigiang',
+    password: '123456',
+    name: 'Mai Giang',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
   }
 ];
 
