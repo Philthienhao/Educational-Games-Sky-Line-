@@ -282,9 +282,11 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
           const SENSITIVITY_THRESHOLD = tiltSensitivity === 'high' ? 1.5 : (tiltSensitivity === 'medium' ? 3.0 : 5.0);
 
           let detectedDir = 'center';
-          if (currentScore < -SENSITIVITY_THRESHOLD) {
+          // In mirrored canvas: Positive score = head leaning to screen LEFT (Option A)
+          // Negative score = head leaning to screen RIGHT (Option B)
+          if (currentScore > SENSITIVITY_THRESHOLD) {
             detectedDir = 'left';
-          } else if (currentScore > SENSITIVITY_THRESHOLD) {
+          } else if (currentScore < -SENSITIVITY_THRESHOLD) {
             detectedDir = 'right';
           }
 
@@ -1199,9 +1201,9 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
           }}>
             <div>
               {tiltDirection === 'left' 
-                ? `👈 ĐANG NGHIÊNG TRÁI (Đáp án A) [${currentTiltAngleDeg}°]` 
+                ? `👈 ĐANG NGHIÊNG TRÁI (Đáp án A) [${Math.abs(currentTiltAngleDeg)}°]` 
                 : (tiltDirection === 'right' 
-                  ? `👉 ĐANG NGHIÊNG PHẢI (Đáp án B) [+${currentTiltAngleDeg}°]` 
+                  ? `👉 ĐANG NGHIÊNG PHẢI (Đáp án B) [${Math.abs(currentTiltAngleDeg)}°]` 
                   : `🟢 ĐẦU ĐỨNG THẲNG (${currentTiltAngleDeg > 0 ? '+' : ''}${currentTiltAngleDeg}°)`)}
             </div>
 
