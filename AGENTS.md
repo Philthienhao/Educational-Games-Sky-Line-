@@ -12,6 +12,7 @@
 
 ## 3. Game Excel Templates & Universal Parser Standards
 - **Game Nghiêng đầu chuẩn**: Only generate 2-option Excel templates (A & B) named `Mau_Cau_Hoi_Nghieng_Dau_Chuan.xlsx`.
+- **Game Nghiêng đầu - Mirrored Webcam Tilt Mapping**: In `HeadTiltGame.jsx`, mirrored canvas tilt vectors MUST map positive score (`+`) to `left` (Option A - Screen Left) and negative score (`-`) to `right` (Option B - Screen Right). Never invert or swap these direction mappings.
 - **Game Đua Vịt & Game Đua Rùa**: Generate student name list Excel templates (`Họ và tên học sinh`, `Ghi chú / Nhóm`) named `Mau_Danh_Sach_Hoc_Sinh_Dua_Vit_Dua_Rua.xlsx`.
 - **Universal Parser**: Must automatically detect `Họ và tên học sinh` columns when teachers import student roster Excel files for Đua Vịt & Đua Rùa.
 
