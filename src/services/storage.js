@@ -72,6 +72,16 @@ const INITIAL_USERS = [
     subject: 'Ngữ Văn',
     school: 'Hệ thống Giáo Dục Sky-Line',
     createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_nhu_hoa',
+    username: 'nhuhoa',
+    password: '123456',
+    name: 'Lê Như Hoa',
+    role: 'teacher',
+    subject: 'Sinh học',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
   }
 ];
 
