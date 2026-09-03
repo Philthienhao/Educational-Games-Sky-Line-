@@ -19,6 +19,16 @@ export const CloudStorageService = {
    * Fetch all cloud registered users with multi-endpoint failover
    */
   getCloudUsers: async () => {
+    // 0. Primary Cloud CDN Endpoint: Fetch directly from GitHub CDN (100% reliable 24/7)
+    try {
+      const cdnUrl = 'https://raw.githubusercontent.com/Philthienhao/Educational-Games-Sky-Line-/main/public/cloud_users.json?t=' + Date.now();
+      const res = await fetch(cdnUrl, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return data;
+      }
+    } catch (e) {}
+
     // 1. If Supabase configured, try Supabase REST API
     if (SUPABASE_URL && SUPABASE_KEY) {
       try {

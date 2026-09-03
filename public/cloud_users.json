@@ -1,0 +1,62 @@
+[
+  {
+    "id": "user_admin",
+    "username": "philthienhao",
+    "password": "3009",
+    "name": "Thầy Hảo Địa Lí",
+    "role": "admin",
+    "subject": "Địa Lí & Quản Trị Hệ Thống",
+    "school": "Hệ thống Giáo Dục Sky-Line",
+    "createdAt": "2026-01-01"
+  },
+  {
+    "id": "user_pham_tham",
+    "username": "phamtham",
+    "password": "1234",
+    "name": "Phạm Thị Thắm",
+    "role": "teacher",
+    "subject": "Địa Lí",
+    "school": "Hệ thống giáo dục Sky-Line",
+    "createdAt": "2026-01-20"
+  },
+  {
+    "id": "user_thanh_thao",
+    "username": "thanhthao",
+    "password": "300913",
+    "name": "Phạm Thị Thanh Thảo",
+    "role": "teacher",
+    "subject": "Marketing",
+    "school": "SBS House",
+    "createdAt": "2026-01-10"
+  },
+  {
+    "id": "user_thanh_lai",
+    "username": "thanhlai",
+    "password": "1234",
+    "name": "Nguyễn Thị Thanh Lài",
+    "role": "teacher",
+    "subject": "Ngữ Văn",
+    "school": "Hệ thống giáo dục Sky-Line",
+    "createdAt": "2026-01-15"
+  },
+  {
+    "id": "user_anna_tran",
+    "username": "annatran",
+    "password": "1234",
+    "name": "Anna Trân",
+    "role": "teacher",
+    "subject": "Địa Lí",
+    "school": "Trường THPT",
+    "createdAt": "2026-09-03"
+  },
+  {
+    "id": "user_hang_nguyen",
+    "username": "hangnguyen",
+    "password": "123456",
+    "name": "Nguyễn Thị Hằng",
+    "role": "teacher",
+    "subject": "Ngữ Văn",
+    "school": "Hệ thống Giáo Dục Sky-Line",
+    "createdAt": "2026-09-03"
+  }
+]

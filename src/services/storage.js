@@ -62,6 +62,16 @@ const INITIAL_USERS = [
     subject: 'Địa Lí',
     school: 'Trường THPT',
     createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_hang_nguyen',
+    username: 'hangnguyen',
+    password: '123456',
+    name: 'Nguyễn Thị Hằng',
+    role: 'teacher',
+    subject: 'Ngữ Văn',
+    school: 'Hệ thống Giáo Dục Sky-Line',
+    createdAt: '2026-09-03'
   }
 ];
 

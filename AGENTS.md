@@ -16,14 +16,15 @@
 - **Universal Parser**: Must automatically detect `Họ và tên học sinh` columns when teachers import student roster Excel files for Đua Vịt & Đua Rùa.
 
 ## 4. Vercel Deployment & Alias Synchronization
-- Whenever building and deploying to Vercel via CLI, ensure domain aliases (`eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`) are explicitly bound to the newest deployment ID using `npx vercel alias set` or deployment scripts.
+- Whenever creating or modifying teacher accounts, system user configurations, or system updates, ALWAYS automatically run `npm run deploy` (or `node scripts/deploy_vercel.cjs`) to trigger direct deployment to Vercel Production and bind production domain aliases (`eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`) automatically, ensuring live Production is instantly updated without requiring manual user intervention.
 - Always inspect runtime errors silently and verify visually before reporting completion to the user.
 
-## 5. Strict Per-User Data Isolation
+## 5. Strict Per-User Data Isolation & Permanent Storage Invariants
 - **`getTeacherSavedGames(userId)` MUST always filter by `userId`**: NEVER return the entire `runtimeSavedGamesCache` without filtering. Each teacher must ONLY see their own saved games.
 - **`syncWithIndexedDB(userId)` MUST receive and forward `userId`**: All callers in `App.jsx`, `TeacherLibrary.jsx` and any other component MUST pass `currentUser?.id` to `syncWithIndexedDB()` so the returned list is user-scoped.
 - **`LectureSlideManager` MUST always receive `currentUser` prop from App.jsx**: Never render `<LectureSlideManager />` without `currentUser={currentUser}`. Missing this prop causes the component to silently fall through to the wrong user's session.
 - **`getLectureSlides`, `saveLectureSlides`, `getGradeDriveFolders`, `saveGradeDriveFolders` MUST require explicit `userId`**: These 4 methods MUST NOT auto-fallback to `StorageService.getCurrentUser()` when `userId` is not provided — they MUST return `[]` or `false` immediately to prevent cross-user data leakage.
 - **Slide bài giảng & Grade Drive Folders**: Stored per-user using keys `gvd_user_slides_{userId}` and `gvd_user_grade_folders_{userId}`. This pattern MUST be preserved and NEVER changed to a global key.
 - **`INITIAL_SAVED_GAMES` entries**: Each entry MUST have `userId: 'user_admin'` so they only appear for admin, not for other teachers.
+- **Dual-Tier Permanence (LocalStorage + IndexedDB)**: All private teacher mutations (games, homeroom, slides, grade folders) MUST be written synchronously to LocalStorage and asynchronously persisted to IndexedDB to guarantee 100% data permanence across F5 refreshes, device reboots, and app updates.
 - **Rule**: Never store or return user-specific data (games, slides, homeroom) using a shared global key. Always namespace with `userId` in both the storage key and the in-memory filter.
