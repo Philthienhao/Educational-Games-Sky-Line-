@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { StartGameOverlay } from './StartGameOverlay';
 
 export function MatchingPairsGame({ questions, teams, onAddPoints }) {
+  const [isGameStarted, setIsGameStarted] = useState(false);
   const pairs = questions.slice(0, 4).map((q, idx) => ({
     id: idx,
     term: q.question,
@@ -13,6 +15,24 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
   const [selectedTerm, setSelectedTerm] = useState(null);
   const [matchedPairs, setMatchedPairs] = useState([]);
   const [shuffledDefs] = useState([...pairs.map(p => ({ id: p.id, def: p.definition }))].sort(() => 0.5 - Math.random()));
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (!isGameStarted || matchedPairs.length === pairs.length) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setSelectedTerm(null);
+          try { SoundFX.wrong(); } catch(e) {}
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isGameStarted, selectedTerm, matchedPairs.length]);
 
   const handleSelectTerm = (pair) => {
     if (matchedPairs.includes(pair.id)) return;
@@ -62,6 +82,13 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
       </div>
 
       {/* Two Columns Match Arena */}
+      {!isGameStarted ? (
+        <StartGameOverlay
+          title="Nối Cặp Khái Niệm"
+          icon="🔗"
+          onStart={() => setIsGameStarted(true)}
+        />
+      ) : (
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', width: '100%' }}>
         
         {/* Column A (Terms / Questions) */}
@@ -138,6 +165,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
         </div>
 
       </div>
+      )}
 
       {matchedPairs.length === pairs.length && (
         <div style={{ padding: '16px 24px', borderRadius: '16px', background: 'rgba(16,185,129,0.2)', border: '1.5px solid #10b981', color: '#6ee7b7', fontWeight: 800, fontSize: '1.1rem', textAlign: 'center', width: '100%' }}>

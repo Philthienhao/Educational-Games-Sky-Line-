@@ -1,9 +1,26 @@
 import React from 'react';
-import { Play, Upload, FileSpreadsheet, Eye, Trash2, Edit3, Sparkles } from 'lucide-react';
+import { Play, Upload, FileSpreadsheet, Eye, Trash2, Edit3, Sparkles, Download } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
+import { exportGameToOfflineHtml } from '../utils/offlineExporter';
 
-export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDelete }) {
+export function GameCard({ 
+  game, 
+  isSavedGame = false, 
+  currentUser, 
+  onPlay, 
+  onPlayDirect,
+  onCustomize, 
+  onEditTemplate,
+  onDelete, 
+  onDeleteBaseGame,
+  onUpdateLessonTitle 
+}) {
+  const isAdmin = currentUser?.role === 'admin';
+  const handlePlay = onPlay || onPlayDirect;
+  const handleCustomize = onCustomize || onEditTemplate;
+  const handleDelete = onDelete || onDeleteBaseGame;
+
   return (
     <div 
       className="glass-panel"
@@ -66,7 +83,7 @@ export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDel
           </span>
         ) : (
           <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600, background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '12px' }}>
-            {game.playsCount || 100}+ Lượt chơi
+            {typeof game.playsCount === 'number' ? game.playsCount : 0} Lượt chơi
           </span>
         )}
       </div>
@@ -74,11 +91,37 @@ export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDel
       {/* Body Content */}
       <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '12px', lineHeight: 1.5 }}>
             {game.description || 'Trò chơi tương tác giúp học sinh tiếp thu bài giảng hào hứng.'}
           </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+          {/* Editable Lesson / Topic Title Field in Saved Games */}
+          {isSavedGame && (
+            <div style={{ marginBottom: '14px', background: 'rgba(13, 148, 136, 0.12)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(94, 234, 212, 0.3)' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#5eead4', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+                📖 Tên Bài Học / Chủ Đề:
+              </label>
+              <input 
+                type="text"
+                value={game.lessonTitle || ''}
+                onChange={(e) => onUpdateLessonTitle && onUpdateLessonTitle(game.id, e.target.value)}
+                placeholder="Điền tên bài học (VD: Châu Âu - Địa lí 7)..."
+                style={{
+                  width: '100%',
+                  padding: '6px 10px',
+                  borderRadius: '8px',
+                  background: 'rgba(15, 23, 42, 0.8)',
+                  border: '1px solid rgba(94, 234, 212, 0.4)',
+                  color: '#ffffff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              />
+            </div>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
             <span>Số câu hỏi: <strong style={{ color: 'var(--text-bright)' }}>{(game.questions || game.defaultQuestions || []).length} câu</strong></span>
             {isSavedGame && game.updatedAt && (
               <span>Cập nhật: <strong style={{ color: 'var(--text-bright)' }}>{game.updatedAt}</strong></span>
@@ -94,8 +137,8 @@ export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDel
             className="btn btn-primary btn-lg"
             style={{ width: '100%', borderRadius: '14px', fontWeight: 700 }}
             onClick={() => {
-              SoundFX.click();
-              onPlay(game);
+              try { SoundFX.click(); } catch(e) {}
+              if (handlePlay) handlePlay(game);
             }}
           >
             <Play size={20} fill="#fff" />
@@ -109,20 +152,35 @@ export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDel
               className="btn btn-secondary"
               style={{ flex: 1, borderRadius: '12px', fontSize: '0.85rem' }}
               onClick={() => {
-                SoundFX.click();
-                onCustomize(game);
+                try { SoundFX.click(); } catch(e) {}
+                if (handleCustomize) handleCustomize(game);
               }}
             >
               {isSavedGame ? <Edit3 size={16} /> : <Upload size={16} />}
-              {isSavedGame ? 'Sửa Câu Hỏi' : 'Soạn / Nhập Excel'}
+              {isSavedGame ? 'Sửa Câu Hỏi' : '⚡ Soạn / Tải File (Excel, Word, PDF)'}
             </button>
+
+            {/* Download Offline Game Package (.html) - ONLY FOR TEACHER'S SAVED GAMES IN "GAME CỦA TÔI" */}
+            {isSavedGame && (
+              <button 
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  try { SoundFX.click(); } catch(e) {}
+                  exportGameToOfflineHtml(game);
+                }}
+                title="📥 Tải file game về máy để chơi 100% Offline (Không cần mạng Internet)"
+                style={{ padding: '0 12px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 800 }}
+              >
+                <Download size={16} /> Offline
+              </button>
+            )}
 
             {/* Excel Download Template Button (For catalog games) */}
             {!isSavedGame && (
               <button 
                 className="btn btn-secondary btn-sm"
                 onClick={() => {
-                  SoundFX.click();
+                  try { SoundFX.click(); } catch(e) {}
                   downloadExcelTemplate(game.title);
                 }}
                 title="Tải tệp mẫu Excel về máy"
@@ -132,16 +190,16 @@ export function GameCard({ game, isSavedGame = false, onPlay, onCustomize, onDel
               </button>
             )}
 
-            {/* Delete button for saved games */}
-            {isSavedGame && onDelete && (
+            {/* Delete button */}
+            {handleDelete && (
               <button 
                 className="btn btn-danger btn-sm"
                 onClick={() => {
-                  SoundFX.click();
-                  onDelete(game.id);
+                  try { SoundFX.click(); } catch(e) {}
+                  handleDelete(game);
                 }}
-                title="Xóa game khỏi kho cá nhân"
-                style={{ padding: '0 12px' }}
+                title="Xóa trò chơi khỏi hệ thống"
+                style={{ padding: '0 12px', background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid #ef4444' }}
               >
                 <Trash2 size={16} />
               </button>

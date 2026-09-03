@@ -10,7 +10,7 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
   const [category, setCategory] = useState('Trắc nghiệm tương tác');
   const [icon, setIcon] = useState('🎮');
   const [gradient, setGradient] = useState('linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)');
-  const [engineType, setEngineType] = useState('wheel');
+  const [engineType, setEngineType] = useState('tug-of-war');
   const [description, setDescription] = useState('');
   const [secretImage, setSecretImage] = useState('');
 
@@ -146,9 +146,9 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               onChange={(e) => setEngineType(e.target.value)}
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}
             >
-              <option value="wheel">🎡 Vòng Quay May Mắn (Wheel of Fortune)</option>
-              <option value="tug-of-war">🪢 Kéo Co Kiến Thức 1 (Tug of War Turn-based)</option>
-              <option value="tug-of-war-dual">⚔️ Kéo Co Kiến Thức 2 (Tug of War Dual Simultaneous)</option>
+              <option value="pose-imitation">🏃‍♂️ Bắt chước nhanh - Cơ hội lớn (Pose Camera Quiz)</option>
+              <option value="head-tilt">👤 Nghiêng Đầu Chuẩn - Đáp Án Đúng (Head Tilt Camera Quiz)</option>
+              <option value="tug-of-war-dual">🪢 Kéo Co Kiến Thức (Tug of War Dual Simultaneous)</option>
               <option value="millionaire">💰 Ai Là Triệu Phú (Millionaire Ladder)</option>
               <option value="mystery-box">🎁 Hộp Quà Bí Mật (Mystery Gift Boxes)</option>
               <option value="picture-reveal">🖼️ Lật Mảnh Ghép Tranh (Picture Puzzle)</option>
@@ -161,6 +161,7 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               <option value="flying-words">✈️ Từ Ngữ Biết Bay (Flying Words Builder)</option>
               <option value="matching-pairs">🔗 Kéo Thả Nối Ý (Drag & Match Pairs)</option>
               <option value="duck-race">🦆 Đua Vịt Tri Thức (Duck Race)</option>
+              <option value="jeopardy">🟨 Đấu Trí Jeopardy (Jeopardy Board Matrix)</option>
             </select>
           </div>
 

@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserPlus, KeyRound, Trash2, Edit3, PlusCircle, Gamepad2, Users, AlertTriangle, X, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, UserPlus, KeyRound, Trash2, Edit3, PlusCircle, Gamepad2, Users, AlertTriangle, X, CheckCircle2, Eye, Building } from 'lucide-react';
 import { StorageService } from '../services/storage';
+import { HomeroomManager } from './HomeroomManager';
 import { SoundFX } from '../utils/sound';
 
 export function AdminPanel({ onOpenCreateGame }) {
   const [users, setUsers] = useState(StorageService.getUsers());
+  const [baseGames, setBaseGames] = useState(StorageService.getBaseGames());
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [adminTab, setAdminTab] = useState('accounts'); // 'accounts' | 'homerooms' | 'games'
+  const [selectedHomeroomTeacherId, setSelectedHomeroomTeacherId] = useState(null);
+
+  const allHomeroomClasses = StorageService.getAllHomeroomClassesForAdmin();
+  const selectedHomeroomObj = allHomeroomClasses.find(c => c.teacher.id === selectedHomeroomTeacherId) || allHomeroomClasses[0];
 
   // User Deletion Modal State
   const [userToDelete, setUserToDelete] = useState(null); // { id, name }
@@ -20,6 +27,14 @@ export function AdminPanel({ onOpenCreateGame }) {
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [school, setSchool] = useState('');
+
+  const handleDeleteBaseGame = (game) => {
+    if (confirm(`⚠️ [ĐỘC QUYỀN ADMIN]\n\nBạn có chắc chắn muốn XÓA VĨNH VIỄN trò chơi "${game.title}" khỏi hệ thống toàn trường?`)) {
+      StorageService.deleteBaseGame(game.id);
+      setBaseGames(StorageService.getBaseGames());
+      SoundFX.click();
+    }
+  };
 
   const handleCreateUser = (e) => {
     e.preventDefault();
@@ -113,14 +128,37 @@ export function AdminPanel({ onOpenCreateGame }) {
         </div>
       </div>
 
-      {/* Teachers Account List Table */}
-      <div className="glass-panel" style={{ padding: '28px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Users size={22} color="#8b5cf6" />
-            Danh Sách Tài Khoản Giáo Viên ({users.filter(u => u.role !== 'admin').length} tài khoản)
-          </h3>
-        </div>
+      {/* Admin Navigation Sub-Tabs */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+        <button 
+          className={`btn ${adminTab === 'accounts' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setAdminTab('accounts')}
+          style={{ borderRadius: '16px', padding: '12px 22px', fontWeight: 800 }}
+        >
+          <Users size={18} /> Danh Sách Tài Khoản Giáo Viên
+        </button>
+
+        <button 
+          className={`btn ${adminTab === 'games' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => {
+            setBaseGames(StorageService.getBaseGames());
+            setAdminTab('games');
+          }}
+          style={{ borderRadius: '16px', padding: '12px 22px', fontWeight: 800, background: adminTab === 'games' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : undefined }}
+        >
+          🎮 Quản Lý & Xóa Game Hệ Thống ({baseGames.length} game)
+        </button>
+      </div>
+
+      {/* TAB 1: Account Management */}
+      {adminTab === 'accounts' && (
+        <div className="glass-panel" style={{ padding: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Users size={22} color="#8b5cf6" />
+              Danh Sách Tài Khoản Giáo Viên ({users.filter(u => u.role !== 'admin').length} tài khoản)
+            </h3>
+          </div>
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
@@ -194,8 +232,142 @@ export function AdminPanel({ onOpenCreateGame }) {
             </tbody>
           </table>
         </div>
-
       </div>
+      )}
+
+      {/* TAB 2: All Homeroom Classes Supervision for Admin */}
+      {adminTab === 'homerooms' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          
+          {/* Select Teacher Class Selector Bar */}
+          <div className="glass-panel" style={{ padding: '20px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#5eead4', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Building size={22} />
+                Danh Sách Tất Cả Lớp Chủ Nhiệm Trong Trường ({allHomeroomClasses.length} lớp)
+              </h3>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                Chọn giáo viên để kiểm tra chi tiết danh sách học sinh, vi phạm, khen thưởng và tình hình học tập của lớp đó.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {allHomeroomClasses.map(item => {
+                const isSelected = selectedHomeroomObj?.teacher.id === item.teacher.id;
+                return (
+                  <button
+                    key={item.teacher.id}
+                    onClick={() => setSelectedHomeroomTeacherId(item.teacher.id)}
+                    className={`btn ${isSelected ? 'btn-primary' : 'btn-secondary'}`}
+                    style={{
+                      borderRadius: '14px',
+                      padding: '10px 18px',
+                      fontWeight: 800,
+                      background: isSelected ? 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)' : undefined
+                    }}
+                  >
+                    🏫 {item.classData.className} ({item.teacher.name})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Render HomeroomManager in Read-Only Admin Mode for Selected Teacher Class */}
+          {selectedHomeroomObj && (
+            <HomeroomManager 
+              currentUser={{ role: 'admin' }} 
+              readOnlyAdminClass={selectedHomeroomObj}
+            />
+          )}
+
+        </div>
+      )}
+
+      {/* TAB 3: Admin Game Management & Deletion */}
+      {adminTab === 'games' && (
+        <div className="glass-panel" style={{ padding: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Gamepad2 size={24} color="#ef4444" />
+                Quản Lý & Xóa Game Hệ Thống (Độc Quyền Admin)
+              </h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>
+                Admin có quyền xóa vĩnh viễn bất kỳ trò chơi nào khỏi hệ thống hiển thị toàn trường.
+              </p>
+            </div>
+
+            <button 
+              className="btn btn-accent"
+              onClick={onOpenCreateGame}
+              style={{ borderRadius: '12px' }}
+            >
+              <PlusCircle size={18} /> Tạo Mẫu Game Mới
+            </button>
+          </div>
+
+          {baseGames.length === 0 ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+              Chưa có trò chơi nào trong hệ thống.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+              {baseGames.map(game => (
+                <div 
+                  key={game.id}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: '12px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      fontSize: '2rem',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {game.icon || '🎮'}
+                    </div>
+                    <div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                        {game.title}
+                      </h4>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {game.category || 'Game Giáo Dục'} • {(game.defaultQuestions || game.questions || []).length} câu hỏi
+                      </span>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: 1.4 }}>
+                    {game.description || 'Trò chơi tương tác bài giảng.'}
+                  </p>
+
+                  <button 
+                    className="btn btn-danger btn-sm"
+                    onClick={() => handleDeleteBaseGame(game)}
+                    style={{ width: '100%', borderRadius: '10px', fontWeight: 700, padding: '8px 12px' }}
+                  >
+                    <Trash2 size={16} />
+                    Xóa Game Khỏi Hệ Thống
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modal 1: Add New Teacher User */}
       {showAddUserModal && (

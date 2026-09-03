@@ -50,3 +50,16 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+.vercel
+
+# Exclude heavy 5GB PDF scans from Vercel static deployment (deploy pre-extracted 3MB text in public/textbook_texts instead)
+public/textbooks/SGK_*
+public/textbooks/*.pdf
+.env*
+
+# Ignore heavy scratch media & test files
+Video.mov
+danh_sach_hoc_sinh.xls
+AnhHocSinh95/
+batchuocnhanhcohoilon/
+quaivat/

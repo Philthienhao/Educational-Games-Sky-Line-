@@ -1,0 +1,18 @@
+========================================================================
+📚 HƯỚNG DẪN THẦY/CÔ CHÉP FILE SÁCH GIÁO KHOA VÀO HỆ THỐNG
+========================================================================
+
+Thầy/cô chỉ cần chép (Copy & Paste) tất cả các file Sách Giáo Khoa (định dạng PDF, Word .docx, TXT, Excel .xlsx) vào trực tiếp thư mục này:
+
+👉 Thư mục: /Users/mac/Downloads/Antigravity/Gamegiaoduc/public/textbooks/
+
+Ví dụ đặt tên file gợi ý:
+- Tieng_Viet_4_Tap_1.pdf
+- Toan_10_Ket_Noi_Tri_Thuc.docx
+- Tieng_Anh_8_Global_Success.pdf
+- KHTN_6_Chan_Troi_Sang_Tao.pdf
+
+Sau khi chép xong, thầy/cô chỉ cần nhắn cho AI:
+"Tôi đã chép các file SGK vào thư mục public/textbooks rồi"
+
+Hệ thống AI sẽ tự động đọc, trích xuất chỉ mục bài học và đưa vào Menu Thả Xuống của tất cả các trò chơi!

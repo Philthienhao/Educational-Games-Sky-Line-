@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles } from 'lucide-react';
+import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap } from 'lucide-react';
 import { WheelOfFortuneGame } from './games/WheelOfFortuneGame';
 import { TugOfWarGame } from './games/TugOfWarGame';
 import { MillionaireGame } from './games/MillionaireGame';
@@ -14,12 +14,53 @@ import { MinesweeperGame } from './games/MinesweeperGame';
 import { FlyingWordsGame } from './games/FlyingWordsGame';
 import { MatchingPairsGame } from './games/MatchingPairsGame';
 import { DuckRaceGame } from './games/DuckRaceGame';
+import { TurtleRaceGame } from './games/TurtleRaceGame';
+import { JungleRescueGame } from './games/JungleRescueGame';
 import { TugOfWarDualGame } from './games/TugOfWarDualGame';
+import { JeopardyGame } from './games/JeopardyGame';
+import { HeadTiltGame } from './games/HeadTiltGame';
+import { PoseImitationGame } from './games/PoseImitationGame';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
   '#8b5cf6', '#ec4899', '#06b6d4', '#eab308'
 ];
+
+// Top-level ErrorBoundary for Games
+class GameErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err) {
+    console.error("Game Engine caught error:", err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '50px', textAlign: 'center', color: '#fff', width: '100%' }}>
+          <h3 style={{ fontSize: '1.4rem', color: '#fbbf24', marginBottom: '12px', fontWeight: 900 }}>
+            ⚠️ Trò Chơi Vừa Được Tự Động Khôi Phục
+          </h3>
+          <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '20px' }}>
+            Hệ thống đã ngăn chặn thành công lỗi đứng màn hình. Thầy cô bấm nút bên dưới để chơi tiếp:
+          </p>
+          <button 
+            className="btn btn-accent btn-lg"
+            onClick={() => this.setState({ hasError: false })}
+            style={{ borderRadius: '20px', padding: '12px 30px' }}
+          >
+            🔄 Khôi Phục & Tiếp Tục Chơi
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export function ClassroomPlayModal({ game, onClose }) {
   if (!game) return null;
@@ -39,10 +80,11 @@ export function ClassroomPlayModal({ game, onClose }) {
   ]);
 
   const questions = game.questions || game.defaultQuestions || [];
-  const engineType = game.engineType || 'wheel';
+  const engineType = game.engineType || 'tug-of-war';
 
   const handleAddPoints = (teamIndex, points) => {
-    setTeams(prev => prev.map((t, idx) => idx === teamIndex ? { ...t, score: t.score + points } : t));
+    const targetIdx = (typeof teamIndex === 'number' && teamIndex >= 0) ? teamIndex : activeTeamIndex;
+    setTeams(prev => prev.map((t, idx) => idx === targetIdx ? { ...t, score: t.score + points } : t));
   };
 
   const handleAdjustPoints = (teamIndex, delta) => {
@@ -82,50 +124,114 @@ export function ClassroomPlayModal({ game, onClose }) {
     }
   };
 
-  const renderGameEngine = () => {
-    const commonProps = {
-      questions,
-      teams,
-      onAddPoints: handleAddPoints,
-      activeTeamIndex,
-      setActiveTeamIndex
-    };
+  const commonProps = {
+    questions,
+    teams,
+    setTeams,
+    onAddPoints: handleAddPoints,
+    onRenameTeam: handleRenameTeam,
+    activeTeamIndex,
+    setActiveTeamIndex
+  };
 
+  const renderGameEngine = () => {
+    let component = null;
     switch (engineType) {
       case 'wheel':
-        return <WheelOfFortuneGame {...commonProps} />;
+        component = <WheelOfFortuneGame {...commonProps} />;
+        break;
       case 'tug-of-war':
-        return <TugOfWarGame {...commonProps} />;
+        component = <TugOfWarGame {...commonProps} />;
+        break;
       case 'tug-of-war-dual':
-        return <TugOfWarDualGame {...commonProps} />;
+        component = <TugOfWarDualGame {...commonProps} />;
+        break;
       case 'millionaire':
-        return <MillionaireGame {...commonProps} />;
+        component = <MillionaireGame {...commonProps} />;
+        break;
       case 'mystery-box':
-        return <MysteryBoxGame {...commonProps} />;
+        component = <MysteryBoxGame {...commonProps} />;
+        break;
       case 'picture-reveal':
-        return <PictureFlipGame {...commonProps} game={game} secretImage={game?.secretImage || game?.bgImageUrl} />;
+        component = <PictureFlipGame {...commonProps} game={game} secretImage={game?.secretImage || game?.bgImageUrl} />;
+        break;
       case 'crossword':
-        return <CrosswordGame {...commonProps} />;
+        component = <CrosswordGame {...commonProps} />;
+        break;
       case 'train':
-        return <KnowledgeTrainGame {...commonProps} />;
+        component = <KnowledgeTrainGame {...commonProps} />;
+        break;
       case 'flashcard':
-        return <FlashcardGame {...commonProps} />;
+        component = <FlashcardGame {...commonProps} />;
+        break;
       case 'fruit-ninja':
-        return <FruitNinjaGame {...commonProps} />;
+        component = <FruitNinjaGame {...commonProps} />;
+        break;
       case 'car-race':
-        return <CarRaceGame {...commonProps} />;
+        component = <CarRaceGame {...commonProps} />;
+        break;
       case 'minesweeper':
-        return <MinesweeperGame {...commonProps} />;
+        component = <MinesweeperGame {...commonProps} />;
+        break;
       case 'flying-words':
-        return <FlyingWordsGame {...commonProps} />;
+        component = <FlyingWordsGame {...commonProps} />;
+        break;
       case 'matching-pairs':
-        return <MatchingPairsGame {...commonProps} />;
+        component = <MatchingPairsGame {...commonProps} />;
+        break;
       case 'duck-race':
-        return <DuckRaceGame {...commonProps} />;
+        component = <DuckRaceGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'turtle-race':
+        component = <TurtleRaceGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'jungle-rescue':
+        component = <JungleRescueGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'jeopardy':
+        component = <JeopardyGame {...commonProps} title={game?.title} subtitle={game?.subtitle} />;
+        break;
+      case 'head-tilt':
+        component = <HeadTiltGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'pose-imitation':
+        component = <PoseImitationGame {...commonProps} onClose={onClose} lessonTitle={game?.lessonTitle} title={game?.title} />;
+        break;
       default:
-        return <WheelOfFortuneGame {...commonProps} />;
+        component = <WheelOfFortuneGame {...commonProps} />;
+        break;
     }
+
+    return (
+      <GameErrorBoundary key={engineType}>
+        {component}
+      </GameErrorBoundary>
+    );
   };
+
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'jungle-rescue') {
+    return (
+      <GameErrorBoundary key={engineType}>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: '#0f172a',
+          zIndex: 3000,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          {engineType === 'duck-race' ? (
+            <DuckRaceGame {...commonProps} onClose={onClose} />
+          ) : engineType === 'turtle-race' ? (
+            <TurtleRaceGame {...commonProps} onClose={onClose} />
+          ) : (
+            <JungleRescueGame {...commonProps} onClose={onClose} />
+          )}
+        </div>
+      </GameErrorBoundary>
+    );
+  }
 
   return (
     <div style={{
@@ -150,22 +256,21 @@ export function ClassroomPlayModal({ game, onClose }) {
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        {/* Game Title & School Logo */}
+        {/* Game Title & Graduation Icon */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
-            padding: '5px 12px',
+            background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+            width: '40px',
+            height: '40px',
             borderRadius: '12px',
             display: 'flex',
             alignItems: 'center',
-            boxShadow: '0 4px 12px rgba(0, 168, 150, 0.3)',
-            border: '1.5px solid #00a896'
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
+            border: '1.5px solid rgba(255, 255, 255, 0.3)',
+            flexShrink: 0
           }}>
-            <img 
-              src="/assets/skyline_logo.png" 
-              alt="Logo Trường SKY-LINE" 
-              style={{ height: '28px', objectFit: 'contain' }}
-            />
+            <GraduationCap size={24} color="#ffffff" />
           </div>
 
           <div>
@@ -178,21 +283,23 @@ export function ClassroomPlayModal({ game, onClose }) {
               </span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Môn: {game.subject || 'Tổng hợp'} • {questions.length} câu hỏi • <strong style={{ color: '#fbbf24' }}>VỮNG NỘI LỰC - VỮNG TƯƠNG LAI</strong>
+              Môn: {game.subject || 'Tổng hợp'} • {questions.length} câu hỏi
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button 
-            className="btn btn-secondary btn-sm"
-            onClick={() => setShowTeamManager(true)}
-            style={{ background: 'rgba(139, 92, 246, 0.2)', border: '1px solid #8b5cf6', color: '#c4b5fd' }}
-          >
-            <Users size={16} />
-            ⚙️ Cấu Hình Đội Chơi ({teams.length} đội)
-          </button>
+          {engineType !== 'duck-race' && (
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => setShowTeamManager(true)}
+              style={{ background: 'rgba(139, 92, 246, 0.2)', border: '1px solid #8b5cf6', color: '#c4b5fd' }}
+            >
+              <Users size={16} />
+              ⚙️ Cấu Hình Đội Chơi ({teams.length} đội)
+            </button>
+          )}
 
           <button 
             className="btn btn-secondary btn-sm"
@@ -213,115 +320,116 @@ export function ClassroomPlayModal({ game, onClose }) {
         </div>
       </div>
 
-      {/* ALL TEAMS SCOREBOARD BAR - Displays ALL created teams clearly on main screen */}
-      <div style={{
-        padding: '12px 24px',
-        background: 'rgba(30, 41, 59, 0.6)',
-        backdropFilter: 'blur(8px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '14px',
-        flexWrap: 'wrap'
-      }}>
-        {teams.map((team, idx) => {
-          const isActive = activeTeamIndex === idx;
+      {/* ALL TEAMS SCOREBOARD BAR - Hidden for Tug Of War, Head Tilt, Pose Imitation & Duck Race */}
+      {engineType !== 'tug-of-war-dual' && engineType !== 'tug-of-war' && engineType !== 'head-tilt' && engineType !== 'pose-imitation' && engineType !== 'duck-race' && (
+        <div style={{
+          padding: '12px 24px',
+          background: 'rgba(30, 41, 59, 0.6)',
+          backdropFilter: 'blur(8px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '14px',
+          flexWrap: 'wrap'
+        }}>
+          {teams.map((team, idx) => {
+            const isActive = activeTeamIndex === idx;
 
-          return (
-            <div
-              key={team.id || idx}
-              onClick={() => setActiveTeamIndex(idx)}
-              title="Bấm để chọn lượt chơi cho đội này"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '16px',
-                background: isActive 
-                  ? `linear-gradient(135deg, ${team.color}35 0%, rgba(15, 23, 42, 0.95) 100%)`
-                  : 'rgba(15, 23, 42, 0.8)',
-                border: isActive ? `2.5px solid ${team.color}` : `1.5px solid ${team.color}60`,
-                boxShadow: isActive 
-                  ? `0 0 22px ${team.color}, 0 4px 15px rgba(0,0,0,0.5)`
-                  : `0 4px 12px ${team.color}25`,
-                transform: isActive ? 'scale(1.08) translateY(-2px)' : 'scale(1)',
-                transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                cursor: 'pointer',
-                position: 'relative'
-              }}
-            >
-              {/* Active Turn Badge */}
-              {isActive && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-12px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: team.color,
-                  color: '#fff',
-                  fontSize: '0.65rem',
-                  fontWeight: 900,
-                  padding: '2px 8px',
-                  borderRadius: '10px',
-                  whiteSpace: 'nowrap',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                  letterSpacing: '0.04em'
-                }}>
-                  👑 ĐẾN LƯỢT
-                </span>
-              )}
-
-              <input 
-                type="text"
-                value={team.name}
-                onChange={(e) => handleRenameTeam(idx, e.target.value)}
-                title="Bấm để đổi tên đội trực tiếp"
+            return (
+              <div
+                key={team.id || idx}
+                onClick={() => setActiveTeamIndex(idx)}
+                title="Bấm để chọn lượt chơi cho đội này"
                 style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: team.color,
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
-                  outline: 'none',
-                  width: '110px'
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px 16px',
+                  borderRadius: '16px',
+                  background: isActive 
+                    ? `linear-gradient(135deg, ${team.color}35 0%, rgba(15, 23, 42, 0.95) 100%)`
+                    : 'rgba(15, 23, 42, 0.8)',
+                  border: isActive ? `2.5px solid ${team.color}` : `1.5px solid ${team.color}60`,
+                  boxShadow: isActive 
+                    ? `0 0 22px ${team.color}, 0 4px 15px rgba(0,0,0,0.5)`
+                    : `0 4px 12px ${team.color}25`,
+                  transform: isActive ? 'scale(1.08) translateY(-2px)' : 'scale(1)',
+                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  cursor: 'pointer',
+                  position: 'relative'
                 }}
-              />
-              <span style={{ fontWeight: 900, color: '#fff', fontSize: '1.15rem' }}>
-                {team.score}đ
-              </span>
-              
-              {/* Quick Score Adjusters */}
-              <div style={{ display: 'flex', gap: '3px', marginLeft: '4px' }}>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleAdjustPoints(idx, 50); }}
-                  style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px', fontSize: '0.7rem', fontWeight: 900 }}
-                  title="Cộng 50 điểm"
-                >
-                  +50
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); handleAdjustPoints(idx, -50); }}
-                  style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: '4px', cursor: 'pointer', padding: '2px 6px', fontSize: '0.7rem', fontWeight: 900 }}
-                  title="Trừ 50 điểm"
-                >
-                  -50
-                </button>
-              </div>
-            </div>
-          );
-        })}
+              >
+                {/* Active Turn Badge */}
+                {isActive && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: team.color,
+                    color: '#fff',
+                    fontSize: '0.65rem',
+                    fontWeight: 900,
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                    letterSpacing: '0.04em'
+                  }}>
+                    👑 ĐẾN LƯỢT
+                  </span>
+                )}
 
-        <button 
-          className="btn btn-secondary btn-sm"
-          onClick={handleAddTeam}
-          style={{ padding: '6px 12px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#6ee7b7', border: '1px solid #10b981' }}
-          title="Thêm đội chơi mới"
-        >
-          <Plus size={14} /> Thêm Đội
-        </button>
-      </div>
+                <input 
+                  type="text"
+                  value={team.name}
+                  onChange={(e) => handleRenameTeam(idx, e.target.value)}
+                  title="Bấm để đổi tên đội trực tiếp"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: team.color,
+                    fontWeight: 900,
+                    fontSize: '0.92rem',
+                    outline: 'none',
+                    width: '110px',
+                    textAlign: 'center'
+                  }}
+                />
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,0,0,0.3)', padding: '2px 8px', borderRadius: '10px' }}>
+                  <span style={{ color: '#facc15', fontWeight: 900, fontSize: '0.95rem' }}>{team.score}đ</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '2px' }}>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleAdjustPoints(idx, 50); }}
+                    style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: '#6ee7b7', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    +50
+                  </button>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); handleAdjustPoints(idx, -50); }}
+                    style={{ padding: '2px 6px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: '#fca5a5', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    -50
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={handleAddTeam}
+            style={{ padding: '6px 12px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', color: '#6ee7b7', border: '1px solid #10b981' }}
+            title="Thêm đội chơi mới"
+          >
+            <Plus size={14} /> Thêm Đội
+          </button>
+        </div>
+      )}
 
       {/* Main Presentation Stage */}
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>

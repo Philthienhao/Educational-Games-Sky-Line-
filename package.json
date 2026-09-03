@@ -11,12 +11,15 @@
   "dependencies": {
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^0.475.0",
+    "mammoth": "^1.12.1",
+    "pdfjs-dist": "^6.2.108",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "pdf-parse": "^2.4.5",
     "vite": "^6.1.1"
   }
 }

@@ -1,0 +1,8 @@
+# Ignore raw 5GB PDF files during Vercel upload (pre-extracted text in public/textbook_texts is deployed instead)
+public/textbooks/SGK_*
+public/textbooks/*.pdf
+dist/textbooks/SGK_*
+dist/textbooks/*.pdf
+Video.mov
+*.mov
+*.mp4

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, RotateCw, CheckCircle2, XCircle, Trophy, Settings, Edit3, X, Sparkles, HelpCircle, Users } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
 const SLICE_COLORS = [
   '#f43f5e', '#ec4899', '#d946ef', '#a855f7',
@@ -25,7 +26,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     else setLocalTeam(newIdx);
   };
 
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(20);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
 
   // Customizable Wheel Slices state
@@ -137,6 +138,8 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
       }, 1000);
     } else if (timer === 0 && isTimerRunning) {
       setIsTimerRunning(false);
+      setAnswerState('timeout');
+      setSelectedOption('TIMEOUT');
       SoundFX.wrong();
     }
     return () => clearInterval(interval);
@@ -146,6 +149,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
   const spinWheel = () => {
     if (isSpinning.current || slices.length === 0) return;
     isSpinning.current = true;
+    setSelectedResult(null);
     setSelectedOption(null);
     setAnswerState(null);
 
@@ -191,7 +195,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
         // Open Question Modal
         setTimeout(() => {
           setShowQuestionModal(true);
-          setTimer(30);
+          setTimer(20);
           setIsTimerRunning(true);
         }, 500);
       }
@@ -200,20 +204,33 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     requestAnimationFrame(animate);
   };
 
+  const defaultQ = {
+    question: 'Hãy chọn đáp án đúng cho câu hỏi này?',
+    options: ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'],
+    correct: 'A',
+    explanation: 'Đáp án A là câu trả lời chính xác.'
+  };
+
+  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [defaultQ];
+  const currentQ = safeQuestions[currentQIndex % safeQuestions.length] || defaultQ;
+  const safeOptions = Array.isArray(currentQ?.options) ? currentQ.options : ['A', 'B', 'C', 'D'];
+
   const handleSelectOption = (optLabel) => {
     if (answerState) return;
     setSelectedOption(optLabel);
     setIsTimerRunning(false);
 
-    const currentQ = questions[currentQIndex];
-    if (optLabel === currentQ.correct) {
+    const isCorrect = String(optLabel).toUpperCase() === String(currentQ.correct || 'A').toUpperCase();
+    if (isCorrect) {
       setAnswerState('correct');
-      SoundFX.correct();
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-      onAddPoints(selectedTeam, 100);
+      try { SoundFX.correct(); } catch (e) {}
+      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch (e) {}
+      if (onAddPoints) {
+        try { onAddPoints(currentTeamIdx, 100); } catch (e) {}
+      }
     } else {
       setAnswerState('wrong');
-      SoundFX.wrong();
+      try { SoundFX.wrong(); } catch (e) {}
     }
   };
 
@@ -221,7 +238,10 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     setShowQuestionModal(false);
     setSelectedOption(null);
     setAnswerState(null);
-    setCurrentQIndex((prev) => (prev + 1) % questions.length);
+    setCurrentQIndex((prev) => (prev + 1) % safeQuestions.length);
+    if (setActiveTeamIndex && teams && teams.length > 1) {
+      setActiveTeamIndex((prev) => (prev + 1) % teams.length);
+    }
   };
 
   // Wheel Customizer Handlers
@@ -238,7 +258,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
 
     setSlices(lines);
     setShowWheelEditModal(false);
-    SoundFX.correct();
+    try { SoundFX.correct(); } catch (e) {}
   };
 
   const handlePresetTeams = () => {
@@ -247,7 +267,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
       setSlices(teamNames);
       setSlicesInputText(teamNames.join('\n'));
       setShowWheelEditModal(false);
-      SoundFX.correct();
+      try { SoundFX.correct(); } catch (e) {}
     }
   };
 
@@ -256,7 +276,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     setSlices(studentList);
     setSlicesInputText(studentList.join('\n'));
     setShowWheelEditModal(false);
-    SoundFX.correct();
+    try { SoundFX.correct(); } catch (e) {}
   };
 
   const handlePresetPrizes = () => {
@@ -264,10 +284,8 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     setSlices(prizes);
     setSlicesInputText(prizes.join('\n'));
     setShowWheelEditModal(false);
-    SoundFX.correct();
+    try { SoundFX.correct(); } catch (e) {}
   };
-
-  const currentQ = questions[currentQIndex] || questions[0];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '10px 20px', width: '100%' }}>
@@ -291,24 +309,32 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
             <Edit3 size={16} /> Chỉnh Sửa Vòng Quay ({slices.length} ô)
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cộng điểm cho:</span>
-            <select 
-              value={selectedTeam} 
-              onChange={(e) => setSelectedTeam(Number(e.target.value))}
-              style={{ padding: '6px 12px', borderRadius: '10px', background: '#1e293b', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700 }}
-            >
-              {teams.map((t, idx) => (
-                <option key={idx} value={idx}>{t.name} ({t.score}đ)</option>
-              ))}
-            </select>
-          </div>
+          {teams && teams.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cộng điểm cho:</span>
+              <select 
+                value={currentTeamIdx} 
+                onChange={(e) => setTurnTeam(Number(e.target.value))}
+                style={{ padding: '6px 12px', borderRadius: '10px', background: '#1e293b', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700 }}
+              >
+                {teams.map((t, idx) => (
+                  <option key={idx} value={idx}>{t.name} ({t.score}đ)</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Wheel Canvas & Spin Button */}
       <div style={{ position: 'relative', width: '420px', height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <canvas ref={canvasRef} width={420} height={420} style={{ filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.5))' }} />
+        <canvas 
+          ref={canvasRef} 
+          width={420} 
+          height={420} 
+          onClick={spinWheel}
+          style={{ filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.5))', cursor: 'pointer' }} 
+        />
       </div>
 
       <button 
@@ -351,13 +377,15 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
 
             {/* Quick Preset Buttons */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-              <button 
-                className="btn btn-secondary btn-sm"
-                onClick={handlePresetTeams}
-                style={{ background: 'rgba(99, 102, 241, 0.2)', color: '#c4b5fd', border: '1px solid #6366f1' }}
-              >
-                🎯 Theo Tên {teams.length} Đội Chơi
-              </button>
+              {teams && teams.length > 0 && (
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  onClick={handlePresetTeams}
+                  style={{ background: 'rgba(99, 102, 241, 0.2)', color: '#c4b5fd', border: '1px solid #6366f1' }}
+                >
+                  🎯 Theo Tên {teams.length} Đội Chơi
+                </button>
+              )}
               
               <button 
                 className="btn btn-secondary btn-sm"
@@ -425,12 +453,34 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '750px', padding: '32px' }}>
+          <div className="glass-modal" style={{ width: '100%', maxWidth: '750px', padding: '32px', position: 'relative' }}>
             
+            {/* Close Button X */}
+            <button 
+              onClick={handleNextQuestion}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: '#fff',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={20} />
+            </button>
+
             {/* Header Modal */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
               <div className="badge badge-admin" style={{ background: '#8b5cf6', color: '#fff' }}>
-                CÂU HỎI {currentQIndex + 1} / {questions.length}
+                CÂU HỎI {(currentQIndex % safeQuestions.length) + 1} / {safeQuestions.length}
               </div>
 
               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: timer <= 5 ? '#ef4444' : '#fbbf24', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -446,9 +496,10 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
             {/* Options Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-                const optText = currentQ.options[idx];
+                if (!isOptionValidForQuestion(safeOptions, idx)) return null;
+                const optText = safeOptions[idx];
                 const isSelected = selectedOption === optLabel;
-                const isCorrect = currentQ.correct === optLabel;
+                const isCorrect = String(currentQ.correct || 'A').toUpperCase() === optLabel;
 
                 let btnBg = 'rgba(255, 255, 255, 0.07)';
                 let border = '1px solid rgba(255, 255, 255, 0.15)';
@@ -516,7 +567,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
               }}>
                 <div>
                   <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5', fontSize: '1.1rem' }}>
-                    {answerState === 'correct' ? `🎉 CHÍNH XÁC! (+100 ĐIỂM CHO ${teams[selectedTeam]?.name || 'ĐỘI'})` : `❌ CHƯA ĐÚNG! Đáp án đúng là (${currentQ.correct})`}
+                    {answerState === 'correct' ? `🎉 CHÍNH XÁC! (+100 ĐIỂM CHO ${teams && teams[currentTeamIdx]?.name ? teams[currentTeamIdx].name : 'ĐỘI CHƠI'})` : `❌ CHƯA ĐÚNG! Đáp án đúng là (${currentQ.correct || 'A'})`}
                   </div>
                   {currentQ.explanation && (
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
@@ -529,7 +580,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
                   className="btn btn-primary"
                   onClick={handleNextQuestion}
                 >
-                  Câu Tiết Theo
+                  Tiếp Tục Quay 🎯
                 </button>
               </div>
             )}

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Flame, RotateCcw, Sparkles, Heart } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
-export function MinesweeperGame({ questions, teams, onAddPoints }) {
+export function MinesweeperGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
   const [lives, setLives] = useState(3);
   const [clearedTiles, setClearedTiles] = useState([]);
   const [activeTileIndex, setActiveTileIndex] = useState(null);
@@ -13,13 +14,33 @@ export function MinesweeperGame({ questions, teams, onAddPoints }) {
 
   const totalTiles = 12;
   const currentQ = activeTileIndex !== null ? (questions[activeTileIndex % questions.length] || questions[0]) : null;
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (activeTileIndex === null || answerState) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAnswerState('timeout');
+          setSelectedOption('TIMEOUT');
+          try { SoundFX.wrong(); } catch(e) {}
+          setLives(l => Math.max(0, l - 1));
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTileIndex, answerState]);
 
   const handleTileClick = (idx) => {
     if (clearedTiles.includes(idx) || answerState || lives <= 0) return;
     setActiveTileIndex(idx);
     setSelectedOption(null);
     setAnswerState(null);
-    SoundFX.click();
+    try { SoundFX.click(); } catch (e) {}
   };
 
   const handleAnswerOption = (optLabel) => {
@@ -28,13 +49,13 @@ export function MinesweeperGame({ questions, teams, onAddPoints }) {
 
     if (optLabel === currentQ.correct) {
       setAnswerState('correct');
-      SoundFX.correct();
-      confetti({ particleCount: 70, spread: 60 });
-      onAddPoints(0, 100);
+      try { SoundFX.correct(); } catch (e) {}
+      try { confetti({ particleCount: 70, spread: 60 }); } catch (e) {}
+      if (onAddPoints) onAddPoints(activeTeamIndex, 100);
       setClearedTiles([...clearedTiles, activeTileIndex]);
     } else {
       setAnswerState('wrong');
-      SoundFX.wrong();
+      try { SoundFX.wrong(); } catch (e) {}
       const newLives = lives - 1;
       setLives(newLives);
       if (newLives <= 0) {
@@ -47,6 +68,9 @@ export function MinesweeperGame({ questions, teams, onAddPoints }) {
     setActiveTileIndex(null);
     setSelectedOption(null);
     setAnswerState(null);
+    if (setActiveTeamIndex && teams && teams.length > 1) {
+      setActiveTeamIndex(prev => (prev + 1) % teams.length);
+    }
   };
 
   const handleResetGame = () => {
@@ -178,6 +202,7 @@ export function MinesweeperGame({ questions, teams, onAddPoints }) {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
                 const optText = currentQ.options[idx];
                 const isSelected = selectedOption === optLabel;
                 const isCorrect = currentQ.correct === optLabel;

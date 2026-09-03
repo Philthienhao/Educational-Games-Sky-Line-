@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swords, CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { StartGameOverlay } from './StartGameOverlay';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
-export function TugOfWarGame({ questions, teams, onAddPoints }) {
+export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+  const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [ropePosition, setRopePosition] = useState(0); // -100 (Red win) to +100 (Blue win)
   const [currentTurnTeam, setCurrentTurnTeam] = useState(0); // 0 = Team A, 1 = Team B
@@ -11,7 +14,33 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
   const [answerState, setAnswerState] = useState(null);
   const [winner, setWinner] = useState(null);
 
+  const team0 = (teams && teams[0]) || { name: 'Đội Đỏ', score: 0 };
+  const team1 = (teams && teams[1]) || { name: 'Đội Xanh', score: 0 };
+  const currentTeam = currentTurnTeam === 0 ? team0 : team1;
+
   const currentQ = questions[currentQIndex] || questions[0];
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (!isGameStarted || answerState || winner) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAnswerState('timeout');
+          setSelectedOption('TIMEOUT');
+          try { SoundFX.wrong(); } catch(e) {}
+          // Push rope away
+          const pushAmount = currentTurnTeam === 0 ? 15 : -15;
+          setRopePosition(pos => Math.max(-100, Math.min(100, pos + pushAmount)));
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isGameStarted, currentQIndex, currentTurnTeam, answerState, winner]);
 
   const handleAnswer = (optLabel) => {
     if (answerState || winner) return;
@@ -23,7 +52,7 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
       setAnswerState('correct');
       SoundFX.correct();
       confetti({ particleCount: 70, spread: 60 });
-      onAddPoints(currentTurnTeam, 100);
+      if (onAddPoints) onAddPoints(currentTurnTeam === 0 ? 0 : (teams && teams[1] ? 1 : 0), 100);
 
       // Pull rope towards active team
       const pullAmount = currentTurnTeam === 0 ? -25 : 25;
@@ -31,10 +60,10 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
       setRopePosition(newPos);
 
       if (newPos <= -100) {
-        setWinner(teams[0]?.name || 'Đội Đỏ');
+        setWinner(team0.name);
         SoundFX.fanfare();
       } else if (newPos >= 100) {
-        setWinner(teams[1]?.name || 'Đội Xanh');
+        setWinner(team1.name);
         SoundFX.fanfare();
       }
     } else {
@@ -49,7 +78,9 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
   const handleNextTurn = () => {
     setSelectedOption(null);
     setAnswerState(null);
-    setCurrentTurnTeam(prev => (prev === 0 ? 1 : 0));
+    const nextIdx = currentTurnTeam === 0 ? 1 : 0;
+    setCurrentTurnTeam(nextIdx);
+    if (setActiveTeamIndex) setActiveTeamIndex(nextIdx);
     setCurrentQIndex(prev => (prev + 1) % questions.length);
   };
 
@@ -76,27 +107,59 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
             </div>
             <div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fca5a5' }}>
-                {teams[0]?.name || 'Đội Đỏ'}
+                {team0.name}
               </h3>
               <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>
-                Điểm: {teams[0]?.score || 0}đ
+                Điểm: {team0.score || 0}đ
               </div>
             </div>
           </div>
 
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
             <span className="badge badge-accent" style={{ fontSize: '0.85rem', padding: '6px 14px' }}>
-              LƯỢT TRẢ LỜI: <strong style={{ color: currentTurnTeam === 0 ? '#ef4444' : '#3b82f6' }}>{teams[currentTurnTeam]?.name}</strong>
+              ĐẾN LƯỢT: <strong style={{ color: currentTurnTeam === 0 ? '#ef4444' : '#3b82f6' }}>{currentTeam.name}</strong>
             </span>
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button 
+                onClick={() => setCurrentTurnTeam(0)}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: '10px',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  background: currentTurnTeam === 0 ? '#ef4444' : 'rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                🔴 {team0.name}
+              </button>
+              <button 
+                onClick={() => setCurrentTurnTeam(1)}
+                style={{
+                  padding: '3px 10px',
+                  borderRadius: '10px',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  background: currentTurnTeam === 1 ? '#3b82f6' : 'rgba(255,255,255,0.15)',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                🔵 {team1.name}
+              </button>
+            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'right' }}>
             <div>
               <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#93c5fd' }}>
-                {teams[1]?.name || 'Đội Xanh'}
+                {team1.name}
               </h3>
               <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 700 }}>
-                Điểm: {teams[1]?.score || 0}đ
+                Điểm: {team1.score || 0}đ
               </div>
             </div>
             <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 900, color: '#fff' }}>
@@ -175,6 +238,12 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
             Chơi Ván Mới
           </button>
         </div>
+      ) : !isGameStarted ? (
+        <StartGameOverlay
+          title="Kéo Co Tri Thức"
+          icon="⚔️"
+          onStart={() => setIsGameStarted(true)}
+        />
       ) : (
         /* Question Card */
         <div className="glass-panel" style={{ width: '100%', padding: '28px' }}>
@@ -182,8 +251,23 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
             <span className="badge badge-teacher">
               CÂU HỎI {currentQIndex + 1} / {questions.length}
             </span>
+
+            {!answerState && (
+              <span style={{
+                background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
+                border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
+                color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
+                fontWeight: 900,
+                fontSize: '0.85rem',
+                padding: '4px 12px',
+                borderRadius: '10px'
+              }}>
+                ⏱️ {timeLeft}s
+              </span>
+            )}
+
             <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Đến lượt: <strong style={{ color: '#fff' }}>{teams[currentTurnTeam]?.name}</strong>
+              Đến lượt: <strong style={{ color: '#fff' }}>{currentTeam.name}</strong>
             </span>
           </div>
 
@@ -193,6 +277,7 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+              if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
               const optText = currentQ.options[idx];
               const isSelected = selectedOption === optLabel;
               const isCorrect = currentQ.correct === optLabel;
@@ -241,7 +326,7 @@ export function TugOfWarGame({ questions, teams, onAddPoints }) {
           {answerState && (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: '12px', background: answerState === 'correct' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' }}>
               <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
-                {answerState === 'correct' ? `🎉 ${teams[currentTurnTeam]?.name} TRẢ LỜI ĐÚNG! KÉO DÂY VỀ PHÍA MÌNH!` : `❌ CHƯA ĐÚNG! Dây bị đẩy về phía đối thủ.`}
+                {answerState === 'correct' ? `🎉 ${currentTeam.name} TRẢ LỜI ĐÚNG! KÉO DÂY VỀ PHÍA MÌNH!` : `❌ CHƯA ĐÚNG! Dây bị đẩy về phía đối thủ.`}
               </div>
               <button className="btn btn-primary" onClick={handleNextTurn}>
                 Lượt Tiếp Theo

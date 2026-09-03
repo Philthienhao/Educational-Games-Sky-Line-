@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, Users, RotateCw, Trophy, AlertTriangle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { StartGameOverlay } from './StartGameOverlay';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
 export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+  const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null); // 'correct' | 'wrong'
@@ -29,6 +32,25 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
   ];
 
   const currentQ = questions[currentLevel % questions.length] || questions[0];
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (!isGameStarted || answerState) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAnswerState('timeout');
+          setSelectedOption('TIMEOUT');
+          try { SoundFX.wrong(); } catch(e) {}
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isGameStarted, currentLevel, currentTeamIdx, answerState]);
 
   // Lifeline 50:50
   const handle5050 = () => {
@@ -107,10 +129,33 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
       {/* Left Main Quiz Arena */}
       <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         
-        {/* Top Lifelines Bar */}
+        {!isGameStarted ? (
+          <StartGameOverlay
+            title="Ai Là Triệu Phú"
+            icon="💰"
+            onStart={() => setIsGameStarted(true)}
+          />
+        ) : (
+          <>
+            {/* Top Lifelines Bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '1.1rem' }}>
-            MỐC CÂU HỎI SỐ {currentLevel + 1}: <span style={{ color: '#fff' }}>{moneyLadder[currentLevel]}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '1.1rem' }}>
+              MỐC CÂU HỎI SỐ {currentLevel + 1}: <span style={{ color: '#fff' }}>{moneyLadder[currentLevel]}</span>
+            </div>
+            {!answerState && (
+              <span style={{
+                background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
+                border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
+                color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
+                fontWeight: 900,
+                fontSize: '0.85rem',
+                padding: '4px 12px',
+                borderRadius: '10px'
+              }}>
+                ⏱️ {timeLeft}s
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -178,8 +223,9 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
         {/* Options Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
           {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-            const isHidden = hiddenOptions.includes(optLabel);
+            if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
             const optText = currentQ.options[idx];
+            const isHidden = hiddenOptions.includes(optLabel);
             const isSelected = selectedOption === optLabel;
             const isCorrect = currentQ.correct === optLabel;
 
@@ -268,6 +314,8 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
           </div>
         )}
 
+          </>
+        )}
       </div>
 
       {/* Right Money Ladder Side Bar */}

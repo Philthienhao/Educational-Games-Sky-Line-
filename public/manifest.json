@@ -1,0 +1,21 @@
+{
+  "short_name": "GameEduVTH",
+  "name": "Hệ Thống Trò Chơi Giáo Dục - Thầy Hảo Địa Lí",
+  "icons": [
+    {
+      "src": "/assets/skyline_logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/mascot_skyline.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#071521",
+  "theme_color": "#071521",
+  "display": "standalone",
+  "orientation": "any"
+}

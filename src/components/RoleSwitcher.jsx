@@ -3,9 +3,9 @@ import { X, UserCheck, ShieldCheck, School, Sparkles } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
 export function RoleSwitcher({ isOpen, onClose, currentUser, onSelectUser }) {
-  if (!isOpen) return null;
+  if (!isOpen || currentUser?.role !== 'admin') return null;
 
-  const users = StorageService.getUsers();
+  const users = StorageService.getUsers().filter(u => u && u.username && u.username !== 'co_hoa' && u.username !== 'thay_nam');
 
   return (
     <div style={{

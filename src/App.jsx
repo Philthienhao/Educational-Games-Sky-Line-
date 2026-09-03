@@ -1,329 +1,403 @@
 import React, { useState, useEffect } from 'react';
-import { Gamepad2, Sparkles, Search, PlusCircle, BookmarkCheck, Shield, FileSpreadsheet, Users, HeartHandshake } from 'lucide-react';
-import { Navbar } from './components/Navbar';
+import { 
+  Gamepad2, 
+  Sparkles, 
+  Search, 
+  PlusCircle, 
+  BookmarkCheck, 
+  Shield, 
+  FileSpreadsheet, 
+  Users, 
+  Menu, 
+  Award, 
+  BookOpen, 
+  AlertTriangle, 
+  Bell, 
+  UserCheck, 
+  Library,
+  GraduationCap,
+  User,
+  LogOut,
+  LogIn
+} from 'lucide-react';
+import { Sidebar } from './components/Sidebar';
 import { GameCard } from './components/GameCard';
 import { TeacherLibrary } from './components/TeacherLibrary';
 import { AdminPanel } from './components/AdminPanel';
+import { HomeroomManager } from './components/HomeroomManager';
 import { RoleSwitcher } from './components/RoleSwitcher';
 import { QuestionEditorModal } from './components/QuestionEditorModal';
 import { AdminCreateGameModal } from './components/AdminCreateGameModal';
 import { ClassroomPlayModal } from './components/ClassroomPlayModal';
+import { TextbookDownloadManager } from './components/TextbookDownloadManager';
+import { LectureSlideManager } from './components/LectureSlideManager';
+import { LoginModal } from './components/LoginModal';
+import { UserManagementModal } from './components/UserManagementModal';
 import { StorageService } from './services/storage';
+import { IDBStorageService } from './services/idbStorage';
 
 export function App() {
-  const [currentUser, setCurrentUser] = useState(StorageService.getCurrentUser());
-  const [activeTab, setActiveTab] = useState('catalog'); // 'catalog' | 'my-games' | 'admin'
-  const [baseGames, setBaseGames] = useState([]);
-  const [savedGames, setSavedGames] = useState([]);
+  const [currentUser, setCurrentUser] = useState(() => {
+    StorageService.init();
+    return StorageService.getCurrentUser();
+  });
+  const [activeTab, setActiveTab] = useState('catalog');
+  const [baseGames, setBaseGames] = useState(() => {
+    StorageService.init();
+    return StorageService.getBaseGames();
+  });
+  const [savedGames, setSavedGames] = useState(() => {
+    StorageService.init();
+    const user = StorageService.getCurrentUser();
+    return StorageService.getTeacherSavedGames(user?.id);
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobileAccountOpen, setIsMobileAccountOpen] = useState(false);
 
   // Modals
   const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
   const [isAdminCreateGameOpen, setIsAdminCreateGameOpen] = useState(false);
-  const [editingGameTemplate, setEditingGameTemplate] = useState(null); // For QuestionEditorModal
-  const [playingGame, setPlayingGame] = useState(null); // For ClassroomPlayModal
+  const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [editingGameTemplate, setEditingGameTemplate] = useState(null);
+  const [playingGame, setPlayingGame] = useState(null);
 
-  // Load Data
-  const loadData = () => {
-    const user = StorageService.getCurrentUser();
-    setCurrentUser(user);
-    setBaseGames(StorageService.getBaseGames());
-    setSavedGames(StorageService.getTeacherSavedGames(user?.id));
-  };
-
+  // Initial Load
   useEffect(() => {
-    loadData();
+    StorageService.init();
+    loadAllData();
   }, []);
 
-  // Handle Switch User
-  const handleSelectUser = (user) => {
-    StorageService.setCurrentUser(user);
+  const loadAllData = async () => {
+    const user = StorageService.getCurrentUser();
     setCurrentUser(user);
-    setSavedGames(StorageService.getTeacherSavedGames(user.id));
+    if (user) {
+      setBaseGames(StorageService.getBaseGames());
+      
+      // 1. Instant sync load from RAM / LocalStorage
+      const localGames = StorageService.getTeacherSavedGames(user?.id);
+      setSavedGames(localGames);
+      
+      // 2. Await full IndexedDB sync to guarantee zero data loss on F5 page refresh
+      try {
+        const syncedGames = await StorageService.syncWithIndexedDB(user?.id);
+        if (Array.isArray(syncedGames) && syncedGames.length >= localGames.length) {
+          setSavedGames(syncedGames);
+        }
+      } catch (e) {
+        console.warn("loadAllData syncWithIndexedDB error:", e);
+      }
+    }
   };
 
-  // Save customized game to teacher account
-  const handleSaveToMyGames = (customGameData) => {
-    const saved = StorageService.saveTeacherGame(customGameData);
-    setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
-    setActiveTab('my-games');
-  };
-
-  // Save & Launch direct play
-  const handleSaveAndPlay = (customGameData) => {
-    const saved = StorageService.saveTeacherGame(customGameData);
-    setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
-    setPlayingGame(saved);
-  };
-
-  // Admin add new game template
-  const handleAdminAddGame = (newGameData) => {
-    StorageService.addBaseGame(newGameData);
+  const handleLoginSuccess = (loggedInUser) => {
+    setCurrentUser(loggedInUser);
     setBaseGames(StorageService.getBaseGames());
+    setSavedGames(StorageService.getTeacherSavedGames(loggedInUser?.id));
   };
 
-  // Delete saved game
+  const handleLogout = () => {
+    StorageService.logoutUser();
+    setCurrentUser(null);
+    setIsRoleSwitcherOpen(false);
+  };
+
+  const handleSaveToMyGames = (savedGameData) => {
+    const activeUserId = currentUser?.id || StorageService.getCurrentUser()?.id || 'user_admin';
+    const saved = StorageService.saveTeacherGame(activeUserId, savedGameData);
+    const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
+    setSavedGames(updatedGames);
+    setActiveTab('my-games');
+    alert(`🎉 Đã lưu bài game "${saved?.title || savedGameData?.title || 'Cá Nhân'}" thành công vào Kho Game Của Tôi!`);
+  };
+
+  const handleSaveAndPlay = (savedGameData) => {
+    const activeUserId = currentUser?.id || StorageService.getCurrentUser()?.id || 'user_admin';
+    const saved = StorageService.saveTeacherGame(activeUserId, savedGameData);
+    const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
+    setSavedGames(updatedGames);
+    setPlayingGame(saved || savedGameData);
+    const gameName = saved?.title || savedGameData?.title || 'Cá Nhân';
+    alert(`✨ Đã tự động lưu bài game "${gameName}" vào "Kho Game Của Tôi" để Thầy/Cô có thể dùng lại bất cứ lúc nào!`);
+  };
+
   const handleDeleteSavedGame = (gameId) => {
-    if (confirm('Bạn có chắc chắn muốn xóa game này khỏi Kho Game Của Tôi?')) {
-      StorageService.deleteTeacherGame(gameId);
+    if (window.confirm('Bạn có chắc chắn muốn xóa game này khỏi Kho Game Của Tôi không?')) {
+      StorageService.deleteTeacherSavedGame(currentUser?.id, gameId);
       setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
     }
   };
 
-  // Filter Catalog Games
-  const categories = ['Tất cả', ...new Set(baseGames.map(g => g.category))];
-  const filteredBaseGames = baseGames.filter(g => {
-    const matchesSearch = g.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          g.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat = selectedCategory === 'Tất cả' || g.category === selectedCategory;
-    return matchesSearch && matchesCat;
+  const handleUpdateLessonTitle = (gameId, newLessonTitle) => {
+    StorageService.updateTeacherGameLessonTitle(currentUser?.id, gameId, newLessonTitle);
+    setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
+  };
+
+  const handleAdminAddGame = (newGameData) => {
+    StorageService.addBaseGame(newGameData);
+    setBaseGames(StorageService.getBaseGames());
+    setIsAdminCreateGameOpen(false);
+  };
+
+  const handleDeleteBaseGame = (gameId) => {
+    if (window.confirm('CẢNH BÁO ADMIN: Bạn có chắc muốn xóa vĩnh viễn mẫu game này khỏi hệ thống chung không?')) {
+      StorageService.deleteBaseGame(gameId);
+      setBaseGames(StorageService.getBaseGames());
+    }
+  };
+
+  const handleSelectUser = (user) => {
+    const activeUser = { ...user, isLoggedIn: true };
+    StorageService.setCurrentUser(activeUser);
+    setCurrentUser(activeUser);
+    setSavedGames(StorageService.getTeacherSavedGames(activeUser?.id));
+    setIsRoleSwitcherOpen(false);
+  };
+
+  // Filter Categories by Game Themes & Formats
+  const categories = [
+    'Tất cả',
+    'Đối kháng Đội nhóm',
+    'Trắc nghiệm kịch tính',
+    'Bất ngờ & May mắn',
+    'Khám phá bức ảnh',
+    'Tư duy từ ngữ',
+    'Ghi nhớ & Ghép cặp',
+    'Hành động & Phản xạ',
+    'Tương tác & Quay số',
+    'Thử thách phiêu lưu'
+  ];
+
+  const filteredBaseGames = baseGames.filter(game => {
+    const matchesCategory = selectedCategory === 'Tất cả' || 
+                            game.category === selectedCategory || 
+                            game.subject === selectedCategory;
+    const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          game.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (game.tags && game.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
+    return matchesCategory && matchesSearch;
   });
 
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
-      {/* Top Motivational Quote Bar for Teachers */}
-      <div style={{
-        background: 'linear-gradient(90deg, rgba(7, 30, 44, 0.95) 0%, rgba(13, 148, 136, 0.35) 50%, rgba(7, 30, 44, 0.95) 100%)',
-        borderBottom: '1px solid rgba(0, 168, 150, 0.35)',
-        padding: '10px 24px',
-        textAlign: 'center',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '10px',
-        fontSize: '0.92rem',
-        color: '#f0fdfa',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
-        flexWrap: 'wrap'
-      }}>
-        <span style={{ fontSize: '1.2rem', color: '#fbbf24' }}>✨</span>
-        <span style={{ fontStyle: 'italic', fontWeight: 500 }}>
-          “Không phải tất cả chúng ta đều có thể làm những việc vĩ đại, nhưng ta có thể làm những việc nhỏ với tình yêu lớn.”
-        </span>
-        <strong style={{ color: '#5eead4', fontWeight: 800 }}>
-          — Mẹ Teresa Calcutta
-        </strong>
-      </div>
+  if (!currentUser) {
+    return <LoginModal onLoginSuccess={handleLoginSuccess} />;
+  }
 
-      {/* Top Navbar */}
-      <Navbar 
+  return (
+    <div className="app-layout-wrapper" style={{ display: 'flex', minHeight: '100vh', width: '100%', background: 'var(--bg-dark)' }}>
+      
+      {/* Sleek Vertical Glassmorphism Sidebar Navigation */}
+      <Sidebar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         currentUser={currentUser}
         onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
         onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
+        onOpenUserManagement={() => setIsUserManagementOpen(true)}
+        onLogout={handleLogout}
         myGamesCount={savedGames.length}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
       />
 
-      {/* Main Tab Content */}
-      <main style={{ flex: 1 }}>
+      {/* Main Content Area - Spans 100% of remaining screen width */}
+      <main className="app-main-content">
         
-        {/* Tab 1: Kho Game Giáo Dục (Catalog) */}
-        {activeTab === 'catalog' && (
-          <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-            
-            {/* Sky-Line Theme Hero Header Banner */}
-            <div className="glass-panel" style={{ 
-              padding: '36px 44px', 
-              marginBottom: '32px', 
-              position: 'relative', 
-              overflow: 'hidden',
-              background: 'linear-gradient(135deg, rgba(7, 30, 44, 0.9) 0%, rgba(13, 148, 136, 0.25) 50%, rgba(2, 132, 199, 0.2) 100%)',
-              border: '1.5px solid rgba(0, 168, 150, 0.4)',
-              borderRadius: '28px',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)'
+        {/* Mobile Top Navigation Bar (Visible on Phones & Tablets) */}
+        <div className="mobile-header-bar">
+          <div 
+            onClick={() => setActiveTab('catalog')}
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          >
+            <div style={{
+              background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(13, 148, 136, 0.4)',
+              flexShrink: 0
             }}>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', gap: '32px', alignItems: 'center' }}>
+              <GraduationCap size={22} color="#ffffff" />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>
+                Hệ Thống Trò Chơi
+              </div>
+              <div style={{ fontSize: '0.68rem', color: '#fde047', fontWeight: 800 }}>
+                by Thầy Hảo Địa Lí
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button 
+              onClick={() => setIsMobileAccountOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)'
+              }}
+            >
+              <User size={16} />
+              <span>{currentUser ? (currentUser.name.split(' ').pop() || 'Tài Khoản') : 'Đăng Nhập'}</span>
+            </button>
+
+            <button 
+              onClick={() => setIsMobileOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0, 168, 150, 0.4)'
+              }}
+            >
+              <Menu size={16} />
+              <span>MENU</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* View 1: Kho Game Giáo Dục (Store Catalog) */}
+        {activeTab === 'catalog' && (
+          <div style={{ width: '100%' }}>
+            
+            {/* Search Bar & Category Filter Bar */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                 
-                {/* Left Content */}
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                    <span className="badge" style={{ background: '#00a896', color: '#fff', fontWeight: 800, padding: '6px 14px', borderRadius: '20px', fontSize: '0.85rem' }}>
-                      🏫 SKY-LINE • HỌC ĐỂ SỐNG HẠNH PHÚC
-                    </span>
-                    <span style={{ color: '#2dd4bf', fontSize: '0.85rem', fontWeight: 700 }}>
-                      Strong within - Shape tomorrow
-                    </span>
-                  </div>
-
-                  {/* Main Theme Headline */}
-                  <h1 style={{ 
-                    fontSize: '2.6rem', 
-                    fontWeight: 900, 
-                    lineHeight: 1.25, 
-                    marginBottom: '14px',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #ccfbf1 40%, #5eead4 70%, #fbbf24 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    letterSpacing: '-0.5px'
-                  }}>
-                    VỮNG NỘI LỰC - VỮNG TƯƠNG LAI
-                  </h1>
-
-                  <p style={{ color: '#cbd5e1', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '22px' }}>
-                    Hệ thống trò chơi học tập đổi mới sáng tạo dành cho giáo viên và học sinh. Tạo game đố vui kịch tính, tải file câu hỏi môn học từ Excel và trình chiếu lớp học sinh động!
-                  </p>
-
-                  {/* 5 Core Values Pills */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '26px' }}>
-                    {[
-                      { label: 'TRI THỨC', icon: '💡', bg: 'rgba(13, 148, 136, 0.25)', color: '#5eead4', border: '#0d9488' },
-                      { label: 'NHÂN CÁCH', icon: '❤️', bg: 'rgba(244, 63, 94, 0.2)', color: '#fda4af', border: '#f43f5e' },
-                      { label: 'SỨC KHỎE', icon: '🌱', bg: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', border: '#10b981' },
-                      { label: 'BẢN LĨNH', icon: '🛡️', bg: 'rgba(245, 158, 11, 0.2)', color: '#fde047', border: '#f59e0b' },
-                      { label: 'KỸ NĂNG SỐ', icon: '💻', bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd', border: '#3b82f6' }
-                    ].map((item) => (
-                      <span key={item.label} style={{
-                        background: item.bg,
-                        border: `1px solid ${item.border}`,
-                        color: item.color,
-                        padding: '5px 12px',
-                        borderRadius: '16px',
-                        fontSize: '0.78rem',
-                        fontWeight: 800,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}>
-                        {item.icon} {item.label}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                    <button 
-                      className="btn btn-primary btn-lg"
-                      onClick={() => setActiveTab('my-games')}
-                      style={{ padding: '12px 24px', fontSize: '1rem' }}
-                    >
-                      <BookmarkCheck size={20} />
-                      Kho Game Của Tôi ({savedGames.length})
-                    </button>
-
-                    <button 
-                      className="btn btn-secondary btn-lg"
-                      onClick={() => setIsRoleSwitcherOpen(true)}
-                      style={{ padding: '12px 24px', fontSize: '1rem', background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.2)' }}
-                    >
-                      <Users size={20} />
-                      Đổi Tài Khoản ({currentUser?.name})
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right Hero Full Original Photo Showcase (Image 1 completely uncropped & without overlay) */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <div style={{
-                    width: '100%',
-                    maxWidth: '440px',
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    border: '3px solid #00a896',
-                    boxShadow: '0 15px 45px rgba(0, 168, 150, 0.45)',
-                    background: '#071521'
-                  }}>
-                    <img 
-                      src="/assets/mascot_skyline.png" 
-                      alt="Bức ảnh đầy đủ nội dung gốc trường Sky-Line" 
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        display: 'block',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  </div>
+                {/* Search Box */}
+                <div style={{ flex: 1, minWidth: '280px', position: 'relative' }}>
+                  <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#0d9488', zIndex: 2 }} />
+                  <input 
+                    type="text"
+                    className="input-field"
+                    placeholder="Tìm kiếm trò chơi giáo dục (ví dụ: Nghiêng đầu, Kéo co, Rồng lửa, Lật hình)..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ paddingLeft: '48px', height: '48px', fontSize: '1rem', background: '#ffffff', color: '#0f172a', fontWeight: '800' }}
+                  />
                 </div>
 
               </div>
 
-            </div>
-
-            {/* Filter & Search Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', gap: '16px', flexWrap: 'wrap' }}>
-              
-              {/* Category Pills */}
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {/* Category Pills Bar - Spreads Horizontally Across Page */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingBottom: '8px' }}>
                 {categories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-secondary'} btn-sm`}
-                    style={{ borderRadius: '20px' }}
+                    className={`btn ${selectedCategory === cat ? 'btn-primary' : 'btn-secondary'}`}
+                    style={{ padding: '8px 18px', fontSize: '0.88rem', borderRadius: '20px' }}
                   >
                     {cat}
                   </button>
                 ))}
               </div>
-
-              {/* Search Box */}
-              <div style={{ position: 'relative', width: '320px' }}>
-                <Search size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input 
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Tìm kiếm mẫu game giáo dục..."
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px 10px 44px',
-                    borderRadius: '14px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: '#fff',
-                    outline: 'none',
-                    fontSize: '0.9rem'
-                  }}
-                />
-              </div>
-
             </div>
 
-            {/* Games Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '24px' }}>
+            {/* Game Cards Grid - Arranged Horizontally From Left to Right */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gap: '24px',
+              width: '100%'
+            }}>
               {filteredBaseGames.map(game => (
                 <GameCard 
                   key={game.id}
                   game={game}
-                  isSavedGame={false}
-                  onPlay={(g) => setPlayingGame(g)}
-                  onCustomize={(g) => setEditingGameTemplate(g)}
+                  currentUser={currentUser}
+                  onPlay={(template) => {
+                    StorageService.incrementPlayCount(template.id, false);
+                    setBaseGames(StorageService.getBaseGames());
+                    setPlayingGame(template);
+                  }}
+                  onCustomize={(template) => setEditingGameTemplate(template)}
+                  onDelete={handleDeleteBaseGame}
                 />
               ))}
             </div>
 
+            {filteredBaseGames.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                <Sparkles size={48} style={{ opacity: 0.5, marginBottom: '12px' }} />
+                <h3>Không tìm thấy trò chơi nào phù hợp</h3>
+                <p>Thử tìm kiếm với từ khóa khác hoặc chuyển danh mục.</p>
+              </div>
+            )}
+
           </div>
         )}
 
-        {/* Tab 2: Kho Game Của Tôi */}
+        {/* View 2: Lớp Chủ Nhiệm (Homeroom Management System) */}
+        {activeTab === 'homeroom' && (
+          <HomeroomManager currentUser={currentUser} />
+        )}
+
+        {/* View 3: Kho Game Của Tôi (Teacher Saved Library) */}
         {activeTab === 'my-games' && (
           <TeacherLibrary 
             savedGames={savedGames}
             currentUser={currentUser}
-            onPlayGame={(g) => setPlayingGame(g)}
-            onEditGame={(g) => setEditingGameTemplate({ ...g, isSaved: true })}
+            onPlayGame={(savedGame) => {
+              StorageService.incrementPlayCount(savedGame.id, true);
+              setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
+              setPlayingGame(savedGame);
+            }}
+            onEditGame={(savedGame) => setEditingGameTemplate(savedGame)}
             onDeleteGame={handleDeleteSavedGame}
             onBrowseCatalog={() => setActiveTab('catalog')}
+            onUpdateLessonTitle={handleUpdateLessonTitle}
+            onRefreshGames={(synced) => setSavedGames(synced)}
           />
         )}
 
-        {/* Tab 3: Bảng Quản Trị Admin */}
-        {activeTab === 'admin' && (
+        {/* View 4: Tải File SGK (Textbook Catalog Manager) */}
+        {activeTab === 'textbook-download' && (
+          <TextbookDownloadManager searchTerm={searchTerm} />
+        )}
+
+        {/* View 5: Slide Bài Giảng (Lecture Slide Manager) */}
+        {activeTab === 'lecture-slides' && (
+          <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+        )}
+
+        {/* View 5: Quản Trị Admin */}
+        {activeTab === 'admin' && currentUser?.role === 'admin' && (
           <AdminPanel 
-            onOpenCreateGame={() => setIsAdminCreateGameOpen(true)}
+            baseGames={baseGames}
+            onAddGame={handleAdminAddGame}
+            onDeleteGame={handleDeleteBaseGame}
+            onOpenUserManagement={() => setIsUserManagementOpen(true)}
           />
         )}
+
+        {/* Footer */}
+        <footer style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', borderTop: '1px solid rgba(0,168,150,0.15)', marginTop: '40px' }}>
+          <p>© 2026 <strong>HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC</strong> • Tác giả: <strong style={{ color: '#5eead4' }}>Thầy Hảo Địa Lý</strong> | 📱 Zalo hỗ trợ: <a href="https://zalo.me/0387806954" target="_blank" rel="noopener noreferrer" style={{ color: '#fde047', textDecoration: 'underline', fontWeight: 800 }}>0387806954</a></p>
+        </footer>
 
       </main>
-
-      {/* Footer */}
-      <footer style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', borderTop: '1px solid rgba(0,168,150,0.15)', marginTop: '40px' }}>
-        <p>© 2026 <strong>Giáo Viên Sky-Line</strong> — by <strong style={{ color: '#5eead4' }}>Thầy Hảo Địa Lí</strong></p>
-      </footer>
 
       {/* Modals */}
       <RoleSwitcher 
@@ -348,11 +422,236 @@ export function App() {
         onAddGame={handleAdminAddGame}
       />
 
+      <UserManagementModal 
+        isOpen={isUserManagementOpen}
+        onClose={() => setIsUserManagementOpen(false)}
+        currentUser={currentUser}
+      />
+
       {playingGame && (
         <ClassroomPlayModal 
           game={playingGame}
           onClose={() => setPlayingGame(null)}
         />
+      )}
+
+      {/* Mobile Bottom App Navigation Bar */}
+      <div className="mobile-bottom-nav">
+        <button 
+          className={`mobile-nav-item ${activeTab === 'catalog' ? 'active' : ''}`}
+          onClick={() => setActiveTab('catalog')}
+        >
+          <Gamepad2 size={20} />
+          <span>Kho Game</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${activeTab === 'my-games' ? 'active' : ''}`}
+          onClick={() => setActiveTab('my-games')}
+        >
+          <BookmarkCheck size={20} />
+          <span>Game Của Tôi</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${activeTab === 'homeroom' ? 'active' : ''}`}
+          onClick={() => setActiveTab('homeroom')}
+        >
+          <Users size={20} />
+          <span>Lớp CN</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${activeTab === 'sgk' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sgk')}
+        >
+          <BookOpen size={20} />
+          <span>Tải SGK</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${isMobileAccountOpen ? 'active' : ''}`}
+          onClick={() => setIsMobileAccountOpen(true)}
+        >
+          <User size={20} />
+          <span>Tài Khoản</span>
+        </button>
+      </div>
+
+      {/* Dedicated Mobile Account & Login Modal */}
+      {isMobileAccountOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.85)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px'
+        }}>
+          <div style={{
+            background: '#0f172a',
+            border: '1px solid rgba(20, 184, 166, 0.4)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            padding: '24px',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)',
+            color: '#ffffff',
+            position: 'relative'
+          }}>
+            {/* Close Button */}
+            <button
+              onClick={() => setIsMobileAccountOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: 'none',
+                color: '#94a3b8',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '1.1rem'
+              }}
+            >
+              ✕
+            </button>
+
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                color: '#ffffff',
+                fontSize: '1.8rem',
+                fontWeight: 900,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px auto',
+                boxShadow: '0 8px 24px rgba(13, 148, 136, 0.4)',
+                border: '3px solid #00a896'
+              }}>
+                {currentUser?.name?.charAt(0) || '👤'}
+              </div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
+                {currentUser?.name || 'Giáo Viên'}
+              </h3>
+              <span className={currentUser?.role === 'admin' ? 'badge badge-admin' : 'badge badge-teacher'} style={{ fontSize: '0.75rem', marginTop: '6px', display: 'inline-block' }}>
+                {currentUser?.role === 'admin' ? 'Quyền Admin' : 'Tài Khoản Giáo Viên'}
+              </span>
+            </div>
+
+            {/* Account Information Details */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '16px',
+              padding: '14px',
+              marginBottom: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              fontSize: '0.88rem'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
+                <span style={{ color: '#94a3b8' }}>Tên đăng nhập:</span>
+                <span style={{ fontWeight: 800, color: '#22d3ee' }}>{currentUser?.username}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
+                <span style={{ color: '#94a3b8' }}>Môn giảng dạy:</span>
+                <span style={{ fontWeight: 800, color: '#ffffff' }}>{currentUser?.subject || 'Giáo dục'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: '#94a3b8' }}>Trường học:</span>
+                <span style={{ fontWeight: 800, color: '#fde047' }}>{currentUser?.school || 'Hệ thống Sky-Line'}</span>
+              </div>
+            </div>
+
+            {/* Author Profile Card */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '16px',
+              padding: '12px 14px',
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <img 
+                src="/assets/thayhaodiali.jpg" 
+                alt="Thầy Hảo Địa Lí"
+                style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #fbbf24', objectFit: 'cover' }} 
+              />
+              <div>
+                <div style={{ fontSize: '0.72rem', color: '#fbbf24', fontWeight: 800 }}>TÁC GIẢ WEBSITE</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff' }}>Thầy Hảo Địa Lí</div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  setIsMobileAccountOpen(false);
+                  handleLogout();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: '0.92rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)'
+                }}
+              >
+                <LogOut size={18} /> Đăng Xuất Khỏi Hệ Thống
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsMobileAccountOpen(false);
+                  setIsMobileOpen(true);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '14px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <Menu size={18} /> Menu Quản Lý Hệ Thống
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
 
     </div>

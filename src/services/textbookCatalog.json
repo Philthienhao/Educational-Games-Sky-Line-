@@ -1,0 +1,1836 @@
+[
+  {
+    "id": "sgk_6w2lxm2",
+    "title": "HD CHEP FILE SGK.txt",
+    "fileName": "HD_CHEP_FILE_SGK.txt",
+    "grade": "Sách Khác",
+    "subject": "HD"
+  },
+  {
+    "id": "sgk_jduosvd",
+    "title": "Âm Nhạc 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Am_Nhac_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Âm",
+    "textPath": "/textbook_texts/sgk_jduosvd.txt",
+    "charCount": 1205
+  },
+  {
+    "id": "sgk_j5wchcz",
+    "title": "Âm Nhạc 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Am_Nhac_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Âm",
+    "textPath": "/textbook_texts/sgk_j5wchcz.txt",
+    "charCount": 845
+  },
+  {
+    "id": "sgk_9gg8p64",
+    "title": "Giáo Dục Thể Chất 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Giao_Duc_The_Chat_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Giáo",
+    "textPath": "/textbook_texts/sgk_9gg8p64.txt",
+    "charCount": 1812
+  },
+  {
+    "id": "sgk_jddyfys",
+    "title": "Giáo Dục Thể Chất 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Giao_Duc_The_Chat_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Giáo",
+    "textPath": "/textbook_texts/sgk_jddyfys.txt",
+    "charCount": 1445
+  },
+  {
+    "id": "sgk_fo34vdf",
+    "title": "Hoạt Động Trải Nghiệm 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Hoat_Dong_Trai_Nghiem_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Hoạt",
+    "textPath": "/textbook_texts/sgk_fo34vdf.txt",
+    "charCount": 3376
+  },
+  {
+    "id": "sgk_2yttce3",
+    "title": "Mĩ Thuật 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Mi_Thuat_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Mĩ",
+    "textPath": "/textbook_texts/sgk_2yttce3.txt",
+    "charCount": 605
+  },
+  {
+    "id": "sgk_hh34cwx",
+    "title": "Mĩ Thuật 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Mi_Thuat_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Mĩ",
+    "textPath": "/textbook_texts/sgk_hh34cwx.txt",
+    "charCount": 1085
+  },
+  {
+    "id": "sgk_4ql2eme",
+    "title": "Tập Viết 1 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Tap_Viet_1_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Tập",
+    "textPath": "/textbook_texts/sgk_4ql2eme.txt",
+    "charCount": 725
+  },
+  {
+    "id": "sgk_shd5iv4",
+    "title": "Tập Viết 1 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Tap_Viet_1_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Tập",
+    "textPath": "/textbook_texts/sgk_shd5iv4.txt",
+    "charCount": 785
+  },
+  {
+    "id": "sgk_nomwrwy",
+    "title": "Tiếng Việt 1 Tập Hai Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Tieng_Viet_1_Tap_Hai_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_nomwrwy.txt",
+    "charCount": 3444
+  },
+  {
+    "id": "sgk_cpr3ydf",
+    "title": "Toán 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Toan_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_cpr3ydf.txt",
+    "charCount": 1948
+  },
+  {
+    "id": "sgk_ktypiuo",
+    "title": "Toán 1 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Toan_1_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_ktypiuo.txt",
+    "charCount": 1727
+  },
+  {
+    "id": "sgk_zuu83f0",
+    "title": "Toán 1 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Toan_1_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_zuu83f0.txt",
+    "charCount": 1863
+  },
+  {
+    "id": "sgk_jfbbzfd",
+    "title": "Tự Nhiên Và Xã Hội 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Tu_Nhien_Va_Xa_Hoi_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Tự",
+    "textPath": "/textbook_texts/sgk_jfbbzfd.txt",
+    "charCount": 2016
+  },
+  {
+    "id": "sgk_otodgsn",
+    "title": "Tự Nhiên Và Xã Hội 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Tu_Nhien_Va_Xa_Hoi_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Tự",
+    "textPath": "/textbook_texts/sgk_otodgsn.txt",
+    "charCount": 2016
+  },
+  {
+    "id": "sgk_icfzxnd",
+    "title": "Vở Bài Tập Âm Nhạc 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Am_Nhac_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_icfzxnd.txt",
+    "charCount": 515
+  },
+  {
+    "id": "sgk_ghv2x86",
+    "title": "Vở Bài Tập Hoạt Động Trải Nghiệm 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Hoat_Dong_Trai_Nghiem_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_ghv2x86.txt",
+    "charCount": 635
+  },
+  {
+    "id": "sgk_fu32m68",
+    "title": "Vở Bài Tập Mĩ Thuật 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Mi_Thuat_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_fu32m68.txt",
+    "charCount": 215
+  },
+  {
+    "id": "sgk_e4ajnuo",
+    "title": "Vở Bài Tập Tiếng Việt 1 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Tieng_Viet_1_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_e4ajnuo.txt",
+    "charCount": 1085
+  },
+  {
+    "id": "sgk_d17eb2i",
+    "title": "Vở Bài Tập Tiếng Việt 1 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Tieng_Viet_1_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_d17eb2i.txt",
+    "charCount": 1085
+  },
+  {
+    "id": "sgk_n8whuid",
+    "title": "Vở Bài Tập Toán 1 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Toan_1_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_n8whuid.txt",
+    "charCount": 1727
+  },
+  {
+    "id": "sgk_gliubuw",
+    "title": "Vở Bài Tập Toán 1 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Toan_1_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_gliubuw.txt",
+    "charCount": 1744
+  },
+  {
+    "id": "sgk_wisi0q3",
+    "title": "Vở Bài Tập Tự Nhiên Và Xã Hội 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Tu_Nhien_Va_Xa_Hoi_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_wisi0q3.txt",
+    "charCount": 1205
+  },
+  {
+    "id": "sgk_yuvgd4q",
+    "title": "Vở Bài Tập Đạo Đức 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Vo_Bai_Tap_Dao_Duc_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_yuvgd4q.txt",
+    "charCount": 965
+  },
+  {
+    "id": "sgk_0lk64qk",
+    "title": "Đạo Đức 1 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Dao_Duc_1_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Đạo",
+    "textPath": "/textbook_texts/sgk_0lk64qk.txt",
+    "charCount": 1608
+  },
+  {
+    "id": "sgk_8q0ydr9",
+    "title": "Đạo Đức 1 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_1/Dao_Duc_1_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 1",
+    "subject": "Đạo",
+    "textPath": "/textbook_texts/sgk_8q0ydr9.txt",
+    "charCount": 1085
+  },
+  {
+    "id": "sgk_7kt86t2",
+    "title": "1. SGK Toán 10 tập 1 Kết nối tri thức",
+    "fileName": "SGK_lop_10/1_SGK_Toan_10_tap_1_Ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 10",
+    "subject": "1.",
+    "textPath": "/textbook_texts/sgk_7kt86t2.txt",
+    "charCount": 1693
+  },
+  {
+    "id": "sgk_6dkklnd",
+    "title": "2. SGK Toán 10 tập 2 Kết nối tri thức",
+    "fileName": "SGK_lop_10/2_SGK_Toan_10_tap_2_Ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 10",
+    "subject": "2.",
+    "textPath": "/textbook_texts/sgk_6dkklnd.txt",
+    "charCount": 1625
+  },
+  {
+    "id": "sgk_ztnvim2",
+    "title": "Chuyên đề học tập địa lí 10 KNTT",
+    "fileName": "SGK_lop_10/Chuyen_de_hoc_tap_dia_li_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "Chuyên",
+    "textPath": "/textbook_texts/sgk_ztnvim2.txt",
+    "charCount": 69673
+  },
+  {
+    "id": "sgk_czl3lgn",
+    "title": "Chuyên đề lịch sử 10 KNTT",
+    "fileName": "SGK_lop_10/Chuyen_de_lich_su_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "Chuyên",
+    "textPath": "/textbook_texts/sgk_czl3lgn.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_3miuc3g",
+    "title": "GD KT-PL 10 KNTT",
+    "fileName": "SGK_lop_10/GD_KT_PL_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "GD",
+    "textPath": "/textbook_texts/sgk_3miuc3g.txt",
+    "charCount": 330697
+  },
+  {
+    "id": "sgk_sdqiesb",
+    "title": "GDQP-AN 10 KNTT",
+    "fileName": "SGK_lop_10/GDQP_AN_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "GDQP-AN",
+    "textPath": "/textbook_texts/sgk_sdqiesb.txt",
+    "charCount": 147137
+  },
+  {
+    "id": "sgk_ftwrkur",
+    "title": "HOẠT ĐỘNG TRẢI NGHIỆM 10 KNTT",
+    "fileName": "SGK_lop_10/HOAT_DONG_TRAI_NGHIEM_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "HOẠT",
+    "textPath": "/textbook_texts/sgk_ftwrkur.txt",
+    "charCount": 79929
+  },
+  {
+    "id": "sgk_pxya6oh",
+    "title": "Ngữ văn tập 1",
+    "fileName": "SGK_lop_10/Ngu_van_tap_1.pdf",
+    "grade": "Lớp 10",
+    "subject": "Ngữ",
+    "textPath": "/textbook_texts/sgk_pxya6oh.txt",
+    "charCount": 2781
+  },
+  {
+    "id": "sgk_rllwsnf",
+    "title": "Ngữ văn tập 2",
+    "fileName": "SGK_lop_10/Ngu_van_tap_2.pdf",
+    "grade": "Lớp 10",
+    "subject": "Ngữ",
+    "textPath": "/textbook_texts/sgk_rllwsnf.txt",
+    "charCount": 2237
+  },
+  {
+    "id": "sgk_3xbdnab",
+    "title": "SÁCH GIÁO KHOA ÂM NHẠC 10 CHUYÊN ĐỀ HỌC TẬP KẾT NỐI TRI THỨC",
+    "fileName": "SGK_lop_10/SACH_GIAO_KHOA_AM_NHAC_10_CHUYEN_DE_HOC_TAP_KET_NOI_TRI_THUC.pdf",
+    "grade": "Lớp 10",
+    "subject": "SÁCH",
+    "textPath": "/textbook_texts/sgk_3xbdnab.txt",
+    "charCount": 860
+  },
+  {
+    "id": "sgk_mq1onsg",
+    "title": "SÁCH GIÁO KHOA HÓA 10",
+    "fileName": "SGK_lop_10/SACH_GIAO_KHOA_HOA_10.pdf",
+    "grade": "Lớp 10",
+    "subject": "SÁCH",
+    "textPath": "/textbook_texts/sgk_mq1onsg.txt",
+    "charCount": 207812
+  },
+  {
+    "id": "sgk_lv7xj1d",
+    "title": "SGK TIN 10 kntt",
+    "fileName": "SGK_lop_10/SGK_TIN_10_kntt.pdf",
+    "grade": "Lớp 10",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_lv7xj1d.txt",
+    "charCount": 296102
+  },
+  {
+    "id": "sgk_q8pfsz7",
+    "title": "SGK VL 10 KNTT",
+    "fileName": "SGK_lop_10/SGK_VL_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_q8pfsz7.txt",
+    "charCount": 2305
+  },
+  {
+    "id": "sgk_b3n9v18",
+    "title": "Sách giáo khoa Lịch sử 10 - Kết nối tri thức với cuộc sống",
+    "fileName": "SGK_lop_10/Sach_giao_khoa_Lich_su_10_Ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 10",
+    "subject": "Sách",
+    "textPath": "/textbook_texts/sgk_b3n9v18.txt",
+    "charCount": 2453
+  },
+  {
+    "id": "sgk_bp87g9b",
+    "title": "Tiếng Anh 10 Global Success",
+    "fileName": "SGK_lop_10/Tieng_Anh_10_Global_Success.pdf",
+    "grade": "Lớp 10",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_bp87g9b.txt",
+    "charCount": 2152
+  },
+  {
+    "id": "sgk_ccajajr",
+    "title": "sach-giao-khoa-sinh-hoc-10-ket-noi-tri-thuc-voi-cuoc-song",
+    "fileName": "SGK_lop_10/sach_giao_khoa_sinh_hoc_10_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 10",
+    "subject": "sach-giao-khoa-sinh-hoc-10-ket-noi-tri-thuc-voi-cuoc-song",
+    "textPath": "/textbook_texts/sgk_ccajajr.txt",
+    "charCount": 2645
+  },
+  {
+    "id": "sgk_uxaubgg",
+    "title": "ĐỊA LÍ 10 KNTT",
+    "fileName": "SGK_lop_10/DIA_LI_10_KNTT.pdf",
+    "grade": "Lớp 10",
+    "subject": "ĐỊA",
+    "textPath": "/textbook_texts/sgk_uxaubgg.txt",
+    "charCount": 204636
+  },
+  {
+    "id": "sgk_19tkvs6",
+    "title": "SGK AM NHAC 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_AM_NHAC_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_19tkvs6.txt",
+    "charCount": 1340
+  },
+  {
+    "id": "sgk_05xcmm9",
+    "title": "SGK CONG NGHE - CHAN NUOI - KNTT",
+    "fileName": "SGK_lop_11/SGK_CONG_NGHE_CHAN_NUOI_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_05xcmm9.txt",
+    "charCount": 2645
+  },
+  {
+    "id": "sgk_9qwszwq",
+    "title": "SGK CONG NGHE - CO KHI - KNTT",
+    "fileName": "SGK_lop_11/SGK_CONG_NGHE_CO_KHI_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_9qwszwq.txt",
+    "charCount": 2305
+  },
+  {
+    "id": "sgk_caqtsdf",
+    "title": "SGK DIA LI 11 -KNTT",
+    "fileName": "SGK_lop_11/SGK_DIA_LI_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_caqtsdf.txt",
+    "charCount": 2798
+  },
+  {
+    "id": "sgk_141bqn2",
+    "title": "SGK GDKTPL 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_GDKTPL_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_141bqn2.txt",
+    "charCount": 2441
+  },
+  {
+    "id": "sgk_6qthu2q",
+    "title": "SGK GDTC 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_GDTC_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_6qthu2q.txt",
+    "charCount": 890
+  },
+  {
+    "id": "sgk_60xrb0u",
+    "title": "SGK HDTN HN 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_HDTN_HN_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_60xrb0u.txt",
+    "charCount": 1115
+  },
+  {
+    "id": "sgk_kot7fg6",
+    "title": "SGK HOA HOC 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_HOA_HOC_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_kot7fg6.txt",
+    "charCount": 2577
+  },
+  {
+    "id": "sgk_sfqwqbu",
+    "title": "SGK LICH SU 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_LICH_SU_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_sfqwqbu.txt",
+    "charCount": 1460
+  },
+  {
+    "id": "sgk_puz2f1g",
+    "title": "SGK NGU VAN 11 TAP 1 - KNTT",
+    "fileName": "SGK_lop_11/SGK_NGU_VAN_11_TAP_1_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_puz2f1g.txt",
+    "charCount": 2713
+  },
+  {
+    "id": "sgk_1h5gzjg",
+    "title": "SGK NGU VAN 11 TAP 2 - KNTT",
+    "fileName": "SGK_lop_11/SGK_NGU_VAN_11_TAP_2_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_1h5gzjg.txt",
+    "charCount": 2169
+  },
+  {
+    "id": "sgk_q3ohcys",
+    "title": "SGK SINH HOC 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_SINH_HOC_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_q3ohcys.txt",
+    "charCount": 3121
+  },
+  {
+    "id": "sgk_7wk421k",
+    "title": "SGK TIENG ANH 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_TIENG_ANH_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_7wk421k.txt",
+    "charCount": 33334
+  },
+  {
+    "id": "sgk_o7n1xqf",
+    "title": "SGK TIN HOC 11 CS - KNTT",
+    "fileName": "SGK_lop_11/SGK_TIN_HOC_11_CS_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_o7n1xqf.txt",
+    "charCount": 2424
+  },
+  {
+    "id": "sgk_w8lmyzt",
+    "title": "SGK TOAN 11 - KNTT - TAP 1",
+    "fileName": "SGK_lop_11/SGK_TOAN_11_KNTT_TAP_1.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_w8lmyzt.txt",
+    "charCount": 2169
+  },
+  {
+    "id": "sgk_1g5fa67",
+    "title": "SGK TOAN 11 - KNTT - TAP 2",
+    "fileName": "SGK_lop_11/SGK_TOAN_11_KNTT_TAP_2.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_1g5fa67.txt",
+    "charCount": 1829
+  },
+  {
+    "id": "sgk_vk2o8s9",
+    "title": "SGK VAT LI 11 - KNTT",
+    "fileName": "SGK_lop_11/SGK_VAT_LI_11_KNTT.pdf",
+    "grade": "Lớp 11",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_vk2o8s9.txt",
+    "charCount": 1914
+  },
+  {
+    "id": "sgk_m0xexry",
+    "title": "Hoá học 12",
+    "fileName": "SGK_lop_12/Hoa_hoc_12.pdf",
+    "grade": "Lớp 12",
+    "subject": "Hoá",
+    "textPath": "/textbook_texts/sgk_m0xexry.txt",
+    "charCount": 2390
+  },
+  {
+    "id": "sgk_063aswf",
+    "title": "Ngữ Văn tập 1",
+    "fileName": "SGK_lop_12/Ngu_Van_tap_1.pdf",
+    "grade": "Lớp 12",
+    "subject": "Ngữ",
+    "textPath": "/textbook_texts/sgk_063aswf.txt",
+    "charCount": 2849
+  },
+  {
+    "id": "sgk_b2c07xn",
+    "title": "Ngữ Văn tập 2",
+    "fileName": "SGK_lop_12/Ngu_Van_tap_2.pdf",
+    "grade": "Lớp 12",
+    "subject": "Ngữ",
+    "textPath": "/textbook_texts/sgk_b2c07xn.txt",
+    "charCount": 2356
+  },
+  {
+    "id": "sgk_jjh9me6",
+    "title": "SÁCH GIÁO KHOA ÂM NHẠC 12 KẾT NỐI TRI THỨC",
+    "fileName": "SGK_lop_12/SACH_GIAO_KHOA_AM_NHAC_12_KET_NOI_TRI_THUC.pdf",
+    "grade": "Lớp 12",
+    "subject": "SÁCH",
+    "textPath": "/textbook_texts/sgk_jjh9me6.txt",
+    "charCount": 1235
+  },
+  {
+    "id": "sgk_gbq2y4z",
+    "title": "SGK HOẠT ĐỘNG TRẢI NGHIỆM-HN 12 - KNTT",
+    "fileName": "SGK_lop_12/SGK_HOAT_DONG_TRAI_NGHIEM_HN_12_KNTT.pdf",
+    "grade": "Lớp 12",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_gbq2y4z.txt",
+    "charCount": 1430
+  },
+  {
+    "id": "sgk_7oj565k",
+    "title": "SGK Lịch sử 12 Kết nối tri thức",
+    "fileName": "SGK_lop_12/SGK_Lich_su_12_Ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 12",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_7oj565k.txt",
+    "charCount": 1863
+  },
+  {
+    "id": "sgk_zu2lokg",
+    "title": "SGK Sinh 12 Kết Nối Tri Thức",
+    "fileName": "SGK_lop_12/SGK_Sinh_12_Ket_Noi_Tri_Thuc.pdf",
+    "grade": "Lớp 12",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_zu2lokg.txt",
+    "charCount": 3274
+  },
+  {
+    "id": "sgk_14iyzmn",
+    "title": "SGK VẬT LÍ 12 KNTT",
+    "fileName": "SGK_lop_12/SGK_VAT_LI_12_KNTT.pdf",
+    "grade": "Lớp 12",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_14iyzmn.txt",
+    "charCount": 2050
+  },
+  {
+    "id": "sgk_v2ywgoz",
+    "title": "SGK Địa lí 12 Kết nối tri thức",
+    "fileName": "SGK_lop_12/SGK_Dia_li_12_Ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 12",
+    "subject": "SGK",
+    "textPath": "/textbook_texts/sgk_v2ywgoz.txt",
+    "charCount": 2968
+  },
+  {
+    "id": "sgk_cki5cir",
+    "title": "Tiếng Anh 12 Global Success",
+    "fileName": "SGK_lop_12/Tieng_Anh_12_Global_Success.pdf",
+    "grade": "Lớp 12",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_cki5cir.txt",
+    "charCount": 2594
+  },
+  {
+    "id": "sgk_do95irh",
+    "title": "Toán 12 tập 1 - KNTT",
+    "fileName": "SGK_lop_12/Toan_12_tap_1_KNTT.pdf",
+    "grade": "Lớp 12",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_do95irh.txt",
+    "charCount": 1659
+  },
+  {
+    "id": "sgk_q8p6e9b",
+    "title": "Toán 12 tập 2 - KNTT",
+    "fileName": "SGK_lop_12/Toan_12_tap_2_KNTT.pdf",
+    "grade": "Lớp 12",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_q8p6e9b.txt",
+    "charCount": 1475
+  },
+  {
+    "id": "sgk_tvrv3nw",
+    "title": "sach-giao-khoa-gdktpl-12-ket-noi-tri-thuc-voi-cuoc-song",
+    "fileName": "SGK_lop_12/sach_giao_khoa_gdktpl_12_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 12",
+    "subject": "sach-giao-khoa-gdktpl-12-ket-noi-tri-thuc-voi-cuoc-song",
+    "textPath": "/textbook_texts/sgk_tvrv3nw.txt",
+    "charCount": 2305
+  },
+  {
+    "id": "sgk_oenxpzw",
+    "title": "Âm Nhạc 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Am_Nhac_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Âm",
+    "textPath": "/textbook_texts/sgk_oenxpzw.txt",
+    "charCount": 950
+  },
+  {
+    "id": "sgk_rti82rz",
+    "title": "Âm Nhạc 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Am_Nhac_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Âm",
+    "textPath": "/textbook_texts/sgk_rti82rz.txt",
+    "charCount": 920
+  },
+  {
+    "id": "sgk_9ym8mz2",
+    "title": "Giáo Dục Thể Chất 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Giao_Duc_The_Chat_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Giáo",
+    "textPath": "/textbook_texts/sgk_9ym8mz2.txt",
+    "charCount": 1659
+  },
+  {
+    "id": "sgk_x4ie7im",
+    "title": "Giáo Dục Thể Chất 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Giao_Duc_The_Chat_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Giáo",
+    "textPath": "/textbook_texts/sgk_x4ie7im.txt",
+    "charCount": 1445
+  },
+  {
+    "id": "sgk_zldea3u",
+    "title": "Hoạt Động Trải Nghiệm 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Hoat_Dong_Trai_Nghiem_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Hoạt",
+    "textPath": "/textbook_texts/sgk_zldea3u.txt",
+    "charCount": 3036
+  },
+  {
+    "id": "sgk_recojm9",
+    "title": "Hoạt Động Trải Nghiệm 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Hoat_Dong_Trai_Nghiem_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Hoạt",
+    "textPath": "/textbook_texts/sgk_recojm9.txt",
+    "charCount": 1385
+  },
+  {
+    "id": "sgk_xkkudlp",
+    "title": "Mĩ Thuật 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Mi_Thuat_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Mĩ",
+    "textPath": "/textbook_texts/sgk_xkkudlp.txt",
+    "charCount": 1070
+  },
+  {
+    "id": "sgk_stpaexd",
+    "title": "Mĩ Thuật 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Mi_Thuat_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Mĩ",
+    "textPath": "/textbook_texts/sgk_stpaexd.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_7tfmli2",
+    "title": "Tập Viết 2 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tap_Viet_2_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tập",
+    "textPath": "/textbook_texts/sgk_7tfmli2.txt",
+    "charCount": 530
+  },
+  {
+    "id": "sgk_609mvzi",
+    "title": "Tập Viết 2 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tap_Viet_2_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tập",
+    "textPath": "/textbook_texts/sgk_609mvzi.txt",
+    "charCount": 575
+  },
+  {
+    "id": "sgk_c8xakj4",
+    "title": "Tiếng Anh 2 – Sách Bài Tập",
+    "fileName": "SGK_lop_2/Tieng_Anh_2_Sach_Bai_Tap.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_c8xakj4.txt",
+    "charCount": 950
+  },
+  {
+    "id": "sgk_qtfzdaj",
+    "title": "Tiếng Anh 2 – Sách Giáo Viên",
+    "fileName": "SGK_lop_2/Tieng_Anh_2_Sach_Giao_Vien.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_qtfzdaj.txt",
+    "charCount": 2424
+  },
+  {
+    "id": "sgk_1bq3xqa",
+    "title": "Tiếng Anh 2 – Sách Học Sinh",
+    "fileName": "SGK_lop_2/Tieng_Anh_2_Sach_Hoc_Sinh.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_1bq3xqa.txt",
+    "charCount": 1145
+  },
+  {
+    "id": "sgk_q3p5sna",
+    "title": "Tiếng Việt 2 Tập Hai Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tieng_Viet_2_Tap_Hai_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_q3p5sna.txt",
+    "charCount": 4056
+  },
+  {
+    "id": "sgk_b4jzwim",
+    "title": "Tiếng Việt 2 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tieng_Viet_2_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_b4jzwim.txt",
+    "charCount": 2356
+  },
+  {
+    "id": "sgk_qua4hwg",
+    "title": "Tiếng Việt 2 Tập Một Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tieng_Viet_2_Tap_Mot_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_qua4hwg.txt",
+    "charCount": 4039
+  },
+  {
+    "id": "sgk_07k5u74",
+    "title": "Tiếng Việt 2 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tieng_Viet_2_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tiếng",
+    "textPath": "/textbook_texts/sgk_07k5u74.txt",
+    "charCount": 2356
+  },
+  {
+    "id": "sgk_d8cdv12",
+    "title": "Toán 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Toan_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_d8cdv12.txt",
+    "charCount": 4379
+  },
+  {
+    "id": "sgk_d6e1mqs",
+    "title": "Toán 2 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Toan_2_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_d6e1mqs.txt",
+    "charCount": 2288
+  },
+  {
+    "id": "sgk_tjzuu4m",
+    "title": "Toán 2 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Toan_2_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Toán",
+    "textPath": "/textbook_texts/sgk_tjzuu4m.txt",
+    "charCount": 2288
+  },
+  {
+    "id": "sgk_rz30qnq",
+    "title": "Tự Nhiên Và Xã Hội 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tu_Nhien_Va_Xa_Hoi_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tự",
+    "textPath": "/textbook_texts/sgk_rz30qnq.txt",
+    "charCount": 2067
+  },
+  {
+    "id": "sgk_tlmi0cf",
+    "title": "Tự Nhiên Và Xã Hội 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Tu_Nhien_Va_Xa_Hoi_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Tự",
+    "textPath": "/textbook_texts/sgk_tlmi0cf.txt",
+    "charCount": 1948
+  },
+  {
+    "id": "sgk_f2vkmzi",
+    "title": "Vở Bài Tập Âm Nhạc 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Am_Nhac_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_f2vkmzi.txt",
+    "charCount": 530
+  },
+  {
+    "id": "sgk_pog8b3q",
+    "title": "Vở Bài Tập Hoạt Động Trải Nghiệm 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Hoat_Dong_Trai_Nghiem_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_pog8b3q.txt",
+    "charCount": 1025
+  },
+  {
+    "id": "sgk_ii98yki",
+    "title": "Vở Bài Tập Mĩ Thuật 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Mi_Thuat_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_ii98yki.txt",
+    "charCount": 710
+  },
+  {
+    "id": "sgk_jiy09i6",
+    "title": "Vở Bài Tập Tiếng Việt 2 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Tieng_Viet_2_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_jiy09i6.txt",
+    "charCount": 1115
+  },
+  {
+    "id": "sgk_jnyc4z4",
+    "title": "Vở Bài Tập Tiếng Việt 2 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Tieng_Viet_2_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_jnyc4z4.txt",
+    "charCount": 1130
+  },
+  {
+    "id": "sgk_y49i6fl",
+    "title": "Vở Bài Tập Toán 2 Tập Hai – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Toan_2_Tap_Hai_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_y49i6fl.txt",
+    "charCount": 2067
+  },
+  {
+    "id": "sgk_0dw3swl",
+    "title": "Vở Bài Tập Toán 2 Tập Một – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Toan_2_Tap_Mot_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_0dw3swl.txt",
+    "charCount": 2186
+  },
+  {
+    "id": "sgk_0ajczqg",
+    "title": "Vở Bài Tập Tự Nhiên Và Xã Hội 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Tu_Nhien_Va_Xa_Hoi_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_0ajczqg.txt",
+    "charCount": 1190
+  },
+  {
+    "id": "sgk_mybpl9v",
+    "title": "Vở Bài Tập Đạo Đức 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Vo_Bai_Tap_Dao_Duc_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Vở",
+    "textPath": "/textbook_texts/sgk_mybpl9v.txt",
+    "charCount": 935
+  },
+  {
+    "id": "sgk_wsl2r23",
+    "title": "Đạo Đức 2 Sách Giáo Viên – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Dao_Duc_2_Sach_Giao_Vien_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Đạo",
+    "textPath": "/textbook_texts/sgk_wsl2r23.txt",
+    "charCount": 1070
+  },
+  {
+    "id": "sgk_uqk2ll2",
+    "title": "Đạo Đức 2 – Kết Nối Tri Thức Với Cuộc Sống",
+    "fileName": "SGK_lop_2/Dao_Duc_2_Ket_Noi_Tri_Thuc_Voi_Cuoc_Song.pdf",
+    "grade": "Lớp 2",
+    "subject": "Đạo",
+    "textPath": "/textbook_texts/sgk_uqk2ll2.txt",
+    "charCount": 1085
+  },
+  {
+    "id": "sgk_iilfpvw",
+    "title": "SGK- tin-hoc-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_tin_hoc_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-",
+    "textPath": "/textbook_texts/sgk_iilfpvw.txt",
+    "charCount": 1160
+  },
+  {
+    "id": "sgk_pdizbb2",
+    "title": "SGK-am-nhac-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_am_nhac_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-am-nhac-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_pdizbb2.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_z9grz3b",
+    "title": "SGK-cong-nghe-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_cong_nghe_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-cong-nghe-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_z9grz3b.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_c7gakv0",
+    "title": "SGK-dao-duc-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_dao_duc_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-dao-duc-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_c7gakv0.txt",
+    "charCount": 1040
+  },
+  {
+    "id": "sgk_icrb33b",
+    "title": "SGK-giao-duc-the-chat-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_giao_duc_the_chat_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-giao-duc-the-chat-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_icrb33b.txt",
+    "charCount": 1460
+  },
+  {
+    "id": "sgk_9abr7mr",
+    "title": "SGK-hoat-dong-trai-nghiem-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_hoat_dong_trai_nghiem_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-hoat-dong-trai-nghiem-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_9abr7mr.txt",
+    "charCount": 1761
+  },
+  {
+    "id": "sgk_rmshpum",
+    "title": "SGK-my-thuat-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_my_thuat_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-my-thuat-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_rmshpum.txt",
+    "charCount": 995
+  },
+  {
+    "id": "sgk_rj37r9s",
+    "title": "SGK-tieng-viet-lop-3-tap-1-kntt",
+    "fileName": "SGK_lop_3/SGK_tieng_viet_lop_3_tap_1_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-tieng-viet-lop-3-tap-1-kntt",
+    "textPath": "/textbook_texts/sgk_rj37r9s.txt",
+    "charCount": 2509
+  },
+  {
+    "id": "sgk_k6btefr",
+    "title": "SGK-tieng-viet-lop-3-tap-2-kntt",
+    "fileName": "SGK_lop_3/SGK_tieng_viet_lop_3_tap_2_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-tieng-viet-lop-3-tap-2-kntt",
+    "textPath": "/textbook_texts/sgk_k6btefr.txt",
+    "charCount": 2373
+  },
+  {
+    "id": "sgk_hizkdc9",
+    "title": "SGK-toan-lop-3-tap-1-kntt",
+    "fileName": "SGK_lop_3/SGK_toan_lop_3_tap_1_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-toan-lop-3-tap-1-kntt",
+    "textPath": "/textbook_texts/sgk_hizkdc9.txt",
+    "charCount": 2033
+  },
+  {
+    "id": "sgk_wqz6rkt",
+    "title": "SGK-toan-lop-3-tap-2-kntt",
+    "fileName": "SGK_lop_3/SGK_toan_lop_3_tap_2_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-toan-lop-3-tap-2-kntt",
+    "textPath": "/textbook_texts/sgk_wqz6rkt.txt",
+    "charCount": 2101
+  },
+  {
+    "id": "sgk_4h5jo7l",
+    "title": "SGK-tu-nhien-va-xa-hoi-lop-3-kntt",
+    "fileName": "SGK_lop_3/SGK_tu_nhien_va_xa_hoi_lop_3_kntt.pdf",
+    "grade": "Lớp 3",
+    "subject": "SGK-tu-nhien-va-xa-hoi-lop-3-kntt",
+    "textPath": "/textbook_texts/sgk_4h5jo7l.txt",
+    "charCount": 2033
+  },
+  {
+    "id": "sgk_emt2rvb",
+    "title": "sgk-am-nhac-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_am_nhac_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-am-nhac-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_emt2rvb.txt",
+    "charCount": 1115
+  },
+  {
+    "id": "sgk_rpaqpw9",
+    "title": "sgk-cong-nghe-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_cong_nghe_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-cong-nghe-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_rpaqpw9.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_iv00cid",
+    "title": "sgk-dao-duc-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_dao_duc_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-dao-duc-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_iv00cid.txt",
+    "charCount": 995
+  },
+  {
+    "id": "sgk_nb650pw",
+    "title": "sgk-giao-duc-the-chat-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_giao_duc_the_chat_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-giao-duc-the-chat-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_nb650pw.txt",
+    "charCount": 1400
+  },
+  {
+    "id": "sgk_2gy725l",
+    "title": "sgk-khoa-hoc-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_khoa_hoc_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-khoa-hoc-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_2gy725l.txt",
+    "charCount": 2050
+  },
+  {
+    "id": "sgk_ceblsbp",
+    "title": "sgk-lich-su-va-dia-li-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_lich_su_va_dia_li_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-lich-su-va-dia-li-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_ceblsbp.txt",
+    "charCount": 2033
+  },
+  {
+    "id": "sgk_f3reghz",
+    "title": "sgk-mi-thuat-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_mi_thuat_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-mi-thuat-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_f3reghz.txt",
+    "charCount": 31863
+  },
+  {
+    "id": "sgk_pn4no29",
+    "title": "sgk-tieng-anh-lop-4-global-success-ban-1-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_tieng_anh_lop_4_global_success_ban_1_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-tieng-anh-lop-4-global-success-ban-1-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_pn4no29.txt",
+    "charCount": 1220
+  },
+  {
+    "id": "sgk_4dtcu25",
+    "title": "sgk-tieng-anh-lop-4-global-success-ban-2-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_tieng_anh_lop_4_global_success_ban_2_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-tieng-anh-lop-4-global-success-ban-2-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_4dtcu25.txt",
+    "charCount": 1331
+  },
+  {
+    "id": "sgk_xfosnpy",
+    "title": "sgk-tieng-viet-lop-4-tap-1-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_tieng_viet_lop_4_tap_1_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-tieng-viet-lop-4-tap-1-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_xfosnpy.txt",
+    "charCount": 2458
+  },
+  {
+    "id": "sgk_a39r1em",
+    "title": "sgk-tieng-viet-lop-4-tap-2-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_tieng_viet_lop_4_tap_2_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-tieng-viet-lop-4-tap-2-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_a39r1em.txt",
+    "charCount": 2390
+  },
+  {
+    "id": "sgk_hryt825",
+    "title": "sgk-tin-hoc-lop-4-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_tin_hoc_lop_4_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-tin-hoc-lop-4-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_hryt825.txt",
+    "charCount": 1160
+  },
+  {
+    "id": "sgk_3qp6x6w",
+    "title": "sgk-toan-lop-4-tap-1-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_toan_lop_4_tap_1_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-toan-lop-4-tap-1-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_3qp6x6w.txt",
+    "charCount": 8495
+  },
+  {
+    "id": "sgk_ha6kvvx",
+    "title": "sgk-toan-lop-4-tap-2-ket-noi-tri-thuc",
+    "fileName": "SGK_lop_4/sgk_toan_lop_4_tap_2_ket_noi_tri_thuc.pdf",
+    "grade": "Lớp 4",
+    "subject": "sgk-toan-lop-4-tap-2-ket-noi-tri-thuc",
+    "textPath": "/textbook_texts/sgk_ha6kvvx.txt",
+    "charCount": 7715
+  },
+  {
+    "id": "sgk_shyqeyc",
+    "title": "SGV Am Nhac 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Am_Nhac_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_shyqeyc.txt",
+    "charCount": 1340
+  },
+  {
+    "id": "sgk_vzeyis9",
+    "title": "SGV Công nghệ 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Cong_nghe_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_vzeyis9.txt",
+    "charCount": 800
+  },
+  {
+    "id": "sgk_ma13hsj",
+    "title": "SGV Dao Duc 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Dao_Duc_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_ma13hsj.txt",
+    "charCount": 1625
+  },
+  {
+    "id": "sgk_wbwvfzx",
+    "title": "SGV GDTC 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_GDTC_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_wbwvfzx.txt",
+    "charCount": 1829
+  },
+  {
+    "id": "sgk_b85jejn",
+    "title": "SGV HDTN 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_HDTN_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_b85jejn.txt",
+    "charCount": 3393
+  },
+  {
+    "id": "sgk_my45d2p",
+    "title": "SGV Khoa hoc 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Khoa_hoc_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_my45d2p.txt",
+    "charCount": 2781
+  },
+  {
+    "id": "sgk_fazj3d2",
+    "title": "SGV Lich Su Dia Li 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Lich_Su_Dia_Li_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_fazj3d2.txt",
+    "charCount": 3053
+  },
+  {
+    "id": "sgk_pdp3h1o",
+    "title": "SGV Mi Thuat 5-KNTT",
+    "fileName": "SGK_lop_5/SGV_Mi_Thuat_5_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_pdp3h1o.txt",
+    "charCount": 800
+  },
+  {
+    "id": "sgk_ymb1ljg",
+    "title": "SGV Tieng Viet 5 TẬP 1 - KNTT",
+    "fileName": "SGK_lop_5/SGV_Tieng_Viet_5_TAP_1_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_ymb1ljg.txt",
+    "charCount": 4617
+  },
+  {
+    "id": "sgk_5v1byo8",
+    "title": "SGV Tiếng Việt 5 T2-KNTT",
+    "fileName": "SGK_lop_5/SGV_Tieng_Viet_5_T2_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_5v1byo8.txt",
+    "charCount": 4005
+  },
+  {
+    "id": "sgk_2bhllmc",
+    "title": "SGV Toan 5 TẬP 1 - KNTT",
+    "fileName": "SGK_lop_5/SGV_Toan_5_TAP_1_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_2bhllmc.txt",
+    "charCount": 5093
+  },
+  {
+    "id": "sgk_6cbfr64",
+    "title": "SGV Toan 5-TẬP 2 KNTT",
+    "fileName": "SGK_lop_5/SGV_Toan_5_TAP_2_KNTT.pdf",
+    "grade": "Lớp 5",
+    "subject": "SGV",
+    "textPath": "/textbook_texts/sgk_6cbfr64.txt",
+    "charCount": 5093
+  },
+  {
+    "id": "sgk_6sa6320",
+    "title": "am-nhac-6",
+    "fileName": "SGK_lop_6/am_nhac_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "am-nhac-6",
+    "textPath": "/textbook_texts/sgk_6sa6320.txt",
+    "charCount": 1025
+  },
+  {
+    "id": "sgk_u2uull1",
+    "title": "cong-nghe-6",
+    "fileName": "SGK_lop_6/cong_nghe_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "cong-nghe-6",
+    "textPath": "/textbook_texts/sgk_u2uull1.txt",
+    "charCount": 1145
+  },
+  {
+    "id": "sgk_48d4ifz",
+    "title": "giao-duc-cong-dan-6",
+    "fileName": "SGK_lop_6/giao_duc_cong_dan_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "giao-duc-cong-dan-6",
+    "textPath": "/textbook_texts/sgk_48d4ifz.txt",
+    "charCount": 905
+  },
+  {
+    "id": "sgk_703y409",
+    "title": "giao-duc-the-chat-6",
+    "fileName": "SGK_lop_6/giao_duc_the_chat_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "giao-duc-the-chat-6",
+    "textPath": "/textbook_texts/sgk_703y409.txt",
+    "charCount": 1812
+  },
+  {
+    "id": "sgk_fs0zryz",
+    "title": "hoat-dong-trai-nghiem-huong-nghiep-6",
+    "fileName": "SGK_lop_6/hoat_dong_trai_nghiem_huong_nghiep_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "hoat-dong-trai-nghiem-huong-nghiep-6",
+    "textPath": "/textbook_texts/sgk_fs0zryz.txt",
+    "charCount": 785
+  },
+  {
+    "id": "sgk_eccwsy9",
+    "title": "khoa-hoc-tu-nhien-6",
+    "fileName": "SGK_lop_6/khoa_hoc_tu_nhien_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "khoa-hoc-tu-nhien-6",
+    "textPath": "/textbook_texts/sgk_eccwsy9.txt",
+    "charCount": 3274
+  },
+  {
+    "id": "sgk_kqctvin",
+    "title": "lich-su-va-dia-li-6",
+    "fileName": "SGK_lop_6/lich_su_va_dia_li_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "lich-su-va-dia-li-6",
+    "textPath": "/textbook_texts/sgk_kqctvin.txt",
+    "charCount": 3308
+  },
+  {
+    "id": "sgk_d00fu8y",
+    "title": "mi-thuat-6",
+    "fileName": "SGK_lop_6/mi_thuat_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "mi-thuat-6",
+    "textPath": "/textbook_texts/sgk_d00fu8y.txt",
+    "charCount": 1040
+  },
+  {
+    "id": "sgk_b4vpa18",
+    "title": "ngu-van-6-tap-1",
+    "fileName": "SGK_lop_6/ngu_van_6_tap_1.pdf",
+    "grade": "Lớp 6",
+    "subject": "ngu-van-6-tap-1",
+    "textPath": "/textbook_texts/sgk_b4vpa18.txt",
+    "charCount": 2254
+  },
+  {
+    "id": "sgk_814enga",
+    "title": "ngu-van-6-tap-2",
+    "fileName": "SGK_lop_6/ngu_van_6_tap_2.pdf",
+    "grade": "Lớp 6",
+    "subject": "ngu-van-6-tap-2",
+    "textPath": "/textbook_texts/sgk_814enga.txt",
+    "charCount": 1982
+  },
+  {
+    "id": "sgk_ityfdmj",
+    "title": "shs-tieng-anh-6-tap-1",
+    "fileName": "SGK_lop_6/shs_tieng_anh_6_tap_1.pdf",
+    "grade": "Lớp 6",
+    "subject": "shs-tieng-anh-6-tap-1",
+    "textPath": "/textbook_texts/sgk_ityfdmj.txt",
+    "charCount": 92367
+  },
+  {
+    "id": "sgk_dbu7yze",
+    "title": "shs-tieng-anh-6-tap-2",
+    "fileName": "SGK_lop_6/shs_tieng_anh_6_tap_2.pdf",
+    "grade": "Lớp 6",
+    "subject": "shs-tieng-anh-6-tap-2",
+    "textPath": "/textbook_texts/sgk_dbu7yze.txt",
+    "charCount": 99363
+  },
+  {
+    "id": "sgk_y5qerov",
+    "title": "tin-hoc-6",
+    "fileName": "SGK_lop_6/tin_hoc_6.pdf",
+    "grade": "Lớp 6",
+    "subject": "tin-hoc-6",
+    "textPath": "/textbook_texts/sgk_y5qerov.txt",
+    "charCount": 1145
+  },
+  {
+    "id": "sgk_4o6axps",
+    "title": "toan-6-tap-1",
+    "fileName": "SGK_lop_6/toan_6_tap_1.pdf",
+    "grade": "Lớp 6",
+    "subject": "toan-6-tap-1",
+    "textPath": "/textbook_texts/sgk_4o6axps.txt",
+    "charCount": 2016
+  },
+  {
+    "id": "sgk_73d2uj3",
+    "title": "toan-6-tap-2",
+    "fileName": "SGK_lop_6/toan_6_tap_2.pdf",
+    "grade": "Lớp 6",
+    "subject": "toan-6-tap-2",
+    "textPath": "/textbook_texts/sgk_73d2uj3.txt",
+    "charCount": 1812
+  },
+  {
+    "id": "sgk_lm3h2oc",
+    "title": "Am nhac 7 - ket noi tri thuc va cuoc song",
+    "fileName": "SGK_lop_7/Am_nhac_7_ket_noi_tri_thuc_va_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Am",
+    "textPath": "/textbook_texts/sgk_lm3h2oc.txt",
+    "charCount": 1040
+  },
+  {
+    "id": "sgk_tnfj6tl",
+    "title": "Bai tap khoa hoc tu nhien 7 - ket noi tri thuc voi cuoc song",
+    "fileName": "SGK_lop_7/Bai_tap_khoa_hoc_tu_nhien_7_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Bai",
+    "textPath": "/textbook_texts/sgk_tnfj6tl.txt",
+    "charCount": 2390
+  },
+  {
+    "id": "sgk_6m43xpv",
+    "title": "Bai tap toan 7 tap 1- ket noi",
+    "fileName": "SGK_lop_7/Bai_tap_toan_7_tap_1_ket_noi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Bai",
+    "textPath": "/textbook_texts/sgk_6m43xpv.txt",
+    "charCount": 2237
+  },
+  {
+    "id": "sgk_wozqnsa",
+    "title": "Bai tap toan 7 tap 2- ket noi",
+    "fileName": "SGK_lop_7/Bai_tap_toan_7_tap_2_ket_noi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Bai",
+    "textPath": "/textbook_texts/sgk_wozqnsa.txt",
+    "charCount": 1693
+  },
+  {
+    "id": "sgk_vt30fhu",
+    "title": "Giao duc cong dan 7 - ket noi tri thuc va cuoc song",
+    "fileName": "SGK_lop_7/Giao_duc_cong_dan_7_ket_noi_tri_thuc_va_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Giao",
+    "textPath": "/textbook_texts/sgk_vt30fhu.txt",
+    "charCount": 980
+  },
+  {
+    "id": "sgk_6t6htz1",
+    "title": "Giao duc the chat 7- ketnoi",
+    "fileName": "SGK_lop_7/Giao_duc_the_chat_7_ketnoi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Giao",
+    "textPath": "/textbook_texts/sgk_6t6htz1.txt",
+    "charCount": 1400
+  },
+  {
+    "id": "sgk_tyd32w1",
+    "title": "Khoa hoc tu nhien 7 - ket noi tri thuc voi cuoc song",
+    "fileName": "SGK_lop_7/Khoa_hoc_tu_nhien_7_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Khoa",
+    "textPath": "/textbook_texts/sgk_tyd32w1.txt",
+    "charCount": 2985
+  },
+  {
+    "id": "sgk_wpr3rk9",
+    "title": "Lich su va dia ly 7 - ket noi tri thuc voi cuoc song",
+    "fileName": "SGK_lop_7/Lich_su_va_dia_ly_7_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Lich",
+    "textPath": "/textbook_texts/sgk_wpr3rk9.txt",
+    "charCount": 3053
+  },
+  {
+    "id": "sgk_u2kken8",
+    "title": "Mi thuat 7 ket noi tri thuc voi  cuoc song",
+    "fileName": "SGK_lop_7/Mi_thuat_7_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Mi",
+    "textPath": "/textbook_texts/sgk_u2kken8.txt",
+    "charCount": 1100
+  },
+  {
+    "id": "sgk_7tcd989",
+    "title": "Ngu van 7 tap 1 - ketnoi",
+    "fileName": "SGK_lop_7/Ngu_van_7_tap_1_ketnoi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_7tcd989.txt",
+    "charCount": 1897
+  },
+  {
+    "id": "sgk_o70v27v",
+    "title": "Ngu van 7 tap 1 ket noi tri thuc voi cuoc song",
+    "fileName": "SGK_lop_7/Ngu_van_7_tap_1_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_o70v27v.txt",
+    "charCount": 2305
+  },
+  {
+    "id": "sgk_o1mmyau",
+    "title": "Ngu van 7 tap 2 - ketnoi",
+    "fileName": "SGK_lop_7/Ngu_van_7_tap_2_ketnoi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_o1mmyau.txt",
+    "charCount": 1693
+  },
+  {
+    "id": "sgk_h6snepz",
+    "title": "Ngu van 7 tap 2 ket noi tri thuc voi cuoc song",
+    "fileName": "SGK_lop_7/Ngu_van_7_tap_2_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "grade": "Lớp 7",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_h6snepz.txt",
+    "charCount": 2237
+  },
+  {
+    "id": "sgk_4gw5cdd",
+    "title": "Tin hoc 7",
+    "fileName": "SGK_lop_7/Tin_hoc_7.pdf",
+    "grade": "Lớp 7",
+    "subject": "Tin",
+    "textPath": "/textbook_texts/sgk_4gw5cdd.txt",
+    "charCount": 1280
+  },
+  {
+    "id": "sgk_uioe463",
+    "title": "Toan 7 - tap 1- ketnoi",
+    "fileName": "SGK_lop_7/Toan_7_tap_1_ketnoi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Toan",
+    "textPath": "/textbook_texts/sgk_uioe463.txt",
+    "charCount": 1965
+  },
+  {
+    "id": "sgk_66d7tq0",
+    "title": "Toan 7 - tap 2- ketnoi",
+    "fileName": "SGK_lop_7/Toan_7_tap_2_ketnoi.pdf",
+    "grade": "Lớp 7",
+    "subject": "Toan",
+    "textPath": "/textbook_texts/sgk_66d7tq0.txt",
+    "charCount": 1897
+  },
+  {
+    "id": "sgk_v36jrzm",
+    "title": "am-nhac-8-kntt",
+    "fileName": "SGK_lop_8/am_nhac_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "am-nhac-8-kntt",
+    "textPath": "/textbook_texts/sgk_v36jrzm.txt",
+    "charCount": 1055
+  },
+  {
+    "id": "sgk_8brgqdm",
+    "title": "cong-nghe-8-kntt",
+    "fileName": "SGK_lop_8/cong_nghe_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "cong-nghe-8-kntt",
+    "textPath": "/textbook_texts/sgk_8brgqdm.txt",
+    "charCount": 183476
+  },
+  {
+    "id": "sgk_wixn6th",
+    "title": "gdcd-8-knttvcs",
+    "fileName": "SGK_lop_8/gdcd_8_knttvcs.pdf",
+    "grade": "Lớp 8",
+    "subject": "gdcd-8-knttvcs",
+    "textPath": "/textbook_texts/sgk_wixn6th.txt",
+    "charCount": 1100
+  },
+  {
+    "id": "sgk_d4xr094",
+    "title": "gdtc-8-kntt",
+    "fileName": "SGK_lop_8/gdtc_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "gdtc-8-kntt",
+    "textPath": "/textbook_texts/sgk_d4xr094.txt",
+    "charCount": 1475
+  },
+  {
+    "id": "sgk_7mhvcju",
+    "title": "hdtn-8-kntt",
+    "fileName": "SGK_lop_8/hdtn_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "hdtn-8-kntt",
+    "textPath": "/textbook_texts/sgk_7mhvcju.txt",
+    "charCount": 1130
+  },
+  {
+    "id": "sgk_ws5q69a",
+    "title": "khoa-hoc-tu-nhien-8-kntt",
+    "fileName": "SGK_lop_8/khoa_hoc_tu_nhien_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "khoa-hoc-tu-nhien-8-kntt",
+    "textPath": "/textbook_texts/sgk_ws5q69a.txt",
+    "charCount": 3274
+  },
+  {
+    "id": "sgk_u1ha8l0",
+    "title": "lich-su-dia-li-8-kntt",
+    "fileName": "SGK_lop_8/lich_su_dia_li_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "lich-su-dia-li-8-kntt",
+    "textPath": "/textbook_texts/sgk_u1ha8l0.txt",
+    "charCount": 2917
+  },
+  {
+    "id": "sgk_kpuqdfb",
+    "title": "mi-thuat-8-kntt",
+    "fileName": "SGK_lop_8/mi_thuat_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "mi-thuat-8-kntt",
+    "textPath": "/textbook_texts/sgk_kpuqdfb.txt",
+    "charCount": 1100
+  },
+  {
+    "id": "sgk_47w83k7",
+    "title": "ngu-van-8-tap-1-kntt",
+    "fileName": "SGK_lop_8/ngu_van_8_tap_1_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "ngu-van-8-tap-1-kntt",
+    "textPath": "/textbook_texts/sgk_47w83k7.txt",
+    "charCount": 2169
+  },
+  {
+    "id": "sgk_94eulz5",
+    "title": "ngu-van-8-tap-2-kntt",
+    "fileName": "SGK_lop_8/ngu_van_8_tap_2_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "ngu-van-8-tap-2-kntt",
+    "textPath": "/textbook_texts/sgk_94eulz5.txt",
+    "charCount": 2322
+  },
+  {
+    "id": "sgk_x1kiyw5",
+    "title": "tieng-anh-8-kntt",
+    "fileName": "SGK_lop_8/tieng_anh_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "tieng-anh-8-kntt",
+    "textPath": "/textbook_texts/sgk_x1kiyw5.txt",
+    "charCount": 2305
+  },
+  {
+    "id": "sgk_sdxvh7r",
+    "title": "tin-hoc-8-kntt",
+    "fileName": "SGK_lop_8/tin_hoc_8_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "tin-hoc-8-kntt",
+    "textPath": "/textbook_texts/sgk_sdxvh7r.txt",
+    "charCount": 1475
+  },
+  {
+    "id": "sgk_gth941p",
+    "title": "toan-8-tap-1-kntt",
+    "fileName": "SGK_lop_8/toan_8_tap_1_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "toan-8-tap-1-kntt",
+    "textPath": "/textbook_texts/sgk_gth941p.txt",
+    "charCount": 2033
+  },
+  {
+    "id": "sgk_vv6nqu2",
+    "title": "toan-8-tap-2-kntt",
+    "fileName": "SGK_lop_8/toan_8_tap_2_kntt.pdf",
+    "grade": "Lớp 8",
+    "subject": "toan-8-tap-2-kntt",
+    "textPath": "/textbook_texts/sgk_vv6nqu2.txt",
+    "charCount": 2322
+  },
+  {
+    "id": "sgk_kp83pz4",
+    "title": "Cong nghe 9 Dinh huong nghe nghiep Ket noi tri thuc c3609",
+    "fileName": "SGK_lop_9/Cong_nghe_9_Dinh_huong_nghe_nghiep_Ket_noi_tri_thuc_c3609.pdf",
+    "grade": "Lớp 9",
+    "subject": "Cong",
+    "textPath": "/textbook_texts/sgk_kp83pz4.txt",
+    "charCount": 1784
+  },
+  {
+    "id": "sgk_pzyagrh",
+    "title": "Cong nghe 9 Lap dat mang dien trong nha Ket noi tri thuc 445fb",
+    "fileName": "SGK_lop_9/Cong_nghe_9_Lap_dat_mang_dien_trong_nha_Ket_noi_tri_thuc_445fb.pdf",
+    "grade": "Lớp 9",
+    "subject": "Cong",
+    "textPath": "/textbook_texts/sgk_pzyagrh.txt",
+    "charCount": 2106
+  },
+  {
+    "id": "sgk_s36zbp0",
+    "title": "Cong nghe 9 Trong cay an qua Ket noi tri thuc 923c5",
+    "fileName": "SGK_lop_9/Cong_nghe_9_Trong_cay_an_qua_Ket_noi_tri_thuc_923c5.pdf",
+    "grade": "Lớp 9",
+    "subject": "Cong",
+    "textPath": "/textbook_texts/sgk_s36zbp0.txt",
+    "charCount": 3256
+  },
+  {
+    "id": "sgk_skwkclc",
+    "title": "Giao duc the chat 9 Ket noi tri thuc a1d97",
+    "fileName": "SGK_lop_9/Giao_duc_the_chat_9_Ket_noi_tri_thuc_a1d97.pdf",
+    "grade": "Lớp 9",
+    "subject": "Giao",
+    "textPath": "/textbook_texts/sgk_skwkclc.txt",
+    "charCount": 4575
+  },
+  {
+    "id": "sgk_6094c08",
+    "title": "Hoat dong trai nghiem 9 Ket noi tri thuc 6af45",
+    "fileName": "SGK_lop_9/Hoat_dong_trai_nghiem_9_Ket_noi_tri_thuc_6af45.pdf",
+    "grade": "Lớp 9",
+    "subject": "Hoat",
+    "textPath": "/textbook_texts/sgk_6094c08.txt",
+    "charCount": 3072
+  },
+  {
+    "id": "sgk_88b7hx7",
+    "title": "Khoa hoc tu nhien 9 Ket noi tri thuc 606ff",
+    "fileName": "SGK_lop_9/Khoa_hoc_tu_nhien_9_Ket_noi_tri_thuc_606ff.pdf",
+    "grade": "Lớp 9",
+    "subject": "Khoa",
+    "textPath": "/textbook_texts/sgk_88b7hx7.txt",
+    "charCount": 1863
+  },
+  {
+    "id": "sgk_mxpxioc",
+    "title": "Lich su va Dia li 9 - Ket noi tri thuc 71137",
+    "fileName": "SGK_lop_9/Lich_su_va_Dia_li_9_Ket_noi_tri_thuc_71137.pdf",
+    "grade": "Lớp 9",
+    "subject": "Lich",
+    "textPath": "/textbook_texts/sgk_mxpxioc.txt",
+    "charCount": 224847
+  },
+  {
+    "id": "sgk_c5sp3pf",
+    "title": "Mi thuat 9 Ket noi tri thuc d3f98",
+    "fileName": "SGK_lop_9/Mi_thuat_9_Ket_noi_tri_thuc_d3f98.pdf",
+    "grade": "Lớp 9",
+    "subject": "Mi",
+    "textPath": "/textbook_texts/sgk_c5sp3pf.txt",
+    "charCount": 3440
+  },
+  {
+    "id": "sgk_hjbzcev",
+    "title": "Ngu van 9 Tap 1 Ket noi tri thuc ff5fb",
+    "fileName": "SGK_lop_9/Ngu_van_9_Tap_1_Ket_noi_tri_thuc_ff5fb.pdf",
+    "grade": "Lớp 9",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_hjbzcev.txt",
+    "charCount": 7331
+  },
+  {
+    "id": "sgk_xpjk83q",
+    "title": "Ngu van 9 Tap 2 Ket noi tri thuc 53272",
+    "fileName": "SGK_lop_9/Ngu_van_9_Tap_2_Ket_noi_tri_thuc_53272.pdf",
+    "grade": "Lớp 9",
+    "subject": "Ngu",
+    "textPath": "/textbook_texts/sgk_xpjk83q.txt",
+    "charCount": 7170
+  },
+  {
+    "id": "sgk_j1me7j5",
+    "title": "Tieng Anh 9 Global success 95621",
+    "fileName": "SGK_lop_9/Tieng_Anh_9_Global_success_95621.pdf",
+    "grade": "Lớp 9",
+    "subject": "Tieng",
+    "textPath": "/textbook_texts/sgk_j1me7j5.txt",
+    "charCount": 5488
+  },
+  {
+    "id": "sgk_cg5j478",
+    "title": "Tin hoc 9 Ket noi tri thuc 80848",
+    "fileName": "SGK_lop_9/Tin_hoc_9_Ket_noi_tri_thuc_80848.pdf",
+    "grade": "Lớp 9",
+    "subject": "Tin",
+    "textPath": "/textbook_texts/sgk_cg5j478.txt",
+    "charCount": 4360
+  },
+  {
+    "id": "sgk_0k9as80",
+    "title": "Toan lop 9 Tap 1 Ket noi tri thuc 63cd7",
+    "fileName": "SGK_lop_9/Toan_lop_9_Tap_1_Ket_noi_tri_thuc_63cd7.pdf",
+    "grade": "Lớp 9",
+    "subject": "Toan",
+    "textPath": "/textbook_texts/sgk_0k9as80.txt",
+    "charCount": 1982
+  },
+  {
+    "id": "sgk_b3n1zaa",
+    "title": "Toan lop 9 Tap 2 Ket noi tri thuc 5e204",
+    "fileName": "SGK_lop_9/Toan_lop_9_Tap_2_Ket_noi_tri_thuc_5e204.pdf",
+    "grade": "Lớp 9",
+    "subject": "Toan",
+    "textPath": "/textbook_texts/sgk_b3n1zaa.txt",
+    "charCount": 2186
+  }
+]

@@ -1,7 +1,188 @@
 import * as XLSX from 'xlsx';
+import { parseUniversalFile } from './universalParser';
 
-// Export standard question template to Excel .xlsx
-export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game') {
+export { parseUniversalFile };
+
+function removeAccents(str = '') {
+  return String(str)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+    .trim();
+}
+
+// 1. Export Fruit Ninja / Bắt Bóng Bóng Excel Template
+export function downloadFruitNinjaExcelTemplate() {
+  const sampleData = [
+    {
+      'STT': 1,
+      'Câu hỏi': 'Tỉnh/Thành phố nào thuộc khu vực Đông Nam Bộ Việt Nam?',
+      'Đáp án đúng duy nhất': 'Bình Dương',
+      'Các đáp án nhiễu (phân cách bằng dấu phẩy hoặc dấu phẩy gõ)': 'Hà Nội, Đà Nẵng, Hải Phòng, Lào Cai, Bắc Ninh, Lạng Sơn, Cà Mau, Cần Thơ',
+      'Giải thích / Gợi ý': 'Bình Dương thuộc vùng Đông Nam Bộ.'
+    },
+    {
+      'STT': 2,
+      'Câu hỏi': 'Ký hiệu hóa học của nguyên tố Vàng trong bảng tuần hoàn là gì?',
+      'Đáp án đúng duy nhất': 'Au',
+      'Các đáp án nhiễu (phân cách bằng dấu phẩy hoặc dấu phẩy gõ)': 'Ag, Fe, Cu, Pb, Hg, Zn, Al, Na, Ca',
+      'Giải thích / Gợi ý': 'Au xuất phát từ Aurum tiếng Latinh.'
+    },
+    {
+      'STT': 3,
+      'Câu hỏi': 'Số nào sau đây là số nguyên tố?',
+      'Đáp án đúng duy nhất': '17',
+      'Các đáp án nhiễu (phân cách bằng dấu phẩy hoặc dấu phẩy gõ)': '4, 6, 8, 9, 12, 15, 18, 21, 25',
+      'Giải thích / Gợi ý': '17 chỉ chia hết cho 1 và chính nó.'
+    },
+    {
+      'STT': 4,
+      'Câu hỏi': 'Tác giả của tác phẩm "Truyện Kiều" là ai?',
+      'Đáp án đúng duy nhất': 'Nguyễn Du',
+      'Các đáp án nhiễu (phân cách bằng dấu phẩy hoặc dấu phẩy gõ)': 'Nguyễn Trãi, Lý Thường Kiệt, Trần Hưng Đạo, Hồ Xuân Hương, Xuân Diệu',
+      'Giải thích / Gợi ý': 'Đại thi hào Nguyễn Du.'
+    },
+    {
+      'STT': 5,
+      'Câu hỏi': 'Hành tinh nào được gọi là Hành Tinh Đỏ trong Hệ Mặt Trời?',
+      'Đáp án đúng duy nhất': 'Sao Hỏa',
+      'Các đáp án nhiễu (phân cách bằng dấu phẩy hoặc dấu phẩy gõ)': 'Sao Kim, Sao Thủy, Sao Mộc, Sao Thổ, Sao Hải Vương, Trái Đất',
+      'Giải thích / Gợi ý': 'Sao Hỏa (Mars) có bề mặt chứa sắt oxit màu đỏ.'
+    }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(sampleData);
+  worksheet['!cols'] = [
+    { wch: 6 },
+    { wch: 45 },
+    { wch: 25 },
+    { wch: 60 },
+    { wch: 35 }
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'CauHoiChemHoaQua');
+  XLSX.writeFile(workbook, 'Mau_Cau_Hoi_Chem_Hoa_Qua_Bat_Bong_Bong.xlsx');
+}
+
+// 2. Export Game Nghiêng Đầu Chuẩn Excel Template (Only 2 options: A & B)
+export function downloadHeadTiltExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Nghieng_Dau_Chuan') {
+  const sampleData = [
+    {
+      'STT': 1,
+      'Câu hỏi': 'Số nào sau đây là số chẵn?',
+      'Đáp án A': '12',
+      'Đáp án B': '15',
+      'Đáp án đúng (A/B)': 'A',
+      'Giải thích / Gợi ý': '12 chia hết cho 2.'
+    },
+    {
+      'STT': 2,
+      'Câu hỏi': 'Trái Đất quay quanh Mặt Trời hay Mặt Trời quay quanh Trái Đất?',
+      'Đáp án A': 'Trái Đất quay quanh Mặt Trời',
+      'Đáp án B': 'Mặt Trời quay quanh Trái Đất',
+      'Đáp án đúng (A/B)': 'A',
+      'Giải thích / Gợi ý': 'Trái Đất là hành tinh chuyển động quanh Mặt Trời.'
+    },
+    {
+      'STT': 3,
+      'Câu hỏi': 'Nước nào sau đây thuộc khu vực Đông Nam Á?',
+      'Đáp án A': 'Việt Nam',
+      'Đáp án B': 'Nhật Bản',
+      'Đáp án đúng (A/B)': 'A',
+      'Giải thích / Gợi ý': 'Việt Nam nằm ở khu vực Đông Nam Á.'
+    },
+    {
+      'STT': 4,
+      'Câu hỏi': 'Hành tinh nào lớn nhất trong Hệ Mặt Trời?',
+      'Đáp án A': 'Sao Mộc (Jupiter)',
+      'Đáp án B': 'Trái Đất (Earth)',
+      'Đáp án đúng (A/B)': 'A',
+      'Giải thích / Gợi ý': 'Sao Mộc có kích thước lớn nhất.'
+    },
+    {
+      'STT': 5,
+      'Câu hỏi': 'Công thức hóa học của nước là gì?',
+      'Đáp án A': 'H2O',
+      'Đáp án B': 'CO2',
+      'Đáp án đúng (A/B)': 'A',
+      'Giải thích / Gợi ý': 'H2O gồm 2 nguyên tử Hydro và 1 nguyên tử Oxy.'
+    }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(sampleData);
+  worksheet['!cols'] = [
+    { wch: 6 },
+    { wch: 45 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 22 },
+    { wch: 35 }
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'CauHoiNghiengDau');
+  XLSX.writeFile(workbook, 'Mau_Cau_Hoi_Nghieng_Dau_Chuan.xlsx');
+}
+
+// 3. Export Game Đua Vịt & Đua Rùa Student List Excel Template
+export function downloadStudentListExcelTemplate(gameTitle = 'Mau_Danh_Sach_Hoc_Sinh_Dua_Vit_Dua_Rua') {
+  const sampleData = [
+    { 'STT': 1, 'Họ và tên học sinh': 'Nguyễn Văn An', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 2, 'Họ và tên học sinh': 'Trần Thị Bình', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 3, 'Họ và tên học sinh': 'Lê Hoàng Cường', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 4, 'Họ và tên học sinh': 'Phạm Minh Đức', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 5, 'Họ và tên học sinh': 'Hoàng Ngọc Anh', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 6, 'Họ và tên học sinh': 'Đỗ Thanh Hà', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 7, 'Họ và tên học sinh': 'Bùi Hữu Phước', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 8, 'Họ và tên học sinh': 'Ngô Hải Yến', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 9, 'Họ và tên học sinh': 'Vũ Quốc Hùng', 'Ghi chú / Nhóm': 'Lớp 10A1' },
+    { 'STT': 10, 'Họ và tên học sinh': 'Đặng Mai Phương', 'Ghi chú / Nhóm': 'Lớp 10A1' }
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(sampleData);
+  worksheet['!cols'] = [
+    { wch: 6 },
+    { wch: 30 },
+    { wch: 25 }
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachHocSinh');
+  XLSX.writeFile(workbook, 'Mau_Danh_Sach_Hoc_Sinh_Dua_Vit_Dua_Rua.xlsx');
+}
+
+// 4. Main Export Function Router
+export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType = '') {
+  const normTitle = removeAccents(gameTitle);
+  const normEngine = removeAccents(engineType);
+
+  // Game Đua Vịt & Game Đua Rùa -> Student Name List Template
+  if (
+    normEngine === 'duck-race' || normEngine === 'turtle-race' || normEngine === 'racing' ||
+    normTitle.includes('dua vit') || normTitle.includes('dua rua')
+  ) {
+    return downloadStudentListExcelTemplate(gameTitle);
+  }
+
+  // Game Nghiêng đầu chuẩn -> 2 Options (A & B) Template
+  if (
+    normEngine === 'tilt' || normEngine === 'tilt-head' || normEngine === 'head-tilt' ||
+    normTitle.includes('nghieng dau')
+  ) {
+    return downloadHeadTiltExcelTemplate(gameTitle);
+  }
+
+  // Game Chém Hoa Quả / Bắt Bóng Bóng -> Fruit Ninja Template
+  if (
+    normEngine === 'fruit-ninja' || normTitle.includes('hoa qua') || normTitle.includes('bong bong')
+  ) {
+    return downloadFruitNinjaExcelTemplate();
+  }
+
+  // Standard 4 Options (A, B, C, D) Template for all other games
   const sampleData = [
     {
       'STT': 1,
@@ -15,12 +196,12 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game') {
     },
     {
       'STT': 2,
-      'Câu hỏi': 'Kết quả của phép tính 15 + 27 là bao nhiêu?',
-      'Đáp án A': '32',
-      'Đáp án B': '42',
-      'Đáp án C': '52',
-      'Đáp án D': '45',
-      'Đáp án đúng (A/B/C/D)': 'B',
+      'Câu hỏi': 'Kết quả của phép tính 15 + 27 là 42',
+      'Đáp án A': 'Đúng',
+      'Đáp án B': 'Sai',
+      'Đáp án C': '',
+      'Đáp án D': '',
+      'Đáp án đúng (A/B/C/D)': 'A',
       'Giải thích / Gợi ý': '15 + 27 = 42.'
     },
     {
@@ -57,7 +238,6 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game') {
 
   const worksheet = XLSX.utils.json_to_sheet(sampleData);
 
-  // Set column widths
   worksheet['!cols'] = [
     { wch: 6 },
     { wch: 45 },
@@ -76,65 +256,7 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game') {
   XLSX.writeFile(workbook, safeFileName);
 }
 
-// Parse uploaded Excel / CSV file into standard questions array
+// Parse uploaded file into standard questions array using Universal Parser
 export function parseExcelFile(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const rawJson = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-
-        if (!rawJson || rawJson.length === 0) {
-          reject(new Error('File Excel rỗng hoặc không đúng định dạng.'));
-          return;
-        }
-
-        const questions = rawJson.map((row, index) => {
-          const qText = row['Câu hỏi'] || row['Cau hoi'] || row['Question'] || row['CAU_HOI'] || Object.values(row)[1] || '';
-          const optA = row['Đáp án A'] || row['Dap an A'] || row['Option A'] || row['A'] || Object.values(row)[2] || '';
-          const optB = row['Đáp án B'] || row['Dap an B'] || row['Option B'] || row['B'] || Object.values(row)[3] || '';
-          const optC = row['Đáp án C'] || row['Dap an C'] || row['Option C'] || row['C'] || Object.values(row)[4] || '';
-          const optD = row['Đáp án D'] || row['Dap an D'] || row['Option D'] || row['D'] || Object.values(row)[5] || '';
-          
-          let correct = String(row['Đáp án đúng (A/B/C/D)'] || row['Đáp án đúng'] || row['Correct'] || Object.values(row)[6] || 'A').trim().toUpperCase();
-          if (!['A', 'B', 'C', 'D'].includes(correct)) {
-            if (correct === '1' || correct.includes(optA)) correct = 'A';
-            else if (correct === '2' || correct.includes(optB)) correct = 'B';
-            else if (correct === '3' || correct.includes(optC)) correct = 'C';
-            else if (correct === '4' || correct.includes(optD)) correct = 'D';
-            else correct = 'A';
-          }
-
-          const explanation = row['Giải thích / Gợi ý'] || row['Giai thich'] || row['Explanation'] || row['Gợi ý'] || '';
-
-          return {
-            id: `q_${Date.now()}_${index}`,
-            question: String(qText).trim(),
-            options: [
-              String(optA).trim(),
-              String(optB).trim(),
-              String(optC).trim(),
-              String(optD).trim()
-            ],
-            correct: correct,
-            explanation: String(explanation).trim()
-          };
-        }).filter(q => q.question.length > 0);
-
-        if (questions.length === 0) {
-          reject(new Error('Không tìm thấy danh sách câu hỏi hợp lệ trong tệp Excel.'));
-        } else {
-          resolve(questions);
-        }
-      } catch (err) {
-        reject(new Error('Lỗi khi đọc file Excel/CSV: ' + err.message));
-      }
-    };
-    reader.onerror = () => reject(new Error('Không thể đọc tệp.'));
-    reader.readAsArrayBuffer(file);
-  });
+  return parseUniversalFile(file);
 }

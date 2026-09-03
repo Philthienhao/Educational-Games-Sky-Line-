@@ -1,5 +1,19 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/((?!assets/|textbooks/|textbook_texts/|.*\\.(?:pdf|txt|png|jpg|jpeg|svg|ico|js|css|json)$).*)",
+      "destination": "/index.html"
+    }
   ]
 }

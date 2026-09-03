@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Gift, Sparkles, CheckCircle2, XCircle, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
 export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
   const [openedBoxes, setOpenedBoxes] = useState([]);
@@ -33,6 +34,25 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
   }));
 
   const currentQ = activeBoxIndex !== null ? (questions[activeBoxIndex % questions.length] || questions[0]) : null;
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (activeBoxIndex === null || answerState) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAnswerState('timeout');
+          setSelectedOption('TIMEOUT');
+          try { SoundFX.wrong(); } catch(e) {}
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeBoxIndex, answerState]);
 
   const handleOpenBox = (idx) => {
     if (openedBoxes.includes(idx) || answerState) return;
@@ -175,6 +195,7 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
                 const optText = currentQ.options[idx];
                 const isSelected = selectedOption === optLabel;
                 const isCorrect = currentQ.correct === optLabel;

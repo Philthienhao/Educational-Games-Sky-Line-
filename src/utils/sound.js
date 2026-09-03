@@ -140,5 +140,9 @@ export const SoundFX = {
         offset += item.d;
       });
     } catch (e) {}
-  }
+  },
+
+  // Aliases for safety
+  win: function() { this.fanfare(); },
+  success: function() { this.correct(); }
 };

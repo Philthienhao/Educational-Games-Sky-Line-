@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, CheckCircle2, XCircle, Sparkles, Image as ImageIcon, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { isOptionValidForQuestion } from '../../utils/universalParser';
 
 export function PictureFlipGame({ questions, teams, onAddPoints, game, secretImage, activeTeamIndex = 0, setActiveTeamIndex }) {
   const [revealedTiles, setRevealedTiles] = useState([]);
@@ -27,6 +28,25 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
   const totalTiles = Math.max(6, questions?.length || 9);
 
   const currentQ = activeTileIndex !== null ? (questions[activeTileIndex % questions.length] || questions[0]) : null;
+  const [timeLeft, setTimeLeft] = useState(20);
+
+  useEffect(() => {
+    if (activeTileIndex === null || answerState) return;
+    setTimeLeft(20);
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setAnswerState('timeout');
+          setSelectedOption('TIMEOUT');
+          try { SoundFX.wrong(); } catch(e) {}
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTileIndex, answerState]);
 
   const handleTileClick = (idx) => {
     if (revealedTiles.includes(idx) || answerState) return;
@@ -191,6 +211,7 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
                 const optText = currentQ.options[idx];
                 const isSelected = selectedOption === optLabel;
                 const isCorrect = currentQ.correct === optLabel;
