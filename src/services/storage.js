@@ -495,6 +495,9 @@ export const StorageService = {
         const idx = users.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === iuName);
         if (idx === -1) {
           users.push(iu);
+        } else {
+          // Keep seed account credentials synced with latest INITIAL_USERS seed configuration
+          users[idx] = { ...users[idx], ...iu };
         }
       });
       localStorage.setItem(USERS_KEY, JSON.stringify(users));
