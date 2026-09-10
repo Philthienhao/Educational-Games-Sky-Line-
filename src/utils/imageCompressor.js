@@ -119,14 +119,14 @@ export async function optimizeHomeroomClassData(classData) {
   );
 
   let classBgImage = classData.classBgImage;
-  if (classBgImage && typeof classBgImage === 'string' && classBgImage.startsWith('data:image') && classBgImage.length > 80000) {
-    classBgImage = await compressImage(classBgImage, 800, 800, 0.7);
+  if (classBgImage && typeof classBgImage === 'string' && classBgImage.startsWith('data:image') && classBgImage.length > 5000000) {
+    classBgImage = await compressImage(classBgImage, 2560, 2560, 0.92);
     hasChanges = true;
   }
 
   let classPhoto = classData.classPhoto;
-  if (classPhoto && typeof classPhoto === 'string' && classPhoto.startsWith('data:image') && classPhoto.length > 80000) {
-    classPhoto = await compressImage(classPhoto, 800, 800, 0.7);
+  if (classPhoto && typeof classPhoto === 'string' && classPhoto.startsWith('data:image') && classPhoto.length > 5000000) {
+    classPhoto = await compressImage(classPhoto, 2560, 2560, 0.92);
     hasChanges = true;
   }
 

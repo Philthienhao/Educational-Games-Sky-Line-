@@ -205,20 +205,20 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
           📝 DÃY THI CÔNG NỐI CÂU THÀNH CÂU HOÀN CHỈNH:
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', minHeight: '48px' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', minHeight: '56px' }}>
           {selectedWords.length > 0 ? (
             selectedWords.map((w, idx) => (
               <span
                 key={idx}
                 style={{
-                  padding: '10px 20px',
-                  borderRadius: '14px',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
                   background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                  color: '#fff',
-                  fontWeight: 800,
-                  fontSize: '1.2rem',
-                  boxShadow: '0 4px 15px rgba(139, 92, 246, 0.4)',
-                  border: '1px solid #ddd6fe',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '1.45rem',
+                  boxShadow: '0 6px 20px rgba(139, 92, 246, 0.4)',
+                  border: '1.5px solid #ddd6fe',
                   animation: 'popIn 0.3s ease'
                 }}
               >
@@ -226,14 +226,13 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
               </span>
             ))
           ) : (
-            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.95rem', fontStyle: 'italic' }}>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '1.15rem', fontStyle: 'italic', fontWeight: 700 }}>
               ☁️ Bấm chọn các đám mây từ đang bay bên dưới để ghép câu tại đây...
             </span>
           )}
         </div>
       </div>
 
-      {/* FLYING WORD CLOUDS SKY CANVAS */}
       {!isGameStarted ? (
         <StartGameOverlay
           title="Ghép Từ Bay Lơ Lửng"
@@ -268,20 +267,20 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
               onClick={() => handleSelectWord(item)}
               disabled={isSuccess}
               style={{
-                padding: '16px 28px',
+                padding: '18px 32px',
                 borderRadius: '50px',
                 background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(224, 231, 255, 0.9) 100%)',
                 color: '#1e1b4b',
                 fontWeight: 900,
-                fontSize: '1.25rem',
-                border: '3px solid #818cf8',
+                fontSize: '1.45rem',
+                border: '3.5px solid #818cf8',
                 cursor: 'pointer',
                 boxShadow: '0 8px 20px rgba(99, 102, 241, 0.4), inset 0 2px 4px rgba(255,255,255,0.8)',
                 animation: `${animName} ${animDuration} infinite ease-in-out`,
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '10px'
               }}
             >
               ☁️ {item.text}

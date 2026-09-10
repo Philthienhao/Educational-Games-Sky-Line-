@@ -142,6 +142,71 @@ export const SoundFX = {
     } catch (e) {}
   },
 
+  // Urgent Timer Tick (Pitch increases as time gets closer to 0)
+  timerUrgentTick: (pitchMultiplier = 1) => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      const freq = Math.min(1800, 900 * pitchMultiplier);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.06);
+    } catch (e) {}
+  },
+
+  // Loud Alarm Bell when Timer reaches 0
+  alarmBell: () => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const ringNotes = [1046.5, 1318.5, 1567.98, 2093.0]; // C6, E6, G6, C7
+      for (let i = 0; i < 4; i++) {
+        ringNotes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          const startTime = now + i * 0.25 + idx * 0.05;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.4, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.22);
+        });
+      }
+    } catch (e) {}
+  },
+
+  // Claw Machine Motor sound
+  clawGrab: () => {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(350, now + 0.3);
+      osc.frequency.linearRampToValueAtTime(180, now + 0.6);
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.65);
+    } catch (e) {}
+  },
+
   // Aliases for safety
   win: function() { this.fanfare(); },
   success: function() { this.correct(); }

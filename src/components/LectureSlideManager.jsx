@@ -15,14 +15,16 @@ import {
   Edit, 
   HardDrive, 
   FolderOpen,
-  FolderPlus
+  FolderPlus,
+  Download,
+  Upload
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
 export function LectureSlideManager({ searchTerm = '', currentUser }) {
-  // Strictly resolve userId from prop first, then from session — NEVER default to 'guest' or admin
+  // Strictly resolve userId safely
   const resolvedUser = currentUser || StorageService.getCurrentUser();
-  const effectiveUserId = resolvedUser?.id || null;
+  const effectiveUserId = StorageService.getEffectiveUserId(currentUser?.id || resolvedUser?.id);
   const currentUserName = resolvedUser?.name || 'Giáo Viên';
 
   // Array of Teacher-Created Grade Folders [{ id, grade, title, driveUrl, createdAt }, ...]
@@ -229,6 +231,28 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
     }
   };
 
+  const handleExportSlideBackup = () => {
+    StorageService.exportSlidesBackup(effectiveUserId);
+    triggerToast('📥 Đã tải về tệp sao lưu Slide bài giảng (.json)!');
+  };
+
+  const handleImportSlideBackup = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const result = StorageService.importSlidesBackup(effectiveUserId, evt.target.result);
+      if (result.success) {
+        setSlidesList(StorageService.getLectureSlides(effectiveUserId));
+        triggerToast('🎉 ' + result.message);
+      } else {
+        alert('❌ ' + result.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   // Options lists
   const standardGradesList = [
     'Lớp 1', 'Lớp 2', 'Lớp 3', 'Lớp 4', 'Lớp 5',
@@ -350,6 +374,57 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              onClick={handleExportSlideBackup}
+              title="Xuất toàn bộ dữ liệu Slide bài giảng thành tệp sao lưu JSON"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                color: '#e0e7ff',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                padding: '12px 18px',
+                borderRadius: '18px',
+                fontWeight: 800,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Download size={18} color="#a5b4fc" />
+              Xuất JSON Slide
+            </button>
+
+            <label
+              title="Nhập dữ liệu Slide bài giảng từ tệp sao lưu JSON"
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                color: '#e0e7ff',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                padding: '12px 18px',
+                borderRadius: '18px',
+                fontWeight: 800,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <Upload size={18} color="#a5b4fc" />
+              Nhập JSON Slide
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleImportSlideBackup}
+                style={{ display: 'none' }}
+              />
+            </label>
+
             <button
               onClick={handleOpenAddFolderModal}
               style={{

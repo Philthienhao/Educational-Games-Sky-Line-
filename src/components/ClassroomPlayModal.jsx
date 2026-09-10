@@ -20,6 +20,11 @@ import { TugOfWarDualGame } from './games/TugOfWarDualGame';
 import { JeopardyGame } from './games/JeopardyGame';
 import { HeadTiltGame } from './games/HeadTiltGame';
 import { PoseImitationGame } from './games/PoseImitationGame';
+import { ClawMachineGame } from './games/ClawMachineGame';
+import { AstronautExplorerGame } from './games/AstronautExplorerGame';
+import { MagicHatGame } from './games/MagicHatGame';
+import { MagicGrimoireGame } from './games/MagicGrimoireGame';
+import { TowerBuilderGame } from './games/TowerBuilderGame';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
@@ -62,7 +67,7 @@ class GameErrorBoundary extends React.Component {
   }
 }
 
-export function ClassroomPlayModal({ game, onClose }) {
+export function ClassroomPlayModal({ game, onClose, currentUser }) {
   if (!game) return null;
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -197,6 +202,9 @@ export function ClassroomPlayModal({ game, onClose }) {
       case 'pose-imitation':
         component = <PoseImitationGame {...commonProps} onClose={onClose} lessonTitle={game?.lessonTitle} title={game?.title} />;
         break;
+      case 'tower-builder':
+        component = <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />;
+        break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
         break;
@@ -209,7 +217,7 @@ export function ClassroomPlayModal({ game, onClose }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'jungle-rescue') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder') {
     return (
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -222,11 +230,21 @@ export function ClassroomPlayModal({ game, onClose }) {
           overflow: 'hidden'
         }}>
           {engineType === 'duck-race' ? (
-            <DuckRaceGame {...commonProps} onClose={onClose} />
+            <DuckRaceGame {...commonProps} game={game} onClose={onClose} />
           ) : engineType === 'turtle-race' ? (
-            <TurtleRaceGame {...commonProps} onClose={onClose} />
+            <TurtleRaceGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'claw-machine' ? (
+            <ClawMachineGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+          ) : engineType === 'astronaut-explorer' ? (
+            <AstronautExplorerGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+          ) : engineType === 'magic-hat' ? (
+            <MagicHatGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+          ) : engineType === 'magic-grimoire' ? (
+            <MagicGrimoireGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+          ) : engineType === 'tower-builder' ? (
+            <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
           ) : (
-            <JungleRescueGame {...commonProps} onClose={onClose} />
+            <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
           )}
         </div>
       </GameErrorBoundary>

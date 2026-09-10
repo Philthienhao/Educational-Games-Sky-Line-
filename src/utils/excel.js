@@ -159,10 +159,12 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType
   const normTitle = removeAccents(gameTitle);
   const normEngine = removeAccents(engineType);
 
-  // Game Đua Vịt & Game Đua Rùa -> Student Name List Template
+  // Game Đua Vịt, Game Đua Rùa, Gắp Thú, Phi Hành Gia, Mũ Ma Thuật, Cổ Thư -> Student Name List Template
   if (
-    normEngine === 'duck-race' || normEngine === 'turtle-race' || normEngine === 'racing' ||
-    normTitle.includes('dua vit') || normTitle.includes('dua rua')
+    normEngine === 'duck-race' || normEngine === 'turtle-race' || normEngine === 'claw-machine' ||
+    normEngine === 'astronaut-explorer' || normEngine === 'magic-hat' || normEngine === 'magic-grimoire' || normEngine === 'racing' ||
+    normTitle.includes('dua vit') || normTitle.includes('dua rua') || normTitle.includes('gap thu') ||
+    normTitle.includes('phi hanh gia') || normTitle.includes('chiec mu') || normTitle.includes('co thu')
   ) {
     return downloadStudentListExcelTemplate(gameTitle);
   }

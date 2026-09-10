@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -116,6 +116,24 @@ export function Navbar({
             </button>
 
             <button 
+              className={`btn ${activeTab === 'call-student' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('call-student')}
+              style={{ background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
+            >
+              <UserCheck size={18} />
+              Gọi Tên Học Sinh
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'timer' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('timer')}
+              style={{ background: activeTab === 'timer' ? 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)' : undefined, fontWeight: 800 }}
+            >
+              <Clock size={18} />
+              Đồng Hồ Bấm Giờ
+            </button>
+
+            <button 
               className={`btn ${activeTab === 'homeroom' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('homeroom')}
               style={{ background: activeTab === 'homeroom' ? 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
@@ -180,6 +198,15 @@ export function Navbar({
             >
               <FileSpreadsheet size={16} />
               Tải Mẫu Excel
+            </button>
+
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => StorageService.exportFullBackup()}
+              title="Tải bản sao lưu dự phòng toàn bộ dữ liệu cá nhân (Game, Lớp học, Slide) về máy tính"
+              style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.35)', fontWeight: 800 }}
+            >
+              💾 Tải Dự Phòng (JSON)
             </button>
           </nav>
 

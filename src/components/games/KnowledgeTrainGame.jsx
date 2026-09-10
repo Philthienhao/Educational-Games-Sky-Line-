@@ -305,44 +305,55 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
 
             {!answerState && (
               <span style={{
-                background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
+                background: timeLeft <= 5 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                 border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
-                color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
+                color: '#ffffff',
                 fontWeight: 900,
-                fontSize: '0.85rem',
-                padding: '4px 12px',
-                borderRadius: '10px'
+                fontSize: '1.2rem',
+                padding: '6px 18px',
+                borderRadius: '20px',
+                boxShadow: timeLeft <= 5 ? '0 0 16px rgba(239, 68, 68, 0.8)' : 'none'
               }}>
-                ⏱️ {timeLeft}s
+                ⏱️ Thời gian: <span style={{ fontSize: '1.35rem', color: '#fef08a' }}>{timeLeft}s</span>
               </span>
             )}
 
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 800 }}>
+            <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 900 }}>
               Câu hỏi #{currentQIndex + 1} / {safeQuestions.length}
             </span>
           </div>
 
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>
+          {currentQ.image && (
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <img 
+                src={currentQ.image} 
+                alt="Câu hỏi" 
+                style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+              />
+            </div>
+          )}
+
+          <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, marginBottom: '24px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             {currentQ.question}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
             {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
               if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
               const optText = currentQ.options?.[idx];
               const isSelected = selectedOption === optLabel;
               const isCorrect = String(currentQ.correct || 'A').toUpperCase() === optLabel;
 
-              let bg = 'rgba(255,255,255,0.06)';
-              let border = '1px solid rgba(255,255,255,0.15)';
+              let bg = 'rgba(255,255,255,0.08)';
+              let border = '2px solid rgba(255,255,255,0.2)';
 
               if (answerState) {
                 if (isCorrect) {
                   bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                  border = '1px solid #6ee7b7';
+                  border = '2px solid #6ee7b7';
                 } else if (isSelected && !isCorrect) {
                   bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                  border = '1px solid #fca5a5';
+                  border = '2px solid #fca5a5';
                 }
               }
 
@@ -352,23 +363,40 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
                   onClick={() => handleAnswerOption(optLabel)}
                   disabled={!!answerState}
                   style={{
-                    padding: '16px',
-                    borderRadius: '16px',
+                    padding: '20px 24px',
+                    borderRadius: '20px',
                     background: bg,
                     border: border,
-                    color: '#fff',
+                    color: '#ffffff',
                     textAlign: 'left',
-                    fontWeight: 700,
+                    fontWeight: 800,
+                    fontSize: '1.3rem',
+                    lineHeight: 1.4,
                     cursor: answerState ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px'
+                    gap: '14px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                    transition: 'all 0.2s ease'
                   }}
                 >
-                  <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, flexShrink: 0 }}>
+                  <span style={{
+                    width: '38px',
+                    height: '38px',
+                    minWidth: '38px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.22)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 900,
+                    fontSize: '1.2rem',
+                    color: '#ffffff',
+                    flexShrink: 0
+                  }}>
                     {optLabel}
                   </span>
-                  {optText}
+                  <span style={{ flex: 1 }}>{optText}</span>
                 </button>
               );
             })}

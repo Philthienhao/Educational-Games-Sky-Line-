@@ -1,0 +1,177 @@
+{
+  "systemName": "HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC SKY-LINE",
+  "version": "2.0.0",
+  "backupType": "MASTER_SYSTEM_BACKUP",
+  "exportDate": "2026-09-09T10:00:00.000Z",
+  "users": [
+    {
+      "id": "user_admin",
+      "username": "philthienhao",
+      "password": "3009",
+      "name": "Thầy Hảo Địa Lí",
+      "role": "admin",
+      "subject": "Địa Lí & Quản Trị Hệ Thống",
+      "school": "Hệ thống Giáo Dục Sky-Line",
+      "createdAt": "2026-01-01",
+      "avatar": "/assets/thayhaodiali.jpg"
+    },
+    {
+      "id": "user_pham_tham",
+      "username": "phamtham",
+      "password": "1234",
+      "name": "Phạm Thị Thắm",
+      "role": "teacher",
+      "subject": "Địa Lí",
+      "school": "Hệ thống giáo dục Sky-Line",
+      "createdAt": "2026-01-20"
+    },
+    {
+      "id": "user_thanh_thao",
+      "username": "thanhthao",
+      "password": "300913",
+      "name": "Phạm Thị Thanh Thảo",
+      "role": "teacher",
+      "subject": "Marketing",
+      "school": "SBS House",
+      "createdAt": "2026-01-10"
+    },
+    {
+      "id": "user_thanh_lai",
+      "username": "thanhlai",
+      "password": "1234",
+      "name": "Nguyễn Thị Thanh Lài",
+      "role": "teacher",
+      "subject": "Ngữ Văn",
+      "school": "Hệ thống giáo dục Sky-Line",
+      "createdAt": "2026-01-15"
+    },
+    {
+      "id": "user_thao_nguyen",
+      "username": "thaonguyen",
+      "password": "12345",
+      "name": "Huỳnh Thảo Nguyên",
+      "role": "teacher",
+      "subject": "Giáo viên",
+      "school": "Hệ thống giáo dục Sky-Line",
+      "createdAt": "2026-09-04"
+    }
+  ],
+  "baseGames": [
+    {
+      "id": "wheel",
+      "title": "Vòng Quay May Mắn",
+      "category": "Trắc nghiệm",
+      "description": "Vòng quay câu hỏi tương tác ngẫu nhiên chọn sinh viên trả lời",
+      "playsCount": 0
+    },
+    {
+      "id": "millionaire",
+      "title": "Ai Là Triệu Phú",
+      "category": "Game Trắc Nghiệm",
+      "description": "Game mô phỏng chương trình Ai Là Triệu Phú với 15 câu hỏi và các quyền trợ giúp",
+      "playsCount": 0
+    },
+    {
+      "id": "jeopardy",
+      "title": "Bảng Ô Chữ Jeopardy",
+      "category": "Kiến thức tổng hợp",
+      "description": "Bảng chọn điểm theo các chủ đề kiến thức thi đấu đối kháng nhóm",
+      "playsCount": 0
+    },
+    {
+      "id": "mystery-box",
+      "title": "Hộp Quà Bí Mật",
+      "category": "Trắc nghiệm",
+      "description": "Học sinh mở các hộp quà ngẫu nhiên nhận điểm thưởng hoặc câu hỏi",
+      "playsCount": 0
+    },
+    {
+      "id": "crossword",
+      "title": "Giải Ô Chữ Kỳ Diệu",
+      "category": "Từ vựng & Định nghĩa",
+      "description": "Học sinh lật các hàng ngang để tìm ra hàng dọc từ khóa bí mật",
+      "playsCount": 0
+    },
+    {
+      "id": "head-tilt",
+      "title": "Game Nghiêng Đầu Nhận Diện Camera AI",
+      "category": "Tương tác AI",
+      "description": "Học sinh nghiêng đầu sang trái (Đáp án A) hoặc phải (Đáp án B) bằng Camera AI",
+      "playsCount": 0
+    },
+    {
+      "id": "duck-race",
+      "title": "Cuộc Đua Vịt Kỳ Thú",
+      "category": "Vận động & Chọn tên",
+      "description": "Cuộc đua vịt chọn học sinh ngẫu nhiên trả lời bài học",
+      "playsCount": 0
+    },
+    {
+      "id": "turtle-race",
+      "title": "Cuộc Đua Rùa Nhanh Trí",
+      "category": "Vận động & Chọn tên",
+      "description": "Cuộc đua rùa hào hứng chọn nhóm học sinh xuất sắc",
+      "playsCount": 0
+    }
+  ],
+  "savedGames": [
+    {
+      "id": "saved_admin_jeopardy_1",
+      "userId": "user_admin",
+      "title": "Jeopardy Địa Lí 12 - Tự Nhiên & Kinh Tế Việt Nam",
+      "baseGameId": "jeopardy",
+      "engineType": "jeopardy",
+      "subject": "Địa Lí 12",
+      "createdAt": "2026-01-15",
+      "questions": []
+    },
+    {
+      "id": "saved_admin_wheel_1",
+      "userId": "user_admin",
+      "title": "Vòng Quay Ôn Tập Vị Trí Địa Lý & Vùng Biển Việt Nam",
+      "baseGameId": "wheel",
+      "engineType": "wheel",
+      "subject": "Địa Lí 12",
+      "createdAt": "2026-01-18",
+      "questions": []
+    }
+  ],
+  "homerooms": {
+    "gvd_homeroom_user_admin": {
+      "isCustomized": true,
+      "className": "Lớp Chủ Nhiệm 12A1 (Admin)",
+      "schoolYear": "2026 - 2027",
+      "classBgImage": "",
+      "students": [
+        {
+          "id": "st_101",
+          "studentId": "HS1001",
+          "name": "Nguyễn Văn An",
+          "dob": "2010-08-15",
+          "gender": "Nam",
+          "phone": "0905123456",
+          "address": "123 Nguyễn Tất Thành, Đà Nẵng"
+        },
+        {
+          "id": "st_102",
+          "studentId": "HS1002",
+          "name": "Trần Thị Bảo Ngọc",
+          "dob": "2010-08-22",
+          "gender": "Nữ",
+          "phone": "0914987654",
+          "address": "45 Điện Biên Phủ, Đà Nẵng"
+        }
+      ]
+    }
+  },
+  "lectureSlides": {
+    "gvd_user_slides_user_admin": [
+      {
+        "id": "slide_101",
+        "title": "Bài 1: Vị trí địa lý và phạm vi lãnh thổ Việt Nam",
+        "subject": "Địa Lí 12",
+        "updatedAt": "2026-01-10"
+      }
+    ]
+  }
+}

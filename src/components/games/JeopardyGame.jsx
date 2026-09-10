@@ -247,13 +247,23 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
           </div>
         ) : (
           /* 2. STANDARD QUESTION MODAL */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', lineHeight: 1.4, margin: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {tile.image && (
+              <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                <img 
+                  src={tile.image} 
+                  alt="Câu hỏi" 
+                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                />
+              </div>
+            )}
+
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {tile.question}
             </h2>
 
             {/* Options List */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
               {(tile.options || ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D']).map((optText, idx) => {
                 if (!isOptionValidForQuestion(tile?.options, idx)) return null;
                 const letter = ['A', 'B', 'C', 'D'][idx];
@@ -261,8 +271,8 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                 const isThisCorrect = letter === tile.correct;
 
                 let btnBg = 'rgba(30, 41, 59, 0.9)';
-                let btnBorder = 'rgba(255,255,255,0.15)';
-                let textColor = '#fff';
+                let btnBorder = 'rgba(255,255,255,0.2)';
+                let textColor = '#ffffff';
 
                 if (showAnswerResult) {
                   if (isThisCorrect) {
@@ -282,32 +292,35 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                     onClick={() => handleSelectOption(letter)}
                     disabled={showAnswerResult}
                     style={{
-                      padding: '16px',
-                      borderRadius: '16px',
+                      padding: '20px 24px',
+                      borderRadius: '20px',
                       background: btnBg,
                       border: `2px solid ${btnBorder}`,
                       color: textColor,
                       textAlign: 'left',
-                      fontSize: '1rem',
-                      fontWeight: 700,
+                      fontSize: '1.3rem',
+                      fontWeight: 800,
+                      lineHeight: 1.4,
                       cursor: showAnswerResult ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px',
+                      gap: '14px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
                       transition: 'all 0.2s ease'
                     }}
                   >
                     <span style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: isThisCorrect && showAnswerResult ? '#10b981' : isThisSelected && !isCorrect ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                      width: '38px',
+                      height: '38px',
+                      minWidth: '38px',
+                      borderRadius: '12px',
+                      background: isThisCorrect && showAnswerResult ? '#10b981' : isThisSelected && !isCorrect ? '#ef4444' : 'rgba(255,255,255,0.22)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 900,
                       color: '#fff',
-                      fontSize: '0.9rem',
+                      fontSize: '1.2rem',
                       flexShrink: 0
                     }}>
                       {letter}

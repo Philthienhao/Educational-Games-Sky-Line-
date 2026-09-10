@@ -16,6 +16,7 @@ import {
   UserCheck, 
   Library,
   GraduationCap,
+  Clock,
   User,
   LogOut,
   LogIn
@@ -33,6 +34,8 @@ import { TextbookDownloadManager } from './components/TextbookDownloadManager';
 import { LectureSlideManager } from './components/LectureSlideManager';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
+import StudentPickerManager from './components/StudentPickerManager';
+import ClassroomTimerManager from './components/ClassroomTimerManager';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -91,10 +94,17 @@ export function App() {
     }
   };
 
-  const handleLoginSuccess = (loggedInUser) => {
+  const handleLoginSuccess = async (loggedInUser) => {
     setCurrentUser(loggedInUser);
     setBaseGames(StorageService.getBaseGames());
-    setSavedGames(StorageService.getTeacherSavedGames(loggedInUser?.id));
+    const localGames = StorageService.getTeacherSavedGames(loggedInUser?.id);
+    setSavedGames(localGames);
+    try {
+      const syncedGames = await StorageService.syncWithIndexedDB(loggedInUser?.id);
+      if (Array.isArray(syncedGames)) {
+        setSavedGames(syncedGames);
+      }
+    } catch (e) {}
   };
 
   const handleLogout = () => {
@@ -122,10 +132,15 @@ export function App() {
     alert(`✨ Đã tự động lưu bài game "${gameName}" vào "Kho Game Của Tôi" để Thầy/Cô có thể dùng lại bất cứ lúc nào!`);
   };
 
-  const handleDeleteSavedGame = (gameId) => {
+  const handleDeleteSavedGame = (gameOrId) => {
+    const activeUserId = currentUser?.id || StorageService.getCurrentUser()?.id || 'user_admin';
+    const gameId = (gameOrId && typeof gameOrId === 'object') ? gameOrId.id : gameOrId;
+    if (!gameId) return;
+
     if (window.confirm('Bạn có chắc chắn muốn xóa game này khỏi Kho Game Của Tôi không?')) {
-      StorageService.deleteTeacherSavedGame(currentUser?.id, gameId);
-      setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
+      StorageService.deleteTeacherSavedGame(activeUserId, gameId);
+      const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
+      setSavedGames(updatedGames);
     }
   };
 
@@ -170,6 +185,12 @@ export function App() {
   ];
 
   const filteredBaseGames = baseGames.filter(game => {
+    // Exclude 'Gọi Tên Học Sinh' race/picker games from the general Educational Game Catalog
+    const pickerTypes = ['duck-race', 'turtle-race', 'claw-machine', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'];
+    const pickerIds = ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'];
+    if (pickerTypes.includes(game.engineType) || pickerIds.includes(game.id)) {
+      return false;
+    }
     const matchesCategory = selectedCategory === 'Tất cả' || 
                             game.category === selectedCategory || 
                             game.subject === selectedCategory;
@@ -349,12 +370,31 @@ export function App() {
           </div>
         )}
 
-        {/* View 2: Lớp Chủ Nhiệm (Homeroom Management System) */}
+        {/* View 2: Gọi Tên Học Sinh (Student Picker System) */}
+        {activeTab === 'call-student' && (
+          <StudentPickerManager 
+            currentUser={currentUser} 
+            onPlay={(game) => {
+              StorageService.incrementPlayCount(game.id, false);
+              setBaseGames(StorageService.getBaseGames());
+              setPlayingGame(game);
+            }}
+            onCustomize={(template) => setEditingGameTemplate(template)}
+            onNavigateToHomeroom={() => setActiveTab('homeroom')}
+          />
+        )}
+
+        {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
+        {activeTab === 'timer' && (
+          <ClassroomTimerManager />
+        )}
+
+        {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
         {activeTab === 'homeroom' && (
           <HomeroomManager currentUser={currentUser} />
         )}
 
-        {/* View 3: Kho Game Của Tôi (Teacher Saved Library) */}
+        {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
         {activeTab === 'my-games' && (
           <TeacherLibrary 
             savedGames={savedGames}
@@ -372,17 +412,17 @@ export function App() {
           />
         )}
 
-        {/* View 4: Tải File SGK (Textbook Catalog Manager) */}
+        {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
         {activeTab === 'textbook-download' && (
           <TextbookDownloadManager searchTerm={searchTerm} />
         )}
 
-        {/* View 5: Slide Bài Giảng (Lecture Slide Manager) */}
+        {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
         {activeTab === 'lecture-slides' && (
           <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
         )}
 
-        {/* View 5: Quản Trị Admin */}
+        {/* View 7: Quản Trị Admin */}
         {activeTab === 'admin' && currentUser?.role === 'admin' && (
           <AdminPanel 
             baseGames={baseGames}
@@ -432,6 +472,7 @@ export function App() {
         <ClassroomPlayModal 
           game={playingGame}
           onClose={() => setPlayingGame(null)}
+          currentUser={currentUser}
         />
       )}
 
@@ -443,6 +484,22 @@ export function App() {
         >
           <Gamepad2 size={20} />
           <span>Kho Game</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${activeTab === 'call-student' ? 'active' : ''}`}
+          onClick={() => setActiveTab('call-student')}
+        >
+          <UserCheck size={20} />
+          <span>Gọi Tên</span>
+        </button>
+
+        <button 
+          className={`mobile-nav-item ${activeTab === 'timer' ? 'active' : ''}`}
+          onClick={() => setActiveTab('timer')}
+        >
+          <Clock size={20} />
+          <span>Bấm Giờ</span>
         </button>
 
         <button 
@@ -462,8 +519,8 @@ export function App() {
         </button>
 
         <button 
-          className={`mobile-nav-item ${activeTab === 'sgk' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sgk')}
+          className={`mobile-nav-item ${activeTab === 'textbook-download' || activeTab === 'sgk' ? 'active' : ''}`}
+          onClick={() => setActiveTab('textbook-download')}
         >
           <BookOpen size={20} />
           <span>Tải SGK</span>

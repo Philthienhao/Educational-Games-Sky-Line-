@@ -68,12 +68,26 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
   const [holdProgress, setHoldProgress] = useState(0); // 0 to 100%
   const [tiltSensitivity, setTiltSensitivity] = useState('high'); // 'high' | 'medium' | 'low'
   const [currentTiltAngleDeg, setCurrentTiltAngleDeg] = useState(0);
+  const [isDirectionInverted, setIsDirectionInverted] = useState(false);
 
-  // EMA Ref for Noise Elimination & Hold Tracking
+  // EMA Ref for Noise Elimination, Hold Tracking, & Auto Calibration
   const smoothedOffsetRef = useRef(0);
   const baselineOffsetRef = useRef(0);
+  const lastRawScoreRef = useRef(0);
+  const isCalibratedRef = useRef(false);
+  const calibrationCountRef = useRef(0);
+  const calibrationSumRef = useRef(0);
   const holdStartTimeRef = useRef(null);
   const activeTiltRef = useRef('center');
+
+  const recalibrateBaseline = () => {
+    baselineOffsetRef.current = lastRawScoreRef.current;
+    smoothedOffsetRef.current = 0;
+    setTiltDirection('center');
+    activeTiltRef.current = 'center';
+    holdStartTimeRef.current = null;
+    setHoldProgress(0);
+  };
 
   // Answer selection state
   const [selectedOption, setSelectedOption] = useState(null); // 'A' or 'B'
@@ -230,10 +244,9 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
             const g = data[idx + 1];
             const b = data[idx + 2];
 
-            // Precise, robust skin color filter:
-            // Rejects white walls, grey whiteboards, green chalkboards, and white shirts 100%!
-            // Human skin strictly requires: R > 50, R > G + 8, R > B + 12
-            const isSkin = (r > 50) && (g > 30) && (r - g >= 8) && (r - b >= 12);
+            // Flexible, highly compatible human skin color filter:
+            // Works under cool LED, warm room light, and laptop screen glow!
+            const isSkin = (r > 35) && (g > 20) && (r > b - 8) && ((r - g) >= 2) && ((r - b) >= 4) && (r + g + b < 720);
 
             if (isSkin) {
               skinCount++;
@@ -250,7 +263,7 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
           }
         }
 
-        if (skinCount > 15) {
+        if (skinCount > 10) {
           const faceCenterX = skinXSum / skinCount;
           const topFaceX = topSkinCount > 0 ? topSkinXSum / topSkinCount : faceCenterX;
           const botFaceX = botSkinCount > 0 ? botSkinXSum / botSkinCount : faceCenterX;
@@ -262,31 +275,40 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
           const centerOffset = faceCenterX - 80;
 
           // Combined Raw Tilt Score (Ultra-sensitive to even subtle 2-3 degree tilts)
-          const rawScore = angleTilt * 1.4 + centerOffset * 0.8;
+          const rawScore = angleTilt * 1.6 + centerOffset * 1.0;
+          lastRawScoreRef.current = rawScore;
 
-          // Auto-neutralize baseline when upright
-          if (Math.abs(rawScore - baselineOffsetRef.current) < 3) {
-            baselineOffsetRef.current = baselineOffsetRef.current * 0.9 + rawScore * 0.1;
+          // Auto-calibrate baseline during first 5 frames after startup
+          if (!isCalibratedRef.current) {
+            calibrationCountRef.current += 1;
+            calibrationSumRef.current += rawScore;
+            if (calibrationCountRef.current >= 5) {
+              baselineOffsetRef.current = calibrationSumRef.current / 5;
+              isCalibratedRef.current = true;
+            }
           }
 
           const relativeTiltScore = rawScore - baselineOffsetRef.current;
 
-          // Ultra-fast EMA filter (alpha = 0.5)
+          // Responsive EMA filter (alpha = 0.5)
           smoothedOffsetRef.current = smoothedOffsetRef.current * 0.5 + relativeTiltScore * 0.5;
           const currentScore = smoothedOffsetRef.current;
 
-          const deg = Math.round(currentScore * 1.8);
+          const deg = Math.round(Math.abs(currentScore) * 1.8);
           setCurrentTiltAngleDeg(deg);
 
-          // Threshold based on sensitivity setting: High (1.5), Medium (3.0), Low (5.0)
-          const SENSITIVITY_THRESHOLD = tiltSensitivity === 'high' ? 1.5 : (tiltSensitivity === 'medium' ? 3.0 : 5.0);
+          // Threshold based on sensitivity setting: High (1.0), Medium (2.0), Low (3.5)
+          const SENSITIVITY_THRESHOLD = tiltSensitivity === 'high' ? 1.0 : (tiltSensitivity === 'medium' ? 2.0 : 3.5);
+
+          // Direction mapping (Rule #3 invariant):
+          // Leaning physical left -> Screen Left (Option A) -> detectedDir = 'left'
+          // Leaning physical right -> Screen Right (Option B) -> detectedDir = 'right'
+          const effectiveScore = isDirectionInverted ? -currentScore : currentScore;
 
           let detectedDir = 'center';
-          // In mirrored canvas: Positive score = head leaning to screen LEFT (Option A)
-          // Negative score = head leaning to screen RIGHT (Option B)
-          if (currentScore > SENSITIVITY_THRESHOLD) {
+          if (effectiveScore < -SENSITIVITY_THRESHOLD) {
             detectedDir = 'left';
-          } else if (currentScore < -SENSITIVITY_THRESHOLD) {
+          } else if (effectiveScore > SENSITIVITY_THRESHOLD) {
             detectedDir = 'right';
           }
 
@@ -809,7 +831,49 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
             }}
           >
             <Camera size={16} />
-            <span>⚡ Độ Nhạy: {tiltSensitivity === 'high' ? '🔥 Siêu Nhạy (1.5°)' : (tiltSensitivity === 'medium' ? '⚖️ Vừa (3.0°)' : '🎯 Sâu (5.0°)')}</span>
+            <span>⚡ Độ Nhạy: {tiltSensitivity === 'high' ? '🔥 Siêu Nhạy (1.0°)' : (tiltSensitivity === 'medium' ? '⚖️ Vừa (2.0°)' : '🎯 Sâu (3.5°)')}</span>
+          </button>
+
+          <button
+            onClick={recalibrateBaseline}
+            title="Bấm để đặt lại vị trí đầu thẳng (0°)"
+            style={{
+              background: '#f0fdf4',
+              border: '1.5px solid #22c55e',
+              borderRadius: '20px',
+              padding: '6px 14px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              color: '#15803d',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🎯 Đặt lại 0°
+          </button>
+
+          <button
+            onClick={() => setIsDirectionInverted(prev => !prev)}
+            title="Đổi chiều A/B nếu webcam bị lật ngược"
+            style={{
+              background: isDirectionInverted ? '#fef2f2' : '#f8fafc',
+              border: `1.5px solid ${isDirectionInverted ? '#ef4444' : '#cbd5e1'}`,
+              borderRadius: '20px',
+              padding: '6px 14px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              color: isDirectionInverted ? '#b91c1c' : '#475569',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🔄 {isDirectionInverted ? 'Đang Đảo Chiều' : 'Hướng Chuẩn'}
           </button>
 
           <button

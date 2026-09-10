@@ -12,6 +12,7 @@ import {
   Camera, 
   LogOut, 
   GraduationCap, 
+  Clock,
   X
 } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
@@ -169,6 +170,30 @@ export function Sidebar({
                     {myGamesCount}
                   </span>
                 )}
+              </button>
+
+              <button 
+                className={`sidebar-nav-btn ${activeTab === 'call-student' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('call-student'); if (isMobileOpen) setIsMobileOpen(false); }}
+                style={{
+                  background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined,
+                  fontWeight: activeTab === 'call-student' ? 800 : undefined
+                }}
+              >
+                <UserCheck size={18} />
+                <span>Gọi Tên Học Sinh</span>
+              </button>
+
+              <button 
+                className={`sidebar-nav-btn ${activeTab === 'timer' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('timer'); if (isMobileOpen) setIsMobileOpen(false); }}
+                style={{
+                  background: activeTab === 'timer' ? 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)' : undefined,
+                  fontWeight: activeTab === 'timer' ? 800 : undefined
+                }}
+              >
+                <Clock size={18} />
+                <span>Đồng Hồ Bấm Giờ</span>
               </button>
 
               <button 

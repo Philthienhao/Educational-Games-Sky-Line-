@@ -108,7 +108,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const compressedDataUrl = await compressImage(file, 900, 900, 0.75);
+      const compressedDataUrl = await compressImage(file, 2560, 2560, 0.92);
       const updated = photoModalType === 'bg'
         ? { ...classData, classBgImage: compressedDataUrl }
         : { ...classData, classPhoto: compressedDataUrl };
@@ -307,28 +307,34 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
   };
 
   // Background Image Upload with Auto-Compression
+  const handleDeleteClassBgImage = () => {
+    const updated = { ...classData, classBgImage: '' };
+    setClassData(updated);
+    StorageService.saveTeacherHomeroom(teacherId, updated);
+  };
+
   const handleClassBgUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const compressedDataUrl = await compressImage(file, 1000, 1000, 0.72);
+      const compressedDataUrl = await compressImage(file, 2560, 2560, 0.92);
       const updated = { ...classData, classBgImage: compressedDataUrl };
       setClassData(updated);
       StorageService.saveTeacherHomeroom(teacherId, updated);
-      setStatusMsg({ type: 'success', text: '🎨 Đã cập nhật ảnh nền lớp học thành công!' });
+      setStatusMsg({ type: 'success', text: '🎨 Đã cập nhật ảnh góc phải lớp học thành công!' });
       setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
     }
   };
 
-  // Class Photo Upload with Auto-Compression
+  // Class Photo Upload with Auto-Compression (HD Crystal Clear Preset)
   const handleClassPhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const compressedDataUrl = await compressImage(file, 1000, 1000, 0.72);
+      const compressedDataUrl = await compressImage(file, 2560, 2560, 0.92);
       const updated = { ...classData, classPhoto: compressedDataUrl };
       setClassData(updated);
       StorageService.saveTeacherHomeroom(teacherId, updated);
       try { SoundFX.win(); } catch(e) {}
-      setStatusMsg({ type: 'success', text: '🖼️ Đã cập nhật ảnh tập thể lớp học thành công!' });
+      setStatusMsg({ type: 'success', text: '🖼️ Đã cập nhật ảnh tập thể lớp học sắc nét HD thành công!' });
       setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
     }
   };
@@ -337,6 +343,51 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     const updated = { ...classData, classPhoto: '' };
     setClassData(updated);
     StorageService.saveTeacherHomeroom(teacherId, updated);
+  };
+
+  const handleExportHomeroomBackup = () => {
+    try {
+      const jsonStr = JSON.stringify(classData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `SaoLuu_LopHoc_${(classData.className || 'LopChuNhiem').replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setStatusMsg({ type: 'success', text: '📥 Đã xuất và tải về tệp sao lưu lớp học (.json) thành công!' });
+      setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
+    } catch (err) {
+      alert('Không thể xuất tệp sao lưu: ' + err.message);
+    }
+  };
+
+  const handleImportHomeroomBackup = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const imported = JSON.parse(evt.target.result);
+        if (imported && typeof imported === 'object' && Array.isArray(imported.students)) {
+          const updated = { ...imported, isCustomized: true };
+          setClassData(updated);
+          if (!isReadOnlyAdmin) StorageService.saveTeacherHomeroom(teacherId, updated);
+          try { SoundFX.correct(); } catch(e) {}
+          setStatusMsg({ type: 'success', text: '🎉 Khôi phục toàn bộ danh sách lớp từ tệp sao lưu JSON thành công!' });
+          setTimeout(() => setStatusMsg({ type: '', text: '' }), 3500);
+        } else {
+          alert('Tệp JSON không đúng định dạng dữ liệu lớp học!');
+        }
+      } catch (err) {
+        alert('Lỗi đọc tệp sao lưu JSON: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   // Student Roster Universal File Upload
@@ -429,26 +480,25 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
       
-      {/* Class Banner Container */}
+      {/* 1. Class Header Info & Functions Panel (Crisp, Clear, No Dark Blur Background Image) */}
       <div 
         className="glass-panel"
         style={{
-          padding: '28px 36px',
+          padding: '24px 32px',
           borderRadius: '24px',
-          marginBottom: '28px',
+          marginBottom: '20px',
           position: 'relative',
           overflow: 'hidden',
-          backgroundImage: classData.classBgImage ? `linear-gradient(to right, rgba(7,21,33,0.92) 0%, rgba(7,21,33,0.75) 100%), url(${classData.classBgImage})` : 'linear-gradient(135deg, rgba(7, 30, 44, 0.95) 0%, rgba(13, 148, 136, 0.35) 50%, rgba(2, 132, 199, 0.25) 100%)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(13, 148, 136, 0.25) 50%, rgba(2, 132, 199, 0.2) 100%)',
           border: '1.5px solid rgba(0, 168, 150, 0.45)',
-          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4)'
+          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.3)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
           
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          {/* Left Column: Class Info & Stats */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span className="badge" style={{ background: '#00a896', color: '#fff', fontWeight: 800, padding: '4px 12px', borderRadius: '14px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 🏫 LỚP CHỦ NHIỆM • NĂM HỌC
                 <select
@@ -500,87 +550,76 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
               />
             </div>
 
-            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', marginTop: '6px' }}>
+            <p style={{ color: '#cbd5e1', fontSize: '0.95rem', margin: 0 }}>
               Tổng sĩ số: <strong style={{ color: '#5eead4', fontSize: '1.1rem' }}>{classData.students.length} học sinh</strong>
             </p>
+
+            {/* Banner Stats Cards */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', marginTop: '4px' }}>
+              <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '10px 16px', borderRadius: '16px', textAlign: 'center' }}>
+                <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fca5a5', display: 'block' }}>
+                  {highViolationStudents.length}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: 700 }}>
+                  🚨 Cảnh báo &ge; 2 vi phạm
+                </span>
+              </div>
+
+              <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '10px 16px', borderRadius: '16px', textAlign: 'center' }}>
+                <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fde047', display: 'block' }}>
+                  {birthdayStudents.length}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#fde047', fontWeight: 700 }}>
+                  🎂 Sinh nhật T{currentMonthNum}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Banner Stats Cards & Actions */}
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-            <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '12px 18px', borderRadius: '16px', textAlign: 'center' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fca5a5', display: 'block' }}>
-                {highViolationStudents.length}
-              </span>
-              <span style={{ fontSize: '0.75rem', color: '#fca5a5', fontWeight: 700 }}>
-                🚨 Cảnh báo &ge; 2 vi phạm
-              </span>
-            </div>
-
-            <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '12px 18px', borderRadius: '16px', textAlign: 'center' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fde047', display: 'block' }}>
-                {birthdayStudents.length}
-              </span>
-              <span style={{ fontSize: '0.75rem', color: '#fde047', fontWeight: 700 }}>
-                🎂 Sinh nhật T{currentMonthNum}
-              </span>
-            </div>
-
-            {!isReadOnlyAdmin && (
-              <button 
-                className="btn btn-secondary btn-sm" 
-                onClick={() => setPhotoModalType('bg')}
-                style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px 16px', borderRadius: '16px' }}
-              >
-                <Image size={18} />
-                <span style={{ fontSize: '0.72rem', marginTop: '4px' }}>Đổi Ảnh Nền Lớp</span>
-              </button>
-            )}
-          </div>
-
-          {/* Right Side: Class Photo Showcase Frame */}
+          {/* Right Column: Class Header Right-Side Photo Frame (Hình Góc Phải Khung Thông Tin) */}
           <div style={{
             position: 'relative',
-            width: '300px',
-            height: '165px',
+            width: '340px',
+            height: '175px',
             borderRadius: '20px',
             overflow: 'hidden',
-            border: classData.classPhoto ? '2px solid #00a896' : '2px dashed rgba(0, 168, 150, 0.6)',
-            background: 'rgba(7, 21, 33, 0.8)',
+            border: classData.classBgImage ? '2px solid #00a896' : '2px dashed rgba(0, 168, 150, 0.6)',
+            background: 'rgba(7, 21, 33, 0.85)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 8px 25px rgba(0, 0, 0, 0.35)'
           }}>
-            {classData.classPhoto ? (
+            {classData.classBgImage ? (
               <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                 <img 
-                  src={classData.classPhoto} 
-                  alt="Ảnh Tập Thể Lớp" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  src={classData.classBgImage} 
+                  alt="Ảnh Góc Phải Khung Thông Tin" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', filter: 'none', opacity: 1 }}
                 />
                 <div style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 65%)',
                   display: 'flex',
                   alignItems: 'flex-end',
                   justifyContent: 'space-between',
                   padding: '10px 14px'
                 }}>
-                  <span style={{ color: '#fff', fontWeight: 800, fontSize: '0.82rem' }}>
-                    🖼️ Ảnh Lớp Học
+                  <span style={{ color: '#5eead4', fontWeight: 800, fontSize: '0.8rem' }}>
+                    🖼️ Ảnh Góc Phải Bảng
                   </span>
                   {!isReadOnlyAdmin && (
                     <div style={{ display: 'flex', gap: '6px' }}>
                       <button 
                         className="btn btn-primary btn-sm" 
-                        onClick={() => setPhotoModalType('photo')}
+                        onClick={() => setPhotoModalType('bg')}
                         style={{ padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700 }}
                       >
                         Đổi Ảnh
                       </button>
-                      <button className="btn btn-danger btn-sm" onClick={handleDeleteClassPhoto} style={{ padding: '4px 8px', fontSize: '0.75rem' }}>
+                      <button className="btn btn-danger btn-sm" onClick={handleDeleteClassBgImage} style={{ padding: '4px 8px', fontSize: '0.75rem' }}>
                         Xóa
                       </button>
                     </div>
@@ -588,20 +627,20 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                 </div>
               </div>
             ) : (
-              <div style={{ padding: '14px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                <div style={{ fontSize: '1.8rem', background: 'rgba(0,168,150,0.2)', width: '44px', height: '44px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #00a896' }}>
-                  📸
+              <div style={{ padding: '16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <div style={{ fontSize: '1.8rem', background: 'rgba(0,168,150,0.2)', width: '46px', height: '46px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid #00a896', color: '#5eead4' }}>
+                  🖼️
                 </div>
                 <span style={{ color: '#5eead4', fontWeight: 800, fontSize: '0.85rem' }}>
-                  Ảnh Tập Thể Lớp Học
+                  Ảnh Nền Góc Phải Bảng Thông Tin
                 </span>
                 {!isReadOnlyAdmin && (
                   <button 
                     className="btn btn-success btn-sm" 
-                    onClick={() => setPhotoModalType('photo')}
-                    style={{ padding: '4px 12px', borderRadius: '12px', fontWeight: 800, fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    onClick={() => setPhotoModalType('bg')}
+                    style={{ padding: '6px 14px', borderRadius: '12px', fontWeight: 800, fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}
                   >
-                    <Upload size={14} /> Tải / Chọn Ảnh Lớp
+                    <Upload size={14} /> Tải Ảnh Góc Phải...
                   </button>
                 )}
               </div>
@@ -610,6 +649,107 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
 
         </div>
       </div>
+
+      {/* 2. Standalone Large Showcase Class Photo Banner Card (Hiển Thị Riêng 1 Hình Lớn Rõ Nét 100%) */}
+      {(() => {
+        const activePhoto = classData.classPhoto || classData.classBgImage;
+        return (
+          <div 
+            className="glass-panel"
+            style={{
+              borderRadius: '24px',
+              marginBottom: '28px',
+              overflow: 'hidden',
+              border: activePhoto ? '2px solid #00a896' : '2px dashed rgba(0, 168, 150, 0.5)',
+              background: 'rgba(15, 23, 42, 0.85)',
+              boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45)',
+              position: 'relative'
+            }}
+          >
+            {activePhoto ? (
+              <div style={{ position: 'relative', width: '100%', minHeight: '320px', maxHeight: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#090d16' }}>
+                <img 
+                  src={activePhoto} 
+                  alt="Hình Ảnh Tập Thể Lớp Học" 
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    maxHeight: '480px',
+                    objectFit: 'cover',
+                    display: 'block',
+                    filter: 'none',
+                    opacity: 1
+                  }}
+                />
+                
+                {/* Float Control Bar */}
+                <div style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '16px',
+                  padding: '8px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+                  zIndex: 5
+                }}>
+                  <span style={{ color: '#5eead4', fontWeight: 800, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🖼️ Ảnh Tập Thể Lớp Học
+                  </span>
+                  {!isReadOnlyAdmin && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        className="btn btn-primary btn-sm" 
+                        onClick={() => setPhotoModalType('photo')}
+                        style={{ padding: '6px 14px', fontSize: '0.8rem', fontWeight: 800, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Image size={14} /> Thay Ảnh Lớn
+                      </button>
+                      <button 
+                        className="btn btn-danger btn-sm" 
+                        onClick={() => {
+                          const updated = { ...classData, classPhoto: '', classBgImage: '' };
+                          setClassData(updated);
+                          StorageService.saveTeacherHomeroom(teacherId, updated);
+                        }} 
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '10px' }}
+                      >
+                        <Trash2 size={14} /> Xóa Ảnh
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '36px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <div style={{ fontSize: '2.5rem', background: 'rgba(0,168,150,0.15)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #00a896', color: '#5eead4' }}>
+                  🖼️
+                </div>
+                <h4 style={{ margin: 0, color: '#f8fafc', fontWeight: 900, fontSize: '1.2rem' }}>
+                  Khung Hiển Thị Ảnh Tập Thể Lớp Khổ Lớn
+                </h4>
+                <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem', maxWidth: '500px' }}>
+                  Tải ảnh tập thể hoặc hình kỷ niệm của lớp để hiển thị làm banner đại diện sắc nét 100% cho Lớp Chủ Nhiệm.
+                </p>
+                {!isReadOnlyAdmin && (
+                  <button 
+                    className="btn btn-success" 
+                    onClick={() => setPhotoModalType('photo')}
+                    style={{ padding: '10px 24px', borderRadius: '14px', fontWeight: 900, fontSize: '0.92rem', display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '6px', background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)', boxShadow: '0 4px 16px rgba(13, 148, 136, 0.4)' }}
+                  >
+                    <Upload size={18} /> Tải / Chọn Ảnh Lớp Khổ Lớn...
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* MAIN ACTION BAR WITH FEATURE BUTTONS */}
       {!isReadOnlyAdmin && (
@@ -694,6 +834,24 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
             <button className="btn btn-secondary" onClick={() => setShowResetModal(true)} style={{ padding: '10px 14px', borderRadius: '14px' }} title="Reset dữ liệu">
               <RefreshCw size={16} />
             </button>
+
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleExportHomeroomBackup}
+              style={{ padding: '10px 14px', fontWeight: 800, fontSize: '0.85rem', borderRadius: '14px', background: 'rgba(14, 165, 233, 0.2)', border: '1.5px solid #0ea5e9', color: '#38bdf8' }}
+              title="Xuất bản sao lưu tệp JSON dữ liệu lớp học về máy tính"
+            >
+              📥 Sao Lưu JSON
+            </button>
+
+            <label 
+              className="btn btn-secondary" 
+              style={{ cursor: 'pointer', padding: '10px 14px', fontWeight: 800, fontSize: '0.85rem', borderRadius: '14px', background: 'rgba(168, 85, 247, 0.2)', border: '1.5px solid #a855f7', color: '#c084fc' }}
+              title="Khôi phục dữ liệu lớp học từ tệp sao lưu JSON"
+            >
+              📤 Nạp JSON
+              <input type="file" accept=".json" onChange={handleImportHomeroomBackup} style={{ display: 'none' }} />
+            </label>
 
             <button className="btn btn-success" onClick={handleSaveClass} style={{ padding: '10px 20px', fontWeight: 900, borderRadius: '14px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
               <Save size={16} /> Lưu

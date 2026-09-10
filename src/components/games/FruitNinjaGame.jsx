@@ -325,18 +325,27 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
         <>
           <div style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        border: '2px solid rgba(13, 148, 136, 0.4)',
+        border: '2px solid rgba(13, 148, 136, 0.5)',
         borderRadius: '24px',
-        padding: '20px 28px',
+        padding: '24px 32px',
         width: '100%',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
         textAlign: 'center',
         position: 'relative'
       }}>
-        <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#5eead4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+        {currentQ.image && (
+          <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+            <img 
+              src={currentQ.image} 
+              alt="Câu hỏi" 
+              style={{ maxHeight: '220px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+            />
+          </div>
+        )}
+        <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#5eead4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
           CÂU HỎI {currentQIndex + 1} / {safeQuestions.length}
         </div>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.45, margin: 0 }}>
+        <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
           {currentQ.question}
         </h3>
       </div>
@@ -347,7 +356,7 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
         style={{
           position: 'relative',
           width: '100%',
-          height: '440px',
+          height: '460px',
           background: 'radial-gradient(circle at center, #0b1a28 0%, #030910 100%)',
           borderRadius: '24px',
           border: '3px solid rgba(13, 148, 136, 0.5)',
@@ -358,10 +367,10 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
         {/* Arena Wall Boundary Decor */}
         <div style={{
           position: 'absolute',
-          inset: '6px',
+          inset: '8px',
+          pointerEvents: 'none',
           border: '1.5px dashed rgba(94, 234, 212, 0.25)',
-          borderRadius: '18px',
-          pointerEvents: 'none'
+          borderRadius: '20px'
         }} />
 
         {/* Dynamic Bouncing 3D Spherical Fruit & Balloon Targets */}
@@ -385,17 +394,17 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
                   ? 'radial-gradient(circle at 35% 35%, #4ade80 0%, #16a34a 65%, #14532d 100%)' 
                   : item.gradient,
                 borderRadius: '50px', // 3D Capsule Pill Shape
-                padding: '10px 20px 10px 14px',
+                padding: '12px 24px 12px 16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                border: isWinnerTarget ? '3px solid #fde047' : `2px solid ${item.borderColor}`,
+                gap: '14px',
+                border: isWinnerTarget ? '3.5px solid #fde047' : `2px solid ${item.borderColor}`,
                 boxShadow: isWinnerTarget 
                   ? '0 0 45px #fde047, 0 10px 35px rgba(0,0,0,0.6)' 
                   : '0 10px 25px rgba(0, 0, 0, 0.45), inset 0 3px 6px rgba(255,255,255,0.45)',
                 color: '#ffffff',
                 fontWeight: 900,
-                fontSize: '1rem',
+                fontSize: '1.25rem',
                 cursor: isAnswered ? 'default' : 'pointer',
                 userSelect: 'none',
                 zIndex: isWinnerTarget ? 40 : 10,
@@ -406,15 +415,15 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
             >
               {/* 3D Circular Fruit Emblem */}
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '48px',
+                height: '48px',
                 borderRadius: '50%',
                 background: 'rgba(255, 255, 255, 0.28)',
                 backdropFilter: 'blur(6px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1.65rem',
+                fontSize: '1.85rem',
                 boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.7), 0 3px 8px rgba(0,0,0,0.2)',
                 flexShrink: 0
               }}>
@@ -424,8 +433,9 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
               {/* Glassmorphic Answer Text */}
               <span style={{
                 whiteSpace: 'nowrap',
-                textShadow: '0 2px 5px rgba(0, 0, 0, 0.85)',
-                letterSpacing: '0.2px'
+                textShadow: '0 2px 6px rgba(0, 0, 0, 0.85)',
+                letterSpacing: '0.3px',
+                fontWeight: 900
               }}>
                 {item.text}
               </span>

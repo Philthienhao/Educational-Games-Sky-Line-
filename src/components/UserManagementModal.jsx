@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Key, Trash2, ShieldCheck, CheckCircle2, AlertCircle, RefreshCw, X } from 'lucide-react';
+import { Users, UserPlus, Key, Trash2, ShieldCheck, CheckCircle2, AlertCircle, RefreshCw, X, Database, Save, Check } from 'lucide-react';
 import { StorageService } from '../services/storage';
+import { CloudStorageService } from '../services/cloudStorage';
 
 export function UserManagementModal({ isOpen, onClose, currentUser }) {
   const [usersList, setUsersList] = useState([]);
@@ -11,6 +12,12 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
   const [newName, setNewName] = useState('');
   const [newSubject, setNewSubject] = useState('Địa Lí');
   const [newRole, setNewRole] = useState('teacher');
+
+  // Supabase Credentials State
+  const [sbUrl, setSbUrl] = useState('');
+  const [sbKey, setSbKey] = useState('');
+  const [sbTesting, setSbTesting] = useState(false);
+  const [sbStatus, setSbStatus] = useState('');
   
   // Feedback
   const [successMsg, setSuccessMsg] = useState('');
@@ -19,6 +26,10 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
   const loadUsers = () => {
     const list = StorageService.getUsers();
     setUsersList(list);
+
+    const creds = CloudStorageService.getCredentials();
+    setSbUrl(creds.url || '');
+    setSbKey(creds.key || '');
   };
 
   useEffect(() => {
@@ -26,6 +37,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
       loadUsers();
       setSuccessMsg('');
       setErrorMsg('');
+      setSbStatus('');
     }
   }, [isOpen]);
 
@@ -118,6 +130,41 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
     }
   };
 
+  const handleSaveSupabaseConfig = () => {
+    CloudStorageService.setCredentials(sbUrl, sbKey);
+    setSuccessMsg('🎉 Đã lưu cấu hình Supabase Cloud DB thành công!');
+    setSbStatus('✅ Đã lưu cài đặt Supabase!');
+  };
+
+  const handleTestSupabase = async () => {
+    if (!sbUrl || !sbKey) {
+      alert('Vui lòng nhập đầy đủ Supabase Project URL và Anon API Key!');
+      return;
+    }
+    setSbTesting(true);
+    setSbStatus('⏳ Đang kết nối thử nghiệm...');
+    try {
+      CloudStorageService.setCredentials(sbUrl, sbKey);
+      const res = await fetch(`${sbUrl.trim()}/rest/v1/user_data?select=key&limit=1`, {
+        headers: {
+          'apikey': sbKey.trim(),
+          'Authorization': `Bearer ${sbKey.trim()}`
+        }
+      });
+      if (res.ok) {
+        setSbStatus('🎉 Kết nối Supabase Cloud DB THÀNH CÔNG 100%! Cơ sở dữ liệu sẵn sàng.');
+        setSuccessMsg('🎉 Kết nối Supabase Cloud DB thành công 100%!');
+      } else {
+        const txt = await res.text();
+        setSbStatus(`⚠️ Phản hồi từ Supabase (${res.status}): ${txt || 'Kiểm tra lại bảng user_data hoặc API Key'}`);
+      }
+    } catch (e) {
+      setSbStatus(`❌ Lỗi kết nối: ${e.message || 'Không thể kết nối đến URL Supabase'}`);
+    } finally {
+      setSbTesting(false);
+    }
+  };
+
   return (
     <div style={{
       position: 'fixed',
@@ -152,7 +199,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
               <Users size={26} color="#6366f1" /> Cấp & Quản Lý Tài Khoản Giáo Viên
             </h3>
             <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>
-              Quản trị viên <strong>Thầy Hảo Địa Lí</strong> có thể tạo tài khoản mới, đổi mật khẩu và bảo vệ dữ liệu toàn hệ thống.
+              Quản trị viên <strong>Thầy Hảo Địa Lí</strong> có thể tạo tài khoản mới, đổi mật khẩu và kết nối Cloud DB.
             </p>
           </div>
           <button
@@ -189,7 +236,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
         }}>
           <div>
             <h4 style={{ margin: '0 0 2px 0', fontSize: '0.95rem', fontWeight: 900, color: '#15803d', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🛡️ Sao Lưu & Bảo Vệ Dữ Liệu Tuyệt Đối
+              🛡️ Sao Lưu & Bảo Vệ Dữ Liệu Thủ Công (File .JSON)
             </h4>
             <p style={{ margin: 0, fontSize: '0.8rem', color: '#166534' }}>
               Tải bản sao lưu (.json) về máy tính để bảo vệ tất cả game cá nhân, lớp chủ nhiệm và tài khoản.
@@ -211,7 +258,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
                 boxShadow: '0 4px 10px rgba(99, 102, 241, 0.3)'
               }}
             >
-              📋 Sao Chép Mã INITIAL_USERS
+              📋 Mã INITIAL_USERS
             </button>
             <button
               onClick={() => StorageService.exportFullBackup()}
@@ -266,6 +313,118 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
                 }}
               />
             </label>
+          </div>
+        </div>
+
+        {/* Supabase Cloud Database Configuration Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+          border: '2px solid #3b82f6',
+          borderRadius: '20px',
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Database size={20} color="#2563eb" />
+              🌐 Cấu Hình Supabase Cloud Database (Đồng bộ vĩnh viễn 24/7)
+            </h4>
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, background: '#2563eb', color: '#fff', padding: '3px 10px', borderRadius: '20px' }}>
+              Cách 2 - Chuẩn Cloud
+            </span>
+          </div>
+
+          <p style={{ margin: 0, fontSize: '0.82rem', color: '#1e3a8a', lineHeight: 1.5 }}>
+            Nhập <strong>Supabase Project URL</strong> và <strong>Anon API Key</strong> của bạn để bật tính năng lưu dữ liệu cá nhân (Game, Lớp chủ nhiệm, Slide) lên Cloud 24/7. Đăng nhập ở bất kỳ máy tính nào cũng sẽ tự động tải về đầy đủ.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', marginBottom: '4px' }}>
+                Supabase Project URL:
+              </label>
+              <input
+                type="text"
+                value={sbUrl}
+                onChange={(e) => setSbUrl(e.target.value)}
+                placeholder="https://xyzcompany.supabase.co"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #93c5fd',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#1e40af', marginBottom: '4px' }}>
+                Supabase Anon API Key:
+              </label>
+              <input
+                type="password"
+                value={sbKey}
+                onChange={(e) => setSbKey(e.target.value)}
+                placeholder="eyJhbGciOiJIUzI1NiIsInR..."
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #93c5fd',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+
+          {sbStatus && (
+            <div style={{ fontSize: '0.82rem', fontWeight: 800, color: sbStatus.includes('THÀNH CÔNG') || sbStatus.includes('Đã lưu') ? '#166534' : '#b91c1c', background: '#ffffff', padding: '8px 12px', borderRadius: '10px', border: '1px solid #bfdbfe' }}>
+              {sbStatus}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+            <button
+              onClick={handleTestSupabase}
+              disabled={sbTesting}
+              style={{
+                background: '#ffffff',
+                color: '#2563eb',
+                border: '1.5px solid #2563eb',
+                borderRadius: '12px',
+                padding: '8px 16px',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: 'pointer'
+              }}
+            >
+              {sbTesting ? '⏳ Đang thử...' : '🔍 Kiểm Tra Kết Nối'}
+            </button>
+            <button
+              onClick={handleSaveSupabaseConfig}
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '8px 18px',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Save size={16} /> Lưu Cấu Hình Cloud
+            </button>
           </div>
         </div>
 

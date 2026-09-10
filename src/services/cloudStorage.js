@@ -10,16 +10,69 @@ const KV_ENDPOINTS = [
   'https://api.kvdb.io/skyline_gvd_users_eduvth_v2/users'
 ];
 
-// Custom Supabase / Cloud DB Configuration (Can be configured via env or window)
-const SUPABASE_URL = typeof window !== 'undefined' && window.__SKYLINE_SUPABASE_URL__ ? window.__SKYLINE_SUPABASE_URL__ : '';
-const SUPABASE_KEY = typeof window !== 'undefined' && window.__SKYLINE_SUPABASE_KEY__ ? window.__SKYLINE_SUPABASE_KEY__ : '';
+// System Default Central Supabase Cloud DB Configuration
+const SYSTEM_DEFAULT_SUPABASE_URL = 'https://ebdzuzykdhyczqijxzjn.supabase.co';
+
+const getSupabaseCredentials = () => {
+  let url = '';
+  let key = '';
+
+  if (typeof window !== 'undefined') {
+    url = window.__SKYLINE_SUPABASE_URL__ || localStorage.getItem('skyline_supabase_url') || SYSTEM_DEFAULT_SUPABASE_URL;
+    key = window.__SKYLINE_SUPABASE_KEY__ || localStorage.getItem('skyline_supabase_key') || '';
+  }
+
+  if (!url && typeof process !== 'undefined' && process.env) {
+    url = process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL || SYSTEM_DEFAULT_SUPABASE_URL;
+    key = process.env.REACT_APP_SUPABASE_KEY || process.env.SUPABASE_KEY || '';
+  }
+
+  if (!url) url = SYSTEM_DEFAULT_SUPABASE_URL;
+
+  return { url: url.trim(), key: key.trim() };
+};
 
 export const CloudStorageService = {
+  getCredentials: getSupabaseCredentials,
+
+  setCredentials: (url, key) => {
+    if (typeof window !== 'undefined') {
+      if (url) localStorage.setItem('skyline_supabase_url', url.trim());
+      else localStorage.removeItem('skyline_supabase_url');
+
+      if (key) localStorage.setItem('skyline_supabase_key', key.trim());
+      else localStorage.removeItem('skyline_supabase_key');
+      
+      window.__SKYLINE_SUPABASE_URL__ = url.trim();
+      window.__SKYLINE_SUPABASE_KEY__ = key.trim();
+    }
+  },
+
   /**
    * Fetch all cloud registered users with multi-endpoint failover
    */
   getCloudUsers: async () => {
-    // 0. Primary Cloud CDN Endpoint: Fetch directly from GitHub CDN (100% reliable 24/7)
+    const { url, key } = getSupabaseCredentials();
+
+    // 1. Primary: Try Supabase REST API if configured
+    if (url && key) {
+      try {
+        const response = await fetch(`${url}/rest/v1/teachers_users?select=*`, {
+          headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) return data;
+        }
+      } catch (e) {
+        console.warn("Supabase getCloudUsers error:", e);
+      }
+    }
+
+    // 2. Secondary Cloud CDN Endpoint: Fetch directly from GitHub CDN
     try {
       const cdnUrl = 'https://raw.githubusercontent.com/Philthienhao/Educational-Games-Sky-Line-/main/public/cloud_users.json?t=' + Date.now();
       const res = await fetch(cdnUrl, { cache: 'no-store' });
@@ -29,23 +82,7 @@ export const CloudStorageService = {
       }
     } catch (e) {}
 
-    // 1. If Supabase configured, try Supabase REST API
-    if (SUPABASE_URL && SUPABASE_KEY) {
-      try {
-        const response = await fetch(`${SUPABASE_URL}/rest/v1/teachers_users?select=*`, {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data)) return data;
-        }
-      } catch (e) {}
-    }
-
-    // 2. Multi-endpoint KV fallback strategy (tries primary, then secondary)
+    // 3. Multi-endpoint KV fallback strategy
     for (const endpoint of KV_ENDPOINTS) {
       try {
         const controller = new AbortController();
@@ -96,22 +133,25 @@ export const CloudStorageService = {
       IDBStorageService.clearAndSaveAllUsers(localUsers).catch(() => {});
     } catch (e) {}
 
-    // 2. Push to Cloud Storage asynchronously across all endpoints
-    try {
-      if (SUPABASE_URL && SUPABASE_KEY) {
-        fetch(`${SUPABASE_URL}/rest/v1/teachers_users`, {
+    // 2. Push to Supabase Cloud Storage if configured
+    const { url, key } = getSupabaseCredentials();
+    if (url && key) {
+      try {
+        fetch(`${url}/rest/v1/teachers_users`, {
           method: 'POST',
           headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'apikey': key,
+            'Authorization': `Bearer ${key}`,
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates'
           },
           body: JSON.stringify(payload)
         }).catch(() => {});
-      }
+      } catch (e) {}
+    }
 
-      // Prepare combined safe user list (local + cloud)
+    // 3. Broadcast to KV endpoints
+    try {
       let localUsersList = [];
       try {
         localUsersList = JSON.parse(localStorage.getItem('gvd_users') || '[]');
@@ -127,7 +167,6 @@ export const CloudStorageService = {
       combinedMap.set(cleanUname, payload);
       const updatedList = Array.from(combinedMap.values());
 
-      // Broadcast to ALL redundant KV endpoints simultaneously
       KV_ENDPOINTS.forEach(endpoint => {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
@@ -156,7 +195,6 @@ export const CloudStorageService = {
     const cleanUser = String(username).trim().toLowerCase();
     const cleanPass = String(password).trim();
 
-    // 1. Check cloud DB for newly created accounts on other devices
     try {
       const cloudUsers = await CloudStorageService.getCloudUsers();
       const matched = cloudUsers.find(u => {
@@ -165,7 +203,6 @@ export const CloudStorageService = {
       });
 
       if (matched) {
-        // Cache user locally so subsequent logins & offline mode work instantly
         try {
           let localUsers = JSON.parse(localStorage.getItem('gvd_users') || '[]');
           const existsIdx = localUsers.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === cleanUser);
@@ -207,6 +244,173 @@ export const CloudStorageService = {
           body: JSON.stringify(filtered)
         }).catch(() => {});
       });
+
+      const { url, key } = getSupabaseCredentials();
+      if (url && key && userId) {
+        fetch(`${url}/rest/v1/teachers_users?id=eq.${encodeURIComponent(userId)}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`
+          }
+        }).catch(() => {});
+      }
     } catch (e) {}
+  },
+
+  /**
+   * Save Teacher Private Data (Saved Games, Homeroom, Slides) to Supabase, Vercel Serverless API, and redundant Cloud KV DB
+   */
+  saveUserPrivateCloudData: async (userId, dataType, data) => {
+    if (!userId || !dataType || !data) return false;
+    const cleanId = String(userId).trim();
+    const storageKey = `${cleanId}_${dataType}`;
+
+    const { url, key } = getSupabaseCredentials();
+
+    let successCount = 0;
+
+    // 1. If Supabase configured, save directly to Supabase REST API (100% 24/7 persistent)
+    if (url && key) {
+      try {
+        const payload = {
+          key: storageKey,
+          data: data,
+          updated_at: new Date().toISOString()
+        };
+
+        const res = await fetch(`${url}/rest/v1/user_data`, {
+          method: 'POST',
+          headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) successCount++;
+      } catch (e) {
+        console.warn(`Supabase saveUserPrivateCloudData error (${dataType}):`, e);
+      }
+    }
+
+    // 2. Primary Vercel Serverless Endpoint (/api/storage)
+    const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4500);
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) successCount++;
+    } catch (e) {
+      console.warn(`saveUserPrivateCloudData warning (${dataType}):`, e.message || e);
+    }
+
+    // 3. Fallback direct push to Redundant KV Cloud endpoints
+    const fallbackUrls = [
+      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
+      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
+    ];
+
+    for (const fUrl of fallbackUrls) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const fRes = await fetch(fUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        if (fRes.ok) successCount++;
+      } catch (e) {}
+    }
+
+    return successCount > 0;
+  },
+
+  /**
+   * Get Teacher Private Data from Supabase, Vercel Serverless API, or Redundant Cloud KV DB
+   */
+  getUserPrivateCloudData: async (userId, dataType) => {
+    if (!userId || !dataType) return null;
+    const cleanId = String(userId).trim();
+    const storageKey = `${cleanId}_${dataType}`;
+
+    const { url, key } = getSupabaseCredentials();
+
+    // 1. If Supabase configured, query Supabase REST API directly
+    if (url && key) {
+      try {
+        const res = await fetch(`${url}/rest/v1/user_data?key=eq.${encodeURIComponent(storageKey)}&select=data`, {
+          headers: {
+            'apikey': key,
+            'Authorization': `Bearer ${key}`
+          }
+        });
+
+        if (res.ok) {
+          const rows = await res.json();
+          if (Array.isArray(rows) && rows.length > 0 && rows[0].data !== undefined) {
+            return rows[0].data;
+          }
+        }
+      } catch (e) {
+        console.warn(`Supabase getUserPrivateCloudData error (${dataType}):`, e);
+      }
+    }
+
+    // 2. Vercel Serverless Endpoint (/api/storage)
+    const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(endpoint, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (data !== null && data !== undefined && !data.error) {
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn(`getUserPrivateCloudData warning (${dataType}):`, e.message || e);
+    }
+
+    // 3. Fallback direct query to Redundant KV Cloud endpoints
+    const fallbackUrls = [
+      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
+      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
+    ];
+
+    for (const fUrl of fallbackUrls) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(fUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const rawText = await res.text();
+          if (rawText && rawText.trim()) {
+            try {
+              return JSON.parse(rawText);
+            } catch (e) {
+              return rawText;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    return null;
   }
 };
+

@@ -18,8 +18,10 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
   const handleManualSync = async () => {
     setIsSyncing(true);
     try {
+      await StorageService.syncAllUserDataFromCloud(currentUser?.id);
       const synced = await StorageService.syncWithIndexedDB(currentUser?.id);
       if (onRefreshGames) onRefreshGames(synced);
+      alert("🎉 Đã đồng bộ Cloud & khôi phục toàn bộ dữ liệu cá nhân thành công!");
     } catch (e) {
       console.warn("Sync error:", e);
     } finally {
@@ -56,6 +58,14 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
     };
     reader.readAsText(file);
     e.target.value = '';
+  };
+
+  const handleRestoreAdminData = () => {
+    if (window.confirm('Bạn có muốn nạp lại 100% kho Game Địa Lý, Lớp chủ nhiệm 12A1 và Slide bài giảng cho Thầy Hảo không?')) {
+      const restored = StorageService.restoreInitialDataForAdmin();
+      if (onRefreshGames) onRefreshGames(restored.games);
+      alert('🎉 Đã nạp lại 100% kho dữ liệu Game Địa Lý, Lớp chủ nhiệm 12A1 & Slide bài giảng thành công!');
+    }
   };
 
   const filteredGames = useMemo(() => {
@@ -125,6 +135,18 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
               <RefreshCw size={18} className={isSyncing ? 'spin' : ''} />
               {isSyncing ? 'Đang đồng bộ...' : '🔄 Đồng Bộ Game'}
             </button>
+
+            {currentUser?.role === 'admin' && (
+              <button 
+                className="btn btn-secondary"
+                onClick={handleRestoreAdminData}
+                style={{ background: '#8b5cf6', color: '#fff', border: 'none', fontWeight: 800 }}
+                title="Nạp lại 100% kho Game Địa Lý, Lớp chủ nhiệm 12A1 và Slide bài giảng cho Thầy Hảo"
+              >
+                <Sparkles size={18} />
+                ✨ Khôi Phục Dữ Liệu Thầy Hảo
+              </button>
+            )}
 
             <button 
               className="btn btn-primary"

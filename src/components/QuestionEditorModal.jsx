@@ -112,8 +112,47 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
     // Check if game is already saved
     const isAlreadySaved = gameTemplate?.isSaved || gameTemplate?.isSavedGame || (typeof gameTemplate?.id === 'string' && gameTemplate.id.startsWith('saved_'));
     
-    // Determine exact engineType
-    const effectiveEngineType = gameTemplate?.engineType || gameTemplate?.baseGameId || 'tug-of-war-dual';
+    // Determine exact engineType using title/baseGameId/id resolution
+    const rawTitle = (title || gameTemplate?.title || lessonTitle || '').toLowerCase();
+    const rawId = (gameTemplate?.baseGameId || gameTemplate?.id || '').toLowerCase();
+    let effectiveEngineType = gameTemplate?.engineType;
+
+    if (rawTitle.includes('bắt chước')) effectiveEngineType = 'pose-imitation';
+    else if (rawTitle.includes('nghiêng đầu')) effectiveEngineType = 'head-tilt';
+    else if (rawTitle.includes('kéo co đôi') || rawTitle.includes('kéo co kiến thức')) effectiveEngineType = 'tug-of-war-dual';
+    else if (rawTitle.includes('kéo co')) effectiveEngineType = 'tug-of-war';
+    else if (rawTitle.includes('triệu phú')) effectiveEngineType = 'millionaire';
+    else if (rawTitle.includes('hộp quà')) effectiveEngineType = 'mystery-box';
+    else if (rawTitle.includes('mảnh ghép') || rawTitle.includes('bức ảnh')) effectiveEngineType = 'picture-reveal';
+    else if (rawTitle.includes('ô chữ')) effectiveEngineType = 'crossword';
+    else if (rawTitle.includes('đoàn tàu') || rawTitle.includes('tàu hỏa')) effectiveEngineType = 'train';
+    else if (rawTitle.includes('flashcard') || rawTitle.includes('thẻ ghi nhớ')) effectiveEngineType = 'flashcard';
+    else if (rawTitle.includes('chém hoa quả') || rawTitle.includes('trái cây')) effectiveEngineType = 'fruit-ninja';
+    else if (rawTitle.includes('đua xe')) effectiveEngineType = 'car-race';
+    else if (rawTitle.includes('dò mìn')) effectiveEngineType = 'minesweeper';
+    else if (rawTitle.includes('từ bay') || rawTitle.includes('từ ngữ biết bay')) effectiveEngineType = 'flying-words';
+    else if (rawTitle.includes('nối ý') || rawTitle.includes('ghép cặp')) effectiveEngineType = 'matching-pairs';
+    else if (rawTitle.includes('đua vịt')) effectiveEngineType = 'duck-race';
+    else if (rawTitle.includes('đua rùa')) effectiveEngineType = 'turtle-race';
+    else if (rawTitle.includes('gắp thú') || rawId.includes('claw-machine')) effectiveEngineType = 'claw-machine';
+    else if (rawTitle.includes('phi hành gia') || rawId.includes('astronaut')) effectiveEngineType = 'astronaut-explorer';
+    else if (rawTitle.includes('chiếc mũ') || rawId.includes('magic-hat')) effectiveEngineType = 'magic-hat';
+    else if (rawTitle.includes('cổ thư') || rawId.includes('magic-grimoire')) effectiveEngineType = 'magic-grimoire';
+    else if (rawTitle.includes('rừng xanh')) effectiveEngineType = 'jungle-rescue';
+    else if (rawTitle.includes('jeopardy')) effectiveEngineType = 'jeopardy';
+    else if (rawId.includes('astronaut')) effectiveEngineType = 'astronaut-explorer';
+    else if (rawId.includes('magic-hat')) effectiveEngineType = 'magic-hat';
+    else if (rawId.includes('magic-grimoire')) effectiveEngineType = 'magic-grimoire';
+    else if (rawId.includes('pose')) effectiveEngineType = 'pose-imitation';
+    else if (rawId.includes('head-tilt')) effectiveEngineType = 'head-tilt';
+    else if (rawId.includes('tug-of-war-dual')) effectiveEngineType = 'tug-of-war-dual';
+    else if (rawId.includes('tug-of-war')) effectiveEngineType = 'tug-of-war';
+    else if (rawId.includes('millionaire')) effectiveEngineType = 'millionaire';
+    else if (rawId.includes('mystery')) effectiveEngineType = 'mystery-box';
+    else if (rawId.includes('picture') || rawId.includes('flip')) effectiveEngineType = 'picture-reveal';
+    else if (!effectiveEngineType || effectiveEngineType === 'tug-of-war-dual') {
+      effectiveEngineType = gameTemplate?.baseGameId || 'wheel';
+    }
 
     return {
       id: isAlreadySaved ? gameTemplate.id : `saved_${Date.now()}`,

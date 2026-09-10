@@ -189,43 +189,72 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(10px)',
+          background: 'rgba(0,0,0,0.88)',
+          backdropFilter: 'blur(12px)',
           zIndex: 2000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '700px', padding: '32px' }}>
+          <div className="glass-modal" style={{ width: '100%', maxWidth: '920px', padding: '36px', borderRadius: '28px', border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.7)' }}>
             
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <span className="badge badge-teacher">
-                MẢNH GHÉP SỐ #{activeTileIndex + 1}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+              <span className="badge badge-teacher" style={{ fontSize: '1rem', padding: '8px 18px', borderRadius: '14px', fontWeight: 900 }}>
+                🧩 MẢNH GHÉP SỐ #{activeTileIndex + 1}
               </span>
+
+              {/* 20 Seconds Countdown Timer Display */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: timeLeft <= 5 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                padding: '8px 22px',
+                borderRadius: '24px',
+                fontWeight: 900,
+                fontSize: '1.25rem',
+                border: '1.5px solid rgba(255,255,255,0.4)',
+                boxShadow: timeLeft <= 5 ? '0 0 20px rgba(239, 68, 68, 0.8)' : '0 4px 16px rgba(2, 132, 199, 0.4)',
+                transition: 'all 0.3s ease'
+              }}>
+                ⏱️ Thời gian: <span style={{ fontSize: '1.5rem', color: '#fef08a' }}>{timeLeft}s</span>
+              </div>
             </div>
 
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '24px', lineHeight: 1.4 }}>
+            {/* Question Image if present */}
+            {currentQ.image && (
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <img 
+                  src={currentQ.image} 
+                  alt="Câu hỏi" 
+                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                />
+              </div>
+            )}
+
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', marginBottom: '28px', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', marginBottom: '28px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
                 if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
                 const optText = currentQ.options[idx];
                 const isSelected = selectedOption === optLabel;
                 const isCorrect = currentQ.correct === optLabel;
 
-                let bg = 'rgba(255,255,255,0.06)';
-                let border = '1px solid rgba(255,255,255,0.15)';
+                let bg = 'rgba(255,255,255,0.08)';
+                let border = '2px solid rgba(255,255,255,0.2)';
 
                 if (answerState) {
                   if (isCorrect) {
                     bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    border = '1px solid #6ee7b7';
+                    border = '2px solid #6ee7b7';
                   } else if (isSelected && !isCorrect) {
                     bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                    border = '1px solid #fca5a5';
+                    border = '2px solid #fca5a5';
                   }
                 }
 
@@ -235,35 +264,51 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
                     onClick={() => handleAnswerOption(optLabel)}
                     disabled={!!answerState}
                     style={{
-                      padding: '16px',
-                      borderRadius: '16px',
+                      padding: '20px 24px',
+                      borderRadius: '20px',
                       background: bg,
                       border: border,
-                      color: '#fff',
+                      color: '#ffffff',
                       textAlign: 'left',
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      fontSize: '1.3rem',
+                      lineHeight: 1.4,
                       cursor: answerState ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '10px'
+                      gap: '14px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
+                    <span style={{
+                      width: '38px',
+                      height: '38px',
+                      minWidth: '38px',
+                      borderRadius: '12px',
+                      background: 'rgba(255,255,255,0.22)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontSize: '1.2rem',
+                      color: '#ffffff'
+                    }}>
                       {optLabel}
                     </span>
-                    {optText}
+                    <span style={{ flex: 1 }}>{optText}</span>
                   </button>
                 );
               })}
             </div>
 
             {answerState && (
-              <div style={{ padding: '16px', borderRadius: '14px', background: answerState === 'correct' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
-                  {answerState === 'correct' ? `🎉 ĐÚNG RỒI! MẢNH GHÉP SỐ #${activeTileIndex + 1} ĐÃ ĐƯỢC LẬT MỞ!` : `❌ TIẾC QUÁ!`}
+              <div style={{ padding: '20px 24px', borderRadius: '18px', background: answerState === 'correct' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)', border: answerState === 'correct' ? '1px solid #10b981' : '1px solid #ef4444', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ fontWeight: 900, fontSize: '1.25rem', color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
+                  {answerState === 'correct' ? `🎉 ĐÚNG RỒI! MẢNH GHÉP SỐ #${activeTileIndex + 1} ĐÃ ĐƯỢC LẬT MỞ!` : answerState === 'timeout' ? `⏱️ HẾT GIỜ! HỌC SINH CHƯA ĐƯA RA CÂU TRẢ LỜI!` : `❌ TIẾC QUÁ! CÂU TRẢ LỜI CHƯA CHÍNH XÁC!`}
                 </div>
-                <button className="btn btn-primary" onClick={handleCloseQuestion}>
-                  Tiếp Tục
+                <button className="btn btn-primary" onClick={handleCloseQuestion} style={{ padding: '12px 28px', fontSize: '1.1rem', fontWeight: 900, borderRadius: '14px' }}>
+                  Tiếp Tục ➔
                 </button>
               </div>
             )}

@@ -108,5 +108,25 @@
     "subject": "Giáo viên",
     "school": "Hệ thống giáo dục Sky-Line",
     "createdAt": "2026-09-03"
+  },
+  {
+    "id": "user_thao_nguyen",
+    "username": "thaonguyen",
+    "password": "12345",
+    "name": "Huỳnh Thảo Nguyên",
+    "role": "teacher",
+    "subject": "Giáo viên",
+    "school": "Hệ thống giáo dục Sky-Line",
+    "createdAt": "2026-09-04"
+  },
+  {
+    "id": "user_ni_na",
+    "username": "nina",
+    "password": "123456",
+    "name": "Ni Na",
+    "role": "teacher",
+    "subject": "Giáo viên",
+    "school": "Hệ thống giáo dục Sky-Line",
+    "createdAt": "2026-09-04"
   }
 ]

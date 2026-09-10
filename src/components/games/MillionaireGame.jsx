@@ -193,25 +193,35 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
 
         {/* Question Text */}
         <div style={{
-          padding: '24px',
-          borderRadius: '20px',
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
-          border: '1.5px solid rgba(139, 92, 246, 0.4)',
-          marginBottom: '24px',
-          textAlign: 'center'
+          padding: '28px 32px',
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
+          border: '2px solid rgba(139, 92, 246, 0.5)',
+          marginBottom: '28px',
+          textAlign: 'center',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
         }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>
+          {currentQ.image && (
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <img 
+                src={currentQ.image} 
+                alt="Câu hỏi" 
+                style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+              />
+            </div>
+          )}
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             {currentQ.question}
           </h2>
         </div>
 
         {/* Audience Poll Modal Overlay if used */}
         {audiencePoll && (
-          <div style={{ marginBottom: '20px', padding: '14px 20px', borderRadius: '14px', background: 'rgba(59, 130, 246, 0.15)', border: '1px solid #3b82f6' }}>
-            <div style={{ fontWeight: 800, color: '#93c5fd', marginBottom: '8px', fontSize: '0.85rem' }}>
-              📊 Ý KIẾN KHÁN GIẢ:
+          <div style={{ marginBottom: '24px', padding: '16px 24px', borderRadius: '18px', background: 'rgba(59, 130, 246, 0.2)', border: '1.5px solid #3b82f6' }}>
+            <div style={{ fontWeight: 900, color: '#93c5fd', marginBottom: '8px', fontSize: '1rem' }}>
+              📊 Ý KIẾN KHÁN GIẢ TRONG PHÒNG:
             </div>
-            <div style={{ display: 'flex', gap: '16px', fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
+            <div style={{ display: 'flex', gap: '24px', fontSize: '1.15rem', fontWeight: 900, color: '#ffffff' }}>
               <span>A: {audiencePoll.A}%</span>
               <span>B: {audiencePoll.B}%</span>
               <span>C: {audiencePoll.C}%</span>
@@ -221,7 +231,7 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
         )}
 
         {/* Options Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', marginBottom: '28px' }}>
           {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
             if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
             const optText = currentQ.options[idx];
@@ -229,58 +239,65 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
             const isSelected = selectedOption === optLabel;
             const isCorrect = currentQ.correct === optLabel;
 
-            let bg = 'rgba(255,255,255,0.06)';
-            let border = '1px solid rgba(255,255,255,0.15)';
+            let bg = 'rgba(255,255,255,0.08)';
+            let border = '2px solid rgba(255,255,255,0.2)';
 
             if (answerState) {
               if (isCorrect) {
                 bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                border = '1.5px solid #6ee7b7';
+                border = '2px solid #6ee7b7';
               } else if (isSelected && !isCorrect) {
                 bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                border = '1.5px solid #fca5a5';
+                border = '2px solid #fca5a5';
               }
             }
 
             if (isHidden) {
               return (
-                <div key={optLabel} style={{ padding: '16px', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.08)', visibility: 'hidden' }} />
+                <div key={optLabel} style={{ padding: '20px 24px', borderRadius: '20px', border: '2px dashed rgba(255,255,255,0.08)', visibility: 'hidden' }} />
               );
             }
 
             return (
               <button
                 key={optLabel}
-                onClick={() => handleSelectOption(optLabel)}
+                onClick={() => handleAnswerOption(optLabel)}
                 disabled={!!answerState}
                 style={{
-                  padding: '16px 20px',
-                  borderRadius: '16px',
+                  padding: '20px 24px',
+                  borderRadius: '20px',
                   background: bg,
                   border: border,
-                  color: '#fff',
+                  color: '#ffffff',
                   textAlign: 'left',
-                  fontWeight: 700,
-                  fontSize: '1rem',
+                  fontWeight: 800,
+                  fontSize: '1.3rem',
+                  lineHeight: 1.4,
                   cursor: answerState ? 'default' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: '14px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 <span style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '10px',
-                  background: 'rgba(255,255,255,0.2)',
+                  width: '38px',
+                  height: '38px',
+                  minWidth: '38px',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.22)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: 900
+                  fontWeight: 900,
+                  fontSize: '1.2rem',
+                  color: '#ffffff',
+                  flexShrink: 0
                 }}>
                   {optLabel}
                 </span>
-                {optText}
+                <span style={{ flex: 1 }}>{optText}</span>
               </button>
             );
           })}

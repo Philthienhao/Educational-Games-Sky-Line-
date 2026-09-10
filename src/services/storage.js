@@ -122,6 +122,26 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Hệ thống giáo dục Sky-Line',
     createdAt: '2026-09-03'
+  },
+  {
+    id: 'user_thao_nguyen',
+    username: 'thaonguyen',
+    password: '12345',
+    name: 'Huỳnh Thảo Nguyên',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống giáo dục Sky-Line',
+    createdAt: '2026-09-04'
+  },
+  {
+    id: 'user_ni_na',
+    username: 'nina',
+    password: '123456',
+    name: 'Ni Na',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống giáo dục Sky-Line',
+    createdAt: '2026-09-04'
   }
 ];
 
@@ -293,6 +313,18 @@ const INITIAL_BASE_GAMES = [
     ]
   },
   {
+    id: 'tower-builder-game',
+    title: 'Kiến Trúc Sư Tri Thức',
+    subtitle: 'Thi Đấu Xây Nhà & Tháp Tri Thức',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🏗️',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+    description: 'Trả lời đúng câu hỏi để lựa chọn Rơm, Gỗ hoặc Gạch xây từng tầng nhà cao vút. Đội xây tòa tháp cao nhất sẽ dành chiến thắng!',
+    engineType: 'tower-builder',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'tug-of-war-dual-game',
     title: 'Kéo Co Kiến Thức',
     subtitle: 'Đội Kháng 2 Bên Trả Lời Đồng Thời',
@@ -461,6 +493,54 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
+    id: 'claw-machine-quiz',
+    title: 'Gắp Thú Gọi Tên — Siêu Thị Gấu Bông',
+    subtitle: 'Gắp Thú Bông Ngẫu Nhiên Chọn Học Sinh May Mắn',
+    category: 'Tương tác & Quay số',
+    icon: '🧸',
+    gradient: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
+    description: 'Mô phỏng máy gắp thú bông siêu thị. Mỗi gấu bông gắn tên 1 học sinh, tay gắp cơ học sẽ hạ xuống gắp ngẫu nhiên gấu bông để chọn ra học sinh lên bảng nhận thưởng!',
+    engineType: 'claw-machine',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'astronaut-quiz',
+    title: 'Phi Hành Gia May Mắn — Thám Hiểm Vũ Trụ',
+    subtitle: 'Tên Lửa Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
+    category: 'Tương tác & Quay số',
+    icon: '🧑‍🚀',
+    gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
+    description: 'Giao diện không gian huyền ảo. Đếm ngược 5s kịch tính, tên lửa vũ trụ rực rỡ sẽ cất cánh và hạ cánh ngẫu nhiên xuống hành tinh gắn tên 1 học sinh may mắn!',
+    engineType: 'astronaut-explorer',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'magic-hat-quiz',
+    title: 'Chiếc Mũ Ma Thuật — Hộp Quà Bí Mật',
+    subtitle: 'Mũ Ảo Thuật Gia Triệu Hồi Học Sinh Bất Ngờ',
+    category: 'Tương tác & Quay số',
+    icon: '🎩',
+    gradient: 'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
+    description: 'Chiếc mũ ma thuật rực rỡ và hộp quà bí mật. Khi thầy cô bấm triệu hồi, chiếc mũ rung rinh phát sáng và chú Thỏ Ma Thuật chui ra mang theo tên học sinh được gọi!',
+    engineType: 'magic-hat',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'magic-grimoire-quiz',
+    title: 'Cổ Thư Triệu Hồi — AI Nhận Diện Cử Chỉ Tay',
+    subtitle: 'Vẫy Tay Trước Camera AI Triệu Hồi Học Sinh',
+    category: 'Tương tác & Quay số',
+    icon: '📜',
+    gradient: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+    description: 'Tích hợp Camera Webcam AI nhận diện cử chỉ tay. Học sinh hoặc thầy cô vẫy tay trước camera, Cổ Thư Ma Thuật lật trang ảo diệu chọn ra học sinh may mắn!',
+    engineType: 'magic-grimoire',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'jungle-rescue-quiz',
     title: 'Giải Cứu Rừng Xanh - Diệt Tan Quái Vật',
     subtitle: 'Phiêu Lưu Diệt Quái Khủng Long & Săn Rương Kho Báu',
@@ -487,7 +567,22 @@ const INITIAL_BASE_GAMES = [
 ];
 
 // Sample Initial Saved Teacher Games
+// Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_tower',
+    userId: 'user_admin',
+    baseGameId: 'tower-builder-game',
+    title: 'Kiến Trúc Sư Tri Thức - Thi Đấu Xây Tháp',
+    lessonTitle: 'Kiến Trúc Sư Tri Thức - Thi Đấu Xây Tháp',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #f59e0b 100%)',
+    icon: '🏗️',
+    engineType: 'tower-builder',
+    description: 'Bài game thi đấu xây nhà dựa trên độ khó vật liệu Rơm, Gỗ, Gạch và các câu hỏi học tập sinh động',
+    questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_1',
     userId: 'user_admin',
@@ -506,8 +601,8 @@ const INITIAL_SAVED_GAMES = [
     id: 'saved_sample_2',
     userId: 'user_admin',
     baseGameId: 'millionaire',
-    title: 'Ôn Tập Tổng Hợp Học Kỳ 1',
-    lessonTitle: 'Ôn Tập Tổng Hợp Học Kỳ 1',
+    title: 'Ôn Tập Tổng Hợp Học Kỳ 1 - Địa Lý',
+    lessonTitle: 'Ôn Tập Tổng Hợp Học Kỳ 1 - Địa Lý',
     subject: 'Địa Lý',
     gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
     icon: '💰',
@@ -515,207 +610,371 @@ const INITIAL_SAVED_GAMES = [
     description: 'Bài game Ai Là Triệu Phú ôn tập học kỳ 1',
     questions: SAMPLE_QUESTIONS,
     updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_3',
+    userId: 'user_admin',
+    baseGameId: 'fruit-ninja-quiz',
+    title: 'Địa Lý 12 - Tự Nhiên & Dân Cư Việt Nam',
+    lessonTitle: 'Địa Lý 12 - Tự Nhiên & Dân Cư Việt Nam',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+    icon: '🍉',
+    engineType: 'fruit-ninja',
+    description: 'Trắc nghiệm phản xạ chém trái cây Địa Lý 12',
+    questions: FRUIT_NINJA_SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_4',
+    userId: 'user_admin',
+    baseGameId: 'picture-flip',
+    title: 'Địa Lý 10 - Vũ Trụ & Trái Đất',
+    lessonTitle: 'Địa Lý 10 - Vũ Trụ & Trái Đất',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+    icon: '🖼️',
+    engineType: 'picture-reveal',
+    description: 'Lật mở bức ảnh bí mật chủ đề Vũ trụ và các hành tinh trong Hệ Mặt Trời',
+    questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_5',
+    userId: 'user_admin',
+    baseGameId: 'jeopardy-quiz',
+    title: 'Đấu Trí Jeopardy - Địa Lý Các Ngành Kinh Tế',
+    lessonTitle: 'Đấu Trí Jeopardy - Địa Lý Các Ngành Kinh Tế',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+    icon: '🟨',
+    engineType: 'jeopardy',
+    description: 'Đấu trí ma trận 20 ô thử thách kiến thức Địa Lý kinh tế Việt Nam',
+    questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_6',
+    userId: 'user_admin',
+    baseGameId: 'head-tilt-quiz',
+    title: 'Nghiêng Đầu Chuẩn - Địa Lý Việt Nam',
+    lessonTitle: 'Nghiêng Đầu Chuẩn - Địa Lý Việt Nam',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #00a8ff 0%, #ff5252 100%)',
+    icon: '👤',
+    engineType: 'head-tilt',
+    description: 'Bật camera nghiêng đầu chọn đáp án đúng Địa Lý',
+    questions: [
+      { question: 'Sông Níl dài nhất thế giới nằm ở châu lục nào?', options: ['Châu Phi', 'Châu Á'], correct: 'A' },
+      { question: 'Thủ đô của Nhật Bản là thành phố nào?', options: ['Osaka', 'Tokyo'], correct: 'B' },
+      { question: 'Việt Nam thuộc khu vực nào?', options: ['Đông Nam Á', 'Đông Á'], correct: 'A' }
+    ],
+    updatedAt: new Date().toISOString().split('T')[0]
   }
 ];
 
+const INITIAL_ADMIN_SLIDES = [
+  {
+    id: 'slide_hao_1',
+    title: 'Địa Lý 12 - Bài 1: Vị trí địa lý và phạm vi lãnh thổ Việt Nam',
+    subject: 'Địa Lý',
+    grade: 'Khối 12',
+    author: 'Thầy Hảo Địa Lí',
+    slidesCount: 15,
+    fileType: 'pdf',
+    driveUrl: 'https://drive.google.com',
+    description: 'Slide bài giảng tương tác Địa Lý 12 chuẩn định hướng thi Tốt nghiệp THPT',
+    createdAt: '2026-01-10'
+  },
+  {
+    id: 'slide_hao_2',
+    title: 'Địa Lý 12 - Bài 2: Đất nước nhiều đồi núi & Ảnh hưởng thiên nhiên',
+    subject: 'Địa Lý',
+    grade: 'Khối 12',
+    author: 'Thầy Hảo Địa Lí',
+    slidesCount: 22,
+    fileType: 'pptx',
+    driveUrl: 'https://drive.google.com',
+    description: 'Bài giảng phân tích địa hình đồi núi, đồng bằng và khoáng sản Việt Nam',
+    createdAt: '2026-01-15'
+  },
+  {
+    id: 'slide_hao_3',
+    title: 'Địa Lý 10 - Bài 5: Vũ trụ, Hệ Mặt Trời và Các chuyển động của Trái Đất',
+    subject: 'Địa Lý',
+    grade: 'Khối 10',
+    author: 'Thầy Hảo Địa Lí',
+    slidesCount: 18,
+    fileType: 'pdf',
+    driveUrl: 'https://drive.google.com',
+    description: 'Slide Trái Đất và Vũ trụ có chèn hình ảnh 3D và câu hỏi tương tác',
+    createdAt: '2026-02-01'
+  }
+];
+
+const INITIAL_ADMIN_FOLDERS = [
+  {
+    id: 'folder_hao_10',
+    grade: 'Khối 10',
+    title: 'Thư mục Kho Học Liệu & Giáo Án Địa Lý Khối 10 (Thầy Hảo)',
+    folderUrl: 'https://drive.google.com',
+    description: 'Tổng hợp giáo án, đề thi trắc nghiệm và slide bài giảng Địa 10 Sky-Line',
+    updatedAt: '2026-02-15'
+  },
+  {
+    id: 'folder_hao_11',
+    grade: 'Khối 11',
+    title: 'Thư mục Bài Giảng & Đề Trắc Nghiệm Địa Lý Khối 11 (Thầy Hảo)',
+    folderUrl: 'https://drive.google.com',
+    description: 'Ngân hàng câu hỏi trắc nghiệm Địa 11 các khu vực Châu Á, Châu Âu, Mỹ Khối 11',
+    updatedAt: '2026-02-18'
+  },
+  {
+    id: 'folder_hao_12',
+    grade: 'Khối 12',
+    title: 'Thư mục Ngân Hàng Đề Thi & Ôn Thi Tốt Nghiệp THPT Khối 12 (Thầy Hảo)',
+    folderUrl: 'https://drive.google.com',
+    description: 'Bộ đề thi thử Tốt nghiệp THPT môn Địa Lý, sơ đồ tư duy & slide tổng ôn 12A1',
+    updatedAt: '2026-03-01'
+  }
+];
+
+let isStorageInitRunning = false;
+
 export const StorageService = {
+  // Safe helper to extract active user ID without invoking StorageService.init() recursively
+  getEffectiveUserId: (userId) => {
+    if (userId && typeof userId === 'string' && userId.trim()) return userId.trim();
+    try {
+      const userStr = localStorage.getItem(CURRENT_USER_KEY);
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        if (u && u.id && u.isLoggedIn !== false) return u.id;
+      }
+    } catch (e) {}
+    return 'user_admin';
+  },
+
   // Init storage safely without filling localStorage limit
   init: () => {
-    // 0. Force clear active user session once to enforce strict login screen for everyone
-    if (!localStorage.getItem('gvd_session_strict_login_v1')) {
+    if (isStorageInitRunning) return;
+    isStorageInitRunning = true;
+
+    try {
+      // 0. Request Chrome Persistent Storage permission to prevent Chrome from ever evicting site data
+      if (typeof window !== 'undefined' && navigator.storage && navigator.storage.persist) {
+        navigator.storage.persist().catch(() => {});
+      }
+
+      // 1. Purge heavy snapshot key if present to free up 2.5MB+ of local storage space
       try {
-        localStorage.removeItem(CURRENT_USER_KEY);
-        localStorage.setItem('gvd_session_strict_login_v1', 'true');
+        localStorage.removeItem('gvd_auto_backup_snapshot');
       } catch (e) {}
-    }
 
-    // 1. Purge heavy snapshot key if present to free up 2.5MB+ of local storage space
-    try {
-      localStorage.removeItem('gvd_auto_backup_snapshot');
-    } catch (e) {}
+      // 2. Initialize or safely update users
+      try {
+        try { localStorage.removeItem('gvd_deleted_usernames'); } catch (e) {}
 
-    // 2. Initialize or safely update users
-    try {
-      try { localStorage.removeItem('gvd_deleted_usernames'); } catch (e) {}
+        let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+        if (!Array.isArray(users)) users = [];
 
-      let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-      if (!Array.isArray(users)) users = [];
+        // Purge sample legacy accounts co_hoa, thay_nam & old corrupt seed entry
+        users = users.filter(u => {
+          if (!u || !u.username) return false;
+          const uName = String(u.username).trim().toLowerCase();
+          if (uName === 'co_hoa' || uName === 'thay_nam') return false;
+          if (uName === 'phamtham' && u.name === 'Cô Phạm Thị Thanh Thảo') return false;
+          return true;
+        });
 
-      // Purge sample legacy accounts co_hoa, thay_nam & old corrupt seed entry
-      users = users.filter(u => {
-        if (!u || !u.username) return false;
-        const uName = String(u.username).trim().toLowerCase();
-        if (uName === 'co_hoa' || uName === 'thay_nam') return false;
-        if (uName === 'phamtham' && u.name === 'Cô Phạm Thị Thanh Thảo') return false;
-        return true;
-      });
-
-      INITIAL_USERS.forEach(iu => {
-        const iuName = String(iu.username || '').trim().toLowerCase();
-        const idx = users.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === iuName);
-        if (idx === -1) {
-          users.push(iu);
-        } else {
-          // Keep seed account credentials synced with latest INITIAL_USERS seed configuration
-          users[idx] = { ...users[idx], ...iu };
-        }
-      });
-      localStorage.setItem(USERS_KEY, JSON.stringify(users));
-
-      // Asynchronously restore any accounts saved in IndexedDB back into LocalStorage if missing
-      IDBStorageService.getAllUsers().then(idbUsers => {
-        if (Array.isArray(idbUsers) && idbUsers.length > 0) {
-          let currentUsers = StorageService.getUsers();
-          let updated = false;
-          idbUsers.forEach(iu => {
-            if (iu && iu.username) {
-              const uName = String(iu.username).trim().toLowerCase();
-              if (uName === 'co_hoa' || uName === 'thay_nam') return;
-              if (uName === 'phamtham' && iu.name === 'Cô Phạm Thị Thanh Thảo') return;
-              const exists = currentUsers.some(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
-              if (!exists) {
-                currentUsers.push(iu);
-                updated = true;
-              }
-            }
-          });
-          if (updated) {
-            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+        INITIAL_USERS.forEach(iu => {
+          const iuName = String(iu.username || '').trim().toLowerCase();
+          const idx = users.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === iuName);
+          if (idx === -1) {
+            users.push(iu);
+          } else {
+            // Rule #2: Preserved 100% stored user properties; initial seed records MUST NEVER overwrite existing user properties
+            users[idx] = { ...iu, ...users[idx] };
           }
-        }
-      }).catch(() => {});
+        });
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-      // Asynchronously pull Cloud Users to cache locally for instant cross-device access
-      CloudStorageService.getCloudUsers().then(cloudUsers => {
-        if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
-          let currentUsers = StorageService.getUsers();
-          let updated = false;
-          cloudUsers.forEach(cu => {
-            if (cu && cu.username) {
-              const uName = String(cu.username).trim().toLowerCase();
-              const idx = currentUsers.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
-              if (idx === -1) {
-                currentUsers.push(cu);
-                updated = true;
-              } else {
-                const existing = currentUsers[idx];
-                if (existing.password !== cu.password || existing.name !== cu.name) {
-                  currentUsers[idx] = { ...existing, ...cu };
+        // Asynchronously restore any accounts saved in IndexedDB back into LocalStorage if missing
+        IDBStorageService.getAllUsers().then(idbUsers => {
+          if (Array.isArray(idbUsers) && idbUsers.length > 0) {
+            let currentUsers = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+            if (!Array.isArray(currentUsers)) currentUsers = [];
+            let updated = false;
+            idbUsers.forEach(iu => {
+              if (iu && iu.username) {
+                const uName = String(iu.username).trim().toLowerCase();
+                if (uName === 'co_hoa' || uName === 'thay_nam') return;
+                if (uName === 'phamtham' && iu.name === 'Cô Phạm Thị Thanh Thảo') return;
+                const exists = currentUsers.some(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
+                if (!exists) {
+                  currentUsers.push(iu);
                   updated = true;
                 }
               }
+            });
+            if (updated) {
+              localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+            }
+          }
+        }).catch(() => {});
+
+        // Asynchronously pull Cloud Users to cache locally for instant cross-device access
+        CloudStorageService.getCloudUsers().then(cloudUsers => {
+          if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+            let currentUsers = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+            if (!Array.isArray(currentUsers)) currentUsers = [];
+            let updated = false;
+            cloudUsers.forEach(cu => {
+              if (cu && cu.username) {
+                const uName = String(cu.username).trim().toLowerCase();
+                const idx = currentUsers.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
+                if (idx === -1) {
+                  currentUsers.push(cu);
+                  updated = true;
+                } else {
+                  const existing = currentUsers[idx];
+                  if (existing.password !== cu.password || existing.name !== cu.name) {
+                    currentUsers[idx] = { ...existing, ...cu };
+                    updated = true;
+                  }
+                }
+              }
+            });
+            if (updated) {
+              localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+              IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
+            }
+          }
+        }).catch(() => {});
+      } catch (e) {
+        console.warn("StorageService.init users warning:", e);
+      }
+      
+      // 3. Auto-sync missing base games into localStorage without overwriting user edits
+      const existingBaseStr = localStorage.getItem(BASE_GAMES_KEY);
+      if (!existingBaseStr) {
+        try { localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(INITIAL_BASE_GAMES)); } catch (e) {}
+      } else {
+        try {
+          let storedGames = JSON.parse(existingBaseStr);
+          // Clean legacy items only
+          storedGames = storedGames.filter(g => g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game');
+          
+          const storedIds = new Set(storedGames.map(g => g.id));
+          let updated = false;
+
+          // ONLY add NEW base games that don't exist yet in user's localStorage
+          INITIAL_BASE_GAMES.forEach(bg => {
+            if (!storedIds.has(bg.id)) {
+              storedGames.push(bg);
+              updated = true;
             }
           });
+
+          // Reset all dummy playsCount numbers to 0
+          storedGames.forEach(g => {
+            if (typeof g.playsCount !== 'number' || g.playsCount > 100) {
+              g.playsCount = 0;
+              updated = true;
+            }
+          });
+
           if (updated) {
-            localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
-            IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
+            localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(storedGames));
+          }
+        } catch (e) {
+          try { localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(INITIAL_BASE_GAMES)); } catch (e2) {}
+        }
+      }
+
+      // 4. Safely initialize saved games key without overwriting & respecting deleted game blacklist
+      const currentUserIdForInit = StorageService.getEffectiveUserId();
+      const deletedIdsForInit = StorageService.getDeletedGameIds(currentUserIdForInit);
+
+      if (!localStorage.getItem(SAVED_GAMES_KEY)) {
+        const filteredInitial = INITIAL_SAVED_GAMES.filter(g => !deletedIdsForInit.includes(g.id));
+        try {
+          localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(filteredInitial));
+        } catch (e) {}
+        if (!runtimeSavedGamesCache) runtimeSavedGamesCache = [...filteredInitial];
+      } else {
+        try {
+          let saved = JSON.parse(localStorage.getItem(SAVED_GAMES_KEY));
+          if (Array.isArray(saved)) {
+            let updated = false;
+            INITIAL_SAVED_GAMES.forEach(ig => {
+              if (!saved.some(g => g.id === ig.id) && !deletedIdsForInit.includes(ig.id)) {
+                saved.push(ig);
+                updated = true;
+              }
+            });
+            saved = saved.filter(g => g && typeof g === 'object' && (g.title || g.lessonTitle || g.name || g.id) && !deletedIdsForInit.includes(g.id));
+            if (updated) {
+              try {
+                localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(saved));
+              } catch (e) {}
+            }
+            runtimeSavedGamesCache = saved;
+          }
+        } catch (e) {}
+      }
+      if (!Array.isArray(runtimeSavedGamesCache)) {
+        const filteredInitial = INITIAL_SAVED_GAMES.filter(g => !deletedIdsForInit.includes(g.id));
+        runtimeSavedGamesCache = [...filteredInitial];
+      } else {
+        runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g && !deletedIdsForInit.includes(g.id));
+      }
+
+      // 5. Asynchronously restore games from IndexedDB into memory and LocalStorage if missing
+      IDBStorageService.getAllGames().then(idbGames => {
+        if (Array.isArray(idbGames) && idbGames.length > 0) {
+          if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
+          let updatedCache = false;
+          idbGames.forEach(idbG => {
+            if (idbG && idbG.id && !deletedIdsForInit.includes(idbG.id)) {
+              const idx = runtimeSavedGamesCache.findIndex(cg => cg.id === idbG.id);
+              if (idx >= 0) {
+                runtimeSavedGamesCache[idx] = idbG;
+              } else {
+                runtimeSavedGamesCache.push(idbG);
+              }
+              updatedCache = true;
+            }
+          });
+          if (updatedCache) {
+            try {
+              localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(runtimeSavedGamesCache));
+            } catch (e) {}
           }
         }
       }).catch(() => {});
+
+      // 6. Purge deprecated sample or global lecture slides cache key
+      localStorage.removeItem('custom_lecture_slides');
     } catch (e) {
-      console.warn("StorageService.init users warning:", e);
+      console.warn("StorageService.init execution error:", e);
+    } finally {
+      isStorageInitRunning = false;
     }
-    
-    // 3. Auto-sync missing base games into localStorage without overwriting user edits
-    const existingBaseStr = localStorage.getItem(BASE_GAMES_KEY);
-    if (!existingBaseStr) {
-      try { localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(INITIAL_BASE_GAMES)); } catch (e) {}
-    } else {
-      try {
-        let storedGames = JSON.parse(existingBaseStr);
-        // Clean legacy items only
-        storedGames = storedGames.filter(g => g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game');
-        
-        const storedIds = new Set(storedGames.map(g => g.id));
-        let updated = false;
-
-        // ONLY add NEW base games that don't exist yet in user's localStorage
-        INITIAL_BASE_GAMES.forEach(bg => {
-          if (!storedIds.has(bg.id)) {
-            storedGames.push(bg);
-            updated = true;
-          }
-        });
-
-        // Reset all dummy playsCount numbers to 0
-        storedGames.forEach(g => {
-          if (typeof g.playsCount !== 'number' || g.playsCount > 100) {
-            g.playsCount = 0;
-            updated = true;
-          }
-        });
-
-        if (updated) {
-          localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(storedGames));
-        }
-      } catch (e) {
-        try { localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(INITIAL_BASE_GAMES)); } catch (e2) {}
-      }
-    }
-
-    // 4. Safely initialize saved games key without overwriting
-    if (!localStorage.getItem(SAVED_GAMES_KEY)) {
-      try {
-        localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(INITIAL_SAVED_GAMES));
-      } catch (e) {}
-      if (!runtimeSavedGamesCache) runtimeSavedGamesCache = [...INITIAL_SAVED_GAMES];
-    } else {
-      try {
-        let saved = JSON.parse(localStorage.getItem(SAVED_GAMES_KEY));
-        if (Array.isArray(saved)) {
-          saved = saved.filter(g => g && typeof g === 'object' && (g.title || g.lessonTitle || g.name || g.id));
-          try {
-            localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(saved));
-          } catch (e) {}
-          if (!runtimeSavedGamesCache || runtimeSavedGamesCache.length === 0) {
-            runtimeSavedGamesCache = saved;
-          }
-        }
-      } catch (e) {}
-    }
-    if (!Array.isArray(runtimeSavedGamesCache)) {
-      runtimeSavedGamesCache = [...INITIAL_SAVED_GAMES];
-    }
-
-    // 5. Asynchronously restore games from IndexedDB into memory and LocalStorage if missing
-    IDBStorageService.getAllGames().then(idbGames => {
-      if (Array.isArray(idbGames) && idbGames.length > 0) {
-        if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
-        let updatedCache = false;
-        idbGames.forEach(idbG => {
-          if (idbG && idbG.id) {
-            const idx = runtimeSavedGamesCache.findIndex(cg => cg.id === idbG.id);
-            if (idx >= 0) {
-              runtimeSavedGamesCache[idx] = idbG;
-            } else {
-              runtimeSavedGamesCache.push(idbG);
-            }
-            updatedCache = true;
-          }
-        });
-        if (updatedCache) {
-          try {
-            localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(runtimeSavedGamesCache));
-          } catch (e) {}
-        }
-      }
-    }).catch(() => {});
-
-    // 6. Purge deprecated sample or global lecture slides cache key
-    localStorage.removeItem('custom_lecture_slides');
   },
 
-  // Explicit IndexedDB Async Synchronization - returns only current user's games
+  // Explicit IndexedDB & Cloud Async Synchronization - returns only current user's games
   syncWithIndexedDB: async (userId) => {
     StorageService.init();
     const effectiveUserId = userId || StorageService.getCurrentUser()?.id || null;
+    const deletedIds = StorageService.getDeletedGameIds(effectiveUserId);
     try {
       const idbGames = await IDBStorageService.getAllGames();
       if (Array.isArray(idbGames) && idbGames.length > 0) {
         if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
         let updated = false;
         idbGames.forEach(idbG => {
-          if (idbG && idbG.id) {
+          if (idbG && idbG.id && !deletedIds.includes(idbG.id)) {
             const existingIdx = runtimeSavedGamesCache.findIndex(cg => cg.id === idbG.id);
             if (existingIdx >= 0) {
               runtimeSavedGamesCache[existingIdx] = idbG;
@@ -734,8 +993,88 @@ export const StorageService = {
     } catch (e) {
       console.warn("StorageService.syncWithIndexedDB error:", e);
     }
+
+    if (effectiveUserId) {
+      try {
+        await StorageService.syncAllUserDataFromCloud(effectiveUserId);
+      } catch (e) {}
+    }
+
     // CRITICAL: Return only the current user's games (not all users')
     return StorageService.getTeacherSavedGames(effectiveUserId);
+  },
+
+  // Cross-Device Universal Cloud Data Synchronization Engine
+  syncAllUserDataFromCloud: async (userId) => {
+    if (!userId) return false;
+    try {
+      // 0. Deleted Game IDs Sync
+      const cloudDeletedIds = await CloudStorageService.getUserPrivateCloudData(userId, 'deleted_game_ids');
+      if (Array.isArray(cloudDeletedIds) && cloudDeletedIds.length > 0) {
+        cloudDeletedIds.forEach(id => StorageService.addDeletedGameId(userId, id));
+      }
+      const deletedIds = StorageService.getDeletedGameIds(userId);
+
+      // 1. Saved Games
+      const cloudGames = await CloudStorageService.getUserPrivateCloudData(userId, 'saved_games');
+      if (Array.isArray(cloudGames) && cloudGames.length > 0) {
+        if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
+        let updated = false;
+        cloudGames.forEach(cg => {
+          if (cg && cg.id && !deletedIds.includes(cg.id)) {
+            const idx = runtimeSavedGamesCache.findIndex(rg => rg.id === cg.id);
+            if (idx >= 0) {
+              runtimeSavedGamesCache[idx] = cg;
+            } else {
+              runtimeSavedGamesCache.push(cg);
+            }
+            updated = true;
+          }
+        });
+        runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g && !deletedIds.includes(g.id));
+        if (updated) {
+          try {
+            localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(runtimeSavedGamesCache));
+            IDBStorageService.saveAllGames(runtimeSavedGamesCache).catch(() => {});
+          } catch (e) {}
+        }
+      }
+
+      // 2. Homeroom Class
+      const cloudHomeroom = await CloudStorageService.getUserPrivateCloudData(userId, 'homeroom');
+      if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students)) {
+        const key = `gvd_homeroom_${userId}`;
+        try {
+          localStorage.setItem(key, JSON.stringify(cloudHomeroom));
+          IDBStorageService.setItem(key, cloudHomeroom).catch(() => {});
+        } catch (e) {}
+      }
+
+      // 3. Lecture Slides
+      const cloudSlides = await CloudStorageService.getUserPrivateCloudData(userId, 'slides');
+      if (Array.isArray(cloudSlides) && cloudSlides.length > 0) {
+        const key = `gvd_user_slides_${userId}`;
+        try {
+          localStorage.setItem(key, JSON.stringify(cloudSlides));
+          IDBStorageService.setItem(key, cloudSlides).catch(() => {});
+        } catch (e) {}
+      }
+
+      // 4. Grade Drive Folders
+      const cloudFolders = await CloudStorageService.getUserPrivateCloudData(userId, 'grade_folders');
+      if (Array.isArray(cloudFolders) && cloudFolders.length > 0) {
+        const key = `gvd_user_grade_folders_${userId}`;
+        try {
+          localStorage.setItem(key, JSON.stringify(cloudFolders));
+          IDBStorageService.setItem(key, cloudFolders).catch(() => {});
+        } catch (e) {}
+      }
+
+      return true;
+    } catch (e) {
+      console.warn("syncAllUserDataFromCloud error:", e);
+      return false;
+    }
   },
 
   // Authenticate User - Safe String & Password Validation (Local Sync & Seed Priority)
@@ -887,9 +1226,32 @@ export const StorageService = {
   // Base Games (Store Catalog)
   getBaseGames: () => {
     StorageService.init();
-    const games = JSON.parse(localStorage.getItem(BASE_GAMES_KEY) || '[]');
+    let games = [];
+    try {
+      games = JSON.parse(localStorage.getItem(BASE_GAMES_KEY) || '[]');
+      if (!Array.isArray(games)) games = [];
+    } catch (e) {
+      games = [];
+    }
+
+    // Always guarantee all INITIAL_BASE_GAMES exist in games
+    const existingIds = new Set(games.map(g => g.id));
+    let updated = false;
+    INITIAL_BASE_GAMES.forEach(bg => {
+      if (!existingIds.has(bg.id)) {
+        games.push(bg);
+        updated = true;
+      }
+    });
+
+    if (updated || games.length === 0) {
+      try {
+        localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(games.length > 0 ? games : INITIAL_BASE_GAMES));
+      } catch (e) {}
+    }
+
     return games
-      .filter(g => g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game')
+      .filter(g => g && g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game')
       .map(g => {
         if (g.id === 'tug-of-war-dual-game' || g.engineType === 'tug-of-war-dual') {
           return { ...g, icon: '🪢' };
@@ -948,11 +1310,52 @@ export const StorageService = {
     localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(games));
   },
 
-  // Teacher Saved Games - STRICTLY filtered per userId for data isolation
+  // Per-User Deleted Game Blacklist Management (Zero Resurrect Guarantee)
+  getDeletedGameIds: (userId) => {
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_deleted_game_ids_${effectiveId}`;
+    let deleted = [];
+    try {
+      deleted = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!Array.isArray(deleted)) deleted = [];
+    } catch (e) {
+      deleted = [];
+    }
+    try {
+      const globalDeleted = JSON.parse(localStorage.getItem('gvd_deleted_game_ids') || '[]');
+      if (Array.isArray(globalDeleted)) {
+        globalDeleted.forEach(id => {
+          if (id && !deleted.includes(id)) deleted.push(id);
+        });
+      }
+    } catch (e) {}
+    return deleted;
+  },
+
+  addDeletedGameId: (userId, gameId) => {
+    if (!gameId) return;
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_deleted_game_ids_${effectiveId}`;
+    const deleted = StorageService.getDeletedGameIds(effectiveId);
+    if (!deleted.includes(gameId)) {
+      deleted.push(gameId);
+      try {
+        localStorage.setItem(key, JSON.stringify(deleted));
+        localStorage.setItem('gvd_deleted_game_ids', JSON.stringify(deleted));
+      } catch (e) {}
+      IDBStorageService.setItem(key, deleted).catch(() => {});
+      if (effectiveId) {
+        CloudStorageService.saveUserPrivateCloudData(effectiveId, 'deleted_game_ids', deleted).catch(() => {});
+      }
+    }
+  },
+
+  // Teacher Saved Games - STRICTLY filtered per userId for data isolation & blacklisted deletions
   getTeacherSavedGames: (userId) => {
     StorageService.init();
 
-    const effectiveUserId = userId || StorageService.getCurrentUser()?.id || null;
+    const effectiveUserId = StorageService.getEffectiveUserId(userId);
+    const deletedIds = StorageService.getDeletedGameIds(effectiveUserId);
 
     let diskSaved = [];
     try {
@@ -973,9 +1376,16 @@ export const StorageService = {
       });
     }
 
-    // Clean up any corrupt entries
+    // Always merge missing INITIAL_SAVED_GAMES entries (e.g. newly added seed games)
+    INITIAL_SAVED_GAMES.forEach(ig => {
+      if (ig && ig.id && !runtimeSavedGamesCache.some(cg => cg.id === ig.id)) {
+        runtimeSavedGamesCache.push(ig);
+      }
+    });
+
+    // Clean up any corrupt entries and exclude blacklisted deleted game IDs
     const cleanSaved = runtimeSavedGamesCache.filter(g =>
-      g && typeof g === 'object' && !Array.isArray(g) && (g.title || g.lessonTitle || g.name || g.id)
+      g && typeof g === 'object' && !Array.isArray(g) && (g.title || g.lessonTitle || g.name || g.id) && !deletedIds.includes(g.id)
     );
     runtimeSavedGamesCache = cleanSaved;
 
@@ -1030,6 +1440,35 @@ export const StorageService = {
       image: typeof q.image === 'string' && q.image.length < 200000 ? q.image : ''
     }));
 
+    const rawTitleStr = String(rawGameData.title || rawGameData.lessonTitle || '').toLowerCase();
+    const rawIdStr = String(rawGameData.baseGameId || rawGameData.id || '').toLowerCase();
+    let resolvedEngineType = rawGameData.engineType;
+    if (rawTitleStr.includes('bắt chước')) resolvedEngineType = 'pose-imitation';
+    else if (rawTitleStr.includes('nghiêng đầu')) resolvedEngineType = 'head-tilt';
+    else if (rawTitleStr.includes('kéo co đôi') || rawTitleStr.includes('kéo co kiến thức')) resolvedEngineType = 'tug-of-war-dual';
+    else if (rawTitleStr.includes('kéo co')) resolvedEngineType = 'tug-of-war';
+    else if (rawTitleStr.includes('triệu phú')) resolvedEngineType = 'millionaire';
+    else if (rawTitleStr.includes('hộp quà')) resolvedEngineType = 'mystery-box';
+    else if (rawTitleStr.includes('mảnh ghép') || rawTitleStr.includes('bức ảnh')) resolvedEngineType = 'picture-reveal';
+    else if (rawTitleStr.includes('ô chữ')) resolvedEngineType = 'crossword';
+    else if (rawTitleStr.includes('đoàn tàu') || rawTitleStr.includes('tàu hỏa')) resolvedEngineType = 'train';
+    else if (rawTitleStr.includes('flashcard') || rawTitleStr.includes('thẻ ghi nhớ')) resolvedEngineType = 'flashcard';
+    else if (rawTitleStr.includes('chém hoa quả') || rawTitleStr.includes('trái cây')) resolvedEngineType = 'fruit-ninja';
+    else if (rawTitleStr.includes('đua xe')) resolvedEngineType = 'car-race';
+    else if (rawTitleStr.includes('dò mìn')) resolvedEngineType = 'minesweeper';
+    else if (rawTitleStr.includes('từ bay') || rawTitleStr.includes('từ ngữ biết bay')) resolvedEngineType = 'flying-words';
+    else if (rawTitleStr.includes('nối ý') || rawTitleStr.includes('ghép cặp')) resolvedEngineType = 'matching-pairs';
+    else if (rawTitleStr.includes('đua vịt')) resolvedEngineType = 'duck-race';
+    else if (rawTitleStr.includes('đua rùa')) resolvedEngineType = 'turtle-race';
+    else if (rawTitleStr.includes('rừng xanh')) resolvedEngineType = 'jungle-rescue';
+    else if (rawTitleStr.includes('jeopardy')) resolvedEngineType = 'jeopardy';
+    else if (rawIdStr.includes('pose')) resolvedEngineType = 'pose-imitation';
+    else if (rawIdStr.includes('head-tilt')) resolvedEngineType = 'head-tilt';
+    else if (rawIdStr.includes('tug-of-war-dual')) resolvedEngineType = 'tug-of-war-dual';
+    else if (!resolvedEngineType || resolvedEngineType === 'tug-of-war-dual') {
+      resolvedEngineType = rawGameData.baseGameId || 'wheel';
+    }
+
     const gameToSave = {
       ...rawGameData,
       id: gameId,
@@ -1037,7 +1476,7 @@ export const StorageService = {
       title: rawGameData.title || rawGameData.lessonTitle || 'Bài Game Cá Nhân',
       lessonTitle: rawGameData.lessonTitle || rawGameData.title || 'Bài Game Cá Nhân',
       questions: cleanQuestions,
-      engineType: rawGameData.engineType || rawGameData.baseGameId || 'tug-of-war-dual',
+      engineType: resolvedEngineType,
       icon: rawGameData.icon || '🎮',
       gradient: rawGameData.gradient || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
       secretImage: safeSecretImage,
@@ -1082,6 +1521,12 @@ export const StorageService = {
     // Always persist to IndexedDB asynchronously as permanent 500MB+ backup
     IDBStorageService.saveGame(gameToSave).catch(() => {});
 
+    // Sync user's saved games to Cloud Storage asynchronously
+    if (targetUserId) {
+      const userGames = StorageService.getTeacherSavedGames(targetUserId);
+      CloudStorageService.saveUserPrivateCloudData(targetUserId, 'saved_games', userGames).catch(() => {});
+    }
+
     return gameToSave;
   },
 
@@ -1121,26 +1566,53 @@ export const StorageService = {
     return StorageService.updateGameLessonTitle(arg1, arg2);
   },
 
-  deleteTeacherGame: (target) => {
+  deleteTeacherGame: (target, userId) => {
     StorageService.init();
     const idToDelete = (target && typeof target === 'object') ? target.id : target;
     if (!idToDelete) return;
+
+    const effectiveUserId = userId || (target && typeof target === 'object' && target.userId) || StorageService.getCurrentUser()?.id || 'user_admin';
+
+    // 1. Record in per-user deleted game blacklist
+    StorageService.addDeletedGameId(effectiveUserId, idToDelete);
+
+    // 2. Remove from runtimeSavedGamesCache
     if (Array.isArray(runtimeSavedGamesCache)) {
       runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g.id !== idToDelete);
     }
+
+    // 3. Remove from LocalStorage
     let allSaved = JSON.parse(localStorage.getItem(SAVED_GAMES_KEY) || '[]');
     allSaved = allSaved.filter(g => g.id !== idToDelete);
     try {
       localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(allSaved));
     } catch (e) {}
 
-    // Always delete from IndexedDB asynchronously
+    // 4. Always delete from IndexedDB asynchronously
     IDBStorageService.deleteGame(idToDelete).catch(() => {});
+
+    // 5. Cloud Storage Sync: update remaining user games and deleted game IDs on Cloud
+    if (effectiveUserId) {
+      const userGames = StorageService.getTeacherSavedGames(effectiveUserId);
+      CloudStorageService.saveUserPrivateCloudData(effectiveUserId, 'saved_games', userGames).catch(() => {});
+      const deletedIds = StorageService.getDeletedGameIds(effectiveUserId);
+      CloudStorageService.saveUserPrivateCloudData(effectiveUserId, 'deleted_game_ids', deletedIds).catch(() => {});
+    }
   },
 
   deleteTeacherSavedGame: (arg1, arg2) => {
-    const gameId = arg2 || arg1;
-    return StorageService.deleteTeacherGame(gameId);
+    let effectiveUserId = StorageService.getCurrentUser()?.id || 'user_admin';
+    let gameId = null;
+    if (typeof arg1 === 'string' && arg2) {
+      effectiveUserId = arg1;
+      gameId = (typeof arg2 === 'object') ? arg2.id : arg2;
+    } else {
+      gameId = (arg1 && typeof arg1 === 'object') ? arg1.id : arg1;
+      if (arg1 && typeof arg1 === 'object' && arg1.userId) {
+        effectiveUserId = arg1.userId;
+      }
+    }
+    return StorageService.deleteTeacherGame(gameId, effectiveUserId);
   },
 
   // Homeroom Class Management Service
@@ -1151,18 +1623,22 @@ export const StorageService = {
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') return parsed;
       } catch (e) {
         // Fallback to initial
       }
     }
 
-    // Default sample class data tailored for initial teachers
-    let defaultClassName = 'Lớp Chủ Nhiệm 10A1';
-    if (effectiveId === 'user_thay_nam') defaultClassName = 'Lớp Chủ Nhiệm 9A1';
-    else if (effectiveId === 'user_admin') defaultClassName = 'Lớp Chủ Nhiệm 12A1 (Admin)';
+    // Dynamic class name tailored per teacher account
+    const users = StorageService.getUsers();
+    const targetTeacher = users.find(u => u && u.id === effectiveId) || INITIAL_USERS.find(iu => iu.id === effectiveId);
+
+    let defaultClassName = targetTeacher ? `Lớp Chủ Nhiệm (${targetTeacher.name})` : 'Lớp Chủ Nhiệm 10A1';
+    if (effectiveId === 'user_admin') defaultClassName = 'Lớp Chủ Nhiệm 12A1 (Admin)';
     
     const sampleClass = {
+      isCustomized: false,
       className: defaultClassName,
       schoolYear: '2026 - 2027',
       classBgImage: '',
@@ -1264,7 +1740,7 @@ export const StorageService = {
       ]
     };
 
-    localStorage.setItem(key, JSON.stringify(sampleClass));
+    // DO NOT auto-write sampleClass to localStorage so syncFromIndexedDB / Cloud is NEVER overwritten by sampleClass
     return sampleClass;
   },
 
@@ -1273,46 +1749,30 @@ export const StorageService = {
     const effectiveId = userId || StorageService.getCurrentUser()?.id || 'user_admin';
     const key = `gvd_homeroom_${effectiveId}`;
     
-    return new Promise((resolve) => {
-      if (!window.indexedDB) {
-        resolve(StorageService.getTeacherHomeroom(effectiveId));
-        return;
+    // 1. Try Cloud API Vercel Serverless Sync
+    try {
+      const cloudClass = await CloudStorageService.getUserPrivateCloudData(effectiveId, 'homeroom');
+      if (cloudClass && typeof cloudClass === 'object' && Array.isArray(cloudClass.students)) {
+        try {
+          localStorage.setItem(key, JSON.stringify(cloudClass));
+        } catch (err) {}
+        IDBStorageService.setItem(key, cloudClass).catch(() => {});
+        return cloudClass;
       }
-      try {
-        const req = window.indexedDB.open('GVD_SkyLine_StorageDB', 2);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('keyvalue_store')) {
-            db.createObjectStore('keyvalue_store');
-          }
-        };
-        req.onsuccess = (e) => {
-          try {
-            const db = e.target.result;
-            const tx = db.transaction('keyvalue_store', 'readonly');
-            const store = tx.objectStore('keyvalue_store');
-            const getReq = store.get(key);
-            getReq.onsuccess = () => {
-              const idbClass = getReq.result;
-              if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
-                try {
-                  localStorage.setItem(key, JSON.stringify(idbClass));
-                } catch(err) {}
-                resolve(idbClass);
-              } else {
-                resolve(StorageService.getTeacherHomeroom(effectiveId));
-              }
-            };
-            getReq.onerror = () => resolve(StorageService.getTeacherHomeroom(effectiveId));
-          } catch(err) {
-            resolve(StorageService.getTeacherHomeroom(effectiveId));
-          }
-        };
-        req.onerror = () => resolve(StorageService.getTeacherHomeroom(effectiveId));
-      } catch(err) {
-        resolve(StorageService.getTeacherHomeroom(effectiveId));
+    } catch (e) {}
+
+    // 2. Try IndexedDB Permanent Storage
+    try {
+      const idbClass = await IDBStorageService.getItem(key);
+      if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
+        try {
+          localStorage.setItem(key, JSON.stringify(idbClass));
+        } catch(err) {}
+        return idbClass;
       }
-    });
+    } catch(e) {}
+    
+    return StorageService.getTeacherHomeroom(effectiveId);
   },
 
   saveTeacherHomeroom: (userId, classData) => {
@@ -1322,45 +1782,31 @@ export const StorageService = {
     
     if (!classData) return classData;
 
+    // Mark as customized so default sample class is NEVER injected over user's setup
+    const updatedClassData = { ...classData, isCustomized: true };
+
     // 1. Pre-save any student base64 avatars to AvatarStorageService to shrink payload
-    if (Array.isArray(classData.students)) {
-      classData.students.forEach(st => {
+    if (Array.isArray(updatedClassData.students)) {
+      updatedClassData.students.forEach(st => {
         if (st && st.id && st.avatar && st.avatar.length > 500) {
           AvatarStorageService.saveAvatar(st.id, st.avatar);
         }
       });
     }
 
-    // 2. Save full object to IndexedDB (Unlimited 250MB+ storage capacity)
-    try {
-      if (window.indexedDB) {
-        const req = window.indexedDB.open('GVD_SkyLine_StorageDB', 2);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains('keyvalue_store')) {
-            db.createObjectStore('keyvalue_store');
-          }
-        };
-        req.onsuccess = (e) => {
-          try {
-            const db = e.target.result;
-            const tx = db.transaction('keyvalue_store', 'readwrite');
-            tx.objectStore('keyvalue_store').put(classData, key);
-          } catch(err) {}
-        };
-      }
-    } catch(err) {}
+    // 2. Save full object to IndexedDB (Unified IDB Storage)
+    IDBStorageService.setItem(key, updatedClassData).catch(() => {});
 
     // 3. Save to localStorage with QuotaExceeded fallback handling
     try {
-      localStorage.setItem(key, JSON.stringify(classData));
+      localStorage.setItem(key, JSON.stringify(updatedClassData));
     } catch (e) {
       console.warn("StorageService: localStorage quota error handled, stripping heavy images for LocalStorage", e);
       const lightClass = {
-        ...classData,
-        classBgImage: classData.classBgImage && classData.classBgImage.length > 1000 ? '' : classData.classBgImage,
-        classPhoto: classData.classPhoto && classData.classPhoto.length > 1000 ? '' : classData.classPhoto,
-        students: (classData.students || []).map(st => ({
+        ...updatedClassData,
+        classBgImage: updatedClassData.classBgImage && updatedClassData.classBgImage.length > 1000 ? '' : updatedClassData.classBgImage,
+        classPhoto: updatedClassData.classPhoto && updatedClassData.classPhoto.length > 1000 ? '' : updatedClassData.classPhoto,
+        students: (updatedClassData.students || []).map(st => ({
           ...st,
           avatar: st.avatar && st.avatar.length > 1000 ? '' : st.avatar
         }))
@@ -1369,7 +1815,12 @@ export const StorageService = {
         localStorage.setItem(key, JSON.stringify(lightClass));
       } catch (e2) {}
     }
-    return classData;
+
+    if (effectiveId) {
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', updatedClassData).catch(() => {});
+    }
+
+    return updatedClassData;
   },
 
   resetTeacherHomeroom: (userId, mode = 'sample') => {
@@ -1410,7 +1861,7 @@ export const StorageService = {
   exportFullBackup: () => {
     StorageService.init();
     const backupObj = {
-      systemName: "HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC",
+      systemName: "HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC SKY-LINE",
       version: '2.0.0',
       exportDate: new Date().toISOString(),
       allSystemKeys: {}
@@ -1444,6 +1895,124 @@ export const StorageService = {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  },
+
+  // Granular Homeroom Class JSON Export & Import Engine
+  exportHomeroomBackup: (userId) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const homeroom = StorageService.getTeacherHomeroom(effectiveId);
+    const payload = {
+      type: 'HOMEROOM_BACKUP',
+      userId: effectiveId,
+      exportDate: new Date().toISOString(),
+      data: homeroom
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SaoLuu_LopChuNhiem_${effectiveId}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importHomeroomBackup: (userId, jsonStr) => {
+    try {
+      const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+      const data = parsed.data || parsed;
+      if (!data || typeof data !== 'object' || !Array.isArray(data.students)) {
+        throw new Error('Định dạng tệp sao lưu Lớp chủ nhiệm không hợp lệ!');
+      }
+      const effectiveId = StorageService.getEffectiveUserId(userId);
+      StorageService.saveTeacherHomeroom(effectiveId, data);
+      return { success: true, message: `Khôi phục thành công danh sách Lớp (${data.className || 'Chủ nhiệm'}) với ${data.students.length} học sinh!` };
+    } catch (e) {
+      return { success: false, message: e.message || 'Lỗi đọc tệp JSON lớp chủ nhiệm!' };
+    }
+  },
+
+  // Granular Lecture Slides JSON Export & Import Engine
+  exportSlidesBackup: (userId) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const slides = StorageService.getLectureSlides(effectiveId);
+    const payload = {
+      type: 'SLIDES_BACKUP',
+      userId: effectiveId,
+      exportDate: new Date().toISOString(),
+      data: slides
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SaoLuu_SlideBaiGiang_${effectiveId}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importSlidesBackup: (userId, jsonStr) => {
+    try {
+      const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+      const data = Array.isArray(parsed.data) ? parsed.data : (Array.isArray(parsed) ? parsed : []);
+      if (!Array.isArray(data)) {
+        throw new Error('Định dạng tệp sao lưu Slide bài giảng không hợp lệ!');
+      }
+      const effectiveId = StorageService.getEffectiveUserId(userId);
+      StorageService.saveLectureSlides(effectiveId, data);
+      return { success: true, message: `Khôi phục thành công ${data.length} Slide bài giảng!` };
+    } catch (e) {
+      return { success: false, message: e.message || 'Lỗi đọc tệp JSON Slide bài giảng!' };
+    }
+  },
+
+  // Granular Games JSON Export & Import Engine
+  exportGamesBackup: (userId) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const games = StorageService.getTeacherSavedGames(effectiveId);
+    const payload = {
+      type: 'GAMES_BACKUP',
+      userId: effectiveId,
+      exportDate: new Date().toISOString(),
+      data: games
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SaoLuu_KhoGame_${effectiveId}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importGamesBackup: (userId, jsonStr) => {
+    try {
+      const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+      const games = Array.isArray(parsed.data) ? parsed.data : (Array.isArray(parsed.savedGames) ? parsed.savedGames : (Array.isArray(parsed) ? parsed : []));
+      if (!Array.isArray(games)) {
+        throw new Error('Định dạng tệp sao lưu Kho Game không hợp lệ!');
+      }
+      const effectiveId = StorageService.getEffectiveUserId(userId);
+      games.forEach(g => {
+        if (g && typeof g === 'object') {
+          StorageService.saveTeacherGame(effectiveId, { ...g, userId: effectiveId });
+        }
+      });
+      return { success: true, message: `Khôi phục thành công ${games.length} bài Game cá nhân!` };
+    } catch (e) {
+      return { success: false, message: e.message || 'Lỗi đọc tệp JSON Kho Game!' };
+    }
   },
 
   // Safety polyfill stub for backward compatibility
@@ -1487,13 +2056,25 @@ export const StorageService = {
         });
       }
 
-      // 4. Also sync games to IndexedDB for resilient storage
+      // 4. Sync games to IndexedDB & Cloud for resilient 24/7 storage
       if (backupData.savedGames && Array.isArray(backupData.savedGames)) {
         IDBStorageService.saveAllGames(backupData.savedGames).catch(() => {});
       }
 
       // Re-initialize memory cache
       StorageService.init();
+
+      // Synchronize restored user data to Cloud DB 24/7
+      const currentUser = StorageService.getCurrentUser();
+      if (currentUser && currentUser.id) {
+        const uId = currentUser.id;
+        const uGames = StorageService.getTeacherSavedGames(uId);
+        if (uGames.length > 0) CloudStorageService.saveUserPrivateCloudData(uId, 'saved_games', uGames).catch(() => {});
+        const uClass = StorageService.getTeacherHomeroom(uId);
+        if (uClass) CloudStorageService.saveUserPrivateCloudData(uId, 'homeroom', uClass).catch(() => {});
+        const uSlides = StorageService.getLectureSlides(uId);
+        if (uSlides.length > 0) CloudStorageService.saveUserPrivateCloudData(uId, 'slides', uSlides).catch(() => {});
+      }
 
       return { success: true, message: 'Khôi phục toàn bộ 100% dữ liệu hệ thống thành công!' };
     } catch (err) {
@@ -1512,26 +2093,31 @@ export const StorageService = {
   // Per-User Lecture Slides Storage
   getLectureSlides: (userId) => {
     StorageService.init();
-    // STRICT: require explicit userId — no auto-fallback to prevent cross-user data leakage
-    if (!userId) return [];
-    const key = `gvd_user_slides_${userId}`;
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_slides_${effectiveId}`;
     try {
       const data = localStorage.getItem(key);
-      if (!data) return [];
-      const parsed = JSON.parse(data);
-      return Array.isArray(parsed) ? parsed.filter(s => s && s.id && !s.id.startsWith('slide_sample_')) : [];
-    } catch (e) {
-      return [];
+      if (data !== null) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+
+    if (effectiveId === 'user_admin') {
+      return INITIAL_ADMIN_SLIDES;
     }
+    return [];
   },
 
   saveLectureSlides: (userId, slides) => {
     StorageService.init();
-    // STRICT: require explicit userId — no auto-fallback to prevent cross-user data leakage
-    if (!userId) return false;
-    const key = `gvd_user_slides_${userId}`;
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_slides_${effectiveId}`;
     try {
-      localStorage.setItem(key, JSON.stringify(slides));
+      const safeSlides = Array.isArray(slides) ? slides : [];
+      localStorage.setItem(key, JSON.stringify(safeSlides));
+      IDBStorageService.setItem(key, safeSlides).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'slides', safeSlides).catch(() => {});
       return true;
     } catch (e) {
       return false;
@@ -1541,32 +2127,80 @@ export const StorageService = {
   // Per-User Grade Drive Folders Storage
   getGradeDriveFolders: (userId) => {
     StorageService.init();
-    // STRICT: require explicit userId — no auto-fallback to prevent cross-user data leakage
-    if (!userId) return [];
-    const key = `gvd_user_grade_folders_${userId}`;
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_grade_folders_${effectiveId}`;
     try {
       const data = localStorage.getItem(key);
-      if (!data) return [];
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
-        return parsed.filter(f => f && f.id && !f.id.startsWith('folder_g'));
+      if (data !== null) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) return parsed;
       }
-      return [];
-    } catch (e) {
-      return [];
+    } catch (e) {}
+
+    if (effectiveId === 'user_admin') {
+      return INITIAL_ADMIN_FOLDERS;
     }
+    return [];
   },
 
   saveGradeDriveFolders: (userId, folders) => {
     StorageService.init();
-    // STRICT: require explicit userId — no auto-fallback to prevent cross-user data leakage
-    if (!userId) return false;
-    const key = `gvd_user_grade_folders_${userId}`;
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_grade_folders_${effectiveId}`;
     try {
-      localStorage.setItem(key, JSON.stringify(folders));
+      const safeFolders = Array.isArray(folders) ? folders : [];
+      localStorage.setItem(key, JSON.stringify(safeFolders));
+      IDBStorageService.setItem(key, safeFolders).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'grade_folders', safeFolders).catch(() => {});
       return true;
     } catch (e) {
       return false;
     }
+  },
+
+  // Full Initial Restorer Engine for Thầy Hảo Địa Lí (user_admin)
+  restoreInitialDataForAdmin: () => {
+    StorageService.init();
+    const adminId = 'user_admin';
+
+    // 1. Saved Games
+    runtimeSavedGamesCache = [...INITIAL_SAVED_GAMES];
+    try {
+      localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(INITIAL_SAVED_GAMES));
+      IDBStorageService.saveAllGames(INITIAL_SAVED_GAMES).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(adminId, 'saved_games', INITIAL_SAVED_GAMES).catch(() => {});
+    } catch (e) {}
+
+    // 2. Homeroom 12A1
+    const homeroomKey = `gvd_homeroom_${adminId}`;
+    const defaultHomeroom = StorageService.getTeacherHomeroom(adminId);
+    try {
+      localStorage.setItem(homeroomKey, JSON.stringify(defaultHomeroom));
+      IDBStorageService.setItem(homeroomKey, defaultHomeroom).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(adminId, 'homeroom', defaultHomeroom).catch(() => {});
+    } catch (e) {}
+
+    // 3. Lecture Slides
+    const slidesKey = `gvd_user_slides_${adminId}`;
+    try {
+      localStorage.setItem(slidesKey, JSON.stringify(INITIAL_ADMIN_SLIDES));
+      IDBStorageService.setItem(slidesKey, INITIAL_ADMIN_SLIDES).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(adminId, 'slides', INITIAL_ADMIN_SLIDES).catch(() => {});
+    } catch (e) {}
+
+    // 4. Grade Folders
+    const foldersKey = `gvd_user_grade_folders_${adminId}`;
+    try {
+      localStorage.setItem(foldersKey, JSON.stringify(INITIAL_ADMIN_FOLDERS));
+      IDBStorageService.setItem(foldersKey, INITIAL_ADMIN_FOLDERS).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(adminId, 'grade_folders', INITIAL_ADMIN_FOLDERS).catch(() => {});
+    } catch (e) {}
+
+    return {
+      games: INITIAL_SAVED_GAMES,
+      slides: INITIAL_ADMIN_SLIDES,
+      folders: INITIAL_ADMIN_FOLDERS,
+      homeroom: defaultHomeroom
+    };
   }
 };

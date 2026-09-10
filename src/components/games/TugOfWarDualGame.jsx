@@ -525,30 +525,30 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
           <div style={{
             flex: 1,
             background: 'linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%)',
-            borderRadius: '16px',
-            padding: '16px',
+            borderRadius: '18px',
+            padding: '20px 24px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
             boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.3)',
-            minHeight: '120px'
+            minHeight: '130px'
           }}>
             {currentBlueQ.image && (
               <img 
                 src={currentBlueQ.image} 
                 alt="Illustration" 
-                style={{ maxHeight: '110px', borderRadius: '10px', marginBottom: '10px', objectFit: 'contain' }}
+                style={{ maxHeight: '160px', borderRadius: '12px', marginBottom: '12px', objectFit: 'contain' }}
               />
             )}
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', lineHeight: 1.4, margin: 0 }}>
+            <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
               {currentBlueQ.question}
             </h3>
           </div>
 
           {/* 4 Options Buttons 2x2 Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {['A', 'B', 'C', 'D'].map((label, idx) => {
               if (!isOptionValidForQuestion(currentBlueQ?.options, idx)) return null;
               const optText = currentBlueQ.options[idx];
@@ -577,22 +577,22 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
                   onClick={() => handleBlueAnswer(label)}
                   disabled={!!blueAnswerState}
                   style={{
-                    padding: '14px 10px',
-                    borderRadius: '14px',
+                    padding: '18px 14px',
+                    borderRadius: '16px',
                     background: btnBg,
                     color: btnColor,
-                    border: `2px solid ${borderColor}`,
+                    border: `2.5px solid ${borderColor}`,
                     fontWeight: 900,
-                    fontSize: '1rem',
+                    fontSize: '1.25rem',
                     cursor: blueAnswerState ? 'default' : 'pointer',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
                     transition: 'all 0.15s ease',
-                    minHeight: '70px',
+                    minHeight: '76px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     textAlign: 'center',
-                    lineHeight: 1.2
+                    lineHeight: 1.3
                   }}
                 >
                   {optText}
@@ -775,30 +775,30 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
           <div style={{
             flex: 1,
             background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 100%)',
-            borderRadius: '16px',
-            padding: '16px',
+            borderRadius: '18px',
+            padding: '20px 24px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
             boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.3)',
-            minHeight: '120px'
+            minHeight: '130px'
           }}>
             {currentRedQ.image && (
               <img 
                 src={currentRedQ.image} 
                 alt="Illustration" 
-                style={{ maxHeight: '110px', borderRadius: '10px', marginBottom: '10px', objectFit: 'contain' }}
+                style={{ maxHeight: '160px', borderRadius: '12px', marginBottom: '12px', objectFit: 'contain' }}
               />
             )}
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', lineHeight: 1.4, margin: 0 }}>
+            <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
               {currentRedQ.question}
             </h3>
           </div>
 
           {/* 4 Options Buttons 2x2 Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {['A', 'B', 'C', 'D'].map((label, idx) => {
               if (!isOptionValidForQuestion(currentRedQ?.options, idx)) return null;
               const optText = currentRedQ.options[idx];
@@ -827,22 +827,22 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
                   onClick={() => handleRedAnswer(label)}
                   disabled={!!redAnswerState}
                   style={{
-                    padding: '14px 10px',
-                    borderRadius: '14px',
+                    padding: '18px 14px',
+                    borderRadius: '16px',
                     background: btnBg,
                     color: btnColor,
-                    border: `2px solid ${borderColor}`,
+                    border: `2.5px solid ${borderColor}`,
                     fontWeight: 900,
-                    fontSize: '1rem',
+                    fontSize: '1.25rem',
                     cursor: redAnswerState ? 'default' : 'pointer',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
                     transition: 'all 0.15s ease',
-                    minHeight: '70px',
+                    minHeight: '76px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     textAlign: 'center',
-                    lineHeight: 1.2
+                    lineHeight: 1.3
                   }}
                 >
                   {optText}

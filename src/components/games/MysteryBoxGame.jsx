@@ -178,38 +178,48 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '700px', padding: '32px' }}>
+          <div className="glass-modal" style={{ width: '100%', maxWidth: '920px', padding: '36px', borderRadius: '28px', border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.7)' }}>
             
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <span className="badge badge-accent" style={{ fontSize: '0.85rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+              <span className="badge badge-accent" style={{ fontSize: '1rem', padding: '8px 18px', borderRadius: '14px', fontWeight: 900 }}>
                 🎁 THỬ THÁCH HỘP QUÀ #{activeBoxIndex + 1}
               </span>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Dành cho: <strong style={{ color: currentTeam?.color || '#fff' }}>{currentTeam?.name || 'Đội chơi'}</strong>
+              <span style={{ fontSize: '1.05rem', color: 'var(--text-muted)', fontWeight: 800 }}>
+                Dành cho: <strong style={{ color: currentTeam?.color || '#fff', fontSize: '1.2rem' }}>{currentTeam?.name || 'Đội chơi'}</strong>
               </span>
             </div>
 
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '24px', lineHeight: 1.4 }}>
+            {currentQ.image && (
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <img 
+                  src={currentQ.image} 
+                  alt="Câu hỏi" 
+                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                />
+              </div>
+            )}
+
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', marginBottom: '28px', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', marginBottom: '28px' }}>
               {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
                 if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
                 const optText = currentQ.options[idx];
                 const isSelected = selectedOption === optLabel;
                 const isCorrect = currentQ.correct === optLabel;
 
-                let bg = 'rgba(255,255,255,0.06)';
-                let border = '1px solid rgba(255,255,255,0.15)';
+                let bg = 'rgba(255,255,255,0.08)';
+                let border = '2px solid rgba(255,255,255,0.2)';
 
                 if (answerState) {
                   if (isCorrect) {
                     bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    border = '1px solid #6ee7b7';
+                    border = '2px solid #6ee7b7';
                   } else if (isSelected && !isCorrect) {
                     bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                    border = '1px solid #fca5a5';
+                    border = '2px solid #fca5a5';
                   }
                 }
 
@@ -219,23 +229,39 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
                     onClick={() => handleAnswerOption(optLabel)}
                     disabled={!!answerState}
                     style={{
-                      padding: '16px',
-                      borderRadius: '16px',
+                      padding: '20px 24px',
+                      borderRadius: '20px',
                       background: bg,
                       border: border,
-                      color: '#fff',
+                      color: '#ffffff',
                       textAlign: 'left',
-                      fontWeight: 700,
+                      fontWeight: 800,
+                      fontSize: '1.3rem',
+                      lineHeight: 1.4,
                       cursor: answerState ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '10px'
+                      gap: '14px',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
+                    <span style={{
+                      width: '38px',
+                      height: '38px',
+                      minWidth: '38px',
+                      borderRadius: '12px',
+                      background: 'rgba(255,255,255,0.22)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontSize: '1.2rem',
+                      color: '#ffffff'
+                    }}>
                       {optLabel}
                     </span>
-                    {optText}
+                    <span style={{ flex: 1 }}>{optText}</span>
                   </button>
                 );
               })}
