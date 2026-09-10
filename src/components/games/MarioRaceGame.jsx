@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
-  RotateCcw, Trophy, Award, Sparkles, CheckCircle2, XCircle, Shield, Zap
+  RotateCcw, Trophy, Award, Sparkles, CheckCircle2, XCircle, Shield, Zap,
+  Edit3, Check
 } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
@@ -191,6 +192,26 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
     { id: 3, name: 'Mario Xanh Lá', color: '#10b981', step: 0, score: 0, isStunned: false },
     { id: 4, name: 'Mario Vàng', color: '#f59e0b', step: 0, score: 0, isStunned: false },
   ]);
+
+  // Editable team names state
+  const [editingTeamId, setEditingTeamId] = useState(null);
+  const [editingTeamName, setEditingTeamName] = useState('');
+
+  const handleStartEditTeam = (team, e) => {
+    if (e) e.stopPropagation();
+    setEditingTeamId(team.id);
+    setEditingTeamName(team.name);
+  };
+
+  const handleSaveTeamName = (teamId) => {
+    const trimmed = editingTeamName.trim();
+    if (trimmed) {
+      setTeams((prev) =>
+        prev.map((t) => (t.id === teamId ? { ...t, name: trimmed } : t))
+      );
+    }
+    setEditingTeamId(null);
+  };
 
   const TOTAL_STEPS = 10; // Total track length to reach Castle
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
@@ -431,8 +452,60 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                 }} />
                 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.88rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span>{team.name}</span>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                    {editingTeamId === team.id ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={editingTeamName}
+                          onChange={(e) => setEditingTeamName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveTeamName(team.id);
+                            if (e.key === 'Escape') setEditingTeamId(null);
+                          }}
+                          onBlur={() => handleSaveTeamName(team.id)}
+                          autoFocus
+                          maxLength={24}
+                          style={{
+                            background: isTurn ? '#f1f5f9' : 'rgba(15, 23, 42, 0.85)',
+                            color: isTurn ? '#0f172a' : '#ffffff',
+                            border: `2px solid ${team.color}`,
+                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            width: '115px',
+                            outline: 'none'
+                          }}
+                        />
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleSaveTeamName(team.id); }}
+                          style={{
+                            background: '#10b981',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '3px 6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                          title="Lưu tên mới"
+                        >
+                          <Check size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div 
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', flex: 1 }}
+                        onClick={(e) => handleStartEditTeam(team, e)}
+                        title="Click để đổi tên đội"
+                      >
+                        <span style={{ borderBottom: '1px dashed transparent', transition: 'border-color 0.2s' }}>{team.name}</span>
+                        <Edit3 size={13} style={{ opacity: 0.6, flexShrink: 0 }} />
+                      </div>
+                    )}
+
                     {isTurn && (
                       <span style={{ 
                         background: '#f59e0b', 
@@ -440,7 +513,8 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                         fontSize: '0.65rem', 
                         fontWeight: 900, 
                         padding: '1px 6px', 
-                        borderRadius: '6px' 
+                        borderRadius: '6px',
+                        flexShrink: 0
                       }}>
                         ▶ LƯỢT
                       </span>
@@ -649,8 +723,28 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
               }}
             >
               {/* Lane Start Flag */}
-              <div style={{ position: 'absolute', left: '10px', fontSize: '1.2rem', fontWeight: 900, color: team.color }}>
-                {team.name}
+              <div 
+                onClick={(e) => handleStartEditTeam(team, e)}
+                style={{ 
+                  position: 'absolute', 
+                  left: '10px', 
+                  fontSize: '0.95rem', 
+                  fontWeight: 900, 
+                  color: team.color,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(15, 23, 42, 0.45)',
+                  padding: '3px 8px',
+                  borderRadius: '8px',
+                  zIndex: 10,
+                  backdropFilter: 'blur(4px)'
+                }}
+                title="Click để đổi tên đội"
+              >
+                <span>{team.name}</span>
+                <Edit3 size={12} style={{ opacity: 0.7 }} />
               </div>
 
               {/* Course Track Blocks & Warp Pipes */}
@@ -1052,12 +1146,9 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
           <div style={{ display: 'flex', gap: '16px' }}>
             <button
               onClick={() => {
-                setTeams([
-                  { id: 1, name: 'Mario Đỏ', color: '#ef4444', step: 0, score: 0, isStunned: false },
-                  { id: 2, name: 'Mario Xanh Dương', color: '#3b82f6', step: 0, score: 0, isStunned: false },
-                  { id: 3, name: 'Mario Xanh Lá', color: '#10b981', step: 0, score: 0, isStunned: false },
-                  { id: 4, name: 'Mario Vàng', color: '#f59e0b', step: 0, score: 0, isStunned: false },
-                ]);
+                setTeams((prev) =>
+                  prev.map((t) => ({ ...t, step: 0, score: 0, isStunned: false }))
+                );
                 setCurrentTurnIdx(0);
                 setQuestionIdx(0);
                 setIsGameOver(false);

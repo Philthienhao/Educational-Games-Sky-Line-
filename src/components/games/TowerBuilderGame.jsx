@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
-  RotateCcw, Trophy, Award, Sparkles, AlertTriangle, Shield, Zap, Flame, Crown, CheckCircle2, XCircle
+  RotateCcw, Trophy, Award, Sparkles, AlertTriangle, Shield, Zap, Flame, Crown, CheckCircle2, XCircle,
+  Edit3, Check
 } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
@@ -235,6 +236,26 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     { id: 4, name: 'Đội 4', color: '#f59e0b', floors: 1, score: 0, floorHistory: ['base'] },
   ]);
 
+  // Editable team names state
+  const [editingTeamId, setEditingTeamId] = useState(null);
+  const [editingTeamName, setEditingTeamName] = useState('');
+
+  const handleStartEditTeam = (team, e) => {
+    if (e) e.stopPropagation();
+    setEditingTeamId(team.id);
+    setEditingTeamName(team.name);
+  };
+
+  const handleSaveTeamName = (teamId) => {
+    const trimmed = editingTeamName.trim();
+    if (trimmed) {
+      setTeams((prev) =>
+        prev.map((t) => (t.id === teamId ? { ...t, name: trimmed } : t))
+      );
+    }
+    setEditingTeamId(null);
+  };
+
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
   const [questionIdx, setQuestionIdx] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -461,8 +482,60 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                 }} />
                 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span>{team.name}</span>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                    {editingTeamId === team.id ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          value={editingTeamName}
+                          onChange={(e) => setEditingTeamName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveTeamName(team.id);
+                            if (e.key === 'Escape') setEditingTeamId(null);
+                          }}
+                          onBlur={() => handleSaveTeamName(team.id)}
+                          autoFocus
+                          maxLength={24}
+                          style={{
+                            background: isTurn ? '#f1f5f9' : 'rgba(15, 23, 42, 0.85)',
+                            color: isTurn ? '#0f172a' : '#ffffff',
+                            border: `2px solid ${team.color}`,
+                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            width: '115px',
+                            outline: 'none'
+                          }}
+                        />
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleSaveTeamName(team.id); }}
+                          style={{
+                            background: '#10b981',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '6px',
+                            padding: '3px 6px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}
+                          title="Lưu tên mới"
+                        >
+                          <Check size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div 
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', flex: 1 }}
+                        onClick={(e) => handleStartEditTeam(team, e)}
+                        title="Click để đổi tên đội"
+                      >
+                        <span style={{ borderBottom: '1px dashed transparent', transition: 'border-color 0.2s' }}>{team.name}</span>
+                        <Edit3 size={13} style={{ opacity: 0.6, flexShrink: 0 }} />
+                      </div>
+                    )}
+
                     {isTurn && (
                       <span style={{ 
                         background: '#f59e0b', 
@@ -470,7 +543,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                         fontSize: '0.65rem', 
                         fontWeight: 900, 
                         padding: '1px 6px', 
-                        borderRadius: '6px' 
+                        borderRadius: '6px',
+                        flexShrink: 0
                       }}>
                         ▶ LƯỢT
                       </span>
@@ -1259,12 +1333,9 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
           <div style={{ display: 'flex', gap: '16px' }}>
             <button
               onClick={() => {
-                setTeams([
-                  { id: 1, name: 'Đội 1', color: '#ef4444', floors: 1, score: 0, floorHistory: ['base'] },
-                  { id: 2, name: 'Đội 2', color: '#3b82f6', floors: 1, score: 0, floorHistory: ['base'] },
-                  { id: 3, name: 'Đội 3', color: '#10b981', floors: 1, score: 0, floorHistory: ['base'] },
-                  { id: 4, name: 'Đội 4', color: '#f59e0b', floors: 1, score: 0, floorHistory: ['base'] },
-                ]);
+                setTeams((prev) =>
+                  prev.map((t) => ({ ...t, floors: 1, score: 0, floorHistory: ['base'] }))
+                );
                 setCurrentTurnIdx(0);
                 setQuestionIdx(0);
                 setIsGameOver(false);
