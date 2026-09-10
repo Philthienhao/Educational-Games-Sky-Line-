@@ -63,8 +63,8 @@ function HouseRoofSVG({ color, teamName, isCurrentTurn }) {
 
 function HouseStoryBlockSVG({ floorNumber, isNew, materialType }) {
   // Determine block style based on material type or standard brick
-  const blockBg = materialType === 'wood' ? '#b45309' : materialType === 'straw' ? '#d97706' : '#e2e8f0';
-  const strokeColor = materialType === 'wood' ? '#78350f' : materialType === 'straw' ? '#92400e' : '#94a3b8';
+  const blockBg = materialType === 'wood' ? '#b45309' : (materialType === 'tile' || materialType === 'straw') ? '#ea580c' : '#e2e8f0';
+  const strokeColor = materialType === 'wood' ? '#78350f' : (materialType === 'tile' || materialType === 'straw') ? '#9a3412' : '#94a3b8';
 
   return (
     <div style={{ 
@@ -76,17 +76,17 @@ function HouseStoryBlockSVG({ floorNumber, isNew, materialType }) {
         {/* Main Wall Block */}
         <rect x="15" y="0" width="170" height="90" fill={blockBg} stroke={strokeColor} strokeWidth="3" rx="2" />
         
-        {/* Brick Patterns / Wood Texture */}
+        {/* Brick Patterns / Wood / Tile Texture */}
         {materialType === 'wood' ? (
           <>
             <line x1="15" y1="20" x2="185" y2="20" stroke="#78350f" strokeWidth="2" />
             <line x1="15" y1="45" x2="185" y2="45" stroke="#78350f" strokeWidth="2" />
             <line x1="15" y1="70" x2="185" y2="70" stroke="#78350f" strokeWidth="2" />
           </>
-        ) : materialType === 'straw' ? (
+        ) : (materialType === 'tile' || materialType === 'straw') ? (
           <>
-            <line x1="15" y1="25" x2="185" y2="25" stroke="#92400e" strokeWidth="1.5" strokeDasharray="8 4" />
-            <line x1="15" y1="55" x2="185" y2="55" stroke="#92400e" strokeWidth="1.5" strokeDasharray="8 4" />
+            <path d="M 15 25 Q 35 15 55 25 Q 75 15 95 25 Q 115 15 135 25 Q 155 15 175 25 Q 185 22 185 25" fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.65" />
+            <path d="M 15 55 Q 35 45 55 55 Q 75 45 95 55 Q 115 45 135 55 Q 155 45 175 55 Q 185 52 185 55" fill="none" stroke="#ffffff" strokeWidth="2" opacity="0.65" />
           </>
         ) : (
           <>
@@ -310,8 +310,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     if (isAnsCorrect) {
       if (!isMuted) SoundFX.correct();
 
-      // Points bonus based on material difficulty
-      const addedPoints = selectedMaterial === 'brick' ? 30 : selectedMaterial === 'wood' ? 20 : 12;
+      // Points bonus based on material difficulty (Gạch: +30, Gỗ: +20, Ngói: +10)
+      const addedPoints = selectedMaterial === 'brick' ? 30 : selectedMaterial === 'wood' ? 20 : 10;
 
       // Update team floors & scores
       setTeams((prev) =>
@@ -608,38 +608,38 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
 
         {/* Center / Right Side: Question Material Cards (Rơm, Gỗ, Gạch) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Card 1: Rơm (Dễ) */}
+          {/* Card 1: Ngói (Dễ) */}
           <div 
-            onClick={() => handleSelectMaterialCard('straw')}
+            onClick={() => handleSelectMaterialCard('tile')}
             style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #fef3c7 100%)',
-              border: '2px solid #f59e0b',
+              background: 'linear-gradient(135deg, #ffffff 0%, #ffedd5 100%)',
+              border: '2px solid #ea580c',
               borderRadius: '14px',
               padding: '8px 16px',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '12px',
-              boxShadow: '0 6px 16px rgba(245, 158, 11, 0.25)',
+              boxShadow: '0 6px 16px rgba(234, 88, 12, 0.25)',
               transition: 'transform 0.2s ease',
             }}
             className="hover:scale-105"
           >
-            <div style={{ fontSize: '1.8rem' }}>🌾</div>
+            <div style={{ fontSize: '1.8rem' }}>🏠</div>
             <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#78350f' }}>Rơm</div>
-              <div style={{ fontSize: '0.72rem', color: '#92400e' }}>Nhận biết · 2 câu</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#7c2d12' }}>Ngói</div>
+              <div style={{ fontSize: '0.72rem', color: '#9a3412' }}>Nhận biết · 2 câu</div>
             </div>
             <div style={{ 
-              background: '#fef3c7', 
-              color: '#d97706', 
+              background: '#ffedd5', 
+              color: '#ea580c', 
               fontSize: '0.8rem', 
               fontWeight: 900, 
               padding: '4px 8px', 
               borderRadius: '8px',
-              border: '1px solid #fde68a' 
+              border: '1px solid #fed7aa' 
             }}>
-              +12đ
+              +10đ
             </div>
           </div>
 
@@ -914,7 +914,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                   padding: '4px 10px',
                   borderRadius: '10px'
                 }}>
-                  {selectedMaterial === 'brick' ? '🧱 Gạch (Khó +30đ)' : selectedMaterial === 'wood' ? '🪵 Gỗ (Vừa +20đ)' : '🌾 Rơm (Dễ +12đ)'}
+                  {selectedMaterial === 'brick' ? '🧱 Gạch (Khó +30đ)' : selectedMaterial === 'wood' ? '🪵 Gỗ (Vừa +20đ)' : '🏠 Ngói (Dễ +10đ)'}
                 </span>
               </div>
 

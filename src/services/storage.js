@@ -319,7 +319,7 @@ const INITIAL_BASE_GAMES = [
     category: 'Đối kháng Đội nhóm',
     icon: '🏗️',
     gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
-    description: 'Trả lời đúng câu hỏi để lựa chọn Rơm, Gỗ hoặc Gạch xây từng tầng nhà cao vút. Đội xây tòa tháp cao nhất sẽ dành chiến thắng!',
+    description: 'Trả lời đúng câu hỏi để lựa chọn Ngói, Gỗ hoặc Gạch xây từng tầng nhà cao vút. Đội xây tòa tháp cao nhất sẽ dành chiến thắng!',
     engineType: 'tower-builder',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
@@ -579,7 +579,7 @@ const INITIAL_SAVED_GAMES = [
     gradient: 'linear-gradient(135deg, #0284c7 0%, #f59e0b 100%)',
     icon: '🏗️',
     engineType: 'tower-builder',
-    description: 'Bài game thi đấu xây nhà dựa trên độ khó vật liệu Rơm, Gỗ, Gạch và các câu hỏi học tập sinh động',
+    description: 'Bài game thi đấu xây nhà dựa trên độ khó vật liệu Ngói, Gỗ, Gạch và các câu hỏi học tập sinh động',
     questions: SAMPLE_QUESTIONS,
     updatedAt: new Date().toISOString().split('T')[0]
   },
