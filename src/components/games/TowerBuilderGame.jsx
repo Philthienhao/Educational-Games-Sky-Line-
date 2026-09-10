@@ -249,6 +249,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
 
   // Monster / Sabotage Modal state
   const [activeMonster, setActiveMonster] = useState(null);
+  const [rewardInfo, setRewardInfo] = useState(null);
 
   // Animation trigger for newly built floor
   const [newlyBuiltTeamId, setNewlyBuiltTeamId] = useState(null);
@@ -287,12 +288,14 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     setActiveQuestion(q);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);
+    setRewardInfo(null);
     setTimerSeconds(30);
   };
 
   const handleTimeOut = () => {
     setIsAnswerSubmitted(true);
     setIsCorrect(false);
+    setRewardInfo(null);
     if (!isMuted) SoundFX.wrong();
   };
 
@@ -310,8 +313,20 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     if (isAnsCorrect) {
       if (!isMuted) SoundFX.correct();
 
-      // Points bonus based on material difficulty (Gạch: +30, Gỗ: +20, Ngói: +10)
-      const addedPoints = selectedMaterial === 'brick' ? 30 : selectedMaterial === 'wood' ? 20 : 10;
+      // Determine random reward: 35% chance to win a Monster Sabotage Card! 65% chance for standard Points!
+      const isMonsterReward = Math.random() < 0.35;
+      const basePoints = selectedMaterial === 'brick' ? 30 : selectedMaterial === 'wood' ? 20 : 10;
+
+      let currentReward = null;
+
+      if (isMonsterReward) {
+        const drawnMonster = MONSTERS[Math.floor(Math.random() * MONSTERS.length)];
+        currentReward = { type: 'monster', monster: drawnMonster, points: basePoints };
+      } else {
+        currentReward = { type: 'points', points: basePoints };
+      }
+
+      setRewardInfo(currentReward);
 
       // Update team floors & scores
       setTeams((prev) =>
@@ -321,7 +336,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
             return {
               ...t,
               floors: nextFloors,
-              score: t.score + addedPoints,
+              score: t.score + basePoints,
               floorHistory: [...t.floorHistory, selectedMaterial || 'brick']
             };
           }
@@ -332,6 +347,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
       setNewlyBuiltTeamId(activeTeam.id);
       setTimeout(() => setNewlyBuiltTeamId(null), 1000);
     } else {
+      setRewardInfo(null);
       if (!isMuted) SoundFX.wrong();
     }
   };
@@ -340,6 +356,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     setActiveQuestion(null);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);
+    setRewardInfo(null);
     setQuestionIdx((prev) => prev + 1);
 
     // Turn moves to next team
@@ -1032,8 +1049,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
             {/* Answer Result Banner & Next Button */}
             {isAnswerSubmitted && (
               <div style={{
-                background: isCorrect ? '#f0fdf4' : '#fef2f2',
-                border: `2px solid ${isCorrect ? '#4ade80' : '#f87171'}`,
+                background: isCorrect ? (rewardInfo?.type === 'monster' ? '#fefce8' : '#f0fdf4') : '#fef2f2',
+                border: `2px solid ${isCorrect ? (rewardInfo?.type === 'monster' ? '#eab308' : '#4ade80') : '#f87171'}`,
                 borderRadius: '16px',
                 padding: '16px 20px',
                 display: 'flex',
@@ -1043,15 +1060,27 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
               }}>
                 <div>
                   <div style={{
-                    fontSize: '1.1rem',
+                    fontSize: '1.05rem',
                     fontWeight: 900,
-                    color: isCorrect ? '#166534' : '#991b1b',
+                    color: isCorrect ? (rewardInfo?.type === 'monster' ? '#854d0e' : '#166534') : '#991b1b',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    {isCorrect ? <CheckCircle2 color="#22c55e" size={24} /> : <XCircle color="#ef4444" size={24} />}
-                    {isCorrect ? 'CHÍNH XÁC! XÂY THÊM +1 TẦNG NHÀ 🎉' : 'RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! 😅'}
+                    {isCorrect ? <CheckCircle2 color={rewardInfo?.type === 'monster' ? '#ca8a04' : '#22c55e'} size={24} /> : <XCircle color="#ef4444" size={24} />}
+                    {isCorrect ? (
+                      rewardInfo?.type === 'monster' ? (
+                        <span>
+                          🎉 CHÍNH XÁC! XÂY +1 TẦNG & 🎁 THẺ THƯỞNG: <b>{rewardInfo.monster.icon} {rewardInfo.monster.name}</b> (+{rewardInfo.points}đ)!
+                        </span>
+                      ) : (
+                        <span>
+                          🎉 CHÍNH XÁC! XÂY THÊM +1 TẦNG NHÀ & +{rewardInfo?.points || 10} ĐIỂM!
+                        </span>
+                      )
+                    ) : (
+                      'RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! 😅'
+                    )}
                   </div>
                   {activeQuestion.explanation && (
                     <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>
@@ -1060,23 +1089,50 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                   )}
                 </div>
 
-                <button
-                  onClick={handleNextTurn}
-                  style={{
-                    background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    padding: '12px 24px',
-                    borderRadius: '14px',
-                    fontWeight: 800,
-                    fontSize: '0.95rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Lượt tiếp theo ➔
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  {isCorrect && rewardInfo?.type === 'monster' && (
+                    <button
+                      onClick={() => {
+                        setActiveMonster(rewardInfo.monster);
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px 18px',
+                        borderRadius: '14px',
+                        fontWeight: 900,
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(239,68,68,0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      💣 Đi Phá Nhà Đội Bạn!
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handleNextTurn}
+                    style={{
+                      background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '12px 24px',
+                      borderRadius: '14px',
+                      fontWeight: 800,
+                      fontSize: '0.95rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Lượt tiếp theo ➔
+                  </button>
+                </div>
               </div>
             )}
           </div>
