@@ -124,6 +124,93 @@ function FinishCastleSVG() {
   );
 }
 
+// 8-bit Brick Block SVG (Khối gạch nâu đỏ)
+function BrickBlockSVG() {
+  return (
+    <div style={{ width: '32px', height: '32px', filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.3))' }}>
+      <svg viewBox="0 0 32 32" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
+        <rect x="0" y="0" width="32" height="32" fill="#c05621" stroke="#451a03" strokeWidth="2" rx="2" />
+        <rect x="2" y="2" width="28" height="28" fill="#ea580c" rx="1" />
+        <rect x="4" y="4" width="24" height="24" fill="#9a3412" />
+        {/* Mortar Lines */}
+        <line x1="0" y1="10" x2="32" y2="10" stroke="#451a03" strokeWidth="2" />
+        <line x1="0" y1="21" x2="32" y2="21" stroke="#451a03" strokeWidth="2" />
+        <line x1="16" y1="0" x2="16" y2="10" stroke="#451a03" strokeWidth="2" />
+        <line x1="8" y1="10" x2="8" y2="21" stroke="#451a03" strokeWidth="2" />
+        <line x1="24" y1="10" x2="24" y2="21" stroke="#451a03" strokeWidth="2" />
+        <line x1="16" y1="21" x2="16" y2="32" stroke="#451a03" strokeWidth="2" />
+      </svg>
+    </div>
+  );
+}
+
+// 8-bit Goomba Enemy SVG (Quái Nấm Goomba)
+function GoombaEnemySVG({ isSquished }) {
+  return (
+    <div style={{
+      width: '28px',
+      height: '28px',
+      transform: isSquished ? 'scaleY(0.25) translateY(18px)' : 'none',
+      transition: 'transform 0.3s ease',
+      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+    }}>
+      <svg viewBox="0 0 16 16" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
+        {/* Head Cap */}
+        <rect x="5" y="1" width="6" height="1" fill="#78350f" />
+        <rect x="4" y="2" width="8" height="2" fill="#78350f" />
+        <rect x="3" y="4" width="10" height="5" fill="#78350f" />
+        <rect x="2" y="5" width="12" height="3" fill="#9a3412" />
+        {/* Eyebrows */}
+        <rect x="4" y="6" width="3" height="1" fill="#000" />
+        <rect x="9" y="6" width="3" height="1" fill="#000" />
+        {/* Eyes */}
+        <rect x="5" y="7" width="2" height="2" fill="#fff" />
+        <rect x="9" y="7" width="2" height="2" fill="#fff" />
+        <rect x="6" y="7" width="1" height="2" fill="#000" />
+        <rect x="9" y="7" width="1" height="2" fill="#000" />
+        {/* Stem Body */}
+        <rect x="5" y="9" width="6" height="3" fill="#fde047" />
+        {/* Feet */}
+        <rect x="3" y="12" width="4" height="3" fill="#000" />
+        <rect x="9" y="12" width="4" height="3" fill="#000" />
+      </svg>
+    </div>
+  );
+}
+
+// 8-bit Staircase Pyramid SVG (Bậc Thang Gạch 8-bit)
+function StaircaseBlockSVG() {
+  return (
+    <div style={{ width: '64px', height: '56px', filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.3))' }}>
+      <svg viewBox="0 0 64 56" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
+        {/* Step 3 (Top) */}
+        <rect x="42" y="2" width="20" height="18" fill="#c05621" stroke="#451a03" strokeWidth="2" rx="1" />
+        <rect x="44" y="4" width="16" height="14" fill="#ea580c" />
+        {/* Step 2 (Middle) */}
+        <rect x="22" y="20" width="40" height="18" fill="#c05621" stroke="#451a03" strokeWidth="2" rx="1" />
+        <rect x="24" y="22" width="36" height="14" fill="#ea580c" />
+        {/* Step 1 (Bottom) */}
+        <rect x="2" y="38" width="60" height="18" fill="#c05621" stroke="#451a03" strokeWidth="2" rx="1" />
+        <rect x="4" y="40" width="56" height="14" fill="#ea580c" />
+      </svg>
+    </div>
+  );
+}
+
+// 8-bit Bush Green SVG (Bụi Cỏ Xanh)
+function BushGreenSVG() {
+  return (
+    <div style={{ width: '48px', height: '26px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}>
+      <svg viewBox="0 0 52 28" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <path d="M 6 28 A 12 12 0 0 1 20 10 A 14 14 0 0 1 36 10 A 10 10 0 0 1 48 28 Z" fill="#16a34a" stroke="#14532d" strokeWidth="2" />
+        <path d="M 8 28 A 10 10 0 0 1 20 12 A 12 12 0 0 1 34 12 A 8 8 0 0 1 46 28 Z" fill="#22c55e" />
+        <circle cx="20" cy="15" r="4" fill="#4ade80" />
+        <circle cx="30" cy="15" r="4" fill="#4ade80" />
+      </svg>
+    </div>
+  );
+}
+
 const DEFAULT_QUESTIONS = [
   {
     id: 'mario_q1',
@@ -711,15 +798,16 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
               key={team.id}
               style={{
                 position: 'relative',
-                height: '75px',
-                background: isTurn ? 'rgba(255, 255, 255, 0.35)' : 'rgba(255, 255, 255, 0.15)',
+                height: '92px',
+                background: isTurn ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.18)',
                 borderRadius: '16px',
-                border: isTurn ? `2px solid ${team.color}` : '1px stroke rgba(255,255,255,0.2)',
+                border: isTurn ? `2.5px solid ${team.color}` : '1px stroke rgba(255,255,255,0.2)',
                 display: 'flex',
                 alignItems: 'center',
                 padding: '0 20px',
-                boxShadow: isTurn ? `0 0 16px ${team.color}66` : 'none',
-                transition: 'all 0.3s ease'
+                boxShadow: isTurn ? `0 0 20px ${team.color}77` : '0 4px 12px rgba(0,0,0,0.1)',
+                transition: 'all 0.3s ease',
+                overflow: 'hidden'
               }}
             >
               {/* Lane Start Flag */}
@@ -728,39 +816,79 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                 style={{ 
                   position: 'absolute', 
                   left: '10px', 
-                  fontSize: '0.95rem', 
+                  top: '10px',
+                  fontSize: '0.88rem', 
                   fontWeight: 900, 
                   color: team.color,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  background: 'rgba(15, 23, 42, 0.45)',
+                  background: 'rgba(15, 23, 42, 0.65)',
                   padding: '3px 8px',
                   borderRadius: '8px',
-                  zIndex: 10,
-                  backdropFilter: 'blur(4px)'
+                  zIndex: 25,
+                  backdropFilter: 'blur(4px)',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
                 }}
                 title="Click để đổi tên đội"
               >
                 <span>{team.name}</span>
-                <Edit3 size={12} style={{ opacity: 0.7 }} />
+                <Edit3 size={11} style={{ opacity: 0.8 }} />
               </div>
 
-              {/* Course Track Blocks & Warp Pipes */}
-              <div style={{ position: 'absolute', left: '160px', right: '140px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {/* 1. Ground Bushes */}
+              <div style={{ position: 'absolute', left: '135px', bottom: '12px', zIndex: 2 }}>
+                <BushGreenSVG />
+              </div>
+              <div style={{ position: 'absolute', left: '580px', bottom: '12px', zIndex: 2 }}>
+                <BushGreenSVG />
+              </div>
+
+              {/* 2. Goomba Enemies (Quái nấm) */}
+              <div style={{ position: 'absolute', left: '210px', bottom: '12px', zIndex: 3 }}>
+                <GoombaEnemySVG isSquished={team.step >= 2} />
+              </div>
+              <div style={{ position: 'absolute', left: '460px', bottom: '12px', zIndex: 3 }}>
+                <GoombaEnemySVG isSquished={team.step >= 5} />
+              </div>
+
+              {/* 3. Floating Brick & Question Block Clusters ([Brick] [?] [Brick]) */}
+              <div style={{ position: 'absolute', left: '260px', top: '10px', display: 'flex', gap: '2px', zIndex: 5 }}>
+                <BrickBlockSVG />
                 <QuestionBlockSVG isHit={team.step >= 3} />
-                <WarpPipeSVG />
-                <QuestionBlockSVG isHit={team.step >= 6} />
-                <WarpPipeSVG />
-                <QuestionBlockSVG isHit={team.step >= 9} />
+                <BrickBlockSVG />
               </div>
 
-              {/* Mario Sprite Runner Container */}
+              <div style={{ position: 'absolute', left: '510px', top: '10px', display: 'flex', gap: '2px', zIndex: 5 }}>
+                <BrickBlockSVG />
+                <QuestionBlockSVG isHit={team.step >= 6} />
+                <BrickBlockSVG />
+              </div>
+
+              <div style={{ position: 'absolute', left: '720px', top: '10px', display: 'flex', gap: '2px', zIndex: 5 }}>
+                <QuestionBlockSVG isHit={team.step >= 9} />
+                <BrickBlockSVG />
+              </div>
+
+              {/* 4. Warp Pipes (Ống nước / Ống khói xanh 8-bit) */}
+              <div style={{ position: 'absolute', left: '380px', bottom: '12px', zIndex: 4 }}>
+                <WarpPipeSVG />
+              </div>
+              <div style={{ position: 'absolute', left: '640px', bottom: '12px', zIndex: 4 }}>
+                <WarpPipeSVG />
+              </div>
+
+              {/* 5. Staircase Pyramid (Bậc thang gạch 8-bit) */}
+              <div style={{ position: 'absolute', right: '115px', bottom: '12px', zIndex: 5 }}>
+                <StaircaseBlockSVG />
+              </div>
+
+              {/* 6. Mario Sprite Runner Container */}
               <div style={{
                 position: 'absolute',
-                left: `calc(130px + ${leftPercent}%)`,
-                bottom: '12px',
+                left: `calc(120px + ${leftPercent}%)`,
+                bottom: '14px',
                 transition: 'left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 zIndex: 20
               }}>
@@ -771,10 +899,23 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                 />
               </div>
 
-              {/* Finish Castle & Flagpole */}
+              {/* 7. Finish Castle & Flagpole */}
               <div style={{ position: 'absolute', right: '10px', bottom: '0px', zIndex: 10 }}>
                 <FinishCastleSVG />
               </div>
+
+              {/* 8. Retro Brick Ground Strip along bottom of lane */}
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '14px',
+                background: '#c05621',
+                borderTop: '2px solid #78350f',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+                backgroundImage: 'repeating-linear-gradient(90deg, #78350f 0 2px, transparent 2px 16px)'
+              }} />
             </div>
           );
         })}
