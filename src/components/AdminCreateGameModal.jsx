@@ -146,6 +146,7 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               onChange={(e) => setEngineType(e.target.value)}
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}
             >
+              <option value="mario-race">🍄 Mario Phiêu Lưu Tri Thức (Super Mario Race)</option>
               <option value="tower-builder">🏗️ Kiến Trúc Sư Tri Thức (Tower Builder Quiz)</option>
               <option value="pose-imitation">🏃‍♂️ Bắt chước nhanh - Cơ hội lớn (Pose Camera Quiz)</option>
               <option value="head-tilt">👤 Nghiêng Đầu Chuẩn - Đáp Án Đúng (Head Tilt Camera Quiz)</option>

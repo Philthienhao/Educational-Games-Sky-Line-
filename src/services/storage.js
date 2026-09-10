@@ -313,6 +313,18 @@ const INITIAL_BASE_GAMES = [
     ]
   },
   {
+    id: 'mario-race-game',
+    title: 'Mario Phiêu Lưu Tri Thức',
+    subtitle: 'Cuộc Đua Chướng Ngại Vật Retro 8-bit',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🍄',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 100%)',
+    description: '4 đội Mario xuất phát cùng lúc trên đường đua Super Mario retro. Trả lời đúng đập vỡ hộp bí ẩn (?) ăn nấm tăng tốc và ném mai rùa chặn đối thủ cán đích lâu đài!',
+    engineType: 'mario-race',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'tower-builder-game',
     title: 'Kiến Trúc Sư Tri Thức',
     subtitle: 'Thi Đấu Xây Nhà & Tháp Tri Thức',
@@ -569,6 +581,20 @@ const INITIAL_BASE_GAMES = [
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_mario',
+    userId: 'user_admin',
+    baseGameId: 'mario-race-game',
+    title: 'Mario Phiêu Lưu Tri Thức - Đường Đua Retro',
+    lessonTitle: 'Mario Phiêu Lưu Tri Thức - Đường Đua Retro',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 100%)',
+    icon: '🍄',
+    engineType: 'mario-race',
+    description: 'Cuộc đua Mario chướng ngại vật trắc nghiệm retro 8-bit với các vật phẩm nấm tăng tốc, ngôi sao và mai rùa chặn đối thủ',
+    questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_tower',
     userId: 'user_admin',
