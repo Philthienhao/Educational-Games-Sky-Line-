@@ -230,6 +230,39 @@ function BushGreenSVG() {
   );
 }
 
+// 8-bit Finish Line Castle & Flagpole SVG (Lâu đài và Cột Cờ Đích Mario)
+function FinishCastleSVG() {
+  return (
+    <div style={{ width: '80px', height: '90px', position: 'relative', filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.35))' }}>
+      <svg viewBox="0 0 90 100" style={{ width: '100%', height: '100%', display: 'block' }}>
+        {/* Flagpole Base & Pole */}
+        <rect x="12" y="88" width="16" height="8" fill="#78350f" stroke="#451a03" strokeWidth="1.5" />
+        <rect x="18" y="10" width="4" height="78" fill="#cbd5e1" stroke="#475569" strokeWidth="1" />
+        <circle cx="20" cy="8" r="5" fill="#f59e0b" stroke="#78350f" strokeWidth="1" />
+        {/* Green Victory Flag */}
+        <polygon points="22,12 48,20 22,28" fill="#22c55e" stroke="#15803d" strokeWidth="1.5" />
+        
+        {/* Mario Castle Main Body */}
+        <rect x="42" y="45" width="44" height="51" fill="#9a3412" stroke="#451a03" strokeWidth="2" />
+        <rect x="44" y="47" width="40" height="47" fill="#c05621" />
+        
+        {/* Castle Battlements (Battlements / Turret crenellations) */}
+        <rect x="42" y="36" width="10" height="10" fill="#c05621" stroke="#451a03" strokeWidth="1.5" />
+        <rect x="59" y="36" width="10" height="10" fill="#c05621" stroke="#451a03" strokeWidth="1.5" />
+        <rect x="76" y="36" width="10" height="10" fill="#c05621" stroke="#451a03" strokeWidth="1.5" />
+        
+        {/* Castle Entrance Door */}
+        <path d="M 54 96 L 54 70 C 54 62, 74 62, 74 70 L 74 96 Z" fill="#18181b" stroke="#000000" strokeWidth="2" />
+        
+        {/* Mortar Lines */}
+        <line x1="42" y1="60" x2="86" y2="60" stroke="#451a03" strokeWidth="1.5" />
+        <line x1="42" y1="75" x2="86" y2="75" stroke="#451a03" strokeWidth="1.5" />
+      </svg>
+    </div>
+  );
+}
+
+
 const DEFAULT_QUESTIONS = [
   {
     id: 'mario_q1',

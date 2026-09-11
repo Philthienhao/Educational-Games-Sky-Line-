@@ -1488,9 +1488,13 @@ export const StorageService = {
     else if (rawTitleStr.includes('đua rùa')) resolvedEngineType = 'turtle-race';
     else if (rawTitleStr.includes('rừng xanh')) resolvedEngineType = 'jungle-rescue';
     else if (rawTitleStr.includes('jeopardy')) resolvedEngineType = 'jeopardy';
+    else if (rawTitleStr.includes('mario')) resolvedEngineType = 'mario-race';
+    else if (rawTitleStr.includes('xây tháp') || rawTitleStr.includes('xây nhà')) resolvedEngineType = 'tower-builder';
     else if (rawIdStr.includes('pose')) resolvedEngineType = 'pose-imitation';
     else if (rawIdStr.includes('head-tilt')) resolvedEngineType = 'head-tilt';
     else if (rawIdStr.includes('tug-of-war-dual')) resolvedEngineType = 'tug-of-war-dual';
+    else if (rawIdStr.includes('mario')) resolvedEngineType = 'mario-race';
+    else if (rawIdStr.includes('tower')) resolvedEngineType = 'tower-builder';
     else if (!resolvedEngineType || resolvedEngineType === 'tug-of-war-dual') {
       resolvedEngineType = rawGameData.baseGameId || 'wheel';
     }
