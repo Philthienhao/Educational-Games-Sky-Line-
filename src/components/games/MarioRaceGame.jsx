@@ -6,49 +6,72 @@ import {
 } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
-// Top-Level Retro Mario Runner SVG Component
+// Top-Level HD Crisp Vector Mario Runner SVG Component
 function MarioSpriteSVG({ color, isJumping, isRunning, isStunned }) {
-  // Color palette map for different Mario team colors
   const capColor = color || '#ef4444';
   const overallColor = color || '#ef4444';
-  const shirtColor = color === '#ef4444' ? '#3b82f6' : color === '#3b82f6' ? '#ef4444' : color === '#10b981' ? '#065f46' : '#9a3412';
+  const shirtColor = 
+    color === '#ef4444' ? '#2563eb' : 
+    color === '#3b82f6' ? '#ef4444' : 
+    color === '#10b981' ? '#f59e0b' : 
+    '#dc2626';
 
   return (
     <div style={{
-      width: '48px',
-      height: '54px',
+      width: '58px',
+      height: '68px',
       position: 'relative',
-      transform: isStunned ? 'rotate(90deg)' : isJumping ? 'translateY(-18px)' : 'none',
-      transition: 'transform 0.25s ease',
-      filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))'
+      transform: isStunned ? 'rotate(90deg) translateY(12px)' : isJumping ? 'translateY(-24px) scale(1.08)' : 'none',
+      transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+      filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.3))'
     }}>
-      <svg viewBox="0 0 16 18" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
-        {/* Mario Cap */}
-        <rect x="3" y="1" width="8" height="2" fill={capColor} />
-        <rect x="2" y="3" width="11" height="1" fill={capColor} />
+      <svg viewBox="0 0 80 96" style={{ width: '100%', height: '100%', display: 'block' }}>
+        {/* Mario Cap Crown */}
+        <path d="M 18 30 C 18 12, 62 12, 62 30 Z" fill={capColor} stroke="#0f172a" strokeWidth="2.5" />
+        {/* Cap Visor / Brim */}
+        <path d="M 10 28 C 30 22, 70 22, 78 30 C 74 36, 32 34, 10 28 Z" fill={capColor} stroke="#0f172a" strokeWidth="2" />
 
-        {/* Hair & Face */}
-        <rect x="2" y="4" width="3" height="2" fill="#78350f" />
-        <rect x="5" y="4" width="2" height="2" fill="#fde047" />
-        <rect x="7" y="4" width="1" height="3" fill="#78350f" />
-        <rect x="5" y="6" width="6" height="1" fill="#fde047" />
-        <rect x="4" y="5" width="7" height="1" fill="#fde047" />
+        {/* Emblem Badge on Cap */}
+        <circle cx="40" cy="20" r="7.5" fill="#ffffff" stroke="#0f172a" strokeWidth="1.5" />
+        <text x="40" y="24" fill={capColor} fontSize="9" fontWeight="900" textAnchor="middle" fontFamily="sans-serif">M</text>
 
-        {/* Mustache & Nose */}
-        <rect x="8" y="5" width="4" height="2" fill="#451a03" />
+        {/* Hair (Back & Sideburns) */}
+        <path d="M 16 30 C 8 36, 10 50, 20 48 Z" fill="#451a03" stroke="#0f172a" strokeWidth="2" />
 
-        {/* Shirt & Arms */}
-        <rect x="3" y="7" width="9" height="3" fill={shirtColor} />
+        {/* Face (Peach Skin) */}
+        <path d="M 20 30 C 20 50, 60 50, 60 30 Z" fill="#fde047" stroke="#0f172a" strokeWidth="2.5" />
+        <path d="M 23 32 C 23 48, 57 48, 57 32 Z" fill="#fecdd3" />
 
-        {/* Overalls */}
-        <rect x="4" y="9" width="7" height="5" fill={overallColor} />
-        {/* Yellow Buttons */}
-        <rect x="5" y="11" width="1" height="1" fill="#fbbf24" />
-        <rect x="9" y="11" width="1" height="1" fill="#fbbf24" />
+        {/* Eye */}
+        <ellipse cx="48" cy="34" rx="3.5" ry="5.5" fill="#0f172a" />
+        <circle cx="49" cy="32" r="1.2" fill="#ffffff" />
 
-        {/* Shoes */}
-        <rect x="2" y="14" width="4" height="2" fill="#78350f" />
-        <rect x="9" y="14" width="4" height="2" fill="#78350f" />
+        {/* Mario Nose */}
+        <ellipse cx="55" cy="39" rx="7.5" ry="6" fill="#fecdd3" stroke="#0f172a" strokeWidth="2" />
+
+        {/* Mario Mustache */}
+        <path d="M 34 43 C 40 38, 62 38, 70 44 C 66 49, 42 49, 34 43 Z" fill="#18181b" stroke="#000000" strokeWidth="2" />
+
+        {/* Shirt Body & Arms */}
+        <path d="M 18 52 C 18 46, 62 46, 62 52 L 60 68 L 20 68 Z" fill={shirtColor} stroke="#0f172a" strokeWidth="2" />
+
+        {/* Overalls Straps */}
+        <path d="M 24 52 L 32 52 L 32 72 L 24 72 Z" fill={overallColor} stroke="#0f172a" strokeWidth="1.5" />
+        <path d="M 48 52 L 56 52 L 56 72 L 48 72 Z" fill={overallColor} stroke="#0f172a" strokeWidth="1.5" />
+        {/* Overalls Pants */}
+        <path d="M 20 62 C 20 56, 60 56, 60 62 L 62 82 C 62 86, 18 86, 18 82 Z" fill={overallColor} stroke="#0f172a" strokeWidth="2" />
+
+        {/* Yellow Overalls Buttons */}
+        <circle cx="28" cy="62" r="3" fill="#fbbf24" stroke="#78350f" strokeWidth="1" />
+        <circle cx="52" cy="62" r="3" fill="#fbbf24" stroke="#78350f" strokeWidth="1" />
+
+        {/* White Gloved Hands */}
+        <circle cx="14" cy="58" r="5.5" fill="#ffffff" stroke="#0f172a" strokeWidth="1.5" />
+        <circle cx="66" cy="58" r="5.5" fill="#ffffff" stroke="#0f172a" strokeWidth="1.5" />
+
+        {/* Brown Boots */}
+        <path d="M 16 80 C 10 80, 8 94, 30 94 C 34 94, 34 84, 30 80 Z" fill="#78350f" stroke="#0f172a" strokeWidth="2" />
+        <path d="M 50 80 C 44 80, 44 94, 66 94 C 72 94, 70 80, 64 80 Z" fill="#78350f" stroke="#0f172a" strokeWidth="2" />
       </svg>
     </div>
   );
@@ -58,24 +81,27 @@ function MarioSpriteSVG({ color, isJumping, isRunning, isStunned }) {
 function QuestionBlockSVG({ isHit }) {
   return (
     <div style={{
-      width: '36px',
-      height: '36px',
-      transform: isHit ? 'translateY(-10px) scale(0.9)' : 'none',
+      width: '38px',
+      height: '38px',
+      transform: isHit ? 'translateY(-10px) scale(0.92)' : 'none',
       transition: 'transform 0.2s ease',
-      filter: isHit ? 'brightness(0.6)' : 'drop-shadow(0 4px 8px rgba(245, 158, 11, 0.4))'
+      filter: isHit ? 'brightness(0.6)' : 'drop-shadow(0 4px 8px rgba(245, 158, 11, 0.45))'
     }}>
-      <svg viewBox="0 0 32 32" style={{ width: '100%', height: '100%', display: 'block' }}>
+      <svg viewBox="0 0 40 40" style={{ width: '100%', height: '100%', display: 'block' }}>
         {/* Outer Frame */}
-        <rect x="0" y="0" width="32" height="32" fill={isHit ? '#78350f' : '#f59e0b'} stroke="#451a03" strokeWidth="2" rx="4" />
-        <rect x="2" y="2" width="28" height="28" fill={isHit ? '#92400e' : '#fbbf24'} rx="3" />
-        {/* Corner Nails */}
-        <circle cx="4" cy="4" r="1.5" fill="#78350f" />
-        <circle cx="28" cy="4" r="1.5" fill="#78350f" />
-        <circle cx="4" cy="28" r="1.5" fill="#78350f" />
-        <circle cx="28" cy="28" r="1.5" fill="#78350f" />
+        <rect x="1" y="1" width="38" height="38" fill={isHit ? '#78350f' : '#d97706'} stroke="#451a03" strokeWidth="2.5" rx="5" />
+        <rect x="3" y="3" width="34" height="34" fill={isHit ? '#92400e' : '#fbbf24'} rx="4" />
+        <rect x="5" y="5" width="30" height="30" fill={isHit ? '#78350f' : '#f59e0b'} rx="3" />
+
+        {/* Corner Bolts */}
+        <circle cx="7" cy="7" r="1.8" fill="#451a03" />
+        <circle cx="33" cy="7" r="1.8" fill="#451a03" />
+        <circle cx="7" cy="33" r="1.8" fill="#451a03" />
+        <circle cx="33" cy="33" r="1.8" fill="#451a03" />
+
         {/* Center Question Mark (?) */}
         {!isHit && (
-          <text x="16" y="23" fill="#78350f" fontSize="20" fontWeight="900" textAnchor="middle" fontFamily="sans-serif">
+          <text x="20" y="28" fill="#ffffff" stroke="#78350f" strokeWidth="1.5" fontSize="24" fontWeight="900" textAnchor="middle" fontFamily="sans-serif">
             ?
           </text>
         )}
@@ -84,95 +110,88 @@ function QuestionBlockSVG({ isHit }) {
   );
 }
 
-// Retro Warp Pipe SVG
+// HD Warp Pipe SVG
 function WarpPipeSVG() {
   return (
-    <div style={{ width: '40px', height: '50px' }}>
-      <svg viewBox="0 0 40 50" style={{ width: '100%', height: '100%', display: 'block' }}>
+    <div style={{ width: '44px', height: '54px', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.25))' }}>
+      <svg viewBox="0 0 44 54" style={{ width: '100%', height: '100%', display: 'block' }}>
+        {/* Dark Inner Hole Shadow */}
+        <ellipse cx="22" cy="6" rx="18" ry="4" fill="#064e3b" />
+        
         {/* Pipe Top Rim */}
-        <rect x="2" y="0" width="36" height="14" fill="#22c55e" stroke="#14532d" strokeWidth="2" rx="2" />
-        <rect x="4" y="2" width="6" height="10" fill="#4ade80" />
+        <rect x="2" y="4" width="40" height="16" fill="#16a34a" stroke="#064e3b" strokeWidth="2.5" rx="3" />
+        <rect x="5" y="6" width="6" height="12" fill="#4ade80" rx="1" />
+        <rect x="13" y="6" width="4" height="12" fill="#22c55e" />
+
         {/* Pipe Main Body */}
-        <rect x="6" y="14" width="28" height="36" fill="#16a34a" stroke="#14532d" strokeWidth="2" />
-        <rect x="8" y="14" width="5" height="36" fill="#4ade80" />
+        <rect x="6" y="20" width="32" height="34" fill="#15803d" stroke="#064e3b" strokeWidth="2.5" />
+        <rect x="9" y="20" width="5" height="34" fill="#4ade80" />
+        <rect x="16" y="20" width="3" height="34" fill="#22c55e" />
       </svg>
     </div>
   );
 }
 
-// Retro Mario Castle & Flagpole SVG
-function FinishCastleSVG() {
-  return (
-    <div style={{ width: '110px', height: '140px', position: 'relative' }}>
-      <svg viewBox="0 0 100 130" style={{ width: '100%', height: '100%', display: 'block' }}>
-        {/* Flagpole Stick */}
-        <rect x="15" y="10" width="4" height="110" fill="#cbd5e1" stroke="#475569" strokeWidth="1" />
-        <circle cx="17" cy="8" r="6" fill="#fbbf24" stroke="#b45309" strokeWidth="1" />
-        {/* Red Flag */}
-        <polygon points="19,14 45,24 19,34" fill="#ef4444" stroke="#991b1b" strokeWidth="1.5" />
-
-        {/* Castle Structure */}
-        <rect x="35" y="60" width="60" height="60" fill="#b45309" stroke="#451a03" strokeWidth="2" />
-        {/* Castle Turret Teeth */}
-        <rect x="35" y="52" width="12" height="8" fill="#92400e" stroke="#451a03" strokeWidth="1.5" />
-        <rect x="59" y="52" width="12" height="8" fill="#92400e" stroke="#451a03" strokeWidth="1.5" />
-        <rect x="83" y="52" width="12" height="8" fill="#92400e" stroke="#451a03" strokeWidth="1.5" />
-        {/* Castle Doorway */}
-        <path d="M 52 120 L 52 90 A 12 12 0 0 1 76 90 L 76 120 Z" fill="#0f172a" stroke="#451a03" strokeWidth="2" />
-      </svg>
-    </div>
-  );
-}
-
-// 8-bit Brick Block SVG (Khối gạch nâu đỏ)
+// HD Brick Block SVG
 function BrickBlockSVG() {
   return (
-    <div style={{ width: '32px', height: '32px', filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.3))' }}>
-      <svg viewBox="0 0 32 32" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
-        <rect x="0" y="0" width="32" height="32" fill="#c05621" stroke="#451a03" strokeWidth="2" rx="2" />
-        <rect x="2" y="2" width="28" height="28" fill="#ea580c" rx="1" />
-        <rect x="4" y="4" width="24" height="24" fill="#9a3412" />
-        {/* Mortar Lines */}
-        <line x1="0" y1="10" x2="32" y2="10" stroke="#451a03" strokeWidth="2" />
-        <line x1="0" y1="21" x2="32" y2="21" stroke="#451a03" strokeWidth="2" />
-        <line x1="16" y1="0" x2="16" y2="10" stroke="#451a03" strokeWidth="2" />
-        <line x1="8" y1="10" x2="8" y2="21" stroke="#451a03" strokeWidth="2" />
-        <line x1="24" y1="10" x2="24" y2="21" stroke="#451a03" strokeWidth="2" />
-        <line x1="16" y1="21" x2="16" y2="32" stroke="#451a03" strokeWidth="2" />
+    <div style={{ width: '36px', height: '36px', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.3))' }}>
+      <svg viewBox="0 0 40 40" style={{ width: '100%', height: '100%', display: 'block' }}>
+        <rect x="1" y="1" width="38" height="38" fill="#9a3412" stroke="#451a03" strokeWidth="2.5" rx="3" />
+        <rect x="3" y="3" width="34" height="34" fill="#c05621" rx="2" />
+        
+        {/* Mortar Brick Lines */}
+        <line x1="1" y1="13" x2="39" y2="13" stroke="#451a03" strokeWidth="2.5" />
+        <line x1="1" y1="26" x2="39" y2="26" stroke="#451a03" strokeWidth="2.5" />
+        
+        <line x1="20" y1="1" x2="20" y2="13" stroke="#451a03" strokeWidth="2.5" />
+        <line x1="10" y1="13" x2="10" y2="26" stroke="#451a03" strokeWidth="2.5" />
+        <line x1="30" y1="13" x2="30" y2="26" stroke="#451a03" strokeWidth="2.5" />
+        <line x1="20" y1="26" x2="20" y2="39" stroke="#451a03" strokeWidth="2.5" />
+
+        {/* Highlights */}
+        <line x1="3" y1="3" x2="37" y2="3" stroke="#ea580c" strokeWidth="1.5" />
+        <line x1="3" y1="3" x2="3" y2="37" stroke="#ea580c" strokeWidth="1.5" />
       </svg>
     </div>
   );
 }
 
-// 8-bit Goomba Enemy SVG (Quái Nấm Goomba)
+// HD Goomba Enemy SVG (Quái Nấm Goomba)
 function GoombaEnemySVG({ isSquished }) {
   return (
     <div style={{
-      width: '28px',
-      height: '28px',
-      transform: isSquished ? 'scaleY(0.25) translateY(18px)' : 'none',
-      transition: 'transform 0.3s ease',
-      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+      width: '38px',
+      height: '38px',
+      transform: isSquished ? 'scaleY(0.25) translateY(28px)' : 'none',
+      transition: 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+      filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))'
     }}>
-      <svg viewBox="0 0 16 16" style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated' }}>
-        {/* Head Cap */}
-        <rect x="5" y="1" width="6" height="1" fill="#78350f" />
-        <rect x="4" y="2" width="8" height="2" fill="#78350f" />
-        <rect x="3" y="4" width="10" height="5" fill="#78350f" />
-        <rect x="2" y="5" width="12" height="3" fill="#9a3412" />
-        {/* Eyebrows */}
-        <rect x="4" y="6" width="3" height="1" fill="#000" />
-        <rect x="9" y="6" width="3" height="1" fill="#000" />
-        {/* Eyes */}
-        <rect x="5" y="7" width="2" height="2" fill="#fff" />
-        <rect x="9" y="7" width="2" height="2" fill="#fff" />
-        <rect x="6" y="7" width="1" height="2" fill="#000" />
-        <rect x="9" y="7" width="1" height="2" fill="#000" />
+      <svg viewBox="0 0 64 64" style={{ width: '100%', height: '100%', display: 'block' }}>
+        {/* Goomba Mushroom Cap (Head) */}
+        <path d="M 32 4 C 12 4, 4 22, 6 36 C 20 42, 44 42, 58 36 C 60 22, 52 4, 32 4 Z" fill="#78350f" stroke="#0f172a" strokeWidth="2.5" />
+        <path d="M 32 8 C 16 8, 8 22, 10 33 C 22 37, 42 37, 54 33 C 56 22, 48 8, 32 8 Z" fill="#9a3412" />
+
         {/* Stem Body */}
-        <rect x="5" y="9" width="6" height="3" fill="#fde047" />
-        {/* Feet */}
-        <rect x="3" y="12" width="4" height="3" fill="#000" />
-        <rect x="9" y="12" width="4" height="3" fill="#000" />
+        <path d="M 20 34 C 20 50, 44 50, 44 34 Z" fill="#fde047" stroke="#0f172a" strokeWidth="2" />
+
+        {/* Angry Eyebrows */}
+        <path d="M 14 22 L 28 27 L 27 29 L 13 25 Z" fill="#000000" />
+        <path d="M 50 22 L 36 27 L 37 29 L 51 25 Z" fill="#000000" />
+
+        {/* Oval Eyes */}
+        <ellipse cx="22" cy="30" rx="4" ry="6.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
+        <ellipse cx="42" cy="30" rx="4" ry="6.5" fill="#ffffff" stroke="#000000" strokeWidth="1.2" />
+        <ellipse cx="23.5" cy="30" rx="2" ry="3.8" fill="#000000" />
+        <ellipse cx="40.5" cy="30" rx="2" ry="3.8" fill="#000000" />
+
+        {/* Sharp White Fangs */}
+        <polygon points="20,36 24,36 22,32" fill="#ffffff" stroke="#000000" strokeWidth="1" />
+        <polygon points="40,36 44,36 42,32" fill="#ffffff" stroke="#000000" strokeWidth="1" />
+
+        {/* Black Feet */}
+        <path d="M 10 48 C 10 42, 28 42, 28 52 C 28 56, 10 56, 10 48 Z" fill="#18181b" stroke="#000000" strokeWidth="2" />
+        <path d="M 54 48 C 54 42, 36 42, 36 52 C 36 56, 54 56, 54 48 Z" fill="#18181b" stroke="#000000" strokeWidth="2" />
       </svg>
     </div>
   );
