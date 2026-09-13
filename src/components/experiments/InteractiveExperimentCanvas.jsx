@@ -79,12 +79,20 @@ function AlcoholLampAssembly({ x = 250, y = 245, isHeating = false, temp = 25, s
 
 function TempControlBar({ temp = 25, setTemp, isHeating = false, setIsHeating }) {
   const handleSliderChange = (val) => {
-    const num = Number(val);
+    const num = Math.min(1000, Math.max(25, Number(val)));
     if (setTemp) setTemp(num);
     if (setIsHeating) {
       if (num > 30 && !isHeating) setIsHeating(true);
       if (num <= 25 && isHeating) setIsHeating(false);
     }
+  };
+
+  const handleDecrease = () => {
+    handleSliderChange(temp - 10);
+  };
+
+  const handleIncrease = () => {
+    handleSliderChange(temp + 10);
   };
 
   const handleToggleBurner = () => {
@@ -98,42 +106,67 @@ function TempControlBar({ temp = 25, setTemp, isHeating = false, setIsHeating })
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px',
-      background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '12px',
-      padding: '8px 14px', flexShrink: 0
+      background: 'linear-gradient(135deg, #091a28 0%, #1e1b4b 100%)',
+      border: '1.5px solid rgba(245, 158, 11, 0.6)', borderRadius: '14px',
+      padding: '10px 16px', flexShrink: 0, boxShadow: '0 4px 20px rgba(245, 158, 11, 0.25)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fde047', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
-          🔥 ĐIỀU CHỈNH NHIỆT ĐỘ:
+        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+          🔥 BẢNG ĐIỀU CHỈNH NHIỆT ĐỘ (°C):
         </span>
-        <span style={{ fontSize: '1.02rem', fontWeight: 900, color: temp > 100 ? '#ef4444' : temp > 30 ? '#f97316' : '#38bdf8', fontFamily: 'monospace', minWidth: '65px' }}>
+        <span style={{ fontSize: '1.1rem', fontWeight: 900, color: temp > 100 ? '#ef4444' : temp > 30 ? '#f97316' : '#38bdf8', fontFamily: 'monospace', minWidth: '70px', textShadow: '0 0 10px rgba(249,115,22,0.6)' }}>
           {temp.toFixed(1)} °C
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, maxWidth: '360px', minWidth: '180px' }}>
+      {/* Incremental [-] and [+] Buttons */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button 
+          onClick={handleDecrease}
+          title="Giảm 10°C"
+          style={{
+            background: 'rgba(2, 132, 199, 0.3)', border: '1px solid #0284c7', color: '#38bdf8',
+            borderRadius: '8px', padding: '5px 12px', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          ➖ Giảm (-10°)
+        </button>
+
         <input 
           type="range" min="25" max="1000" step="5" value={temp} 
           onChange={(e) => handleSliderChange(e.target.value)} 
-          style={{ flex: 1, accentColor: '#f97316', cursor: 'pointer', height: '6px' }}
+          style={{ flex: 1, accentColor: '#f97316', cursor: 'pointer', height: '8px', minWidth: '120px' }}
         />
+
+        <button 
+          onClick={handleIncrease}
+          title="Tăng 10°C"
+          style={{
+            background: 'rgba(239, 68, 68, 0.3)', border: '1px solid #ef4444', color: '#fca5a5',
+            borderRadius: '8px', padding: '5px 12px', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+          }}
+        >
+          ➕ Tăng (+10°)
+        </button>
       </div>
 
+      {/* Preset Temperature Buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
-        <button onClick={() => handleSliderChange(25)} style={{ background: temp === 25 ? '#0284c7' : '#1e293b', border: '1px solid #0284c7', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => handleSliderChange(25)} style={{ background: temp === 25 ? '#0284c7' : '#1e293b', border: '1px solid #0284c7', color: '#fff', padding: '4px 9px', borderRadius: '6px', fontSize: '0.73rem', fontWeight: 800, cursor: 'pointer' }}>
           ❄️ 25°C
         </button>
-        <button onClick={() => handleSliderChange(100)} style={{ background: temp === 100 ? '#d97706' : '#1e293b', border: '1px solid #d97706', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => handleSliderChange(100)} style={{ background: temp === 100 ? '#d97706' : '#1e293b', border: '1px solid #d97706', color: '#fff', padding: '4px 9px', borderRadius: '6px', fontSize: '0.73rem', fontWeight: 800, cursor: 'pointer' }}>
           💧 100°C
         </button>
-        <button onClick={() => handleSliderChange(500)} style={{ background: temp === 500 ? '#ea580c' : '#1e293b', border: '1px solid #ea580c', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => handleSliderChange(500)} style={{ background: temp === 500 ? '#ea580c' : '#1e293b', border: '1px solid #ea580c', color: '#fff', padding: '4px 9px', borderRadius: '6px', fontSize: '0.73rem', fontWeight: 800, cursor: 'pointer' }}>
           🔥 500°C
         </button>
-        <button onClick={() => handleSliderChange(1000)} style={{ background: temp === 1000 ? '#dc2626' : '#1e293b', border: '1px solid #dc2626', color: '#fff', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}>
+        <button onClick={() => handleSliderChange(1000)} style={{ background: temp === 1000 ? '#dc2626' : '#1e293b', border: '1px solid #dc2626', color: '#fff', padding: '4px 9px', borderRadius: '6px', fontSize: '0.73rem', fontWeight: 800, cursor: 'pointer' }}>
           ⚡ 1000°C
         </button>
       </div>
-
       <button 
         onClick={handleToggleBurner}
         style={{
@@ -1054,6 +1087,8 @@ function ChemistrySandboxSim({ onLog, onSensorUpdate }) {
         border: '1px solid rgba(255, 255, 255, 0.12)', display: 'flex', flexDirection: 'column', gap: '10px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.5)', flexShrink: 0
       }}>
+        {/* Prominent High-Visibility Temperature Control Bar */}
+        <TempControlBar temp={customTemp} setTemp={setCustomTemp} isHeating={isHeating} setIsHeating={setIsHeating} />
         
         {/* TOP ROW: ALWAYS VISIBLE MAIN ACTION BUTTONS */}
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', borderBottom: '1px solid rgba(255,255,255,0.08)', pb: '8px' }}>
