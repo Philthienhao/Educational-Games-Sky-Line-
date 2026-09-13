@@ -4644,11 +4644,44 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
             padding: '8px 16px', boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
             flexShrink: 0
           }}>
-            {/* Temp Sensor */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Temp Sensor & Interactive Temperature Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.15)', padding: '4px 10px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
               <Flame size={18} color="#f97316" />
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Nhiệt độ:</span>
-              <span style={{ fontSize: '0.9rem', color: '#fde047', fontWeight: 900, fontFamily: 'monospace' }}>{sensorData.temp.toFixed(1)} °C</span>
+              <span style={{ fontSize: '0.75rem', color: '#fde047', fontWeight: 800 }}>Nhiệt độ:</span>
+              <span style={{ fontSize: '0.92rem', color: '#ffffff', fontWeight: 900, fontFamily: 'monospace', minWidth: '65px' }}>{sensorData.temp.toFixed(1)} °C</span>
+              
+              {/* Quick +/- temperature buttons and slider directly in the header sensor bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                <button
+                  onClick={() => {
+                    const newT = Math.max(25, sensorData.temp - 10);
+                    handleSensorUpdate({ temp: newT });
+                  }}
+                  title="Giảm 10°C"
+                  style={{ background: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  ➖ 10°
+                </button>
+
+                <input
+                  type="range" min="25" max="1000" step="5"
+                  value={sensorData.temp}
+                  onChange={(e) => handleSensorUpdate({ temp: Number(e.target.value) })}
+                  style={{ accentColor: '#f97316', cursor: 'pointer', width: '85px', height: '6px' }}
+                  title="Kéo thanh trượt để tùy chỉnh nhiệt độ"
+                />
+
+                <button
+                  onClick={() => {
+                    const newT = Math.min(1000, sensorData.temp + 10);
+                    handleSensorUpdate({ temp: newT });
+                  }}
+                  title="Tăng 10°C"
+                  style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  ➕ 10°
+                </button>
+              </div>
             </div>
 
             {/* pH Sensor */}
