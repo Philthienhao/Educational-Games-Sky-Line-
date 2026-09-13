@@ -886,12 +886,24 @@ function ChemistrySandboxSim({ onLog, onSensorUpdate }) {
               <ellipse cx="0" cy={liquidFillY} rx="78" ry="8" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
             )}
 
-            {/* Rising Steam Clouds when Heating Liquid */}
+            {/* Rising Steam Clouds & Active Boiling Water Bubbles when Heating Liquid */}
             {isHeating && rx.hasLiquidSolution && (
-              <g transform="translate(0, -90)">
-                <path d="M -30 0 Q -20 -15 -25 -30 T -35 -50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="4" strokeLinecap="round" style={{ animation: 'steamRise 2s infinite ease-out' }} />
-                <path d="M 0 0 Q 10 -15 5 -30 T 15 -50" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="5" strokeLinecap="round" style={{ animation: 'steamRise 2.4s infinite ease-out 0.4s' }} />
-                <path d="M 30 0 Q 40 -15 35 -30 T 45 -50" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="4" strokeLinecap="round" style={{ animation: 'steamRise 1.8s infinite ease-out 0.8s' }} />
+              <g>
+                {/* Rising Steam Clouds above beaker */}
+                <g transform="translate(0, -90)">
+                  <path d="M -30 0 Q -20 -15 -25 -30 T -35 -50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="4" strokeLinecap="round" style={{ animation: 'steamRise 2s infinite ease-out' }} />
+                  <path d="M 0 0 Q 10 -15 5 -30 T 15 -50" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="5" strokeLinecap="round" style={{ animation: 'steamRise 2.4s infinite ease-out 0.4s' }} />
+                  <path d="M 30 0 Q 40 -15 35 -30 T 45 -50" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="4" strokeLinecap="round" style={{ animation: 'steamRise 1.8s infinite ease-out 0.8s' }} />
+                </g>
+
+                {/* Animated Water Boiling Bubbles inside liquid */}
+                <g transform={`translate(0, ${liquidFillY + 25})`}>
+                  <circle cx="-50" cy="30" r="5" fill="rgba(255,255,255,0.85)" style={{ animation: 'boilingBubble 1.1s infinite ease-in-out' }} />
+                  <circle cx="-25" cy="45" r="7" fill="rgba(255,255,255,0.9)" style={{ animation: 'boilingBubble 0.8s infinite ease-in-out 0.3s' }} />
+                  <circle cx="0" cy="20" r="6" fill="rgba(255,255,255,0.8)" style={{ animation: 'boilingBubble 1.0s infinite ease-in-out 0.6s' }} />
+                  <circle cx="25" cy="40" r="8" fill="rgba(255,255,255,0.95)" style={{ animation: 'boilingBubble 1.3s infinite ease-in-out 0.2s' }} />
+                  <circle cx="50" cy="25" r="5" fill="rgba(255,255,255,0.8)" style={{ animation: 'boilingBubble 0.9s infinite ease-in-out 0.5s' }} />
+                </g>
               </g>
             )}
 
