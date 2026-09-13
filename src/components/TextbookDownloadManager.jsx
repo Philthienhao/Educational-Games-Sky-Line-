@@ -21,7 +21,7 @@ const GRADE_DRIVE_MAP = {
   'Lớp 12': 'https://drive.google.com/drive/folders/1zbW3nydN65mavsdP2mGz3jGVR0vNH8rO?usp=drive_link',
 };
 
-export function TextbookDownloadManager({ searchTerm = '' }) {
+export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab }) {
   const [selectedGrade, setSelectedGrade] = useState('Tất cả');
   const [selectedSubject, setSelectedSubject] = useState('Tất cả các môn');
   const [localSearch, setLocalSearch] = useState('');
@@ -399,27 +399,51 @@ export function TextbookDownloadManager({ searchTerm = '' }) {
             Tải về đầy đủ 203 cuốn Sách Giáo Khoa chuẩn định dạng tệp PDF gốc (.pdf) nguyên bản của NXB Giáo Dục Việt Nam. Mở trực tiếp thư mục chuẩn của từng Khối Lớp trong Google Drive.
           </p>
 
-          <a
-            href={GOOGLE_DRIVE_SGK_FOLDER_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-              background: '#ffffff',
-              color: '#0d9488',
-              padding: '12px 24px',
-              borderRadius: '16px',
-              fontWeight: 900,
-              fontSize: '0.95rem',
-              textDecoration: 'none',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
-              transition: 'all 0.2s'
-            }}
-          >
-            <CloudDownload size={20} color="#0d9488" /> ☁️ Mở Thư Mục Google Drive Kho Sách Gốc Tổng
-          </a>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <a
+              href={GOOGLE_DRIVE_SGK_FOLDER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: '#ffffff',
+                color: '#0d9488',
+                padding: '12px 22px',
+                borderRadius: '16px',
+                fontWeight: 900,
+                fontSize: '0.92rem',
+                textDecoration: 'none',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <CloudDownload size={20} color="#0d9488" /> Mở Thư Mục Google Drive Gốc
+            </a>
+
+            {onOpenVirtualLab && (
+              <button
+                onClick={onOpenVirtualLab}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  color: '#2dd4bf',
+                  border: '1.5px solid rgba(45, 212, 191, 0.5)',
+                  padding: '12px 22px',
+                  borderRadius: '16px',
+                  fontWeight: 900,
+                  fontSize: '0.92rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                }}
+              >
+                <Sparkles size={18} color="#2dd4bf" /> 🧪 Xem Thí Nghiệm Trực Quan Từ SGK
+              </button>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', background: 'rgba(255,255,255,0.15)', padding: '16px 24px', borderRadius: '20px', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>

@@ -5,6 +5,7 @@ import {
   Users, 
   BookOpen, 
   Presentation,
+  FlaskConical,
   Shield, 
   UserCheck, 
   PlusCircle, 
@@ -210,6 +211,14 @@ export function Sidebar({
               >
                 <BookOpen size={18} />
                 <span>Tải File SGK</span>
+              </button>
+
+              <button 
+                className={`sidebar-nav-btn ${activeTab === 'virtual-lab' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('virtual-lab'); if (isMobileOpen) setIsMobileOpen(false); }}
+              >
+                <FlaskConical size={18} />
+                <span>Thí Nghiệm Trực Quan</span>
               </button>
 
               <button 

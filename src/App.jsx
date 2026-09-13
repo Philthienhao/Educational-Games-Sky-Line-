@@ -32,6 +32,7 @@ import { AdminCreateGameModal } from './components/AdminCreateGameModal';
 import { ClassroomPlayModal } from './components/ClassroomPlayModal';
 import { TextbookDownloadManager } from './components/TextbookDownloadManager';
 import { LectureSlideManager } from './components/LectureSlideManager';
+import { VirtualLabManager } from './components/VirtualLabManager';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import StudentPickerManager from './components/StudentPickerManager';
@@ -414,7 +415,12 @@ export function App() {
 
         {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
         {activeTab === 'textbook-download' && (
-          <TextbookDownloadManager searchTerm={searchTerm} />
+          <TextbookDownloadManager searchTerm={searchTerm} onOpenVirtualLab={() => setActiveTab('virtual-lab')} />
+        )}
+
+        {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
+        {activeTab === 'virtual-lab' && (
+          <VirtualLabManager currentUser={currentUser} />
         )}
 
         {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}

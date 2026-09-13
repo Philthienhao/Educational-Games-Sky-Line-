@@ -50,7 +50,19 @@ class GlobalErrorBoundary extends React.Component {
           </p>
           <button
             onClick={() => {
-              window.location.reload();
+              try {
+                if ('caches' in window) {
+                  caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                  });
+                }
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(r => r.unregister());
+                  });
+                }
+              } catch (e) {}
+              window.location.reload(true);
             }}
             style={{
               background: 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)',

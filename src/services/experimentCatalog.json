@@ -1,0 +1,1487 @@
+[
+  {
+    "id": "exp_chem_sandbox_00",
+    "title": "🧪 Phòng Thí Nghiệm Mở (Sandbox Nguyên Tố & Hóa Chất Tự Chọn)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Mô Phỏng Tự Do - GDPT 2018 (Open Element Sandbox Lab)",
+    "objective": "Tự do thêm nguyên tố kim loại (Na, K, Fe, Cu, Zn, Mg, Al), rót nước H2O, thêm dung dịch acid/base, đun nóng và tự động xuất hiện Phương trình Hóa học cân bằng.",
+    "equipment": [
+      "Cốc thủy tinh chia độ 250ml",
+      "Đèn cồn đun nóng",
+      "Khay Nguyên Tố Kim Loại (Na, K, Fe, Cu, Zn, Mg, Al)",
+      "Khay Dung Dịch (H2O, HCl, H2SO4, NaOH, CuSO4, AgNO3)",
+      "Chất chỉ thị (Phenolphthalein, Quỳ tím)",
+      "Cảm biến nhiệt độ & pHProbe real-time"
+    ],
+    "steps": [
+      "1. Chọn nguyên tố hoặc chất hóa học từ khay reagent thả vào cốc nghiệm.",
+      "2. Bấm '💧 Rót Nước H2O' hoặc thêm dung dịch thích hợp.",
+      "3. Bật ngọn lửa Đèn Cồn để đun nóng chất phản ứng.",
+      "4. Quan sát hiện tượng biến đổi, sủi bọt, đổi màu và đọc Phương Trình Hóa Học tự động hiển thị!"
+    ],
+    "phenomenon": "Xuất hiện bọt khí effervescence, kết tủa keo màu, hiện tượng đổi màu chỉ thị, sự thay đổi nhiệt độ & pH real-time.",
+    "explanation": "Hệ thống tự động nhận diện các chất tham gia phản ứng trong cốc và truy xuất PTHH cân bằng chuẩn mực kèm log hiện tượng khoa học.",
+    "interactiveType": "chemistry_sandbox"
+  },
+  {
+    "id": "exp_khtn_6_01",
+    "title": "Phân biệt Hỗn hợp đồng nhất & Hỗn hợp không đồng nhất",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 4: Hỗn hợp - Tách chất ra khỏi hỗn hợp (KHTN 6)",
+    "objective": "Phân biệt được dung dịch (hỗn hợp đồng nhất) và huyền phù/nhũ tương (hỗn hợp không đồng nhất).",
+    "equipment": [
+      "2 Cốc thủy tinh",
+      "Nước cất",
+      "Đường kính",
+      "Dầu ăn",
+      "Thìa khuấy"
+    ],
+    "steps": [
+      "1. Rót 50ml nước vào 2 cốc thủy tinh (1) và (2).",
+      "2. Cho 1 thìa đường vào cốc (1), khuấy đều. Cho 1 thìa dầu ăn vào cốc (2), khuấy đều.",
+      "3. Quan sát trạng thái hỗn hợp ở 2 cốc sau 2 phút."
+    ],
+    "phenomenon": "Cốc (1) đường tan hoàn toàn tạo dung dịch trong suốt đồng nhất. Cốc (2) dầu ăn không tan, nổi thành lớp phía trên tạo hỗn hợp không đồng nhất.",
+    "explanation": "Đường là chất phân cực tan tốt trong nước. Dầu ăn không phân cực nên không tan trong nước, nhẹ hơn nước nên nổi lên trên.",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "sugar",
+          "name": "Đường + Nước"
+        },
+        {
+          "id": "oil",
+          "name": "Dầu ăn + Nước"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_khtn_6_02",
+    "title": "Tách muối ăn khỏi nước muối bằng phương pháp cô cạn",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 4: Tách chất ra khỏi hỗn hợp (KHTN 6)",
+    "objective": "Hiểu và thực hành tách chất rắn tan ra khỏi dung dịch bằng phương pháp cô cạn.",
+    "equipment": [
+      "Bát sứ cô cạn",
+      "Đèn cồn",
+      "Kiềng đun & lưới tản nhiệt",
+      "Dung dịch nước muối NaCl",
+      "Kẹp gỗ"
+    ],
+    "steps": [
+      "1. Rót 10ml dung dịch nước muối vào bát sứ.",
+      "2. Đặt bát sứ lên lưới tản nhiệt trên kiềng đun.",
+      "3. Dùng đèn cồn đun sôi dung dịch đến khi nước bay hơi hoàn toàn."
+    ],
+    "phenomenon": "Nước sôi bay hơi mãnh liệt, khi nước bay hơi hết thu được các tinh thể muối ăn NaCl màu trắng bám ở đáy bát sứ.",
+    "explanation": "Nước có nhiệt độ sôi 100°C dễ bay hơi, còn muối NaCl có nhiệt độ sôi rất cao (1465°C) nên ở lại đáy bát sứ.",
+    "interactiveType": "chemistry_flame_burn",
+    "simulationConfig": {
+      "material": "Dung dịch Nước muối NaCl",
+      "product": "Tinh thể NaCl màu trắng"
+    }
+  },
+  {
+    "id": "exp_khtn_6_03",
+    "title": "Quan sát Tế bào Biểu bì Vảy Hành tây dưới Kính hiển vi",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 5: Tế bào - Đơn vị cơ sở của sự sống (KHTN 6)",
+    "objective": "Quan sát cấu trúc tế bào thực vật: vách tế bào, màng sinh chất, nhân tế bào.",
+    "equipment": [
+      "Kính hiển vi quang học",
+      "Củ hành tây tươi",
+      "Lam kính, lamelle",
+      "Kim tiêm",
+      "Dung dịch Lugol (Iốt)"
+    ],
+    "steps": [
+      "1. Tách mảng biểu bì vảy hành mỏng đặt lên lam kính có 1 giọt nước.",
+      "2. Nhỏ 1 giọt dung dịch Lugol để nhuộm màu nhân tế bào rồi đậy lamelle.",
+      "3. Đặt lam kính lên kính hiển vi, quan sát ở độ phóng đại x10 và x40."
+    ],
+    "phenomenon": "Xuất hiện các tế bào hình nhiều cạnh xếp sát nhau như tường gạch, vách tế bào dày, nhân bắt màu nâu đậm.",
+    "explanation": "Tế bào thực vật có vách xenlulozo định hình khung tế bào. Nhân bắt màu Iốt mạnh giúp dễ dàng nhận biết.",
+    "interactiveType": "biology_microscope",
+    "simulationConfig": {
+      "sampleType": "onion_skin",
+      "magnifications": [
+        10,
+        40,
+        100
+      ]
+    }
+  },
+  {
+    "id": "exp_khtn_6_04",
+    "title": "Khảo sát Sự giãn nở vì nhiệt của Chất lỏng (Nước & Cồn)",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 2: Các thể của chất - Sự chuyển thể (KHTN 6)",
+    "objective": "Quan sát sự thay đổi thể tích của chất lỏng khi nhiệt độ thay đổi.",
+    "equipment": [
+      "Bình cầu thủy tinh cắm ống thuỷ tinh nhỏ",
+      "Nước màu đỏ",
+      "Cốc nước nóng",
+      "Cốc nước đá"
+    ],
+    "steps": [
+      "1. Cho nước màu đầy bình cầu cắm ống thủy tinh nhỏ sao cho mực nước dâng lên một đoạn trong ống.",
+      "2. Đặt bình cầu vào cốc nước nóng 70°C, quan sát mực nước trong ống.",
+      "3. Chuyển bình cầu sang cốc nước đá 0°C, quan sát mực nước."
+    ],
+    "phenomenon": "Ngâm nước nóng: mực nước dâng cao lên trong ống. Ngâm nước đá: mực nước hạ thấp xuống.",
+    "explanation": "Chất lỏng nở ra khi nóng lên và co lại khi lạnh đi.",
+    "interactiveType": "physics_circuit",
+    "simulationConfig": {
+      "mode": "thermal_expansion"
+    }
+  },
+  {
+    "id": "exp_khtn_7_01",
+    "title": "Đo Tốc độ Chuyển động bằng Cổng Quang Điện & Đồng hồ Hiện số",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 7,
+    "chapter": "Chương 2: Tốc độ chuyển động (KHTN 7)",
+    "objective": "Xác định tốc độ chuyển động v = s / t bằng thiết bị đo hiện đại.",
+    "equipment": [
+      "Máng bệ đỡ nằm ngang",
+      "Xe tích hợp tấm chắn sáng",
+      "2 Cổng quang điện A và B",
+      "Đồng hồ đo thời gian hiện số"
+    ],
+    "steps": [
+      "1. Lắp 2 cổng quang điện A và B cách nhau khoảng s = 0.5m.",
+      "2. Bật đồng hồ đo thời gian hiện số ở chế độ đo thời gian qua 2 cổng.",
+      "3. Thả xe chạy qua cổng A đến cổng B, đọc thời gian t trên đồng hồ.",
+      "4. Tính tốc độ v = s / t."
+    ],
+    "phenomenon": "Đồng hồ tự động đo thời gian chênh lệch khi tấm chắn xe cắt qua cổng A và cổng B chính xác đến 1/1000s.",
+    "explanation": "Cổng quang điện sử dụng cảm biến hồng ngoại. Khi xe đi qua, tấm chắn ngắt chùm tia hồng ngoại kích hoạt đồng hồ bấm giờ.",
+    "interactiveType": "physics_circuit",
+    "simulationConfig": {
+      "mode": "speed_measurement"
+    }
+  },
+  {
+    "id": "exp_khtn_7_02",
+    "title": "Khảo sát Định luật Phản xạ Ánh sáng trên Gương phẳng",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 7,
+    "chapter": "Chương 3: Ánh sáng - Phản xạ ánh sáng (KHTN 7)",
+    "objective": "Xác định vị trí tia phản xạ và chứng minh góc phản xạ i' bằng góc tới i.",
+    "equipment": [
+      "Gương phẳng thẳng đứng",
+      "Nguồn phát tia Laser",
+      "Bảng chia độ tròn",
+      "Pháp tuyến NN'"
+    ],
+    "steps": [
+      "1. Đặt gương phẳng vuông góc với mặt bảng chia độ.",
+      "2. Chiếu tia tới SI hợp với pháp tuyến NN' một góc tới i (ví dụ 30°, 45°).",
+      "3. Quan sát vệt tia phản xạ IR nằm trên mặt phẳng chứa tia tới và đo góc i'."
+    ],
+    "phenomenon": "Tia phản xạ IR nằm trong cùng mặt phẳng tới và góc phản xạ i' luôn luôn đúng bằng góc tới i.",
+    "explanation": "Định luật phản xạ ánh sáng: Tia phản xạ nằm trong mặt phẳng tới. Góc phản xạ bằng góc tới (i' = i).",
+    "interactiveType": "physics_refraction",
+    "simulationConfig": {
+      "mode": "reflection",
+      "defaultIncidentAngle": 45
+    }
+  },
+  {
+    "id": "exp_khtn_7_03",
+    "title": "Nhận biết Acid & Base bằng Quỳ tím & Phenolphthalein",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 7,
+    "chapter": "Chương 8: Acid - Base - Chỉ thị màu (KHTN 7)",
+    "objective": "Quan sát sự đổi màu của chất chỉ thị khi tiếp xúc với dung dịch Acid (HCl) và Base (NaOH).",
+    "equipment": [
+      "Ống nghiệm",
+      "Giấy quỳ tím",
+      "Dung dịch Phenolphthalein",
+      "Dung dịch HCl 1M",
+      "Dung dịch NaOH 1M"
+    ],
+    "steps": [
+      "1. Nhúng giấy quỳ tím vào ống nghiệm chứa dung dịch HCl và ống nghiệm chứa NaOH.",
+      "2. Nhỏ 2 giọt Phenolphthalein vào từng ống nghiệm.",
+      "3. Quan sát sự thay đổi màu sắc."
+    ],
+    "phenomenon": "HCl: Quỳ tím hóa ĐỎ, Phenolphthalein KHÔNG đổi màu. NaOH: Quỳ tím hóa XANH, Phenolphthalein hóa HỒNG ĐẬM.",
+    "explanation": "Quỳ tím đổi màu đỏ trong môi trường Acid (pH < 7) và xanh trong môi trường Base (pH > 7). Phenolphthalein đổi màu hồng tím trong môi trường Base.",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "hcl",
+          "name": "HCl"
+        },
+        {
+          "id": "naoh",
+          "name": "NaOH"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_khtn_7_04",
+    "title": "Chứng minh Sự Quang hợp ở Cây xanh tạo thành Tinh bột",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 7,
+    "chapter": "Chương 6: Trao đổi chất & Chuyển hóa năng lượng (KHTN 7)",
+    "objective": "Chứng minh lá cây tổng hợp tinh bột khi có ánh sáng mặt trời.",
+    "equipment": [
+      "Chậu cây khoai lang",
+      "Băng giấy đen",
+      "Cồn 90°",
+      "Dung dịch Lugol (Iốt)",
+      "Cốc đun thủy tinh"
+    ],
+    "steps": [
+      "1. Dùng băng giấy đen bịt một phần lá cây ở cả 2 mặt trong 2 ngày.",
+      "2. Ngắt lá đun sôi trong cồn 90° để tẩy sạch diệp lục.",
+      "3. Rửa lá bằng nước rồi nhỏ dung dịch Lugol (Iốt) lên khắp bề mặt lá."
+    ],
+    "phenomenon": "Phần lá không bị che bọc chuyển sang màu XANH TÍM ĐẬM (chứa tinh bột). Phần bị che giấy đen không chuyển màu.",
+    "explanation": "Quang hợp tạo ra Glucose và được tích trữ dưới dạng Tinh bột. Tinh bột tác dụng với Iốt tạo màu xanh tím.",
+    "interactiveType": "biology_microscope",
+    "simulationConfig": {
+      "sampleType": "starch_test"
+    }
+  },
+  {
+    "id": "exp_khtn_8_01",
+    "title": "Phản ứng giữa Kẽm (Zn) và Acid HCl sinh ra Khí Hydro (H2)",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Chương 2: Kim loại & Phản ứng với Acid (KHTN 8)",
+    "objective": "Quan sát kim loại tan trong acid giải phóng khí Hydro.",
+    "equipment": [
+      "Ống nghiệm",
+      "Viên Kẽm (Zn)",
+      "Dung dịch HCl 2M",
+      "Que nhóm lửa"
+    ],
+    "steps": [
+      "1. Cho 1-2 viên Kẽm sạch vào ống nghiệm.",
+      "2. Rót 3ml dung dịch HCl 2M vào ống nghiệm.",
+      "3. Đốt khí thoát ra ở miệng ống nghiệm."
+    ],
+    "phenomenon": "Viên kẽm tan dần, bọt khí H2 thoát ra mãnh liệt. Đưa ngọn lửa lại gần miệng ống nghe tiếng nổ bốp nhỏ.",
+    "explanation": "Phương trình: Zn + 2HCl -> ZnCl2 + H2. Kẽm đứng trước Hydro trong dãy hoạt động hóa học.",
+    "interactiveType": "chemistry_gas_burn",
+    "simulationConfig": {
+      "solid": "Zn",
+      "liquid": "HCl",
+      "gas": "H2"
+    }
+  },
+  {
+    "id": "exp_khtn_8_02",
+    "title": "Phản ứng tạo kết tủa BaSO4 trắng giữa BaCl2 và Na2SO4",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Chương 3: Muối & Phản ứng trao đổi (KHTN 8)",
+    "objective": "Khảo sát phản ứng tạo chất kết tủa không tan trong dung dịch.",
+    "equipment": [
+      "Ống nghiệm",
+      "Dung dịch BaCl2 0.5M",
+      "Dung dịch Na2SO4 0.5M"
+    ],
+    "steps": [
+      "1. Cho 2ml dung dịch Na2SO4 vào ống nghiệm.",
+      "2. Nhỏ từ từ 1ml dung dịch BaCl2 vào.",
+      "3. Quan sát sự xuất hiện chất kết tủa."
+    ],
+    "phenomenon": "Xuất hiện ngay kết tủa màu trắng đục lắng dần xuống đáy ống nghiệm.",
+    "explanation": "Phương trình: BaCl2 + Na2SO4 -> BaSO4 (kết tủa trắng) + 2NaCl. BaSO4 không tan trong nước.",
+    "interactiveType": "chemistry_precipitation",
+    "simulationConfig": {
+      "solutionA": "Na2SO4",
+      "solutionB": "BaCl2",
+      "precipitate": "BaSO4"
+    }
+  },
+  {
+    "id": "exp_khtn_8_03",
+    "title": "Khảo sát Lực đẩy Archimedes trong Chất lỏng",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Chương 5: Lực đẩy Archimedes & Sự nổi (KHTN 8)",
+    "objective": "Chứng minh độ lớn lực đẩy Archimedes F_A bằng trọng lượng phần chất lỏng bị chiếm chỗ.",
+    "equipment": [
+      "Lực kế",
+      "Vật nặng kim loại",
+      "Bình tràn chứa nước",
+      "Cốc chia độ thu nước tràn"
+    ],
+    "steps": [
+      "1. Đo trọng lượng P1 của vật ngoài không khí bằng lực kế.",
+      "2. Nhúng vật ngập trong nước bình tràn, đọc số chỉ P2 trên lực kế. Lực đẩy F_A = P1 - P2.",
+      "3. Đo trọng lượng P_nước phần nước tràn ra cốc chia độ và so sánh với F_A."
+    ],
+    "phenomenon": "Số chỉ lực kế giảm khi nhúng vào nước. Trọng lượng nước tràn ra cốc đúng bằng phần lực kế bị giảm F_A.",
+    "explanation": "Công thức Archimedes: F_A = d * V. Lực đẩy hướng thẳng đứng từ dưới lên bằng trọng lượng chất lỏng bị chiếm chỗ.",
+    "interactiveType": "physics_spring",
+    "simulationConfig": {
+      "mode": "archimedes"
+    }
+  },
+  {
+    "id": "exp_khtn_8_04",
+    "title": "Điều chế & Thu khí Oxygen (O2) bằng phương pháp dời nước",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Chương 1: Phản ứng hóa học & Tốc độ phản ứng (KHTN 8)",
+    "objective": "Điều chế khí Oxygen từ KMnO4 bằng phương pháp nhiệt phân.",
+    "equipment": [
+      "Ống nghiệm chịu nhiệt",
+      "Dụng cụ KMnO4",
+      "Đèn cồn",
+      "Chậu nước & ống nghiệm úp đầy nước",
+      "Que tàn đốm đỏ"
+    ],
+    "steps": [
+      "1. Cho 2g KMnO4 vào ống nghiệm có bông gòn ở miệng.",
+      "2. Lắp ống dẫn khí dẫn vào ống nghiệm úp ngược chứa đầy nước trong chậu.",
+      "3. Đun nóng ống nghiệm chứa KMnO4 bằng đèn cồn.",
+      "4. Khi khí bọt đẩy hết nước ra ngoài, rút ống nghiệm ra đậy kín và thử bằng tàn đốm đỏ."
+    ],
+    "phenomenon": "Khí đẩy nước trào ra khỏi ống nghiệm thu. Đưa tàn đốm đỏ vào miệng ống nghiệm thu được, tàn đốm bùng cháy thành ngọn lửa sáng.",
+    "explanation": "Phương trình: 2KMnO4 -(t°)-> K2MnO4 + MnO2 + O2. Khí Oxygen duy trì sự cháy và ít tan trong nước nên thu bằng phương pháp dời nước.",
+    "interactiveType": "chemistry_flame_burn",
+    "simulationConfig": {
+      "material": "KMnO4",
+      "flameColor": "#ffffff"
+    }
+  },
+  {
+    "id": "exp_khtn_9_01",
+    "title": "Khảo sát Định luật Ohm cho Mạch Điện Nối tiếp & Song song",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Chương 1: Điện học - Định luật Ohm (KHTN 9)",
+    "objective": "Khảo sát mối quan hệ giữa I, U và R trong mạch điện nối tiếp và song song.",
+    "equipment": [
+      "Nguồn điện DC 12V",
+      "2 Bóng đèn R1, R2",
+      "Ampe kế",
+      "Vôn kế",
+      "Công tắc K"
+    ],
+    "steps": [
+      "1. Mắc mạch điện gồm Nguồn + Công tắc + 2 Bóng đèn nối tiếp.",
+      "2. Mắc Ampe kế đo dòng I và Vôn kế đo hiệu điện thế U1, U2.",
+      "3. Đóng công tắc K và đọc số chỉ trên các thiết bị đo."
+    ],
+    "phenomenon": "Mắc nối tiếp: I bằng nhau tại mọi điểm, U = U1 + U2. Đèn sáng đều.",
+    "explanation": "Định luật Ohm: I = U / R. R_tđ = R1 + R2 trong mạch nối tiếp.",
+    "interactiveType": "physics_circuit",
+    "simulationConfig": {
+      "voltage": 12,
+      "resistor1": 10,
+      "resistor2": 10
+    }
+  },
+  {
+    "id": "exp_khtn_9_02",
+    "title": "Hiện tượng Cảm ứng Điện từ với Nam châm & Cuộn dây",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Chương 2: Điện từ học - Cảm ứng điện từ (KHTN 9)",
+    "objective": "Quan sát dòng điện cảm ứng xuất hiện khi từ thông biến thiên qua cuộn dây kín.",
+    "equipment": [
+      "Cuộn dây dẫn kín",
+      "Nam châm vĩnh cửu",
+      "Điện kế G (Ampe kế nhạy mA)"
+    ],
+    "steps": [
+      "1. Nối hai đầu cuộn dây dẫn với Điện kế G.",
+      "2. Đưa cực nam châm chuyển động nhanh vào trong lòng cuộn dây.",
+      "3. Rút nam châm ra ngoài cuộn dây và quan sát kim điện kế G."
+    ],
+    "phenomenon": "Khi nam châm chuyển động vào hoặc ra, kim điện kế G lệch khỏi vạch số 0. Khi nam châm đứng yên, kim quay về 0.",
+    "explanation": "Sự chuyển động của nam châm làm từ thông qua cuộn dây biến thiên, sinh ra dòng điện cảm ứng.",
+    "interactiveType": "physics_circuit",
+    "simulationConfig": {
+      "mode": "induction"
+    }
+  },
+  {
+    "id": "exp_khtn_9_03",
+    "title": "Kim loại Đồng (Cu) phản ứng với Dung dịch AgNO3",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Chương 3: Kim loại & Dãy hoạt động hóa học (KHTN 9)",
+    "objective": "Chứng minh kim loại mạnh đẩy kim loại yếu hơn ra khỏi dung dịch muối.",
+    "equipment": [
+      "Ống nghiệm",
+      "Lá đồng Cu sạch",
+      "Dung dịch AgNO3 1%"
+    ],
+    "steps": [
+      "1. Cho 3ml dung dịch AgNO3 vào ống nghiệm.",
+      "2. Nhúng một đoạn dây đồng Cu vào dung dịch.",
+      "3. Quan sát sau 5 phút."
+    ],
+    "phenomenon": "Bề mặt lá đồng phủ một lớp tinh thể Bạc (Ag) màu trắng bạc lấp lánh. Dung dịch ban đầu không màu chuyển dần sang màu xanh lam của Cu(NO3)2.",
+    "explanation": "Phương trình: Cu + 2AgNO3 -> Cu(NO3)2 (xanh lam) + 2Ag. Cu đứng trước Ag trong dãy hoạt động hóa học.",
+    "interactiveType": "chemistry_silver_mirror",
+    "simulationConfig": {
+      "silverCoating": true
+    }
+  },
+  {
+    "id": "exp_khtn_9_04",
+    "title": "Điều chế & Thử tính chất cháy của Khí Acetylene (C2H2)",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Chương 5: Hydrocarbon - Alkyne (KHTN 9)",
+    "objective": "Điều chế khí Acetylene từ đất đèn CaC2 và thử tính chất cháy.",
+    "equipment": [
+      "Bình cầu nhánh",
+      "Đất đèn (CaC2)",
+      "Phễu nhỏ giọt chứa H2O",
+      "Dung dịch Brom (Br2)",
+      "Que đốt ngọn lửa"
+    ],
+    "steps": [
+      "1. Cho vài viên đất đèn CaC2 vào bình cầu nhánh.",
+      "2. Nhỏ từng giọt nước từ phễu nhỏ giọt xuống CaC2.",
+      "3. Dẫn khí C2H2 sinh ra qua dung dịch Brom nhạt màu.",
+      "4. Đốt khí C2H2 ở đầu ống dẫn."
+    ],
+    "phenomenon": "Phản ứng tỏa nhiệt mạnh sinh ra khí C2H2. Khí C2H2 làm mất màu dung dịch Brom da cam. Đốt C2H2 cháy với ngọn lửa sáng có ít muội than.",
+    "explanation": "CaC2 + 2H2O -> Ca(OH)2 + C2H2. C2H2 chứa liên kết ba C≡C phản ứng cộng làm mất màu dung dịch Brom.",
+    "interactiveType": "chemistry_gas_burn",
+    "simulationConfig": {
+      "gas": "C2H2"
+    }
+  },
+  {
+    "id": "exp_chem9_fe_o2",
+    "title": "Đốt dây sắt trong oxygen (Fe + O2)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Kim loại & Phản ứng đốt cháy trong Oxygen (KHTN 9)",
+    "objective": "Quan sát hiện tượng sắt cháy trong bình chứa khí oxygen rực rỡ và viết PTHH tạo Fe3O4.",
+    "equipment": ["Dây sắt uốn lò xo", "Mẩu than hồng", "Đèn cồn", "Bình chứa khí O2", "Nút cao su", "Đế đựng sản phẩm"],
+    "steps": [
+      "1. Quấn dây sắt thành hình lò xo, kẹp mẩu than nhỏ ở đầu.",
+      "2. Đốt nóng đỏ mẩu than trên ngọn lửa đèn cồn.",
+      "3. Đưa nhanh dây sắt đang nóng đỏ vào bình chứa khí oxygen."
+    ],
+    "phenomenon": "Dây sắt cháy sáng bùng lên dữ dội, bắn ra các tia lửa sáng rực rỡ như pháo hoa, tạo khối chất rắn màu nâu đen (Fe3O4) bám ở thành và đáy bình.",
+    "explanation": "Phương trình hóa học: 3Fe + 2O₂ → Fe₃O₄ (t°). Phản ứng tỏa lượng nhiệt cực lớn.",
+    "interactiveType": "chem9_fe_o2"
+  },
+  {
+    "id": "exp_chem9_al_o2",
+    "title": "Đốt bột nhôm trong oxygen (Al + O2)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Tính chất hóa học của Kim loại (KHTN 9)",
+    "objective": "Thực hiện thí nghiệm đốt cháy bột nhôm trong không khí/oxygen tạo Al2O3.",
+    "equipment": ["Bột nhôm (Al)", "Đèn cồn", "Thìa lấy hóa chất"],
+    "steps": [
+      "1. Dùng thìa lấy một ít bột nhôm khô.",
+      "2. Rắc từ từ bột nhôm lên ngọn lửa đèn cồn.",
+      "3. Quan sát hiện tượng cháy rực rỡ."
+    ],
+    "phenomenon": "Bột nhôm cháy sáng chói lóa phát ra các hạt hoa lửa trắng lấp lánh, tạo bột chất rắn màu trắng Al2O3 rơi xuống.",
+    "explanation": "Phương trình hóa học: 4Al + 3O₂ → 2Al₂O₃ (t°). Nhôm có tính kim loại mạnh và khả năng phản ứng mãnh liệt với oxygen.",
+    "interactiveType": "chem9_al_o2"
+  },
+  {
+    "id": "exp_chem9_na_cl2",
+    "title": "Natri tác dụng với khí chlorine (Na + Cl2)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Kim loại tác dụng với Phi kim (KHTN 9)",
+    "objective": "Quan sát phản ứng giữa kim loại kiềm Natri và phi kim Chlorine tạo muối ăn NaCl.",
+    "equipment": ["Mẩu Natri (Na)", "Bình chứa khí Chlorine (Cl2 màu vàng nhạt)", "Thìa đun kim loại", "Đèn cồn"],
+    "steps": [
+      "1. Cho mẩu Natri nhỏ lên thìa đun kim loại.",
+      "2. Đun nóng chảy mẩu Natri trên ngọn lửa đèn cồn.",
+      "3. Đưa nhanh mẩu Natri đang nóng chảy vào bình chứa khí Chlorine."
+    ],
+    "phenomenon": "Natri cháy rực rỡ trong khí chlorine với ngọn lửa màu vàng chói, tạo làn khói trắng cuồn cuộn kết tinh thành các hạt tinh thể NaCl màu trắng bám vào bình.",
+    "explanation": "Phương trình hóa học: 2Na + Cl₂ → 2NaCl (t°). Phản ứng oxy hóa - khử tỏa nhiều nhiệt.",
+    "interactiveType": "chem9_na_cl2"
+  },
+  {
+    "id": "exp_chem9_fe_cl2",
+    "title": "Sắt tác dụng với khí chlorine (Fe + Cl2)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Sắt tác dụng với Phi kim (KHTN 9)",
+    "objective": "Nghiên cứu phản ứng của sắt với phi kim chlorine tạo muối sắt(III) chloride.",
+    "equipment": ["Dây sắt uốn lò xo", "Đèn cồn", "Bình chứa khí Cl2 màu vàng", "Cốc nước cất"],
+    "steps": [
+      "1. Đốt nóng đỏ đầu dây sắt trên ngọn lửa đèn cồn.",
+      "2. Đưa nhanh dây sắt nóng đỏ vào bình chứa khí Chlorine.",
+      "3. Sau khi phản ứng dừng, rót một ít nước cất vào bình và lắc nhẹ."
+    ],
+    "phenomenon": "Dây sắt cháy mạnh rực rỡ trong khí chlorine tạo luồng khói màu nâu đỏ (FeCl3). Rót nước vào lắc đều thu được dung dịch màu nâu vàng.",
+    "explanation": "Phương trình hóa học: 2Fe + 3Cl₂ → 2FeCl₃ (t°). Sắt bị oxy hóa lên số oxy hóa cao nhất +3.",
+    "interactiveType": "chem9_fe_cl2"
+  },
+  {
+    "id": "exp_chem9_na_h2o",
+    "title": "Natri tác dụng với nước (Na + H2O)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Kim loại kiềm tác dụng với Nước (KHTN 9)",
+    "objective": "Quan sát phản ứng mãnh liệt của Natri với nước và tác dụng làm đổi màu chất chỉ thị Phenolphthalein.",
+    "equipment": ["Cốc thủy tinh chứa nước", "Mẩu Natri bằng hạt đậu", "Panh kẹp", "Dung dịch Phenolphthalein"],
+    "steps": [
+      "1. Nhỏ vài giọt Phenolphthalein vào cốc nước cất.",
+      "2. Dùng panh kẹp mẩu Natri nhỏ thả vào cốc nước.",
+      "3. Quan sát sự chuyển động, bọt khí và màu sắc dung dịch."
+    ],
+    "phenomenon": "Natri nóng chảy thành viên tròn vo chạy nhảy mãnh liệt trên mặt nước, sủi bọt khí H2 dồn dập, viên Na phát ra ngọn lửa màu cam/vàng. Dung dịch chuyển sang màu HỒNG TÍM rực rỡ.",
+    "explanation": "Phương trình hóa học: 2Na + 2H₂O → 2NaOH + H₂↑. Dung dịch NaOH tạo ra có tính base làm phenolphthalein hóa hồng.",
+    "interactiveType": "chem9_na_h2o"
+  },
+  {
+    "id": "exp_chem9_fe_cuso4",
+    "title": "Sắt tác dụng với dung dịch Copper(II) sulfate (Fe + CuSO4)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 18: Kim loại tác dụng với Dung dịch Muối (KHTN 9)",
+    "objective": "Chứng minh kim loại Sắt đẩy kim loại Đồng ra khỏi dung dịch muối CuSO4.",
+    "equipment": ["Đinh sắt sạch", "Dung dịch CuSO4 màu xanh lam", "Ống nghiệm"],
+    "steps": [
+      "1. Rót 5 ml dung dịch CuSO4 vào ống nghiệm.",
+      "2. Thả đinh sắt đã lau sạch gỉ vào ống nghiệm.",
+      "3. Quan sát sự đổi màu của đinh sắt và dung dịch sau 5-10 phút."
+    ],
+    "phenomenon": "Bề mặt đinh sắt được bọc một lớp kim loại Đồng (Cu) màu đỏ nâu. Màu xanh lam của dung dịch CuSO4 nhạt dần chuyển sang màu xanh lục nhạt của FeSO4.",
+    "explanation": "Phương trình hóa học: Fe + CuSO₄ → FeSO₄ + Cu. Sắt hoạt động hóa học mạnh hơn Đồng.",
+    "interactiveType": "chem9_fe_cuso4"
+  },
+  {
+    "id": "exp_chem9_survey_water",
+    "title": "Khảo sát mức độ phản ứng của Na, Fe, Cu với nước",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 19: Dãy hoạt động hóa học của Kim loại (KHTN 9)",
+    "objective": "So sánh khả năng phản ứng với nước của các kim loại Na, Fe, Cu để xếp vào dãy hoạt động hóa học.",
+    "equipment": ["Mẩu Na", "Đinh Fe", "Dây Cu", "3 Ống nghiệm đựng nước cất"],
+    "steps": [
+      "1. Chuẩn bị 3 ống nghiệm chứa nước cất.",
+      "2. Cho mẩu Na vào ống (1), đinh Fe vào ống (2), dây Cu vào ống (3).",
+      "3. Quan sát và so sánh hiện tượng ở 3 ống nghiệm."
+    ],
+    "phenomenon": "Ống (1) chứa Na phản ứng mãnh liệt, sủi bọt khí H2; Ống (2) chứa Fe và Ống (3) chứa Cu hoàn toàn không phản ứng với nước ở nhiệt độ thường.",
+    "explanation": "Natri là kim loại kiềm rất mạnh. Sắt và Đồng kém hoạt động hơn không phản ứng với nước ở điều kiện thường.",
+    "interactiveType": "chem9_survey_water"
+  },
+  {
+    "id": "exp_chem9_survey_hcl",
+    "title": "Khảo sát phản ứng của Fe và Cu với dung dịch Acid HCl",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 19: Kim loại tác dụng với Dung dịch Acid (KHTN 9)",
+    "objective": "So sánh khả năng tác dụng với dung dịch acid HCl của Fe (đứng trước H) và Cu (đứng sau H).",
+    "equipment": ["Đinh sắt Fe", "Dây đồng Cu", "2 Ống nghiệm", "Dung dịch HCl 1M"],
+    "steps": [
+      "1. Rót 3 ml dung dịch HCl vào 2 ống nghiệm.",
+      "2. Cho đinh Fe vào ống (1), dây Cu vào ống (2).",
+      "3. Quan sát lượng bọt khí thoát ra ở 2 ống."
+    ],
+    "phenomenon": "Ống (1) chứa Fe sủi bọt khí H2 liên tục, đinh sắt tan dần tạo dung dịch nhạt màu. Ống (2) chứa Cu không có hiện tượng (không phát sinh bọt khí).",
+    "explanation": "Phương trình hóa học: Fe + 2HCl → FeCl₂ + H₂↑. Cu đứng sau Hydrogen trong dãy hoạt động nên không phản ứng với HCl.",
+    "interactiveType": "chem9_survey_hcl"
+  },
+  {
+    "id": "exp_chem9_cu_agno3",
+    "title": "So sánh Cu và Ag bằng dung dịch AgNO3",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 19: So sánh mức độ hoạt động của Kim loại (KHTN 9)",
+    "objective": "Chứng minh Đồng hoạt động hóa học mạnh hơn Bạc thông qua phản ứng với AgNO3.",
+    "equipment": ["Dây Cu uốn lò xo", "Dung dịch AgNO3 2% không màu", "Ống nghiệm"],
+    "steps": [
+      "1. Rót 4 ml dung dịch AgNO3 vào ống nghiệm.",
+      "2. Đưa dây Cu vào ngâm trong dung dịch.",
+      "3. Quan sát tinh thể bám trên dây Cu và màu dung dịch."
+    ],
+    "phenomenon": "Kim loại Bạc (Ag) màu trắng bạc lấp lánh bám chùm lên dây Cu. Dung dịch ban đầu không màu chuyển dần sang màu xanh lam của Cu(NO3)2.",
+    "explanation": "Phương trình hóa học: Cu + 2AgNO₃ → Cu(NO₃)₂ + 2Ag. Cu mạnh hơn Ag nên đẩy Ag ra khỏi dung dịch muối.",
+    "interactiveType": "chem9_cu_agno3"
+  },
+  {
+    "id": "exp_chem9_charcoal_adsorption",
+    "title": "Khảo sát tính hấp phụ chất màu của Bột Than Gỗ",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 21: Carbon & Tính hấp phụ của Than gỗ (KHTN 9)",
+    "objective": "Nghiên cứu tính chất hấp phụ vật lý của than gỗ đối với các chất màu tan trong nước.",
+    "equipment": ["Phễu thủy tinh", "Bông lót", "Bột than gỗ", "Dung dịch nước màu (mực/phẩm màu)", "Cốc hứng"],
+    "steps": [
+      "1. Lót một ít bông ở cổ phễu, sau đó cho bột than gỗ lên trên.",
+      "2. Đặt phễu trên cốc hứng thủy tinh.",
+      "3. Rót dung dịch nước màu từ từ qua lớp bột than gỗ."
+    ],
+    "phenomenon": "Dung dịch nước màu khi đi qua cột than gỗ bị giữ lại chất màu; dung dịch chảy xuống cốc hứng trở nên hoàn toàn trong suốt hoặc nhạt màu rõ rệt.",
+    "explanation": "Than gỗ (Carbon hoạt tính) có bề mặt xốp với vô số lỗ nhỏ li ti hấp phụ các phân tử chất màu trên bề mặt.",
+    "interactiveType": "chem9_charcoal_adsorption"
+  },
+  {
+    "id": "exp_chem9_butane_combustion",
+    "title": "Tìm hiểu phản ứng cháy của Butane (C4H10)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 23: Alkane & Phản ứng cháy của Butane (KHTN 9)",
+    "objective": "Quan sát phản ứng đốt cháy alkane Butane tỏa nhiệt và xác định sản phẩm CO2 bằng nước vôi trong.",
+    "equipment": ["Bật lửa gas chứa Butane", "Bình tam giác chịu nhiệt", "Dung dịch nước vôi trong Ca(OH)2"],
+    "steps": [
+      "1. Đốt bật lửa gas Butane tạo ngọn lửa màu xanh.",
+      "2. Úp bình tam giác phía trên ngọn lửa để thu sản phẩm cháy.",
+      "3. Rót 5 ml dung dịch nước vôi trong Ca(OH)2 vào bình tam giác và lắc nhẹ."
+    ],
+    "phenomenon": "Gas Butane cháy với ngọn lửa màu xanh lam tỏa nhiệt mạnh. Dung dịch nước vôi trong trong bình chuyển sang vẩn đục trắng CaCO3.",
+    "explanation": "Phương trình: 2C₄H₁₀ + 13O₂ → 8CO₂ + 10H₂O; CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O.",
+    "interactiveType": "chem9_butane_combustion"
+  },
+  {
+    "id": "exp_chem9_ethylene_br2",
+    "title": "Điều chế và thử tính chất làm mất màu nước Bromine của Ethylene",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 24: Alkenes & Phản ứng cộng của Ethylene (KHTN 9)",
+    "objective": "Điều chế khí Ethylene C2H4 từ cồn và H2SO4 đặc, chứng minh tính chất làm mất màu nước Bromine.",
+    "equipment": ["Bình cầu có nhánh", "Cồn C2H5OH 96°", "H2SO4 đặc", "Đá bọt", "Đèn cồn", "Ống nghiệm chứa nước Bromine (Br2 màu da cam)"],
+    "steps": [
+      "1. Cho C2H5OH, H2SO4 đặc và đá bọt vào bình cầu có nhánh.",
+      "2. Đun nóng hỗn hợp trên ngọn lửa đèn cồn đến 170°C.",
+      "3. Dẫn khí Ethylene (C2H4) sinh ra sục vào ống nghiệm chứa nước Bromine màu da cam."
+    ],
+    "phenomenon": "Khí C2H4 thoát ra sục vào nước Bromine làm dung dịch nước Bromine màu da cam bị mất màu hoàn toàn trở thành trong suốt.",
+    "explanation": "Phương trình: C₂H₅OH → C₂H₄ + H₂O (H2SO4 đặc, 170°C); C₂H₄ + Br₂ → C₂H₄Br₂ (1,2-dibromoethane không màu).",
+    "interactiveType": "chem9_ethylene_br2"
+  },
+  {
+    "id": "exp_chem9_alcohol_combustion",
+    "title": "Tìm hiểu phản ứng cháy của Ethylic Alcohol (C2H5OH)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 26: Ethylic Alcohol - Phản ứng cháy (KHTN 9)",
+    "objective": "Thực hiện phản ứng đốt cháy ethylic alcohol quan sát ngọn lửa và nhiệt lượng tỏa ra.",
+    "equipment": ["Ethylic alcohol (cồn 96°)", "Bát sứ", "Que đóm / Bật lửa"],
+    "steps": [
+      "1. Cho khoảng 2 ml ethylic alcohol vào bát sứ sạch.",
+      "2. Dùng que đóm châm cháy cồn.",
+      "3. Quan sát màu sắc ngọn lửa và thành bát sứ."
+    ],
+    "phenomenon": "Ethylic alcohol cháy nhanh với ngọn lửa màu xanh lam mờ dịu nhẹ, tỏa lượng nhiệt lớn. Bát sứ sạch hoàn toàn không bị bám muội đen.",
+    "explanation": "Phương trình hóa học: C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O (t°). Phản ứng tỏa nhiệt mạnh.",
+    "interactiveType": "chem9_alcohol_combustion"
+  },
+  {
+    "id": "exp_chem9_alcohol_na",
+    "title": "Phản ứng giữa Natri và Ethylic Alcohol (C2H5OH + Na)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 26: Ethylic Alcohol tác dụng với Natri (KHTN 9)",
+    "objective": "Nghiên cứu phản ứng thế nguyên tử H trong nhóm -OH của cồn bằng kim loại Natri.",
+    "equipment": ["Ethylic alcohol tuyệt đối (khan)", "Mẩu Natri", "Ống nghiệm", "Panh kẹp"],
+    "steps": [
+      "1. Rót 4 ml ethylic alcohol khan vào ống nghiệm.",
+      "2. Dùng panh kẹp mẩu Natri thả vào ống nghiệm.",
+      "3. Quan sát vị trí mẩu Na và tốc độ thoát khí."
+    ],
+    "phenomenon": "Mẩu Natri chìm xuống đáy ống nghiệm (do khối lượng riêng Na lớn hơn cồn), bọt khí H2 thoát ra chậm rãi trên bề mặt mẩu Na.",
+    "explanation": "Phương trình hóa học: 2C₂H₅OH + 2Na → 2C₂H₅ONa + H₂↑ (Natri ethylate). Phản ứng xảy ra êm dịu hơn so với Na + H2O.",
+    "interactiveType": "chem9_alcohol_na"
+  },
+  {
+    "id": "exp_chem9_acetic_acid_properties",
+    "title": "Khảo sát tính chất hóa học của Acetic Acid (CH3COOH)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 27: Acetic Acid & Tính acid hữu cơ (KHTN 9)",
+    "objective": "Khảo sát đầy đủ tính chất của acid hữu cơ CH3COOH với chất chỉ thị, kim loại, oxide base, base và muối carbonate.",
+    "equipment": ["Dung dịch CH3COOH 10%", "Giấy quỳ tím", "Kim loại Mg", "Bột CuO màu đen", "Dung dịch NaOH + Phenolphthalein", "Đá vôi CaCO3"],
+    "steps": [
+      "1. Nhúng giấy quỳ tím vào CH3COOH.",
+      "2. Thả dây Mg vào CH3COOH.",
+      "3. Cho bột CuO đen vào CH3COOH và đun nhẹ.",
+      "4. Cho CH3COOH vào dung dịch NaOH có phenolphthalein màu hồng.",
+      "5. Cho CH3COOH vào ống nghiệm đựng đá vôi CaCO3."
+    ],
+    "phenomenon": "Quỳ tím hóa ĐỎ; Mg sủi bọt khí H2; Bột CuO đen tan hết tạo dung dịch màu XANH LAM; Dung dịch NaOH hồng bị MẤT MÀU; Đá vôi CaCO3 tan và sủi bọt khí CO2 dồn dập.",
+    "explanation": "CH3COOH mang đầy đủ tính chất của một acid: 2CH3COOH + Mg -> (CH3COO)2Mg + H2; 2CH3COOH + CuO -> (CH3COO)2Cu + H2O; CH3COOH + NaOH -> CH3COONa + H2O; 2CH3COOH + CaCO3 -> (CH3COO)2Ca + CO2 + H2O.",
+    "interactiveType": "chem9_acetic_acid_properties"
+  },
+  {
+    "id": "exp_chem9_glucose_silver_mirror",
+    "title": "Phản ứng Tráng Bạc của Glucose (Glucodơ + AgNO3/NH3)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 29: Carbohydrate - Glucose & Phản ứng tráng bạc (KHTN 9)",
+    "objective": "Thực hiện phản ứng tráng bạc đặc trưng của Glucose chứng minh có nhóm chức aldehyde -CHO.",
+    "equipment": ["Dung dịch Glucose 10%", "Dung dịch AgNO3 1%", "Dung dịch NH3 5%", "Cốc nước nóng (70-80°C)", "Ống nghiệm sạch"],
+    "steps": [
+      "1. Cho 2 ml AgNO3 vào ống nghiệm, nhỏ NH3 từ từ đến khi kết tủa tan hết.",
+      "2. Cho thêm 2 ml dung dịch Glucose vào ống nghiệm.",
+      "3. Ngâm ống nghiệm vào cốc nước nóng 70-80°C trong 5 phút."
+    ],
+    "phenomenon": "Lớp kim loại BẠC sáng bóng như gương bám chặt rực rỡ lên thành trong của ống nghiệm.",
+    "explanation": "Phương trình: C₆H₁₂O₆ + Ag₂O → C₆H₁₂O₇ + 2Ag↓ (dung dịch NH3, t°). Glucose khử phức bạc tạo Bạc kim loại bám lên thủy tinh.",
+    "interactiveType": "chem9_glucose_silver_mirror"
+  },
+  {
+    "id": "exp_chem9_starch_iodine",
+    "title": "Phản ứng màu của Hồ Tinh Bột với Dung dịch Iodine",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 30: Tinh bột & Phản ứng đặc trưng với Iodine (KHTN 9)",
+    "objective": "Nhận biết hồ tinh bột bằng dung dịch Iodine và quan sát ảnh hưởng của nhiệt độ đến phản ứng màu.",
+    "equipment": ["Hồ tinh bột", "Dung dịch Iodine (I2)", "Ống nghiệm", "Đèn cồn"],
+    "steps": [
+      "1. Cho 3 ml hồ tinh bột vào ống nghiệm.",
+      "2. Nhỏ 2 giọt dung dịch Iodine vào ống nghiệm.",
+      "3. Đun nóng nhẹ ống nghiệm trên ngọn lửa đèn cồn, sau đó để nguội."
+    ],
+    "phenomenon": "Nhỏ Iodine vào hồ tinh bột xuất hiện màu XANH TÍM đặc trưng. Đun nóng thì màu xanh tím biến mất. Để nguội màu xanh tím xuất hiện trở lại.",
+    "explanation": "Các phân tử Iodine chui vào các xoắn của chuỗi tinh bột tạo phức màu xanh tím. Khi đun nóng các xoắn duỗi ra giải phóng I2 nên mất màu, để nguội xoắn lại tạo màu xanh tím.",
+    "interactiveType": "chem9_starch_iodine"
+  },
+  {
+    "id": "exp_chem9_starch_hydrolysis",
+    "title": "Thủy phân Tinh Bột bằng Acid (Thử với Iodine)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 30: Phản ứng thủy phân Tinh bột (KHTN 9)",
+    "objective": "Chứng minh sự thủy phân tinh bột trong môi trường acid đun nóng tạo thành Glucose.",
+    "equipment": ["Hồ tinh bột", "Dung dịch HCl 2M", "Dung dịch Iodine", "2 Ống nghiệm", "Cốc nước sôi"],
+    "steps": [
+      "1. Cho hồ tinh bột vào 2 ống nghiệm (1) và (2).",
+      "2. Thêm 1 ml dung dịch HCl vào ống (1). Đặt cả 2 ống vào cốc nước sôi 10 phút.",
+      "3. Để nguội rồi nhỏ vài giọt dung dịch Iodine vào 2 ống nghiệm."
+    ],
+    "phenomenon": "Ống (2) đối chứng xuất hiện màu XANH TÍM với Iodine. Ống (1) đã đun với HCl KHÔNG còn chuyển màu xanh tím (dung dịch giữ nguyên màu trong suốt).",
+    "explanation": "Phương trình: (C₆H₁₀O₅)♮ + nH₂O → nC₆H₁₂O₆ (HCl, t°). Tinh bột đã bị phân cắt hoàn toàn thành các phân tử Glucose nhỏ nên không còn tạo màu xanh tím.",
+    "interactiveType": "chem9_starch_hydrolysis"
+  },
+  {
+    "id": "exp_chem9_protein_properties",
+    "title": "Thí nghiệm về Tính chất Đông tụ & Phân hủy của Protein",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Bài 31: Protein - Sự biến tính & đông tụ (KHTN 9)",
+    "objective": "Quan sát hiện tượng đông tụ protein dưới tác dụng của acid/nhiệt độ và phản ứng cháy tỏa mùi khét.",
+    "equipment": ["Dung dịch lòng trắng trứng (Albumin)", "Dung dịch HCl 1M", "3 Ống nghiệm", "Đèn cồn", "Kẹp gỗ"],
+    "steps": [
+      "1. Cho 3 ml dung dịch lòng trắng trứng vào 3 ống nghiệm (1), (2), (3).",
+      "2. Thêm 1 ml HCl vào ống (1). Đun nóng nhẹ ống (2). Đun mạnh khô đáy ống (3)."
+    ],
+    "phenomenon": "Ống (1) và (2) xuất hiện kết tủa trắng vón cục (đông tụ Protein). Ống (3) đun mạnh bốc khói đen và tỏa MÙI KHÉT đặc trưng như cháy tóc.",
+    "explanation": "Protein bị biến tính và mất tính tan dưới tác dụng của acid mạnh hoặc nhiệt độ cao. Khi bị đốt cháy mạnh, thành phần N và S trong hợp chất hữu cơ sinh ra các khí có mùi khét.",
+    "interactiveType": "chem9_protein_properties"
+  },
+  {
+    "id": "exp_chem_10_01",
+    "title": "Thử màu Ngọn lửa của các Ion Kim loại Kiềm (Na+, K+, Ca2+)",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 10,
+    "chapter": "Chương 1: Cấu tạo nguyên tử & Phổ phát xạ (Hóa 10)",
+    "objective": "Nhận biết các cation kim loại dựa vào màu sắc đặc trưng khi đốt trên ngọn lửa.",
+    "equipment": [
+      "Dây Bạch kim (Pt) / Dây Niken-Crom",
+      "Đèn cồn / Ngọn lửa Gas",
+      "Dung dịch NaCl, KCl, CaCl2",
+      "Acid HCl đậm đặc để rửa dây"
+    ],
+    "steps": [
+      "1. Rửa sạch dây Pt bằng acid HCl rồi nung trên ngọn lửa đèn cồn đến khi không làm đổi màu ngọn lửa.",
+      "2. Nhúng đầu dây Pt vào dung dịch NaCl rồi đưa vào ngọn lửa.",
+      "3. Lặp lại thí nghiệm với KCl và CaCl2."
+    ],
+    "phenomenon": "Na+ làm ngọn lửa cháy màu VÀNG TƯƠI. K+ làm ngọn lửa cháy màu TÍM NHẠT (quan sát qua kính kính tím). Ca2+ làm ngọn lửa màu ĐỎ GẠCH.",
+    "explanation": "Khi bị đốt nóng, các electron hấp thụ năng lượng lên mức năng lượng cao rồi nhảy về mức cơ bản, giải phóng bức xạ ánh sáng có bước sóng đặc trưng.",
+    "interactiveType": "chemistry_flame_burn",
+    "simulationConfig": {
+      "material": "Na+ / K+ / Ca2+",
+      "flameColor": "#f59e0b"
+    }
+  },
+  {
+    "id": "exp_chem_10_02",
+    "title": "Phản ứng Oxi hóa - Khử giữa Kẽm (Zn) và Dung dịch CuSO4",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 10,
+    "chapter": "Chương 4: Phản ứng Oxi hóa - Khử (Hóa 10)",
+    "objective": "Khảo sát quá trình nhường và nhận electron giữa chất khử (Zn) và chất oxi hóa (Cu2+).",
+    "equipment": [
+      "Ống nghiệm",
+      "Lá Kẽm Zn",
+      "Dung dịch CuSO4 0.5M (màu xanh lam)"
+    ],
+    "steps": [
+      "1. Cho 3ml dung dịch CuSO4 màu xanh lam vào ống nghiệm.",
+      "2. Cắm lá kẽm Zn vào dung dịch.",
+      "3. Quan sát sự đổi màu của dung dịch và bề mặt lá kẽm sau 10 phút."
+    ],
+    "phenomenon": "Lá kẽm tan dần, bám lớp kim loại Đồng (Cu) màu đỏ thẫm bên ngoài. Màu xanh lam thẫm của dung dịch CuSO4 nhạt dần thành trong suốt (ZnSO4).",
+    "explanation": "Zn nhường 2e (chất khử): Zn -> Zn2+ + 2e. Cu2+ nhận 2e (chất oxi hóa): Cu2+ + 2e -> Cu. Phương trình: Zn + CuSO4 -> ZnSO4 + Cu.",
+    "interactiveType": "chemistry_precipitation",
+    "simulationConfig": {
+      "solutionA": "CuSO4 (Xanh)",
+      "solutionB": "Zn",
+      "precipitate": "Cu (Đỏ)"
+    }
+  },
+  {
+    "id": "exp_chem_10_03",
+    "title": "Nhận biết Halogen (Cl2, Br2, I2) bằng Dung dịch Hồ Tinh Bột",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 10,
+    "chapter": "Chương 5: Nhóm Halogen - Tính chất đặc trưng (Hóa 10)",
+    "objective": "Sử dụng hồ tinh bột để nhận biết đặc hiệu dung dịch Iốt (I2).",
+    "equipment": [
+      "3 Ống nghiệm",
+      "Dung dịch Nước Clo (Cl2)",
+      "Dung dịch Nước Brom (Br2)",
+      "Dung dịch Iốt (I2)",
+      "Dung dịch Hồ tinh bột"
+    ],
+    "steps": [
+      "1. Cho 1ml hồ tinh bột vào 3 ống nghiệm.",
+      "2. Nhỏ lần lượt vài giọt nước Clo vào ống (1), nước Brom vào ống (2) và dung dịch Iốt vào ống (3)."
+    ],
+    "phenomenon": "Chỉ duy nhất ống (3) chứa dung dịch Iốt chuyển sang màu XANH TÍM ĐẬM. Ống Clo và Brom không làm chuyển màu hồ tinh bột.",
+    "explanation": "Phân tử I2 bị hấp phụ vào các hốc xoắn của phân tử Amylose trong tinh bột tạo hợp chất bọc màu xanh tím đặc trưng.",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "iodine",
+          "name": "Iốt + Tinh bột"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_chem_11_01",
+    "title": "Khảo sát Chuyển dịch Cân bằng Hóa học của Hệ N2O4 - NO2",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 11,
+    "chapter": "Chương 1: Cân bằng Hóa học (Hóa 11)",
+    "objective": "Kiểm chứng nguyên lý chuyển dịch cân bằng Le Chatelier khi thay đổi nhiệt độ.",
+    "equipment": [
+      "2 Ống nghiệm kín chứa khí NO2 (nâu đỏ)",
+      "Cốc nước nóng (70°C)",
+      "Cốc nước đá (0°C)"
+    ],
+    "steps": [
+      "1. Chuẩn bị 2 ống nghiệm kín chứa khí NO2 màu nâu đỏ ở nhiệt độ phòng.",
+      "2. Ngâm ống nghiệm (1) vào cốc nước nóng và ngâm ống nghiệm (2) vào cốc nước đá.",
+      "3. So sánh màu sắc khí ở 2 ống nghiệm."
+    ],
+    "phenomenon": "Ống (1) ngâm nước nóng: Khí chuyển sang màu NÂU ĐỎ ĐẬM. Ống (2) ngâm nước đá: Khí nhạt màu dần thành KHÔNG MÀU (N2O4).",
+    "explanation": "Phản ứng: N2O4 (không màu) <=> 2NO2 (nâu đỏ) (delta H > 0, thu nhiệt). Tăng nhiệt độ cân bằng chuyển dịch theo chiều thu nhiệt (tạo NO2 nâu đỏ).",
+    "interactiveType": "chemistry_gas_burn",
+    "simulationConfig": {
+      "gas": "NO2 / N2O4"
+    }
+  },
+  {
+    "id": "exp_chem_11_02",
+    "title": "Thí nghiệm Phun Nước Thử Khí Ammonia (NH3)",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 11,
+    "chapter": "Chương 2: Nitrogen - Ammonia - Acid Nitric (Hóa 11)",
+    "objective": "Chứng minh khí NH3 tan rất nhiều trong nước và dung dịch thu được có tính base.",
+    "equipment": [
+      "Bình cầu chứa đầy khí NH3 khô",
+      "Nút cao su gắn ống thủy tinh vuốt nhọn",
+      "Chậu nước chứa dung dịch Phenolphthalein"
+    ],
+    "steps": [
+      "1. Úp ngược bình cầu chứa khí NH3 nhúng ống thủy tinh vào chậu nước có sẵn Phenolphthalein.",
+      "2. Quan sát hiện tượng nước phun vào bình."
+    ],
+    "phenomenon": "Nước từ chậu phun mạnh vào bình cầu thành tia nước màu HỒNG HỒNG TÍM đẹp mắt.",
+    "explanation": "NH3 tan rất nhiều trong nước (1 lít nước tan 800 lít NH3) tạo áp suất giảm làm nước bị hút phun vào bình. NH3 + H2O <=> NH4+ + OH- làm Phenolphthalein hóa hồng.",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "nh3",
+          "name": "NH3"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_chem_11_03",
+    "title": "Điều chế Este Ethyl Acetate từ Ethanol & Acetic Acid",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 11,
+    "chapter": "Chương 4: Carboxylic Acid & Ester (Hóa 11)",
+    "objective": "Thực hiện phản ứng este hóa giữa acid hữu cơ và alcohol với xúc tác H2SO4 đặc.",
+    "equipment": [
+      "Ống nghiệm",
+      "Ethanol C2H5OH khan",
+      "Acetic Acid CH3COOH nguyên chất",
+      "H2SO4 đặc",
+      "Cốc nước đá thu sản phẩm",
+      "Đèn cồn"
+    ],
+    "steps": [
+      "1. Cho 2ml C2H5OH, 2ml CH3COOH và 1ml H2SO4 đặc vào ống nghiệm.",
+      "2. Đun nhẹ ống nghiệm trên ngọn lửa đèn cồn trong 5 phút.",
+      "3. Rót sản phẩm vào ống nghiệm chứa 5ml dung dịch NaCl bão hòa lạnh."
+    ],
+    "phenomenon": "Sau khi đun, chất lỏng tách thành 2 lớp. Lớp este nhẹ nổi phía trên có mùi thơm dễ chịu đặc trưng của trái cây (Ethyl acetate).",
+    "explanation": "CH3COOH + C2H5OH <=> CH3COOC2H5 + H2O (xúc tác H2SO4 đặc, t°). H2SO4 đặc vừa làm xúc tác vừa hút nước chuyển dịch cân bằng.",
+    "interactiveType": "chemistry_flame_burn",
+    "simulationConfig": {
+      "material": "Este hóa"
+    }
+  },
+  {
+    "id": "exp_chem_12_01",
+    "title": "Phản ứng Tráng Bạc của Glucose với AgNO3 / NH3",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 12,
+    "chapter": "Chương 2: Carbohydrate - Glucose (Hóa 12)",
+    "objective": "Chứng minh nhóm chức Aldehyde (-CHO) trong phân tử Glucose.",
+    "equipment": [
+      "Ống nghiệm sạch",
+      "Dung dịch AgNO3 1%",
+      "Dung dịch NH3 5%",
+      "Dung dịch Glucose 5%",
+      "Cốc nước nóng"
+    ],
+    "steps": [
+      "1. Cho 1ml AgNO3 vào ống nghiệm, nhỏ NH3 đến khi kết tủa tan hết.",
+      "2. Thêm 1ml Glucose vào rồi ngâm ống nghiệm trong cốc nước nóng 5 phút."
+    ],
+    "phenomenon": "Thành trong ống nghiệm phủ lớp kim loại Bạc sáng bóng như gương.",
+    "explanation": "Glucose khử phức [Ag(NH3)2]+ thành Ag bám vào thủy tinh: C6H12O6 + 2AgNO3 + 3NH3 + H2O -> C6H11O7NH4 + 2Ag (tráng gương) + 2NH4NO3.",
+    "interactiveType": "chemistry_silver_mirror",
+    "simulationConfig": {
+      "silverCoating": true
+    }
+  },
+  {
+    "id": "exp_chem_12_02",
+    "title": "Phản ứng Màu Biuret Nhận biết Peptide & Protein",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 12,
+    "chapter": "Chương 3: Peptit & Protein (Hóa 12)",
+    "objective": "Nhận biết liên kết peptide (-CO-NH-) bằng thuốc thử Cu(OH)2.",
+    "equipment": [
+      "Ống nghiệm",
+      "Dung dịch NaOH 10%",
+      "Dung dịch CuSO4 2%",
+      "Lòng trắng trứng (Albumin)"
+    ],
+    "steps": [
+      "1. Cho 1ml NaOH và 2 giọt CuSO4 vào ống nghiệm tạo kết tủa Cu(OH)2 xanh lam.",
+      "2. Cho 2ml dung dịch lòng trắng trứng vào lắc nhẹ."
+    ],
+    "phenomenon": "Kết tủa Cu(OH)2 tan ra, dung dịch chuyển sang màu TÍM TÍM HOA LÝ đặc trưng.",
+    "explanation": "Các liên kết peptide trong protein tạo phức màu tím đặc trưng với Cu2+ trong môi trường kiềm.",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "biuret",
+          "name": "Biuret Test"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_chem_12_03",
+    "title": "Điện phân Dung dịch CuSO4 với Điện cực trơ (Thang Cacbon)",
+    "subject": "Hóa học",
+    "subjectCategory": "Hóa học",
+    "grade": 12,
+    "chapter": "Chương 5: Đại cương về Kim loại - Điện phân (Hóa 12)",
+    "objective": "Khảo sát sự biến đổi hóa học tại cực cathode và anode khi dòng điện một chiều đi qua dung dịch điện phân.",
+    "equipment": [
+      "Bình điện phân U",
+      "2 Điện cực than chì (Cacbon)",
+      "Nguồn điện DC 6V",
+      "Dung dịch CuSO4 1M"
+    ],
+    "steps": [
+      "1. Rót dung dịch CuSO4 xanh lam vào bình U.",
+      "2. Cắm 2 điện cực than chì nối với cực âm (cathode) và cực dương (anode) của nguồn điện DC.",
+      "3. Đóng mạch điện và quan sát trong 10 phút."
+    ],
+    "phenomenon": "Tại cực âm (Cathode): phủ lớp kim loại Đồng (Cu) màu đỏ đồng bám chặt. Tại cực dương (Anode): có bọt khí Oxygen (O2) thoát ra mãnh liệt.",
+    "explanation": "Cathode (-): Cu2+ + 2e -> Cu (bám vào cực). Anode (+): 2H2O -> 4H+ + O2 + 4e. Phương trình điện phân: 2CuSO4 + 2H2O -(điện phân)-> 2Cu + 2H2SO4 + O2.",
+    "interactiveType": "physics_circuit",
+    "simulationConfig": {
+      "mode": "electrolysis"
+    }
+  },
+  {
+    "id": "exp_phys_10_01",
+    "title": "Khảo sát Định luật Hooke về Biến dạng Lò xo",
+    "subject": "Vật lí",
+    "subjectCategory": "Vật lí",
+    "grade": 10,
+    "chapter": "Chương 3: Lực đàn hồi & Định luật Hooke (Vật lí 10)",
+    "objective": "Đo độ giãn delta_l của lò xo theo khối lượng quả tạ treo để xác định độ cứng k.",
+    "equipment": [
+      "Giá thí nghiệm thẳng đứng",
+      "Lò xo nhẹ k",
+      "Thước chia mm",
+      "Bộ quả tạ 50g, 100g, 150g, 200g"
+    ],
+    "steps": [
+      "1. Đo chiều dài l0 của lò xo khi chưa treo tạ.",
+      "2. Treo lần lượt các quả tạ m = 50g, 100g, 150g vào lò xo.",
+      "3. Đo chiều dài l và tính độ giãn delta_l = l - l0.",
+      "4. Vẽ đồ thị Lực đàn hồi F = m*g theo delta_l."
+    ],
+    "phenomenon": "Lò xo giãn dài tỉ lệ thuận với khối lượng quả tạ treo. Đồ thị F theo delta_l là đường thẳng đi qua gốc tọa độ.",
+    "explanation": "Định luật Hooke: F_đh = k * |delta_l|. Trong giới hạn đàn hồi, lực đàn hồi tỉ lệ thuận với độ biến dạng.",
+    "interactiveType": "physics_spring",
+    "simulationConfig": {
+      "k": 50,
+      "l0": 15,
+      "masses": [
+        50,
+        100,
+        150,
+        200
+      ]
+    }
+  },
+  {
+    "id": "exp_phys_10_02",
+    "title": "Khảo sát Chuyển động Rơi tự do & Đo Gia tốc Trọng trường g",
+    "subject": "Vật lí",
+    "subjectCategory": "Vật lí",
+    "grade": 10,
+    "chapter": "Chương 2: Động lực học - Rơi tự do (Vật lí 10)",
+    "objective": "Đo gia tốc trọng trường g = 2h / t^2 bằng cổng quang điện.",
+    "equipment": [
+      "Giá thẳng đứng có thước milimét",
+      "Nam châm điện giữ bi thép",
+      "Bi thép nhỏ",
+      "Cổng quang điện",
+      "Đồng hồ hiện số"
+    ],
+    "steps": [
+      "1. Điều chỉnh độ cao h của cổng quang điện (ví dụ h = 0.4m, 0.6m, 0.8m).",
+      "2. Tắt nam châm điện thả bi thép rơi tự do qua cổng quang điện.",
+      "3. Đọc thời gian rơi t trên đồng hồ và tính gia tốc g."
+    ],
+    "phenomenon": "Quãng đường h tăng tỉ lệ với bình phương thời gian t^2. Giá trị g tính toán được xấp xỉ 9.8 m/s^2.",
+    "explanation": "Chuyển động rơi tự do là chuyển động thẳng nhanh dần đều với vận tốc v0 = 0, công thức s = 1/2 * g * t^2.",
+    "interactiveType": "physics_pendulum",
+    "simulationConfig": {
+      "mode": "free_fall"
+    }
+  },
+  {
+    "id": "exp_phys_11_01",
+    "title": "Khảo sát Định luật Khúc xạ Ánh sáng qua Khối Thủy tinh",
+    "subject": "Vật lí",
+    "subjectCategory": "Vật lí",
+    "grade": 11,
+    "chapter": "Chương 5: Khúc xạ & Phản xạ toàn phần (Vật lí 11)",
+    "objective": "Đo góc khúc xạ r theo góc tới i và tính chiết suất n của thủy tinh.",
+    "equipment": [
+      "Bán trụ thủy tinh trong suốt",
+      "Laser đỏ",
+      "Bảng chia độ tròn"
+    ],
+    "steps": [
+      "1. Đặt bán trụ thủy tinh tại tâm bảng chia độ.",
+      "2. Chiếu tia laser với các góc tới i = 30°, 45°, 60°.",
+      "3. Đọc góc khúc xạ r tương ứng."
+    ],
+    "phenomenon": "Tia sáng bị gãy tại mặt phân cách. Khi đi từ Không khí vào Thủy tinh r luôn nhỏ hơn i.",
+    "explanation": "Định luật Khúc xạ: sin(i) / sin(r) = n2/n1 (n2 = 1.5).",
+    "interactiveType": "physics_refraction",
+    "simulationConfig": {
+      "defaultIncidentAngle": 45,
+      "n1": 1.0,
+      "n2": 1.5
+    }
+  },
+  {
+    "id": "exp_phys_11_02",
+    "title": "Khảo sát Dao động Con lắc Đơn",
+    "subject": "Vật lí",
+    "subjectCategory": "Vật lí",
+    "grade": 11,
+    "chapter": "Chương 1: Dao động cơ - Con lắc đơn (Vật lí 11)",
+    "objective": "Đo chu kỳ T theo chiều dài dây l và gia tốc g.",
+    "equipment": [
+      "Giá treo",
+      "Dây treo l",
+      "Quả cầu vật nặng",
+      "Thước đo l",
+      "Đồng hồ bấm giờ"
+    ],
+    "steps": [
+      "1. Đo chiều dài dây l = 1.0m.",
+      "2. Kéo quả cầu lệch góc alpha < 10° rồi thả tự do.",
+      "3. Đo thời gian t của 10 dao động toàn phần để tính T = t / 10."
+    ],
+    "phenomenon": "Khi tăng chiều dài dây l, chu kỳ T tăng (con lắc dao động chậm hơn).",
+    "explanation": "Chu kỳ T = 2*pi*sqrt(l/g). Chu kỳ chỉ phụ thuộc chiều dài l và gia tốc g.",
+    "interactiveType": "physics_pendulum",
+    "simulationConfig": {
+      "length": 1.0,
+      "gravity": 9.8
+    }
+  },
+  {
+    "id": "exp_phys_12_01",
+    "title": "Khảo sát Thí nghiệm Giao thoa Ánh sáng Y-ơng (Young)",
+    "subject": "Vật lí",
+    "subjectCategory": "Vật lí",
+    "grade": 12,
+    "chapter": "Chương 2: Sóng ánh sáng - Giao thoa ánh sáng (Vật lí 12)",
+    "objective": "Đo khoảng vân i và xác định bước sóng ánh sáng lambda = (a * i) / D.",
+    "equipment": [
+      "Nguồn phát Laser bán dẫn",
+      "Khe Y-ơng kép khoảng cách a = 0.5mm",
+      "Màn quan sát khoảng cách D = 1.5m",
+      "Thước đo khoảng vân micrometer"
+    ],
+    "steps": [
+      "1. Bật nguồn Laser chiếu chùm sáng hẹp qua hai khe Y-ơng kép.",
+      "2. Quan sát hệ thống các vân sáng và vân tối xen kẽ trên màn.",
+      "3. Đo khoảng cách 5 khoảng vân 5i để tính i, từ đó suy ra bước sóng lambda."
+    ],
+    "phenomenon": "Trên màn quan sát thu được một dải gồm các vạch sáng và vạch tối nằm song song, cách đều nhau.",
+    "explanation": "Hiện tượng Giao thoa ánh sáng chứng minh ánh sáng có tính chất sóng. Vân sáng tại d_2 - d_1 = k * lambda.",
+    "interactiveType": "physics_refraction",
+    "simulationConfig": {
+      "mode": "interference"
+    }
+  },
+  {
+    "id": "exp_bio_10_01",
+    "title": "Khảo sát Hiện tượng Co & Dãn Nguyên sinh ở Tế bào Thực vật",
+    "subject": "Sinh học",
+    "subjectCategory": "Sinh học",
+    "grade": 10,
+    "chapter": "Chương 2: Trao đổi chất qua màng tế bào (Sinh 10)",
+    "objective": "Khảo sát sự vận chuyển nước qua màng tế bào trong môi trường ưu trương NaCl 10%.",
+    "equipment": [
+      "Kính hiển vi quang học",
+      "Lá Lẻ bạn mặt dưới tím",
+      "Dung dịch NaCl 10%",
+      "Nước cất"
+    ],
+    "steps": [
+      "1. Tách lớp biểu bì mặt dưới lá Lẻ bạn soi dưới kính hiển vi.",
+      "2. Nhỏ dung dịch NaCl 10% vào mép lamelle, rút nước ở mép đối diện.",
+      "3. Quan sát khối tế bào chất thu nhỏ và tách khỏi vách (Co nguyên sinh).",
+      "4. Nhỏ nước cất để quan sát tế bào hút nước trương to lại (Dãn nguyên sinh)."
+    ],
+    "phenomenon": "Khi nhỏ NaCl 10%, màng sinh chất và khối tế bào chất màu tím co rút tách khỏi vách tế bào. Nhỏ nước cất lại trương to ra.",
+    "explanation": "Nước thẩm thấu từ nơi có thế nước cao sang nơi thế nước thấp (NaCl 10% ưu trương) làm tế bào mất nước co lại.",
+    "interactiveType": "biology_cell_plasmolysis",
+    "simulationConfig": {
+      "cellType": "le_ban_purple"
+    }
+  },
+  {
+    "id": "exp_bio_11_01",
+    "title": "Tách chiết Sắc tố Diệp lục & Carotenoid từ Lá cây bằng Cồn 90°",
+    "subject": "Sinh học",
+    "subjectCategory": "Sinh học",
+    "grade": 11,
+    "chapter": "Chương 1: Quang hợp ở thực vật (Sinh 11)",
+    "objective": "Tách chiết diệp lục và carotenoid dựa trên độ tan trong dung môi hữu cơ.",
+    "equipment": [
+      "Lá tươi màu xanh & Lá vàng",
+      "Cồn 90°",
+      "Cối chày sứ",
+      "Phễu lọc & giấy lọc",
+      "Ống nghiệm"
+    ],
+    "steps": [
+      "1. Cắt nhỏ lá xanh và lá vàng cho vào 2 cối sứ riêng biệt.",
+      "2. Cho 10ml cồn 90° vào mỗi cối, giã nhỏ chiết lấy dịch sắc tố.",
+      "3. Rót dịch chiết qua phễu lọc vào ống nghiệm."
+    ],
+    "phenomenon": "Dịch chiết lá xanh có màu XANH LỤC đặc trưng của Diệp lục (Chlorophyll). Dịch chiết lá vàng có màu VÀNG TƯƠI của Carotenoid.",
+    "explanation": "Sắc tố quang hợp là chất hữu cơ không tan trong nước nhưng tan tốt trong dung môi hữu cơ (Cồn 90°).",
+    "interactiveType": "chemistry_acid_base",
+    "simulationConfig": {
+      "reagents": [
+        {
+          "id": "chlorophyll",
+          "name": "Diệp lục"
+        }
+      ]
+    }
+  },
+  {
+    "id": "exp_bio_12_01",
+    "title": "Tách chiết ADN từ Tế bào Thực vật (Quả Chuối / Gan lợn)",
+    "subject": "Sinh học",
+    "subjectCategory": "Sinh học",
+    "grade": 12,
+    "chapter": "Chương 1: Phân tử ADN & Cơ chế Di truyền (Sinh 12)",
+    "objective": "Chiết tách thô axit nucleic (ADN) ra khỏi màng tế bào bằng dung dịch tẩy rửa và cồn lạnh.",
+    "equipment": [
+      "Quả chuối chín",
+      "Nước rửa chén",
+      "Muối ăn NaCl",
+      "Cồn lạnh 90° (để tủ đông)",
+      "Phễu & vải lọc",
+      "Ống nghiệm"
+    ],
+    "steps": [
+      "1. Nghiền nát 50g chuối với 50ml nước cất và 1 thìa muối NaCl.",
+      "2. Thêm 5ml nước rửa chén khuấy nhẹ trong 5 phút để phá vỡ màng tế bào.",
+      "3. Lọc lấy phần dịch chiết trong suốt vào ống nghiệm.",
+      "4. Rót nhẹ nhàng cồn lạnh 90° dọc theo thành ống nghiệm."
+    ],
+    "phenomenon": "Tại mặt phân cách giữa cồn lạnh và dịch chiết xuất hiện các sợi màu trắng đục lơ lửng kết tủa bám vào nhau.",
+    "explanation": "Nước rửa chén phá hủy lớp màng lipid. NaCl giúp ADN kết tụ. Cồn lạnh làm ADN không tan bị kết tủa tách khỏi dung dịch.",
+    "interactiveType": "biology_dna_extraction",
+    "simulationConfig": {
+      "solutionA": "Dịch chiết chuối",
+      "solutionB": "Cồn lạnh",
+      "precipitate": "ADN sợi trắng"
+    }
+  },
+  {
+    "id": "exp_geo_6_01",
+    "title": "Mô hình Các Hành Tinh Đang Quay Trong Hệ Mặt Trời",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 1: Trái Đất trong Hệ Mặt Trời (Địa lí 6)",
+    "objective": "Quan sát quỹ đạo chuyển động quay quanh Mặt Trời của 8 hành tinh và vị trí Trái Đất.",
+    "equipment": [
+      "Mô hình Vũ trụ 3D/2D Interactive Canvas",
+      "Thanh điều chỉnh tốc độ quỹ đạo",
+      "Bảng tra cứu hành tinh"
+    ],
+    "steps": [
+      "1. Quan sát vị trí Mặt Trời ở trung tâm và 8 hành tinh theo thứ tự khoảng cách: Thủy, Kim, Trái Đất, Hỏa, Mộc, Thổ, Thiên Vương, Hải Vương.",
+      "2. Chỉnh tốc độ quay để quan sát hành tinh gần Mặt Trời quay nhanh hơn các hành tinh ở xa.",
+      "3. Nhấp chọn Trái Đất (Hành tinh thứ 3) để xem chi tiết quỹ đạo elip gần tròn."
+    ],
+    "phenomenon": "Các hành tinh đồng thời chuyển động quanh Mặt Trời theo chiều từ Tây sang Đông trên các quỹ đạo elip gần tròn.",
+    "explanation": "Lực hấp dẫn cực lớn của Mặt Trời giữ các hành tinh chuyển động trên quỹ đạo. Tốc độ quỹ đạo giảm dần theo khoảng cách (Định luật Kepler).",
+    "interactiveType": "geo_solar_system",
+    "simulationConfig": {
+      "speed": 1.0
+    }
+  },
+  {
+    "id": "exp_geo_6_02",
+    "title": "Mô hình Quay Trái Đất - Mặt Trăng - Mặt Trời (Ngày & Đêm, Nhật/Nguyệt Thực)",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 1: Chuyển động của Trái Đất & Mặt Trăng (Địa lí 6)",
+    "objective": "Giải thích hiện tượng Ngày & Đêm luân phiên, các tuần trăng và hiện tượng Nhật thực / Nguyệt thực.",
+    "equipment": [
+      "Mô hình Mặt Trời - Trái Đất - Mặt Trăng",
+      "Đèn chiếu sáng (Mặt Trời)",
+      "Nút kích hoạt Nhật thực & Nguyệt thực"
+    ],
+    "steps": [
+      "1. Quan sát Trái Đất tự quay quanh trục nghiêng 23°27' tạo ra hiện tượng Ngày và Đêm luân phiên.",
+      "2. Kích hoạt Mặt Trăng quay quanh Trái Đất để quan sát hình dạng Trăng khuyết - Trăng tròn.",
+      "3. Bấm xem chế độ Nhật thực (Mặt Trăng nằm giữa Mặt Trời & Trái Đất) và Nguyệt thực (Trái Đất nằm giữa Mặt Trời & Mặt Trăng)."
+    ],
+    "phenomenon": "Nửa Trái Đất hướng về Mặt Trời là ban Ngày, nửa đối diện là ban Đêm. Khi 3 thiên thể thẳng hàng sinh ra bóng tối Nhật thực / Nguyệt thực.",
+    "explanation": "Trái Đất hình cầu tự quay quanh trục sinh ra hiện tượng ngày đêm. Mặt Trăng che khuất ánh sáng Mặt Trời chiếu đến Trái Đất gây ra Nhật thực.",
+    "interactiveType": "geo_earth_sun_moon",
+    "simulationConfig": {
+      "mode": "day_night"
+    }
+  },
+  {
+    "id": "exp_geo_6_03",
+    "title": "Mô hình Nguyên Nhân Núi Lửa Phun Trào",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 2: Cấu tạo Trái Đất & Tác động nội lực (Địa lí 6)",
+    "objective": "Khảo sát quá trình tích tụ áp suất magma trong manti và sự bùng nổ phun trào núi lửa.",
+    "equipment": [
+      "Mô hình bóc tách vỏ Trái Đất",
+      "Túi manti & màng Magma",
+      "Đồng hồ đo áp suất MPa",
+      "Nút tạo Phun trào"
+    ],
+    "steps": [
+      "1. Quan sát buồng chứa Magma nằm dưới lớp vỏ Trái Đất.",
+      "2. Tăng áp suất và nhiệt độ buồng Magma.",
+      "3. Khi áp suất đạt đỉnh vượt ngưỡng chịu đựng của vỏ Trái Đất, quan sát dòng Dung nham (Lava) và tro bụi bùng nổ phun qua họng núi lửa."
+    ],
+    "phenomenon": "Magma nóng chảy (1000-1200°C) bị nén ép phun trào qua các khe nứt vỏ Trái Đất thành dòng dung nham đỏ rực và cột tro bụi cao hàng km.",
+    "explanation": "Nội lực Trái Đất tích tụ nhiệt năng làm dẻo quánh đá manti thành Magma. Áp suất khí và hơi nước tăng cao bùng nổ qua điểm yếu trên vỏ Trái Đất.",
+    "interactiveType": "geo_volcano",
+    "simulationConfig": {
+      "pressure": 50
+    }
+  },
+  {
+    "id": "exp_geo_6_04",
+    "title": "Mô hình Nguyên Nhân Động Đất & Sóng Địa Chất",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 2: Tác động của Nội lực - Động đất (Địa lí 6)",
+    "objective": "Giải thích hiện tượng dịch chuyển mảng kiến tạo gây tích tụ ứng suất nứt vỡ và phát tán sóng chấn động (Sóng P & Sóng S).",
+    "equipment": [
+      "Mô hình 2 mảng kiến tạo va đâm / trượt ngang",
+      "Cảm biến chấn tiêu & tâm chấn",
+      "Máy đo chấn động Seismograph (Thang Richter)"
+    ],
+    "steps": [
+      "1. Điều chỉnh 2 mảng kiến tạo ép sát và trượt qua nhau tạo ra lực ma sát bám dính.",
+      "2. Tiếp tục gia tăng lực đâm vỡ kiến tạo đến khi đứt gãy đứt đứt nứt xảy ra.",
+      "3. Quan sát chấn tiêu lan truyền các vòng sóng địa chất chấn động lên bề mặt tâm chấn và đọc độ Richter trên máy đo."
+    ],
+    "phenomenon": "Sự đứt gãy đột ngột giải phóng năng lượng khổng lồ làm rung chuyển mặt đất, hình thành sóng địa chất lan truyền ra xung quanh.",
+    "explanation": "Động đất hình thành do sự dịch chuyển đột ngột của các mảng kiến tạo tại ranh giới đứt gãy kiến tạo giải phóng ứng suất tích tụ lâu ngày.",
+    "interactiveType": "geo_earthquake",
+    "simulationConfig": {
+      "magnitude": 6.5
+    }
+  },
+  {
+    "id": "exp_geo_6_05",
+    "title": "Mô hình Vòng Tuần Hoàn Nước Trên Trái Đất",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 4: Nước trên Trái Đất - Vòng tuần hoàn nước (Địa lí 6)",
+    "objective": "Mô phỏng 4 giai đoạn liên tục của vòng tuần hoàn nước: Bốc hơi ➔ Ngưng tụ ➔ Giáng thủy (Mưa/Tuyết) ➔ Dòng chảy ngầm & sông rạch.",
+    "equipment": [
+      "Mô hình địa hình Đại dương - Núi cao",
+      "Mặt Trời phát nhiệt",
+      "Luồng gió mây ngưng tụ",
+      "Nút kích hoạt Mưa & Nước ngầm"
+    ],
+    "steps": [
+      "1. Bật nguồn nhiệt Mặt Trời chiếu xuống bề mặt Đại dương làm nước bốc hơi thành hơi nước.",
+      "2. Hơi nước bốc lên cao gặp lạnh ngưng tụ thành các đám mây trắng/mây đen.",
+      "3. Gió đưa mây vào đất liền gặp lạnh đọng thành hạt mưa rơi xuống (Giáng thủy).",
+      "4. Nước mưa ngấm xuống đất thành nước ngầm và chảy theo sông suối trở lại đại dương."
+    ],
+    "phenomenon": "Nước liên tục thay đổi trạng thái Lỏng ➔ Hơi ➔ Lỏng/Băng và di chuyển tuần hoàn khép kín giữa khí quyển, lục địa và đại dương.",
+    "explanation": "Năng lượng Mặt Trời và trọng lực Trái Đất là động lực chính duy trì Vòng tuần hoàn nước khép kín.",
+    "interactiveType": "geo_water_cycle",
+    "simulationConfig": {
+      "sunTemp": 35
+    }
+  },
+  {
+    "id": "exp_geo_6_06",
+    "title": "Mô hình Bóc Tách Cấu Tạo Bên Trong Trái Đất",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 2: Cấu tạo bên trong của Trái Đất (Địa lí 6)",
+    "objective": "Khám phá 3 lớp cấu tạo chính của Trái Đất: Vỏ Trái Đất, Lớp Manti và Lõi (Nhân) Trái Đất.",
+    "equipment": [
+      "Mô hình Quả Địa Cầu bóc tách 3D",
+      "Bảng thông số Nhiệt độ & Áp suất từng lớp",
+      "Con trỏ chọn lớp"
+    ],
+    "steps": [
+      "1. Bóc lớp Vỏ Trái Đất (dày 5-70km, trạng thái rắn cứng, nơi sinh sống của sinh vật).",
+      "2. Khám phá Lớp Manti (dày 2900km, nhiệt độ 1500-4700°C, trạng thái dẻo quánh đến rắn).",
+      "3. Khám phá Lõi Trái Đất: Nhân ngoài (lỏng, 5000°C) và Nhân trong (rắn rắn, hợp kim Fe-Ni, áp suất cực lớn)."
+    ],
+    "phenomenon": "Càng đi sâu vào lòng Trái Đất, nhiệt độ và áp suất tăng lên đột biến (Lõi Trái Đất nóng xấp xỉ bề mặt Mặt Trời ~ 5000-6000°C).",
+    "explanation": "Trái Đất được phân tầng theo tỉ trọng vật chất khi hình thành: các nguyên tố nặng (Fe, Ni) chìm xuống tâm tạo lõi, vật chất nhẹ nổi lên tạo vỏ.",
+    "interactiveType": "geo_earth_structure",
+    "simulationConfig": {
+      "selectedLayer": "crust"
+    }
+  },
+  {
+    "id": "exp_geo_6_07",
+    "title": "Mô hình Sông Suối Hình Thành Từ Băng Tuyết Tan Trên Núi",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 4: Sông và Hồ - Nguồn cung cấp nước sông (Địa lí 6)",
+    "objective": "Mô phỏng quá trình tan chảy băng tuyết trên đỉnh núi cao nguồn hình thành nên các dòng sông, dòng suối và đồng bằng châu thổ.",
+    "equipment": [
+      "Mô hình Dãy núi cao tuyết phủ",
+      "Thanh nhiệt độ mùa hè",
+      "Hệ thống lòng sông uốn lượn",
+      "Nút làm Băng tan"
+    ],
+    "steps": [
+      "1. Quan sát đỉnh núi cao trên 3000m phủ băng tuyết vĩnh cửu.",
+      "2. Tăng nhiệt độ mùa hè làm lớp băng tuyết bắt đầu tan chảy thành các dòng suối nhỏ.",
+      "3. Các dòng suối nhỏ hợp lưu thành dòng sông chính chảy qua vùng đồi núi đổ ra đồng bằng tích tụ phù sa và đi ra biển."
+    ],
+    "phenomenon": "Khi nhiệt độ tăng, băng tuyết tan chảy liên tục cung cấp lượng nước dồi dào chảy thành dòng suối cuồn cuộn xuống chân núi.",
+    "explanation": "Băng tuyết tan là nguồn cung cấp nước chính cho nhiều sông lớn trên thế giới (như sông Hoàng Hà, sông Trường Giang, sông Đan-núyp).",
+    "interactiveType": "geo_glacial_river",
+    "simulationConfig": {
+      "temp": 25
+    }
+  }
+]
