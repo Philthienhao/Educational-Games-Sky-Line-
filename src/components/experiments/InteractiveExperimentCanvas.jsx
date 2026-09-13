@@ -3229,16 +3229,8 @@ function Chem9FeO2Sim({ onLog }) {
           <rect x="175" y="90" width="50" height="30" fill="rgba(56, 189, 248, 0.08)" stroke="rgba(255,255,255,0.4)" strokeWidth="2" />
           <text x="200" y="240" fill="rgba(56, 189, 248, 0.4)" fontSize="16" fontWeight="900" textAnchor="middle">O₂ (Oxygen)</text>
 
-          {/* Alcohol Lamp */}
-          <g transform="translate(360, 200)">
-            <ellipse cx="0" cy="50" rx="35" ry="12" fill="#334155" />
-            <path d="M -30 50 C -30 20 -15 10 0 10 C 15 10 30 20 30 50 Z" fill="rgba(255,255,255,0.15)" stroke="#64748b" strokeWidth="2" />
-            <rect x="-6" y="0" width="12" height="12" fill="#94a3b8" />
-            
-            {/* Alcohol Lamp Flame */}
-            <path d="M 0 0 Q -10 -20 0 -40 Q 10 -20 0 0" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 10px #fde047)' }} />
-            <path d="M 0 0 Q -5 -12 0 -25 Q 5 -12 0 0" fill="#38bdf8" />
-          </g>
+          {/* Dynamic Realistic Alcohol Lamp */}
+          <AlcoholLampAssembly x={360} y={225} isHeating={step === 1} temp={step === 1 ? 650 : 25} />
 
           {/* Iron Coil Holder Rod */}
           <line x1="80" y1="40" x2={step === 1 ? "360" : "200"} y2={step === 1 ? "160" : step >= 2 ? "160" : "80"} stroke="#94a3b8" strokeWidth="3" style={{ transition: 'all 0.6s ease' }} />
@@ -3318,14 +3310,8 @@ function Chem9AlO2Sim({ onLog }) {
         <svg width="100%" height="100%" viewBox="0 0 500 320">
           <rect width="500" height="320" fill="#020617" />
 
-          {/* Alcohol Lamp */}
-          <g transform="translate(250, 210)">
-            <ellipse cx="0" cy="40" rx="45" ry="14" fill="#334155" />
-            <path d="M -40 40 C -40 10 -20 0 0 0 C 20 0 40 10 40 40 Z" fill="rgba(255,255,255,0.15)" stroke="#64748b" strokeWidth="2" />
-            <rect x="-8" y="-10" width="16" height="12" fill="#94a3b8" />
-            <path d="M 0 -10 Q -14 -35 0 -60 Q 14 -35 0 -10" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 15px #fde047)' }} />
-            <path d="M 0 -10 Q -7 -25 0 -42 Q 7 -25 0 -10" fill="#38bdf8" />
-          </g>
+          {/* Dynamic Realistic Alcohol Lamp */}
+          <AlcoholLampAssembly x={250} y={235} isHeating={true} temp={620} />
 
           {/* Spatula with Aluminum Powder */}
           <g transform="translate(200, 90)">
