@@ -6,6 +6,7 @@ import {
   BookOpen, 
   Presentation,
   FlaskConical,
+  Globe,
   Shield, 
   UserCheck, 
   PlusCircle, 
@@ -219,6 +220,18 @@ export function Sidebar({
               >
                 <FlaskConical size={18} />
                 <span>Thí Nghiệm Trực Quan</span>
+              </button>
+
+              <button 
+                className={`sidebar-nav-btn ${activeTab === 'geo-experiments' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('geo-experiments'); if (isMobileOpen) setIsMobileOpen(false); }}
+                style={{
+                  background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : undefined,
+                  fontWeight: activeTab === 'geo-experiments' ? 900 : undefined
+                }}
+              >
+                <Globe size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#f59e0b'} />
+                <span style={{ color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', fontWeight: 800 }}>Thí Nghiệm Địa Lý 6</span>
               </button>
 
               <button 

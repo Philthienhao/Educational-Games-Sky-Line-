@@ -33,6 +33,7 @@ import { ClassroomPlayModal } from './components/ClassroomPlayModal';
 import { TextbookDownloadManager } from './components/TextbookDownloadManager';
 import { LectureSlideManager } from './components/LectureSlideManager';
 import { VirtualLabManager } from './components/VirtualLabManager';
+import { GeoExperimentsView } from './components/GeoExperimentsView';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import StudentPickerManager from './components/StudentPickerManager';
@@ -421,6 +422,11 @@ export function App() {
         {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
         {activeTab === 'virtual-lab' && (
           <VirtualLabManager currentUser={currentUser} />
+        )}
+
+        {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
+        {activeTab === 'geo-experiments' && (
+          <GeoExperimentsView currentUser={currentUser} />
         )}
 
         {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
