@@ -4,7 +4,8 @@
 - **NEVER** define sub-component classes (e.g. `GameErrorBoundary`) or inner function components inside the body of another React functional component. Doing so causes component type identity changes on re-renders, forcing React to unmount the entire subtree (resulting in blank screens). Always declare Error Boundaries and sub-components at the top-level scope of the module.
 
 ## 2. User Accounts & Authentication Architecture Rules
-- **Cross-Device & Incognito Readiness**: All core system accounts (`philthienhao`, `phamtham`, `thanhthao`, `thanhlai`) MUST remain registered in `INITIAL_USERS` in `src/services/storage.js` so that ANY browser, ANY device, and ANY Incognito window can log in out-of-the-box without requiring prior localStorage populated on that specific client device.
+- **Cross-Device & Incognito Readiness**: All core system accounts (`philthienhao`, `phamtham`, `thanhthao`, `thanhlai`, `tritoan`, `bachhat`) MUST remain registered in `INITIAL_USERS` in `src/services/storage.js` so that ANY browser, ANY device, and ANY Incognito window can log in out-of-the-box without requiring prior localStorage populated on that specific client device.
+- **100% Guaranteed Dual-Seed Account Creation Protocol**: Whenever creating or seeding a new teacher account, the agent MUST add the record synchronously to BOTH `INITIAL_USERS` in `src/services/storage.js` AND `public/cloud_users.json` with matching `username`, `password`, `name`, `subject`, `school`, and `id`.
 - **No Seed Overwriting (`...iu`)**: In `StorageService.init()`, `INITIAL_USERS` seed records MUST NEVER overwrite existing user properties (e.g. custom password, updated name, subject) stored in `localStorage`. If `username` exists in `localStorage`, the stored object MUST be preserved 100%.
 - **Safe String Password Validation**: In `authenticateUser`, `createUser`, and `updateUser`, ALWAYS cast `username` and `password` to trimmed strings (`String(u.password).trim()`) to prevent `TypeError` crashes if passwords are ever stored as numeric types or non-string values.
 - **No Volatile Blacklists**: DO NOT use fragile `gvd_deleted_usernames` local blacklists that can cause newly created accounts to be blocked on login or deleted during `init()`. The `users` list in `localStorage` + `IndexedDB` is the single source of truth.
@@ -17,11 +18,10 @@
 - **Universal Parser**: Must automatically detect `Họ và tên học sinh` columns when teachers import student roster Excel files for Đua Vịt & Đua Rùa.
 
 ## 4. Vercel Deployment & Alias Synchronization
-- **Automatic 4-Step Production Pipeline**: Whenever creating, updating, or configuring any teacher account or system feature, the agent MUST automatically execute the complete 4-step pipeline without requiring ANY manual user action:
-  1. Seed the account into `INITIAL_USERS` in `src/services/storage.js` & `public/cloud_users.json`.
-  2. Execute `npx vercel --temporary --yes` to trigger Vercel Production build.
-  3. Execute `npx vercel alias set <deploymentId> eduvth.vercel.app` & `npx vercel alias set <deploymentId> giao-vien-sky-line.vercel.app`.
-  4. Verify the live Production HTTP response silently before declaring completion.
+- **Complete Live Production Deployment Protocol**: Whenever adding teacher accounts or updating core features:
+  1. Seed the account in `src/services/storage.js` (`INITIAL_USERS`) and `public/cloud_users.json`.
+  2. Execute `git add . && git commit -m "..."` and `git push origin main` (or `npm run deploy`) to trigger Vercel automatic GitHub integration build.
+  3. Instruct the user to perform a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`) on `eduvth.vercel.app` to clear stale browser cache.
 - Always inspect runtime errors silently and verify visually before reporting completion to the user.
 
 ## 5. Strict Per-User Data Isolation & Permanent Storage Invariants

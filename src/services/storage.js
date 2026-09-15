@@ -152,6 +152,16 @@ const INITIAL_USERS = [
     subject: 'Toán',
     school: 'Hệ thống giáo dục Sky-Line',
     createdAt: '2026-09-15'
+  },
+  {
+    id: 'user_bach_hat',
+    username: 'bachhat',
+    password: '123456',
+    name: 'Nguyễn Thị Bạch Hạt',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường TH và THCS Nguyễn Văn Trỗi',
+    createdAt: '2026-09-15'
   }
 ];
 
