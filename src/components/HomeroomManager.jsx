@@ -146,12 +146,15 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
       setClassData(data);
       setTempRules(data.pointRules);
 
-      // Async sync from IndexedDB for guaranteed high-capacity storage restoration
+      // Async sync from IndexedDB & Cloud for guaranteed high-capacity storage restoration
       if (!readOnlyAdminClass && teacherId) {
         StorageService.syncHomeroomWithIndexedDB(teacherId).then(idbData => {
-          if (idbData && Array.isArray(idbData.students) && idbData.students.length >= (data?.students?.length || 0)) {
-            setClassData(idbData);
-            if (idbData.pointRules) setTempRules(idbData.pointRules);
+          if (idbData && typeof idbData === 'object' && Array.isArray(idbData.students)) {
+            // CRITICAL FIX: If idbData is customized OR if local data was just un-customized sampleClass, ALWAYS accept idbData!
+            if (idbData.isCustomized || !data?.isCustomized || idbData.students.length > 0) {
+              setClassData(idbData);
+              if (idbData.pointRules) setTempRules(idbData.pointRules);
+            }
           }
         }).catch(() => {});
       }

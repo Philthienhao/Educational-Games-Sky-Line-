@@ -83,10 +83,10 @@ export function App() {
       const localGames = StorageService.getTeacherSavedGames(user?.id);
       setSavedGames(localGames);
       
-      // 2. Await full IndexedDB sync to guarantee zero data loss on F5 page refresh
+      // 2. Await full IndexedDB & Cloud sync to guarantee zero data loss on F5 page refresh
       try {
         const syncedGames = await StorageService.syncWithIndexedDB(user?.id);
-        if (Array.isArray(syncedGames) && syncedGames.length >= localGames.length) {
+        if (Array.isArray(syncedGames)) {
           setSavedGames(syncedGames);
         }
       } catch (e) {

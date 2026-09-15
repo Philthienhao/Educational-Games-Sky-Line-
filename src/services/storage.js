@@ -1879,6 +1879,7 @@ export const StorageService = {
     const key = `gvd_homeroom_${effectiveId}`;
     if (mode === 'clear') {
       const emptyClass = {
+        isCustomized: true,
         className: 'Lớp Chủ Nhiệm Mới',
         schoolYear: '2026 - 2027',
         classBgImage: '',
@@ -1886,6 +1887,8 @@ export const StorageService = {
         students: []
       };
       localStorage.setItem(key, JSON.stringify(emptyClass));
+      IDBStorageService.setItem(key, emptyClass).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', emptyClass).catch(() => {});
       return emptyClass;
     }
 
