@@ -142,6 +142,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Hệ thống giáo dục Sky-Line',
     createdAt: '2026-09-04'
+  },
+  {
+    id: 'user_tri_toan',
+    username: 'tritoan',
+    password: '123456',
+    name: 'Hoàng Trí Toàn',
+    role: 'teacher',
+    subject: 'Toán',
+    school: 'Hệ thống giáo dục Sky-Line',
+    createdAt: '2026-09-15'
   }
 ];
 

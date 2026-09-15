@@ -26,6 +26,34 @@
     "interactiveType": "chemistry_sandbox"
   },
   {
+    "id": "exp_chem9_fe2o3_co",
+    "title": "🔥 Thí Nghiệm 3D: Khử Sắt(III) Oxit (Fe₂O₃) Bằng Khí Carbon Monoxide (CO)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Chương 2: Kim loại - Tính chất hóa học & Điều chế kim loại (GDPT 2018)",
+    "objective": "Thao tác trên bảng tương tác: Đong bột Fe₂O₃ bằng thìa, quẹt diêm đốt đèn cồn, điều chỉnh giá nâng, dẫn khí CO khử Fe₂O₃ ở nhiệt độ cao, quan sát bột chuyển đỏ nâu sang xám đen Fe, khí CO₂ thoát ra làm đục nước vôi trong Ca(OH)₂, xem kính hiển vi phân tử & chỉ số real-time.",
+    "equipment": [
+      "Ống thủy tinh chịu nhiệt nằm ngang & Khay giá kẹp kiềm sắt",
+      "Đèn cồn & Hộp diêm quẹt lửa trực quan",
+      "Giá nâng lò xo (Scissor Jack Lift) nâng hạ chiều cao",
+      "Thìa đong hóa chất spatula kèm slider khối lượng",
+      "Bột Fe₂O₃ (đỏ nâu), Bình khí CO kèm van xả",
+      "Ống nghiệm chứa nước vôi trong Ca(OH)₂ & Nút cao su dẫn khí",
+      "Kính hiển vi phân tử (Microscope View) & Bảng thông số AoS, Temp, Vol"
+    ],
+    "steps": [
+      "1. Dùng thìa Spatula đong 15g bột Fe₂O₃ cho vào ống thủy tinh nằm ngang.",
+      "2. Quẹt diêm trên hộp diêm rồi đưa lại gần bấc đèn cồn để thắp lửa.",
+      "3. Điều chỉnh giá nâng Scissor Jack nâng đèn cồn sát ống nghiệm.",
+      "4. Mở van bình khí CO để dòng khí CO chạy qua ống nghiệm.",
+      "5. Bật bảng thông số (Temperature, Volume, AoS, Equation, Microscope) trên bảng tương tác để theo dõi phản ứng nhiệt độ tăng tới 600°C, Fe₂O₃ hóa xám đen và nước vôi trong vẩn đục."
+    ],
+    "phenomenon": "Bột Fe₂O₃ đỏ nâu chuyển dần thành bột sắt Fe màu xám đen bóng. Khí CO₂ sinh ra đi qua ống dẫn khí làm dung dịch Ca(OH)₂ trong suốt chuyển thành kết tủa đục trắng CaCO₃.",
+    "explanation": "Khí CO có tính khử mạnh ở nhiệt độ cao (>500°C), chiếm oxy của Fe₂O₃ tạo ra kim loại Fe và khí CO₂. Khí CO₂ tác dụng với Ca(OH)₂ tạo kết tủa CaCO₃ không tan.",
+    "interactiveType": "chem9_fe2o3_co"
+  },
+  {
     "id": "exp_khtn_6_01",
     "title": "Phân biệt Hỗn hợp đồng nhất & Hỗn hợp không đồng nhất",
     "subject": "Khoa học tự nhiên",

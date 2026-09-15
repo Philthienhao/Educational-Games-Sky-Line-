@@ -3217,6 +3217,225 @@ function GeoGlacialRiverSim({ onLog }) {
   );
 }
 
+// 8. Volcano Eruption & Magma Chamber Simulator
+function GeoVolcanoSim({ onLog }) {
+  const [pressure, setPressure] = useState(50); // MPa (0 to 120)
+  const [isErupting, setIsErupting] = useState(false);
+
+  const handleIncreasePressure = () => {
+    setPressure(prev => {
+      const next = Math.min(120, prev + 20);
+      if (next >= 100 && !isErupting) {
+        setIsErupting(true);
+        if (onLog) onLog("🌋 Áp suất buồng Magma vượt ngưỡng 100 MPa ➔ BÙNG NỔ NÚI LỬA! Dung nham đỏ rực 1200°C và tro bụi phun trào dữ dội!");
+      } else if (onLog) {
+        onLog(`🔥 Áp suất buồng Magma tăng lên: ${next} MPa. Nhiệt độ Magma t° ~ 1200°C.`);
+      }
+      return next;
+    });
+  };
+
+  const handleReset = () => {
+    setPressure(50);
+    setIsErupting(false);
+    if (onLog) onLog("🔄 Đã làm mới mô hình Núi Lửa về trạng thái tích tụ Magma ban đầu.");
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
+      <div style={{ flex: 1, background: '#070f1e', borderRadius: '16px', border: '1.5px solid rgba(245, 158, 11, 0.4)', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+        <svg width="100%" height="100%" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="magmaChamberGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fef08a" />
+              <stop offset="50%" stopColor="#f97316" />
+              <stop offset="100%" stopColor="#991b1b" />
+            </radialGradient>
+
+            <linearGradient id="volcanoBg" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#0f172a" />
+              <stop offset="100%" stopColor="#020617" />
+            </linearGradient>
+          </defs>
+
+          <rect width="600" height="320" fill="url(#volcanoBg)" />
+
+          {/* Earth Crust Layers */}
+          <rect x="0" y="200" width="600" height="120" fill="#1e293b" />
+          <rect x="0" y="260" width="600" height="60" fill="#0f172a" />
+          <text x="30" y="230" fill="#94a3b8" fontSize="11" fontWeight="bold">Lớp Vỏ Trái Đất (Crust)</text>
+          <text x="30" y="285" fill="#f59e0b" fontSize="11" fontWeight="bold">Lớp Manti Trên (Magma Chamber)</text>
+
+          {/* Volcano Mountain Cone */}
+          <polygon points="120,200 300,70 480,200" fill="#334155" stroke="#475569" strokeWidth="2" />
+          <polygon points="270,70 300,70 330,70 315,90 285,90" fill="#0f172a" />
+
+          {/* Main Magma Conduit / Vent */}
+          <rect x="290" y="80" width="20" height="150" fill={pressure > 80 ? "#f97316" : "#7f1d1d"} />
+
+          {/* Subterranean Magma Chamber Reservoir */}
+          <ellipse cx="300" cy="260" rx={60 + (pressure * 0.4)} ry={35 + (pressure * 0.2)} fill="url(#magmaChamberGrad)" style={{ filter: 'drop-shadow(0 0 20px #ef4444)' }} />
+          <text x="300" y="264" fill="#ffffff" fontSize="11" fontWeight="900" textAnchor="middle">
+            Buồng Magma ({pressure} MPa)
+          </text>
+
+          {/* Eruption FX when active */}
+          {isErupting && (
+            <g>
+              <path d="M 300 70 Q 250 -20 200 130 Q 180 180 160 200" fill="none" stroke="#ef4444" strokeWidth="8" strokeLinecap="round" />
+              <path d="M 300 70 Q 350 -20 400 130 Q 420 180 440 200" fill="none" stroke="#f59e0b" strokeWidth="8" strokeLinecap="round" />
+
+              <circle cx="300" cy="30" r="35" fill="#475569" opacity="0.8" />
+              <circle cx="270" cy="15" r="28" fill="#334155" opacity="0.8" />
+              <circle cx="330" cy="15" r="28" fill="#334155" opacity="0.8" />
+              <text x="300" y="25" fill="#fde047" fontSize="10" fontWeight="900" textAnchor="middle">
+                💨 Tro Bụi & Khí Độc (15km)
+              </text>
+            </g>
+          )}
+        </svg>
+      </div>
+
+      <div style={{ background: 'rgba(15, 23, 42, 0.95)', padding: '14px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700 }}>
+            Áp Suất Buồng Magma: <b style={{ color: pressure > 90 ? '#ef4444' : '#f59e0b', fontSize: '1rem', fontFamily: 'monospace' }}>{pressure} MPa</b>
+          </span>
+          <input 
+            type="range" min="20" max="120" step="5" value={pressure} 
+            onChange={e => {
+              const val = Number(e.target.value);
+              setPressure(val);
+              if (val >= 100 && !isErupting) {
+                setIsErupting(true);
+                if (onLog) onLog("🌋 BÙNG NỔ NÚI LỬA! Dung nham tràn qua họng núi lửa và tro bụi bùng nổ!");
+              }
+            }} 
+            style={{ flex: 1, accentColor: '#ef4444', cursor: 'pointer' }} 
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={handleIncreasePressure}
+            style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', border: 'none', color: '#fff', borderRadius: '10px', padding: '8px 16px', fontSize: '0.82rem', fontWeight: 900, cursor: 'pointer' }}
+          >
+            🔥 Tăng Áp Suất (+20 MPa)
+          </button>
+
+          <button 
+            onClick={handleReset}
+            style={{ background: '#334155', border: '1px solid #64748b', color: '#cbd5e1', borderRadius: '10px', padding: '8px 14px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer' }}
+          >
+            🔄 Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 9. Earthquake & Tectonic Fault Seismic Wave Simulator
+function GeoEarthquakeSim({ onLog }) {
+  const [magnitude, setMagnitude] = useState(6.5); // Richter
+  const [isShaking, setIsShaking] = useState(false);
+
+  const handleTriggerQuake = () => {
+    setIsShaking(true);
+    if (onLog) onLog(`⚡ ĐỨT GÃY MẢNG KIẾN TẠO! Giải phóng ứng suất địa chất ➔ Động đất ${magnitude.toFixed(1)} độ Richter! Sóng địa chất P và S chấn động mạnh lên tâm chấn.`);
+    setTimeout(() => setIsShaking(false), 3000);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
+      <div style={{ flex: 1, background: '#070f1e', borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.4)', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+        <svg width="100%" height="100%" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet" className={isShaking ? "earthquake-shake" : ""}>
+          <style>{`
+            @keyframes quakeShake {
+              0% { transform: translate(0, 0); }
+              20% { transform: translate(-6px, 4px); }
+              40% { transform: translate(6px, -5px); }
+              60% { transform: translate(-5px, 5px); }
+              80% { transform: translate(5px, -3px); }
+              100% { transform: translate(0, 0); }
+            }
+            .earthquake-shake {
+              animation: quakeShake 0.15s infinite;
+            }
+          `}</style>
+
+          <rect width="600" height="320" fill="#030816" />
+
+          {/* Tectonic Plate 1 (Left) */}
+          <path d="M 0 120 L 295 120 L 285 320 L 0 320 Z" fill="#1e293b" stroke="#3b82f6" strokeWidth="2" />
+          <text x="80" y="200" fill="#94a3b8" fontSize="12" fontWeight="bold">Mảng Kiến Tạo A</text>
+
+          {/* Tectonic Plate 2 (Right) */}
+          <path d="M 305 120 L 600 120 L 600 320 L 315 320 Z" fill="#0f172a" stroke="#0284c7" strokeWidth="2" />
+          <text x="400" y="200" fill="#94a3b8" fontSize="12" fontWeight="bold">Mảng Kiến Tạo B</text>
+
+          {/* Fault Line */}
+          <line x1="295" y1="120" x2="285" y2="320" stroke="#ef4444" strokeWidth="3" strokeDasharray="4,4" />
+
+          {/* Hypocenter (Chấn Tiêu) */}
+          <circle cx="290" cy="220" r="12" fill="#ef4444" stroke="#fef08a" strokeWidth="2" />
+          <text x="290" y="245" fill="#fca5a5" fontSize="10" fontWeight="900" textAnchor="middle">
+            Chấn Tiêu (Hypocenter)
+          </text>
+
+          {/* Epicenter (Tâm Chấn) */}
+          <polygon points="295,120 287,105 303,105" fill="#f59e0b" />
+          <circle cx="295" cy="120" r="6" fill="#f59e0b" />
+          <text x="295" y="95" fill="#fde047" fontSize="11" fontWeight="900" textAnchor="middle">
+            Tâm Chấn Bề Mặt (Epicenter)
+          </text>
+
+          {/* Surface Buildings */}
+          <rect x="150" y="70" width="40" height="50" fill="#334155" stroke="#64748b" strokeWidth="1" />
+          <rect x="420" y="60" width="50" height="60" fill="#334155" stroke="#64748b" strokeWidth="1" />
+
+          {/* Seismic Waves */}
+          {isShaking && (
+            <g transform="translate(290, 220)">
+              <circle cx="0" cy="0" r="40" fill="none" stroke="#ef4444" strokeWidth="2" opacity="0.8" />
+              <circle cx="0" cy="0" r="70" fill="none" stroke="#f59e0b" strokeWidth="2" opacity="0.6" />
+              <circle cx="0" cy="0" r="100" fill="none" stroke="#38bdf8" strokeWidth="2" opacity="0.4" />
+            </g>
+          )}
+
+          <g transform="translate(430, 20)">
+            <rect x="0" y="0" width="150" height="50" rx="8" fill="rgba(15, 23, 42, 0.9)" stroke="#0284c7" strokeWidth="1.5" />
+            <text x="10" y="18" fill="#38bdf8" fontSize="9" fontWeight="900">Máy Đo Địa Chấn (Richter)</text>
+            <text x="10" y="38" fill="#ef4444" fontSize="13" fontWeight="900" fontFamily="monospace">
+              {magnitude.toFixed(1)} Richter
+            </text>
+          </g>
+        </svg>
+      </div>
+
+      <div style={{ background: 'rgba(15, 23, 42, 0.95)', padding: '14px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700 }}>
+            Độ Cường Độ (Richter): <b style={{ color: magnitude > 7.0 ? '#ef4444' : '#38bdf8', fontSize: '1rem', fontFamily: 'monospace' }}>{magnitude.toFixed(1)}</b>
+          </span>
+          <input 
+            type="range" min="1.0" max="9.0" step="0.1" value={magnitude} 
+            onChange={e => setMagnitude(Number(e.target.value))} 
+            style={{ flex: 1, accentColor: '#0284c7', cursor: 'pointer' }} 
+          />
+        </div>
+
+        <button 
+          onClick={handleTriggerQuake}
+          style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0284c7 100%)', border: 'none', color: '#fff', borderRadius: '10px', padding: '10px 20px', fontSize: '0.88rem', fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)' }}
+        >
+          ⚡ Kích Hoạt Động Đất
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // --- GRADE 9 CHEMISTRY SIMULATION SUBCOMPONENTS (Matching Textbook & 4 Sample Videos) ---
 
 function Chem9FeO2Sim({ onLog }) {
@@ -4453,7 +4672,637 @@ function Chem9ProteinPropertiesSim({ onLog }) {
   );
 }
 
-// --- MAIN INTERACTIVE EXPERIMENT CANVAS MODULE ---
+// --- NOBOOK 3D INTERACTIVE LAB SUB-COMPONENTS (Rule 1 compliance) ---
+
+function ScissorJackAssembly({ x = 200, y = 280, jackHeight = 0.5, onHeightChange, scale = 1 }) {
+  const currentHeightPx = 20 + jackHeight * 50;
+  const topY = y - currentHeightPx;
+  const midY = (y + topY) / 2;
+
+  return (
+    <g transform={`translate(${x}, 0) scale(${scale})`}>
+      {/* Base Plate */}
+      <rect x="-45" y={y + 8} width="90" height="8" rx="2" fill="#334155" stroke="#64748b" strokeWidth="1.5" />
+      <rect x="-40" y={y + 4} width="80" height="4" fill="#475569" />
+
+      {/* Threaded Screw Rod & Adjustment Knob */}
+      <line x1="-38" y1={midY} x2="42" y2={midY} stroke="#94a3b8" strokeWidth="3" strokeDasharray="2,2" />
+      <circle 
+        cx="44" cy={midY} r="7" fill="#f59e0b" stroke="#78350f" strokeWidth="1.5" 
+        style={{ cursor: 'pointer' }}
+        onClick={() => onHeightChange && onHeightChange(jackHeight >= 0.8 ? 0.2 : jackHeight + 0.3)}
+      />
+
+      {/* Scissor Arm Linkages (X Arms) */}
+      <line x1="-35" y1={y + 4} x2="35" y2={topY} stroke="#cbd5e1" strokeWidth="4" strokeLinecap="round" />
+      <line x1="35" y1={y + 4} x2="-35" y2={topY} stroke="#94a3b8" strokeWidth="4" strokeLinecap="round" />
+      
+      <circle cx="0" cy={midY} r="3.5" fill="#f59e0b" stroke="#78350f" strokeWidth="1" />
+      <circle cx="-35" cy={y + 4} r="2.5" fill="#475569" />
+      <circle cx="35" cy={y + 4} r="2.5" fill="#475569" />
+      <circle cx="-35" cy={topY} r="2.5" fill="#475569" />
+      <circle cx="35" cy={topY} r="2.5" fill="#475569" />
+
+      {/* Top Elevator Platform */}
+      <rect x="-45" y={topY - 6} width="90" height="6" rx="2" fill="#475569" stroke="#94a3b8" strokeWidth="1.5" />
+      <rect x="-42" y={topY - 10} width="84" height="4" fill="#64748b" />
+    </g>
+  );
+}
+
+function MatchBoxAndStickAssembly({ x = 320, y = 320, isMatchLit = false, onStrikeMatch, scale = 1 }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      {/* Matchbox Body */}
+      <g style={{ cursor: 'pointer' }} onClick={onStrikeMatch}>
+        <rect x="-40" y="0" width="80" height="38" rx="4" fill="#1e3a8a" stroke="#3b82f6" strokeWidth="2" />
+        <rect x="-40" y="26" width="80" height="12" fill="#78350f" rx="1" />
+        <path d="M -38 28 L 38 28 M -38 32 L 38 32 M -38 36 L 38 36" stroke="#451a03" strokeWidth="1" />
+        <rect x="-35" y="4" width="70" height="18" rx="2" fill="#2563eb" />
+        <text x="0" y="16" fill="#ffffff" fontSize="9" fontWeight="900" textAnchor="middle" letterSpacing="0.5">
+          HỘP DIỄM THÍ NGHIỆM
+        </text>
+      </g>
+
+      {/* Match Stick */}
+      <g transform={isMatchLit ? "rotate(-40, 20, -10)" : "rotate(-12, 20, 0)"} style={{ cursor: 'pointer' }} onClick={onStrikeMatch}>
+        <rect x="10" y="-4" width="60" height="6" rx="1" fill="#fde68a" stroke="#d97706" strokeWidth="1" />
+        <ellipse cx="72" cy="-1" rx="5" ry="4" fill="#dc2626" />
+
+        {isMatchLit && (
+          <g transform="translate(74, -1)">
+            <path d="M 0 0 Q -10 -15 0 -35 Q 10 -15 0 0 Z" fill="url(#alcoholFlameOuterGrad)" style={{ filter: 'drop-shadow(0 0 10px #f97316)' }} />
+            <path d="M 0 0 Q -4 -8 0 -18 Q 4 -8 0 0 Z" fill="#fef08a" />
+            <path d="M 0 -35 Q 5 -50 -2 -65" stroke="rgba(255,255,255,0.4)" strokeWidth="2" fill="none" strokeDasharray="3,3" />
+          </g>
+        )}
+      </g>
+    </g>
+  );
+}
+
+function SpatulaToolAssembly({ x = 460, y = 310, powderAmount = 15, onScoop, scale = 1 }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`} style={{ cursor: 'pointer' }} onClick={onScoop}>
+      <rect x="-60" y="-3" width="70" height="6" rx="3" fill="#ef4444" stroke="#991b1b" strokeWidth="1" />
+      <rect x="10" y="-2" width="40" height="4" fill="#cbd5e1" stroke="#64748b" strokeWidth="1" />
+      <path d="M 50 -2 L 80 -6 C 88 -6, 88 6, 80 6 L 50 2 Z" fill="#94a3b8" stroke="#475569" strokeWidth="1" />
+      
+      {powderAmount > 0 && (
+        <ellipse cx="70" cy="-1" rx="9" ry="4" fill="#991b1b" stroke="#7f1d1d" strokeWidth="1" />
+      )}
+
+      <rect x="-10" y="-24" width="90" height="16" rx="4" fill="rgba(15, 23, 42, 0.95)" stroke="#991b1b" strokeWidth="1" />
+      <text x="35" y="-13" fill="#fca5a5" fontSize="8.5" fontWeight="900" textAnchor="middle">
+        Spatula Fe₂O₃ ({powderAmount}g)
+      </text>
+    </g>
+  );
+}
+
+function ApparatusPopoverMenu({ x = 300, y = 200, title = "Large hard-glass tube", toggles = {}, onToggle, onOpenMicroscope, onDelete, onClose }) {
+  return (
+    <div style={{
+      position: 'absolute',
+      left: `${x}px`,
+      top: `${y}px`,
+      transform: 'translate(-50%, -105%)',
+      background: 'rgba(15, 23, 42, 0.96)',
+      backdropFilter: 'blur(16px)',
+      border: '1.5px solid rgba(56, 189, 248, 0.6)',
+      borderRadius: '16px',
+      padding: '12px 16px',
+      boxShadow: '0 12px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.25)',
+      zIndex: 100,
+      minWidth: '220px',
+      userSelect: 'none'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '6px' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.02em' }}>
+          {title}
+        </span>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}>
+          <X size={16} />
+        </button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+        <button 
+          onClick={() => onToggle('temp')}
+          style={{
+            background: toggles.temp ? '#0284c7' : 'rgba(30, 41, 59, 0.8)',
+            border: toggles.temp ? '1px solid #38bdf8' : '1px solid #334155',
+            color: toggles.temp ? '#ffffff' : '#cbd5e1',
+            borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+          }}
+        >
+          Temperature
+        </button>
+
+        <button 
+          onClick={() => onToggle('vol')}
+          style={{
+            background: toggles.vol ? '#0284c7' : 'rgba(30, 41, 59, 0.8)',
+            border: toggles.vol ? '1px solid #38bdf8' : '1px solid #334155',
+            color: toggles.vol ? '#ffffff' : '#cbd5e1',
+            borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+          }}
+        >
+          Volume
+        </button>
+
+        <button 
+          onClick={() => onToggle('aos')}
+          style={{
+            background: toggles.aos ? '#0284c7' : 'rgba(30, 41, 59, 0.8)',
+            border: toggles.aos ? '1px solid #38bdf8' : '1px solid #334155',
+            color: toggles.aos ? '#ffffff' : '#cbd5e1',
+            borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+          }}
+        >
+          AoS (Mol/m)
+        </button>
+
+        <button 
+          onClick={() => onToggle('eq')}
+          style={{
+            background: toggles.eq ? '#0284c7' : 'rgba(30, 41, 59, 0.8)',
+            border: toggles.eq ? '1px solid #38bdf8' : '1px solid #334155',
+            color: toggles.eq ? '#ffffff' : '#cbd5e1',
+            borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+          }}
+        >
+          Equation
+        </button>
+
+        <button 
+          onClick={() => onToggle('mass')}
+          style={{
+            background: toggles.mass ? '#0284c7' : 'rgba(30, 41, 59, 0.8)',
+            border: toggles.mass ? '1px solid #38bdf8' : '1px solid #334155',
+            color: toggles.mass ? '#ffffff' : '#cbd5e1',
+            borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+          }}
+        >
+          Mass
+        </button>
+
+        {onOpenMicroscope && (
+          <button 
+            onClick={onOpenMicroscope}
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)',
+              border: '1px solid #a855f7',
+              color: '#ffffff',
+              borderRadius: '8px', padding: '6px 10px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+            }}
+          >
+            🔬 Microscope
+          </button>
+        )}
+      </div>
+
+      <button 
+        onClick={onDelete}
+        style={{
+          width: '100%', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444',
+          color: '#fca5a5', borderRadius: '8px', padding: '6px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+        }}
+      >
+        🗑️ Reset / Refill
+      </button>
+    </div>
+  );
+}
+
+function MicroscopeModalWindow({ isOpen, onClose, temp = 25, isReacting = false }) {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'absolute',
+      left: '16px',
+      top: '16px',
+      width: '280px',
+      background: 'rgba(9, 14, 30, 0.96)',
+      backdropFilter: 'blur(16px)',
+      border: '2px solid #a855f7',
+      borderRadius: '16px',
+      padding: '14px',
+      boxShadow: '0 16px 40px rgba(0,0,0,0.8), 0 0 25px rgba(168, 85, 247, 0.3)',
+      zIndex: 120
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <span style={{ fontSize: '0.82rem', fontWeight: 900, color: '#e9d5ff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          🔬 KÍNH HIỂN VI PHÂN TỬ
+        </span>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+          <X size={16} />
+        </button>
+      </div>
+
+      <div style={{
+        width: '100%', height: '140px', background: '#020617', borderRadius: '12px',
+        border: '1px solid rgba(168, 85, 247, 0.4)', position: 'relative', overflow: 'hidden'
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 250 140">
+          <defs>
+            <radialGradient id="feAtomGrad" cx="30%" cy="30%">
+              <stop offset="0%" stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#78350f" />
+            </radialGradient>
+            <radialGradient id="coMoleculeGrad" cx="30%" cy="30%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#0369a1" />
+            </radialGradient>
+          </defs>
+
+          <g transform="translate(125, 70)">
+            {/* Fe Atoms */}
+            <circle cx="-30" cy="-20" r="10" fill="url(#feAtomGrad)" stroke="#fbbf24" strokeWidth="1" />
+            <circle cx="30" cy="-20" r="10" fill="url(#feAtomGrad)" stroke="#fbbf24" strokeWidth="1" />
+            <circle cx="0" cy="25" r="10" fill="url(#feAtomGrad)" stroke="#fbbf24" strokeWidth="1" />
+
+            {/* O Atoms (Red) */}
+            <circle cx="-15" cy="-35" r="7" fill="#ef4444" />
+            <circle cx="15" cy="-35" r="7" fill="#ef4444" />
+            <circle cx="0" cy="-10" r="7" fill="#ef4444" />
+
+            <g className="co-molecules">
+              <g transform="translate(-70, 0)">
+                <circle cx="-6" cy="0" r="8" fill="url(#coMoleculeGrad)" />
+                <circle cx="6" cy="0" r="7" fill="#ef4444" />
+                <text x="0" y="14" fill="#38bdf8" fontSize="8" fontWeight="bold" textAnchor="middle">CO</text>
+              </g>
+              {isReacting && (
+                <g transform="translate(70, -30)">
+                  <circle cx="0" cy="0" r="7" fill="#475569" />
+                  <circle cx="-10" cy="0" r="6" fill="#ef4444" />
+                  <circle cx="10" cy="0" r="6" fill="#ef4444" />
+                  <text x="0" y="14" fill="#a855f7" fontSize="8" fontWeight="bold" textAnchor="middle">CO₂</text>
+                </g>
+              )}
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div style={{ marginTop: '10px', fontSize: '0.72rem', color: '#cbd5e1', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>Phân tử CO:</span>
+          <span style={{ color: '#38bdf8', fontWeight: 'bold' }}>2.337 × 10⁻³ mol</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>Mạng tinh thể Fe₂O₃:</span>
+          <span style={{ color: isReacting ? '#ef4444' : '#fde047', fontWeight: 'bold' }}>
+            {isReacting ? 'Đang bị CO chiếm O₂...' : '15.00 g (9.39 × 10⁻² mol)'}
+          </span>
+        </div>
+        {isReacting && (
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <span>Sắt kim loại (Fe):</span>
+            <span style={{ color: '#4ade80', fontWeight: 'bold' }}>10.50 g (Mới sinh)</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Chem9Fe2O3COSim({ onLog, onSensorUpdate }) {
+  const [fe2o3Amount, setFe2o3Amount] = useState(15);
+  const [isPowderInTube, setIsPowderInTube] = useState(true);
+  const [jackHeight, setJackHeight] = useState(0.6);
+  const [isMatchLit, setIsMatchLit] = useState(false);
+  const [isBurnerOn, setIsBurnerOn] = useState(false);
+  const [isGasFlowOn, setIsGasFlowOn] = useState(false);
+  const [temp, setTemp] = useState(25.0);
+  const [reactionProgress, setReactionProgress] = useState(0.0);
+  const [activePopover, setActivePopover] = useState(null);
+  const [showMicroscope, setShowMicroscope] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const [toggles, setToggles] = useState({ temp: true, vol: true, aos: true, eq: true, mass: true });
+
+  const handleToggle = (key) => {
+    setToggles(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleStrikeMatch = () => {
+    setIsMatchLit(true);
+    if (onLog) onLog("🔥 Đã quẹt diêm! Ngọn lửa diêm bùng cháy.");
+  };
+
+  const handleToggleBurner = () => {
+    if (!isMatchLit && !isBurnerOn) {
+      if (onLog) onLog("⚠️ Bạn cần quẹt diêm thắp lửa trước khi đốt đèn cồn!");
+      return;
+    }
+    const next = !isBurnerOn;
+    setIsBurnerOn(next);
+    if (next && onLog) onLog("🔥 Ngọn lửa đèn cồn bùng cháy dưới ống nghiệm!");
+  };
+
+  const handleToggleGas = () => {
+    const next = !isGasFlowOn;
+    setIsGasFlowOn(next);
+    if (next && onLog) onLog("💨 Đã mở van xả! Dòng khí Carbon Monoxide (CO) bắt đầu thổi qua ống nghiệm.");
+  };
+
+  const handleScoopPowder = () => {
+    setIsPowderInTube(true);
+    if (onLog) onLog(`🥄 Thìa Spatula đong ${fe2o3Amount}g bột Fe₂O₃ đỏ nâu cho vào ống thủy tinh.`);
+  };
+
+  const handleReset = () => {
+    setFe2o3Amount(15);
+    setIsPowderInTube(true);
+    setJackHeight(0.6);
+    setIsMatchLit(false);
+    setIsBurnerOn(false);
+    setIsGasFlowOn(false);
+    setTemp(25.0);
+    setReactionProgress(0.0);
+    setActivePopover(null);
+    setShowMicroscope(false);
+    if (onLog) onLog("🔄 Đã làm mới phòng thí nghiệm ảo về trạng thái ban đầu.");
+  };
+
+  // Heating & Reaction Kinetics Loop
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Heating
+      if (isBurnerOn && jackHeight > 0.35) {
+        setTemp(prev => {
+          const next = Math.min(600.0, prev + 12.5);
+          return next;
+        });
+      } else {
+        setTemp(prev => Math.max(25.0, prev - 8.0));
+      }
+
+      // Reaction
+      if (temp > 350.0 && isGasFlowOn && isPowderInTube) {
+        setReactionProgress(prev => {
+          const next = Math.min(1.0, prev + 0.05);
+          if (next >= 1.0 && prev < 1.0 && onLog) {
+            onLog("⚡ PHẢN ỨNG HOÀN TOÀN: Bột Fe₂O₃ màu đỏ nâu đã bị khí CO khử hoàn toàn thành bột sắt Fe xám đen! Khí CO₂ làm đục nước vôi trong Ca(OH)₂.");
+          }
+          return next;
+        });
+      }
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, [isBurnerOn, jackHeight, temp, isGasFlowOn, isPowderInTube, onLog]);
+
+  useEffect(() => {
+    if (onSensorUpdate) {
+      onSensorUpdate({
+        temp: temp,
+        ph: reactionProgress > 0.3 ? 8.2 : 7.0,
+        mass: 15.0 - (reactionProgress * 4.5)
+      });
+    }
+  }, [temp, reactionProgress, onSensorUpdate]);
+
+  // Interpolated powder color: #991b1b (red-brown) to #1e293b (metallic dark grey/black)
+  const powderColor = reactionProgress > 0.8 ? '#1e293b' : reactionProgress > 0.4 ? '#571c26' : '#991b1b';
+  const limewaterOpacity = 0.3 + (reactionProgress * 0.65);
+  const burnerY = 270 - (jackHeight * 45);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px', background: '#070f1e', borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.4)', padding: '12px', position: 'relative', overflow: 'hidden' }}>
+      
+      {/* Top Floating Controls Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '8px 14px', borderRadius: '12px', flexWrap: 'wrap', gap: '8px', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            🧪 KHỬ Fe₂O₃ BẰNG KHÍ CO (GDPT 2018)
+          </span>
+          <span style={{ fontSize: '0.75rem', color: temp > 400 ? '#ef4444' : temp > 100 ? '#f59e0b' : '#38bdf8', fontWeight: 'bold', fontFamily: 'monospace' }}>
+            Nhiệt độ: {temp.toFixed(1)} °C
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button onClick={handleScoopPowder} style={{ background: '#991b1b', border: '1px solid #fca5a5', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>
+            🥄 Thìa Fe₂O₃
+          </button>
+          <button onClick={handleStrikeMatch} style={{ background: isMatchLit ? '#eab308' : '#3b82f6', border: 'none', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>
+            🔥 {isMatchLit ? 'Diêm đang cháy' : 'Quẹt Diêm'}
+          </button>
+          <button onClick={handleToggleBurner} style={{ background: isBurnerOn ? '#dc2626' : '#1e293b', border: '1px solid #ef4444', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>
+            🕯️ {isBurnerOn ? 'Tắt Đèn Cồn' : 'Đốt Đèn Cồn'}
+          </button>
+          <button onClick={handleToggleGas} style={{ background: isGasFlowOn ? '#0284c7' : '#1e293b', border: '1px solid #38bdf8', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}>
+            💨 {isGasFlowOn ? 'Khí CO: BẬT' : 'Mở Khí CO'}
+          </button>
+          <button onClick={() => setShowMicroscope(!showMicroscope)} style={{ background: '#7c3aed', border: '1px solid #a855f7', color: '#fff', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer' }}>
+            🔬 Kính hiển vi
+          </button>
+          <button onClick={handleReset} style={{ background: '#334155', border: '1px solid #64748b', color: '#cbd5e1', borderRadius: '8px', padding: '4px 10px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}>
+            🔄 Reset
+          </button>
+        </div>
+      </div>
+
+      {/* Main 3D Virtual Canvas Window */}
+      <div style={{ flex: 1, minHeight: 0, position: 'relative', width: '100%', background: '#030816', borderRadius: '12px', overflow: 'hidden' }}>
+        <svg width="100%" height="100%" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="hardGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+              <stop offset="30%" stopColor="rgba(255,255,255,0.1)" />
+              <stop offset="70%" stopColor="rgba(255,255,255,0.05)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0.3)" />
+            </linearGradient>
+
+            <linearGradient id="limewaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="rgba(224, 242, 254, 0.8)" />
+              <stop offset="100%" stopColor="rgba(186, 230, 253, 0.4)" />
+            </linearGradient>
+
+            <filter id="glowHeat">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Background Grid Pattern */}
+          <rect width="800" height="420" fill="#030816" />
+          <path d="M 0 50 L 800 50 M 0 100 L 800 100 M 0 150 L 800 150 M 0 200 L 800 200 M 0 250 L 800 250 M 0 300 L 800 300 M 0 350 L 800 350" stroke="rgba(30, 58, 138, 0.2)" strokeWidth="1" strokeDasharray="4,4" />
+
+          {/* 1. LEFT RETORT STAND (Giá kẹp thí nghiệm 1) */}
+          <g transform="translate(140, 360)">
+            <rect x="-40" y="0" width="80" height="12" rx="2" fill="#334155" stroke="#64748b" strokeWidth="1.5" />
+            <rect x="-4" y="-280" width="8" height="280" fill="#64748b" stroke="#475569" strokeWidth="1" />
+            {/* Clamp Bosshead */}
+            <rect x="-10" y="-195" width="20" height="14" rx="2" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
+            {/* Clamp Jaws holding glass tube */}
+            <path d="M -10 -188 L -25 -188 L -25 -170 L 15 -170 L 15 -188 L 0 -188" stroke="#cbd5e1" strokeWidth="3" fill="none" />
+          </g>
+
+          {/* 2. RIGHT RETORT STAND (Giá kẹp thí nghiệm 2) */}
+          <g transform="translate(440, 360)">
+            <rect x="-40" y="0" width="80" height="12" rx="2" fill="#334155" stroke="#64748b" strokeWidth="1.5" />
+            <rect x="-4" y="-280" width="8" height="280" fill="#64748b" stroke="#475569" strokeWidth="1" />
+            <rect x="-10" y="-195" width="20" height="14" rx="2" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
+            <path d="M -10 -188 L -25 -188 L -25 -170 L 15 -170 L 15 -188 L 0 -188" stroke="#cbd5e1" strokeWidth="3" fill="none" />
+          </g>
+
+          {/* 3. CO GAS SUPPLY CYLINDER (Bình chứa khí CO) */}
+          <g transform="translate(60, 260)" style={{ cursor: 'pointer' }} onClick={() => setActivePopover('cylinder')}>
+            <rect x="-25" y="0" width="50" height="100" rx="12" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
+            <rect x="-12" y="-14" width="24" height="14" rx="3" fill="#cbd5e1" stroke="#475569" strokeWidth="1" />
+            <circle cx="0" cy="-20" r="8" fill="#f59e0b" stroke="#78350f" strokeWidth="1.5" onClick={handleToggleGas} />
+            <text x="0" y="55" fill="#ffffff" fontSize="13" fontWeight="900" textAnchor="middle">CO (g)</text>
+            <text x="0" y="72" fill="#bae6fd" fontSize="9" fontWeight="bold" textAnchor="middle">{isGasFlowOn ? '💨 BẬT' : 'TẮT'}</text>
+          </g>
+
+          {/* CO Gas Rubber Hose to Tube */}
+          <path d="M 60 240 Q 60 178 120 178" stroke="#38bdf8" strokeWidth="5" fill="none" strokeDasharray={isGasFlowOn ? "6,3" : "none"} />
+
+          {/* 4. SCISSOR JACK LIFT & ALCOHOL BURNER */}
+          <ScissorJackAssembly x={280} y={350} jackHeight={jackHeight} onHeightChange={setJackHeight} />
+          <g transform={`translate(280, ${burnerY})`} style={{ cursor: 'pointer' }} onClick={() => setActivePopover('burner')}>
+            <AlcoholLampAssembly x={0} y={0} isHeating={isBurnerOn} temp={temp} />
+          </g>
+
+          {/* 5. HORIZONTAL HARD GLASS TUBE (Ống thủy tinh chịu nhiệt) */}
+          <g transform="translate(120, 160)" style={{ cursor: 'pointer' }} onClick={() => setActivePopover('tube')}>
+            {/* Rubber Stopper Left */}
+            <rect x="-5" y="6" width="16" height="24" rx="2" fill="#78350f" stroke="#451a03" strokeWidth="1.5" />
+            
+            {/* Main Glass Tube Body */}
+            <rect x="10" y="4" width="340" height="28" rx="14" fill="url(#hardGlassGrad)" stroke="rgba(255,255,255,0.7)" strokeWidth="2" />
+            
+            {/* Fe2O3 / Fe Powder Mound inside tube */}
+            {isPowderInTube && (
+              <path d="M 120 30 Q 170 14 220 30 Z" fill={powderColor} stroke="rgba(0,0,0,0.3)" strokeWidth="1" />
+            )}
+
+            {/* Glowing Red Heat Area when heating */}
+            {temp > 300 && (
+              <rect x="110" y="2" width="120" height="32" rx="16" fill="rgba(239, 68, 68, 0.25)" filter="url(#glowHeat)" />
+            )}
+
+            {/* Dynamic Gas Flow Stream inside tube */}
+            {isGasFlowOn && (
+              <path d="M 10 18 L 340 18" stroke="rgba(56, 189, 248, 0.6)" strokeWidth="2" strokeDasharray="8,6" style={{ animation: 'gasStreamFlow 0.5s infinite linear' }} />
+            )}
+
+            {/* Rubber Stopper Right */}
+            <rect x="345" y="6" width="16" height="24" rx="2" fill="#78350f" stroke="#451a03" strokeWidth="1.5" />
+          </g>
+
+          {/* 6. DELIVERY GLASS TUBE TO LIMEWATER TEST TUBE */}
+          <path d="M 480 178 L 560 178 L 560 260" stroke="rgba(255,255,255,0.8)" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+
+          {/* 7. LIMEWATER TEST TUBE & RACK (Ống nghiệm đựng Ca(OH)2) */}
+          <g transform="translate(560, 240)" style={{ cursor: 'pointer' }} onClick={() => setActivePopover('testtube')}>
+            {/* Test Tube Holder Stand */}
+            <rect x="-30" y="110" width="60" height="10" fill="#334155" rx="2" />
+            <rect x="-4" y="0" width="8" height="110" fill="#475569" />
+            <rect x="-25" y="20" width="50" height="8" rx="2" fill="#64748b" />
+
+            {/* Glass Test Tube Body */}
+            <rect x="-18" y="0" width="36" height="100" rx="18" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.7)" strokeWidth="2" />
+            
+            {/* Ca(OH)2 / CaCO3 Solution Liquid */}
+            <rect x="-16" y="30" width="32" height="68" rx="14" fill={reactionProgress > 0.4 ? "#f8fafc" : "url(#limewaterGrad)"} opacity={limewaterOpacity} />
+            
+            {/* Gas Bubbles escaping delivery tube in liquid */}
+            {reactionProgress > 0.05 && (
+              <g className="gas-bubbles">
+                <circle cx="0" cy="80" r="3" fill="#ffffff" opacity="0.8" />
+                <circle cx="-6" cy="65" r="4" fill="#ffffff" opacity="0.7" />
+                <circle cx="5" cy="50" r="3" fill="#ffffff" opacity="0.9" />
+              </g>
+            )}
+
+            <text x="0" y="128" fill="#e2e8f0" fontSize="10" fontWeight="900" textAnchor="middle">
+              Ca(OH)₂ (Nước vôi trong)
+            </text>
+          </g>
+
+          {/* 8. TOOLS & REAGENTS TABLE SHELF */}
+          <rect x="0" y="372" width="800" height="48" fill="#0f172a" stroke="#1e293b" strokeWidth="2" />
+
+          <MatchBoxAndStickAssembly x={670} y={350} isMatchLit={isMatchLit} onStrikeMatch={handleStrikeMatch} />
+          <SpatulaToolAssembly x={500} y={360} powderAmount={fe2o3Amount} onScoop={handleScoopPowder} />
+
+          {/* Floating Chemical Equations on Canvas */}
+          {toggles.eq && (
+            <g transform="translate(180, 115)">
+              <rect x="-10" y="-18" width="320" height="24" rx="6" fill="rgba(15, 23, 42, 0.85)" stroke="#38bdf8" strokeWidth="1" />
+              <text x="150" y="-2" fill="#38bdf8" fontSize="11" fontWeight="900" textAnchor="middle" letterSpacing="0.5">
+                Fe₂O₃ + 3CO ──t°──➔ 2Fe + 3CO₂
+              </text>
+            </g>
+          )}
+
+          {toggles.eq && (
+            <g transform="translate(560, 210)">
+              <rect x="-105" y="-18" width="210" height="24" rx="6" fill="rgba(15, 23, 42, 0.85)" stroke="#a855f7" strokeWidth="1" />
+              <text x="0" y="-2" fill="#c084fc" fontSize="10" fontWeight="900" textAnchor="middle">
+                Ca(OH)₂ + CO₂ ➔ CaCO₃↓ + H₂O
+              </text>
+            </g>
+          )}
+
+          {/* Floating AoS Real-Time Stats Card */}
+          {toggles.aos && (
+            <g transform="translate(300, 40)">
+              <rect x="0" y="0" width="200" height="65" rx="8" fill="rgba(15, 23, 42, 0.9)" stroke="#0284c7" strokeWidth="1.5" />
+              <text x="10" y="16" fill="#fde047" fontSize="9.5" fontWeight="bold">Fe₂O₃(s): m = 15.00g, n = 9.39 × 10⁻² mol</text>
+              <text x="10" y="32" fill="#38bdf8" fontSize="9.5" fontWeight="bold">CO(g): temp = {temp.toFixed(0)}°C, p = 107.9 kPa</text>
+              <text x="10" y="48" fill="#4ade80" fontSize="9.5" fontWeight="bold">Fe(s): m = {(reactionProgress * 10.5).toFixed(2)}g, n = {(reactionProgress * 0.18).toFixed(2)} mol</text>
+            </g>
+          )}
+        </svg>
+
+        {/* Interactive Popover Menu Window */}
+        {activePopover === 'tube' && (
+          <ApparatusPopoverMenu 
+            x={320} y={170} 
+            title="Large hard-glass tube (Ống thủy tinh chịu nhiệt)" 
+            toggles={toggles} 
+            onToggle={handleToggle}
+            onOpenMicroscope={() => setShowMicroscope(true)}
+            onDelete={handleReset}
+            onClose={() => setActivePopover(null)}
+          />
+        )}
+
+        {activePopover === 'testtube' && (
+          <ApparatusPopoverMenu 
+            x={640} y={230} 
+            title="Large test tube (Ống nghiệm Ca(OH)₂)" 
+            toggles={toggles} 
+            onToggle={handleToggle}
+            onOpenMicroscope={() => setShowMicroscope(true)}
+            onDelete={handleReset}
+            onClose={() => setActivePopover(null)}
+          />
+        )}
+
+        {/* Microscope Floating Modal */}
+        <MicroscopeModalWindow 
+          isOpen={showMicroscope} 
+          onClose={() => setShowMicroscope(false)} 
+          temp={temp} 
+          isReacting={reactionProgress > 0.05} 
+        />
+      </div>
+    </div>
+  );
+}
+
+
 
 export function InteractiveExperimentCanvas({ experiment, onClose }) {
   const [logs, setLogs] = useState([
@@ -4463,6 +5312,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   const [sensorData, setSensorData] = useState({ temp: 25.0, ph: 7.0, mass: 150.00 });
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [simOverride, setSimOverride] = useState(null);
 
   useEffect(() => {
     const handleFSChange = () => {
@@ -4493,6 +5343,10 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   };
 
   const renderSimComponent = () => {
+    if (simOverride === 'chem9_fe2o3_co') {
+      return <Chem9Fe2O3COSim onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+    }
+
     switch (experiment?.interactiveType) {
       case 'chemistry_acid_base':
         return <ChemistryAcidBaseSim config={experiment.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
@@ -4508,6 +5362,8 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         return <ChemistrySilverMirrorSim onLog={addLog} />;
 
       // Grade 9 Chemistry Textbook & Video Simulations
+      case 'chem9_fe2o3_co':
+        return <Chem9Fe2O3COSim onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       case 'chem9_fe_o2':
         return <Chem9FeO2Sim onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       case 'chem9_al_o2':
@@ -4615,6 +5471,20 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button 
+            onClick={() => setSimOverride(simOverride === 'chem9_fe2o3_co' ? null : 'chem9_fe2o3_co')}
+            style={{
+              background: simOverride === 'chem9_fe2o3_co' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)',
+              border: '1px solid #a855f7',
+              color: '#ffffff', borderRadius: '12px', padding: '10px 16px',
+              fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: '0 4px 16px rgba(168, 85, 247, 0.4)'
+            }}
+          >
+            <Sparkles size={18} /> {simOverride === 'chem9_fe2o3_co' || experiment?.interactiveType === 'chem9_fe2o3_co' ? '🔥 Đang ở 3D NOBOOK Lab' : '🔥 Chuyển 3D NOBOOK Lab'}
+          </button>
+
           <button 
             onClick={toggleFullscreen}
             style={{

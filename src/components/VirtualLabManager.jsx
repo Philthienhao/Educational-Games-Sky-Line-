@@ -221,6 +221,86 @@ export function VirtualLabManager({ currentUser }) {
         </div>
       </div>
 
+      {/* Featured 3D NOBOOK Whiteboard Experiment Hero Card */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #064e3b 50%, #0f172a 100%)',
+        borderRadius: '20px',
+        padding: '22px 28px',
+        border: '2px solid rgba(245, 158, 11, 0.6)',
+        boxShadow: '0 8px 32px rgba(245, 158, 11, 0.25)',
+        marginBottom: '28px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        <div style={{ flex: 1, minWidth: '280px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.72rem', fontWeight: 900, padding: '3px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>
+              🔥 MỚI - CHUẨN NOBOOK 3D
+            </span>
+            <span style={{ color: '#fde047', fontSize: '0.8rem', fontWeight: 800 }}>
+              Bảng Tương Tác Cảm Ứng
+            </span>
+          </div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc', margin: '0 0 6px 0' }}>
+            🧪 Thí Nghiệm 3D: Khử Sắt(III) Oxit (Fe₂O₃) Bằng Khí CO
+          </h2>
+          <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
+            Mô phỏng 3D trực quan như trong video: Thìa Spatula đong bột, quẹt diêm đốt đèn cồn, điều chỉnh giá nâng lò xo Scissor Jack, bình khí CO, kính hiển vi phân tử & bảng thông số real-time.
+          </p>
+        </div>
+
+        <button 
+          onClick={() => setActiveExperiment({
+            id: 'exp_chem9_fe2o3_co',
+            title: '🔥 Thí Nghiệm 3D: Khử Sắt(III) Oxit (Fe₂O₃) Bằng Khí Carbon Monoxide (CO)',
+            subject: 'Hóa học',
+            subjectCategory: 'KHTN',
+            grade: 9,
+            chapter: 'Chương 2: Kim loại - Tính chất hóa học & Điều chế kim loại (GDPT 2018)',
+            objective: 'Thao tác trên bảng tương tác: Đong bột Fe₂O₃ bằng thìa, quẹt diêm đốt đèn cồn, điều chỉnh giá nâng, dẫn khí CO khử Fe₂O₃ ở nhiệt độ cao, quan sát bột chuyển đỏ nâu sang xám đen Fe, khí CO₂ thoát ra làm đục nước vôi trong Ca(OH)₂, xem kính hiển vi phân tử & chỉ số real-time.',
+            equipment: [
+              'Ống thủy tinh chịu nhiệt nằm ngang & Khay giá kẹp kiềm sắt',
+              'Đèn cồn & Hộp diêm quẹt lửa trực quan',
+              'Giá nâng lò xo (Scissor Jack Lift) nâng hạ chiều cao',
+              'Thìa đong hóa chất spatula kèm slider khối lượng',
+              'Bột Fe₂O₃ (đỏ nâu), Bình khí CO kèm van xả',
+              'Ống nghiệm chứa nước vôi trong Ca(OH)₂ & Nút cao su dẫn khí',
+              'Kính hiển vi phân tử (Microscope View) & Bảng thông số AoS, Temp, Vol'
+            ],
+            steps: [
+              '1. Dùng thìa Spatula đong 15g bột Fe₂O₃ cho vào ống thủy tinh nằm ngang.',
+              '2. Quẹt diêm trên hộp diêm rồi đưa lại gần bấc đèn cồn để thắp lửa.',
+              '3. Điều chỉnh giá nâng Scissor Jack nâng đèn cồn sát ống nghiệm.',
+              '4. Mở van bình khí CO để dòng khí CO chạy qua ống nghiệm.',
+              '5. Bật bảng thông số (Temperature, Volume, AoS, Equation, Microscope) trên bảng tương tác để theo dõi phản ứng nhiệt độ tăng tới 600°C, Fe₂O₃ hóa xám đen và nước vôi trong vẩn đục.'
+            ],
+            phenomenon: 'Bột Fe₂O₃ đỏ nâu chuyển dần thành bột sắt Fe màu xám đen bóng. Khí CO₂ sinh ra đi qua ống dẫn khí làm dung dịch Ca(OH)₂ trong suốt chuyển thành kết tủa đục trắng CaCO₃.',
+            explanation: 'Khí CO có tính khử mạnh ở nhiệt độ cao (>500°C), chiếm oxy của Fe₂O₃ tạo ra kim loại Fe và khí CO₂. Khí CO₂ tác dụng với Ca(OH)₂ tạo kết tủa CaCO₃ không tan.',
+            interactiveType: 'chem9_fe2o3_co'
+          })}
+          style={{
+            background: 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '14px',
+            padding: '14px 24px',
+            fontWeight: 900,
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 6px 20px rgba(245, 158, 11, 0.45)',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <Play size={20} fill="#ffffff" /> ▶️ Trải Nghiệm Thí Nghiệm 3D NOBOOK Ngay!
+        </button>
+      </div>
+
       {/* Filter and Search Control Bar */}
       <div style={{
         background: 'rgba(15, 23, 42, 0.8)',
