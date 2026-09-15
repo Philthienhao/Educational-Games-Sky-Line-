@@ -91,7 +91,10 @@ export function VirtualLabManager({ currentUser }) {
   // Filtering Logic
   const filteredExperiments = experiments.filter(exp => {
     const matchGrade = selectedGrade === 'all' || String(exp.grade) === String(selectedGrade);
-    const matchSubject = selectedSubject === 'all' || exp.subject === selectedSubject || (selectedSubject === 'KHTN' && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên'));
+    const isKHTNFilter = selectedSubject === 'KHTN' || selectedSubject === 'Khoa học tự nhiên';
+    const matchSubject = selectedSubject === 'all' || 
+      exp.subject === selectedSubject || 
+      (isKHTNFilter && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên' || exp.subject === 'Địa lí' || Number(exp.grade) <= 9));
     const matchSearch = !searchTerm.trim() || 
       exp.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
       exp.explanation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
