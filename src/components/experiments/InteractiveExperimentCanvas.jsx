@@ -5538,19 +5538,21 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button 
-            onClick={() => setSimOverride(simOverride === 'chem9_fe2o3_co' ? null : 'chem9_fe2o3_co')}
-            style={{
-              background: simOverride === 'chem9_fe2o3_co' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)',
-              border: '1px solid #a855f7',
-              color: '#ffffff', borderRadius: '12px', padding: '10px 16px',
-              fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '8px',
-              boxShadow: '0 4px 16px rgba(168, 85, 247, 0.4)'
-            }}
-          >
-            <Sparkles size={18} /> {simOverride === 'chem9_fe2o3_co' || experiment?.interactiveType === 'chem9_fe2o3_co' ? '🔥 Đang ở 3D NOBOOK Lab' : '🔥 Chuyển 3D NOBOOK Lab'}
-          </button>
+          {experiment?.interactiveType === 'chem9_fe2o3_co' && (
+            <button 
+              onClick={() => setSimOverride(simOverride === 'chem9_fe2o3_co' ? null : 'chem9_fe2o3_co')}
+              style={{
+                background: simOverride === 'chem9_fe2o3_co' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%)',
+                border: '1px solid #a855f7',
+                color: '#ffffff', borderRadius: '12px', padding: '10px 16px',
+                fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: '0 4px 16px rgba(168, 85, 247, 0.4)'
+              }}
+            >
+              <Sparkles size={18} /> {simOverride === 'chem9_fe2o3_co' ? '🔥 Đang ở 3D NOBOOK Lab' : '🔥 Chuyển 3D NOBOOK Lab'}
+            </button>
+          )}
 
           <button 
             onClick={toggleFullscreen}
