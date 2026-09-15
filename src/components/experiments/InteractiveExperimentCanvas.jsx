@@ -2292,83 +2292,36 @@ function planetPixelFn(id, N) {
   }
 }
 
-const PROCEDURAL_TEXTURE_CACHE = {};
-
 function generateProceduralPlanetTexture(id) {
-  if (PROCEDURAL_TEXTURE_CACHE[id]) return PROCEDURAL_TEXTURE_CACHE[id];
-  try {
-    if (typeof document === 'undefined') return null;
-    const W = (id === 'earth' || id === 'jupiter' || id === 'saturn') ? 256 : 128;
-    const H = Math.round(W / 2);
-    const rand = mulberry32(id.length * 7919 + id.charCodeAt(0) * 131);
-    const N = makePeriodicNoise(rand);
-    const canvas = makeCanvas(W, H);
-    if (!canvas) return null;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-
-    paintPixels(ctx, W, H, planetPixelFn(id, N));
-
-    if (id === 'mercury') drawCraters(ctx, W, H, rand, 30, 0.25);
-    if (id === 'mars') drawCraters(ctx, W, H, rand, 12, 0.18);
-    if (id === 'jupiter') {
-      drawSpot(ctx, W, H, 0.31, 0.63, 0.055, 0.045, hexToRgb('#c0392b'), 0.85, -0.12);
-      drawSpot(ctx, W, H, 0.31, 0.63, 0.028, 0.024, hexToRgb('#e8604a'), 0.8, -0.12);
-    }
-    if (id === 'neptune') {
-      drawSpot(ctx, W, H, 0.62, 0.42, 0.05, 0.035, hexToRgb('#101f45'), 0.75);
-    }
-
-    const dataUrl = canvas.toDataURL('image/png');
-    PROCEDURAL_TEXTURE_CACHE[id] = dataUrl;
-    return dataUrl;
-  } catch (e) {
-    console.warn("Failed to generate texture for", id, e);
-    return null;
-  }
+  return null;
 }
 
 // ==========================================
 // --- GEOGRAPHY GRADE 6 SIMULATOR COMPONENTS ---
 // ==========================================
 
-// 1. Solar System Orbits Simulator (Aslan.io.vn 3D Interactive Design)
+// 1. Solar System Orbits Simulator (Clean Lightweight Vector Sim)
 function GeoSolarSystemSim({ onLog }) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
-  const [selectedPlanetKey, setSelectedPlanetKey] = useState(null); // null = overview mode
-  const [tiltAngle, setTiltAngle] = useState(65); // 3D tilt perspective (degrees)
-  const [yawAngle, setYawAngle] = useState(0); // 3D yaw rotation
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [zoomScale, setZoomScale] = useState(1.0);
-  const [isMaximized, setIsMaximized] = useState(false); // Fullscreen 3D View mode
+  const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
 
   const orbitPlanetKeys = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
 
-  // Generate photorealistic procedural textures for all 8 planets
-  const planetTextures = useMemo(() => {
-    const map = {};
-    orbitPlanetKeys.forEach((key) => {
-      map[key] = generateProceduralPlanetTexture(key);
-    });
-    return map;
-  }, []);
-
   const planetData = {
-    sun: { key: 'sun', name: 'Mặt Trời (The Sun)', shortName: 'Mặt Trời', dist: '— (Trung tâm hệ)', size: '1.392.700 km (Gấp 109 lần Trái Đất)', period: '≈ 25,4 ngày (Tự quay)', temp: '5.500°C (Bề mặt) • 15 triệu °C (Lõi)', moons: '8 hành tinh & hàng triệu tiểu hành tinh', feature: 'Ngôi sao lùn vàng chiếm 99,86% tổng khối lượng toàn Hệ Mặt Trời. Cung cấp ánh sáng và năng lượng nhiệt nuôi sống Trái Đất.', color: '#f59e0b', pSize: 32 },
-    mercury: { key: 'mercury', name: 'Sao Thủy (Mercury)', shortName: 'Sao Thủy', dist: '57,9 triệu km (0.39 AU)', size: '4.879 km', period: '88 ngày', temp: '-180°C (Đêm) đến +430°C (Ngày)', moons: '0', feature: 'Hành tinh nhỏ nhất và gần Mặt Trời nhất. Chênh lệch nhiệt độ cực đại giữa ngày và đêm do không có khí quyển.', color: '#94a3b8', radius: 55, pSize: 7, speedVal: 4.1 },
-    venus: { key: 'venus', name: 'Sao Kim (Venus)', shortName: 'Sao Kim', dist: '108,2 triệu km (0.72 AU)', size: '12.104 km', period: '225 ngày', temp: '≈ 465°C (Nóng nhất toàn hệ)', moons: '0', feature: 'Hành tinh nóng nhất Hệ Mặt Trời với bầu khí quyển CO2 cực dày và mây axit sulfuric. Tự quay ngược chiều (Đông sang Tây).', color: '#f59e0b', radius: 85, pSize: 10, speedVal: 1.6 },
-    earth: { key: 'earth', name: 'Trái Đất (Earth)', shortName: 'Trái Đất', dist: '149,6 triệu km (1.00 AU)', size: '12.742 km', period: '365,25 ngày', temp: '15°C (Trung bình)', moons: '1 (Mặt Trăng / Moon)', feature: 'Hành tinh duy nhất có nước lỏng (phủ 71% bề mặt), khí quyển giàu Oxy/Nitơ và sự sống phong phú.', color: '#38bdf8', radius: 120, pSize: 11, speedVal: 1.0 },
-    mars: { key: 'mars', name: 'Sao Hỏa (Mars)', shortName: 'Sao Hỏa', dist: '227,9 triệu km (1.52 AU)', size: '6.779 km', period: '687 ngày', temp: '-63°C', moons: '2 (Phobos & Deimos)', feature: 'Hành tinh Đỏ phủ bụi oxit sắt. Có ngọn núi lửa Olympus Mons cao nhất Hệ Mặt Trời (21.9 km, gấp 2.5 lần Everest).', color: '#ef4444', radius: 155, pSize: 9, speedVal: 0.5 },
-    jupiter: { key: 'jupiter', name: 'Sao Mộc (Jupiter)', shortName: 'Sao Mộc', dist: '778,5 triệu km (5.20 AU)', size: '139.820 km', period: '11,86 năm', temp: '-110°C', moons: '95+ (Io, Europa, Ganymede...)', feature: 'Hành tinh khí khổng lồ lớn nhất (thể tích gấp 1.300 lần Trái Đất). Nổi tiếng với bão khổng lồ Vết Đỏ Lớn tồn tại 350 năm.', color: '#d97706', radius: 195, pSize: 19, speedVal: 0.2 },
-    saturn: { key: 'saturn', name: 'Sao Thổ (Saturn)', shortName: 'Sao Thổ', dist: '1,43 tỷ km (9.58 AU)', size: '116.460 km', period: '29,45 năm', temp: '-140°C', moons: '146+ (Titan có khí quyển)', feature: 'Tráng lệ nhất với vành đai đá và băng rực rỡ dẹt khổng lồ. Titan là vệ tinh duy nhất có khí quyển dày.', color: '#fde047', radius: 240, pSize: 16, speedVal: 0.1, ring: true },
-    uranus: { key: 'uranus', name: 'Sao Thiên Vương (Uranus)', shortName: 'Sao Thiên Vương', dist: '2,87 tỷ km (19.2 AU)', size: '50.724 km', period: '84 năm', temp: '-195°C', moons: '28', feature: 'Hành tinh băng nghiêng trục 98° ("lăn" trên quỹ đạo). Màu xanh lam do khí metan trong bầu khí quyển.', color: '#2dd4bf', radius: 280, pSize: 13, speedVal: 0.05 },
-    neptune: { key: 'neptune', name: 'Sao Hải Vương (Neptune)', shortName: 'Sao Hải Vương', dist: '4,5 tỷ km (30.1 AU)', size: '49.244 km', period: '164,8 năm', temp: '-200°C', moons: '16 (Triton)', feature: 'Hành tinh xa nhất Hệ Mặt Trời, tìm ra bằng toán học trước khi nhìn thấy. Sắc xanh thẫm với gió bão mạnh nhất (2.100 km/h).', color: '#6366f1', radius: 315, pSize: 13, speedVal: 0.03 }
+    sun: { key: 'sun', name: 'Mặt Trời (The Sun)', dist: '— (Trung tâm hệ)', size: '1.392.700 km (Gấp 109 lần Trái Đất)', period: '≈ 25,4 ngày (Tự quay)', temp: '5.500°C (Bề mặt) • 15 triệu °C (Lõi)', moons: '8 hành tinh & hàng triệu tiểu hành tinh', feature: 'Ngôi sao lùn vàng chiếm 99,86% tổng khối lượng toàn Hệ Mặt Trời. Cung cấp ánh sáng và nhiệt năng nuôi sống Trái Đất.', color: '#f59e0b', pSize: 28 },
+    mercury: { key: 'mercury', name: 'Sao Thủy (Mercury)', dist: '57,9 triệu km (0.39 AU)', size: '4.879 km', period: '88 ngày', temp: '-180°C đến +430°C', moons: '0', feature: 'Hành tinh nhỏ nhất và gần Mặt Trời nhất. Bề mặt phủ nhiều hố thiên thạch.', color: '#94a3b8', rx: 55, ry: 25, pSize: 6, speedVal: 3.5 },
+    venus: { key: 'venus', name: 'Sao Kim (Venus)', dist: '108,2 triệu km (0.72 AU)', size: '12.104 km', period: '225 ngày', temp: '≈ 465°C (Nóng nhất)', moons: '0', feature: 'Hành tinh nóng nhất Hệ Mặt Trời với bầu khí quyển CO2 cực dày.', color: '#f59e0b', rx: 85, ry: 38, pSize: 9, speedVal: 2.0 },
+    earth: { key: 'earth', name: 'Trái Đất (Earth)', dist: '149,6 triệu km (1.00 AU)', size: '12.742 km', period: '365,25 ngày', temp: '15°C (Trung bình)', moons: '1 (Mặt Trăng)', feature: 'Hành tinh duy nhất có nước lỏng (71% bề mặt) và sự sống phong phú.', color: '#38bdf8', rx: 120, ry: 54, pSize: 10, speedVal: 1.2 },
+    mars: { key: 'mars', name: 'Sao Hỏa (Mars)', dist: '227,9 triệu km (1.52 AU)', size: '6.779 km', period: '687 ngày', temp: '-63°C', moons: '2 (Phobos & Deimos)', feature: 'Hành tinh Đỏ phủ bụi oxit sắt. Có ngọn núi lửa Olympus Mons cao nhất Hệ Mặt Trời.', color: '#ef4444', rx: 155, ry: 70, pSize: 8, speedVal: 0.8 },
+    jupiter: { key: 'jupiter', name: 'Sao Mộc (Jupiter)', dist: '778,5 triệu km (5.20 AU)', size: '139.820 km', period: '11,86 năm', temp: '-110°C', moons: '95+ (Ganymede, Callisto...)', feature: 'Hành tinh khí khổng lồ lớn nhất Hệ Mặt Trời với Vết Đỏ Lớn tồn tại hàng trăm năm.', color: '#d97706', rx: 195, ry: 88, pSize: 17, speedVal: 0.4 },
+    saturn: { key: 'saturn', name: 'Sao Thổ (Saturn)', dist: '1,43 tỷ km (9.58 AU)', size: '116.460 km', period: '29,45 năm', temp: '-140°C', moons: '146+ (Titan)', feature: 'Hành tinh tráng lệ nhất với vành đai đá và băng rực rỡ dẹt khổng lồ.', color: '#fde047', rx: 235, ry: 106, pSize: 14, speedVal: 0.25, ring: true },
+    uranus: { key: 'uranus', name: 'Sao Thiên Vương (Uranus)', dist: '2,87 tỷ km (19.2 AU)', size: '50.724 km', period: '84 năm', temp: '-195°C', moons: '28', feature: 'Hành tinh băng nghiêng trục 98° có màu xanh lam nhẹ do khí metan.', color: '#2dd4bf', rx: 275, ry: 124, pSize: 12, speedVal: 0.15 },
+    neptune: { key: 'neptune', name: 'Sao Hải Vương (Neptune)', dist: '4,5 tỷ km (30.1 AU)', size: '49.244 km', period: '164,8 năm', temp: '-200°C', moons: '16 (Triton)', feature: 'Hành tinh xa nhất Hệ Mặt Trời với màu xanh thẫm và những trận bão gió cực mạnh.', color: '#6366f1', rx: 310, ry: 140, pSize: 12, speedVal: 0.08 }
   };
 
   const animRef = useRef(null);
-  const anglesRef = useRef(orbitPlanetKeys.map(() => Math.random() * Math.PI * 2));
+  const anglesRef = useRef([0.2, 1.1, 2.3, 3.5, 4.2, 5.1, 0.8, 1.9]);
   const [planetAngles, setPlanetAngles] = useState(anglesRef.current);
 
   useEffect(() => {
@@ -2381,7 +2334,7 @@ function GeoSolarSystemSim({ onLog }) {
 
       const nextAngles = anglesRef.current.map((ang, i) => {
         const key = orbitPlanetKeys[i];
-        return ang + planetData[key].speedVal * dt * speed;
+        return ang + planetData[key].speedVal * dt * speed * 0.8;
       });
       anglesRef.current = nextAngles;
       setPlanetAngles([...nextAngles]);
@@ -2395,313 +2348,188 @@ function GeoSolarSystemSim({ onLog }) {
     };
   }, [isPlaying, speed]);
 
-  // Handle Mouse Drag to Rotate 3D Camera View
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const dx = e.clientX - dragStart.x;
-    const dy = e.clientY - dragStart.y;
-    setYawAngle(prev => prev + dx * 0.4);
-    setTiltAngle(prev => Math.min(85, Math.max(15, prev - dy * 0.4)));
-    setDragStart({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseUp = () => setIsDragging(false);
-
-  // Wheel to Zoom
-  const handleWheel = (e) => {
-    setZoomScale(prev => Math.min(2.5, Math.max(0.5, prev - e.deltaY * 0.0015)));
-  };
-
   const handleSelectCelestial = (key) => {
     if (selectedPlanetKey === key) {
-      // Toggle OFF to Overview
       setSelectedPlanetKey(null);
-      onLog(`Quay về tổng quan góc nhìn 3D Hệ Mặt Trời.`);
+      if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời.`);
     } else {
       setSelectedPlanetKey(key);
       const p = planetData[key];
-      onLog(`Khám phá ${p.name}: Khoảng cách ${p.dist}, Đường kính ${p.size}, Chu kỳ ${p.period}.`);
+      if (onLog) onLog(`Khám phá ${p.name}: Khoảng cách ${p.dist}, Đường kính ${p.size}.`);
     }
   };
 
   const activePlanet = selectedPlanetKey ? planetData[selectedPlanetKey] : null;
 
-  // Compute 3D projected coordinates for planets
-  const tiltRad = (tiltAngle * Math.PI) / 180;
-  const yawRad = (yawAngle * Math.PI) / 180;
-  const aspectY = Math.sin(tiltRad); // Vertical compression for 3D tilt
-
-  // Effective container style: Fullscreen backdrop vs normal container
-  const containerStyle = isMaximized ? {
-    position: 'fixed', inset: '12px', zIndex: 2000,
-    background: '#020617', borderRadius: '20px', padding: '16px',
-    boxShadow: '0 0 60px rgba(0, 0, 0, 0.95)', border: '2px solid rgba(56, 189, 248, 0.6)',
-    display: 'flex', flexDirection: 'column', gap: '12px', userSelect: 'none'
-  } : {
-    display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none'
-  };
-
   return (
-    <div style={containerStyle}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none' }}>
       
-      {/* 3D Canvas Area */}
-      <div 
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
-        style={{
-          flex: 1, background: 'radial-gradient(circle at center, #091a2a 0%, #020617 100%)',
-          borderRadius: '16px', border: '1px solid rgba(56, 189, 248, 0.35)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative', overflow: 'hidden', cursor: isDragging ? 'grabbing' : 'grab'
-        }}
-      >
-        {/* Header Branding matching Aslan.io.vn */}
+      {/* Main Vector Interactive Canvas Area */}
+      <div style={{
+        flex: 1, minHeight: '340px', background: 'radial-gradient(circle at center, #091a2a 0%, #020617 100%)',
+        borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.35)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', overflow: 'hidden'
+      }}>
+        {/* Title HUD Header */}
         <div style={{ position: 'absolute', top: '16px', left: '20px', zIndex: 10, pointerEvents: 'none' }}>
-          <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.25em', textTransform: 'uppercase' }}>
-            THREE.JS / SVG · INTERACTIVE EXPERIENCE
+          <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+            MÔ HÌNH THƯỜNG TRỰC VẬT LÝ · ĐỊA LÝ KHỐI 6
           </div>
-          <h3 style={{ fontSize: isMaximized ? '1.8rem' : '1.4rem', fontWeight: 900, color: '#f8fafc', margin: '2px 0 0 0', textShadow: '0 0 15px rgba(56, 189, 248, 0.5)' }}>
-            HỆ MẶT TRỜI <span style={{ fontSize: '0.85rem', color: '#2dd4bf', fontWeight: 700 }}>3D</span>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f8fafc', margin: '2px 0 0 0', textShadow: '0 0 15px rgba(56, 189, 248, 0.5)' }}>
+            HỆ MẶT TRỜI (SOLAR SYSTEM)
           </h3>
           <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
-            Mô hình 3D tương tác — 8 hành tinh quay quanh một ngôi sao
+            Mô phỏng 8 hành tinh quay chuyển động quanh Mặt Trời trên quỹ đạo
           </div>
         </div>
 
-        {/* Top-Right Quick Control Guide Box & Fullscreen Maximize Toggle */}
-        <div style={{ position: 'absolute', top: '16px', right: '20px', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-          <button
-            onClick={() => {
-              setIsMaximized(!isMaximized);
-              onLog(isMaximized ? 'Đã thu nhỏ màn hình 3D.' : 'Đã mở rộng TOÀN MÀN HÌNH 3D Hệ Mặt Trời!');
-            }}
-            style={{
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              color: '#ffffff', border: '1px solid #2dd4bf', borderRadius: '10px',
-              padding: '8px 14px', fontWeight: 900, fontSize: '0.8rem', cursor: 'pointer',
-              boxShadow: '0 0 14px rgba(13, 148, 136, 0.6)', display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-          >
-            {isMaximized ? '⤡ THU NHỎ MÀN HÌNH' : '⤢ MỞ RỘNG MÀN HÌNH 3D'}
-          </button>
-
-          <div style={{
-            background: 'rgba(15, 23, 42, 0.82)', backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '14px',
-            padding: '10px 14px', fontSize: '0.72rem', color: '#cbd5e1',
-            display: 'flex', flexDirection: 'column', gap: '5px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-              <span style={{ background: '#1e293b', padding: '2px 6px', borderRadius: '4px', color: '#38bdf8', fontWeight: 700 }}>Kéo chuột</span>
-              <span>Xoay góc nhìn 3D</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-              <span style={{ background: '#1e293b', padding: '2px 6px', borderRadius: '4px', color: '#38bdf8', fontWeight: 700 }}>Cuộn</span>
-              <span>Thu phóng (Zoom)</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-              <span style={{ background: '#1e293b', padding: '2px 6px', borderRadius: '4px', color: '#38bdf8', fontWeight: 700 }}>Nhấp thiên thể</span>
-              <span>Đi tới & xem chi tiết</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-              <span style={{ background: '#1e293b', padding: '2px 6px', borderRadius: '4px', color: '#fde047', fontWeight: 700 }}>Bấm lần nữa</span>
-              <span>Quay về tổng quan</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 3D SVG Canvas */}
-        <svg width="100%" height="100%" viewBox={isMaximized ? "0 0 900 600" : "0 0 700 500"} style={{ position: 'absolute', inset: 0 }}>
+        {/* Dynamic Vector SVG Solar System */}
+        <svg width="100%" height="100%" viewBox="0 0 700 380" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', inset: 0 }}>
           <defs>
-            {/* Sun Plasma Radiance Shader */}
-            <radialGradient id="sunShader" cx="50%" cy="50%" r="50%">
+            <radialGradient id="vectorSunGrad" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="25%" stopColor="#fef08a" />
-              <stop offset="60%" stopColor="#f59e0b" />
-              <stop offset="90%" stopColor="#d97706" />
-              <stop offset="100%" stopColor="#9a3412" />
+              <stop offset="30%" stopColor="#fde047" />
+              <stop offset="70%" stopColor="#f59e0b" />
+              <stop offset="100%" stopColor="#ea580c" />
             </radialGradient>
-
-            {/* Saturn Rings Shader with Cassini Division */}
-            <linearGradient id="saturnRingsGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="rgba(254, 240, 138, 0.9)" />
-              <stop offset="40%" stopColor="rgba(202, 138, 4, 0.85)" />
-              <stop offset="48%" stopColor="rgba(15, 23, 42, 0.95)" /> {/* Cassini Division */}
-              <stop offset="55%" stopColor="rgba(254, 240, 138, 0.85)" />
-              <stop offset="85%" stopColor="rgba(161, 98, 7, 0.6)" />
-              <stop offset="100%" stopColor="rgba(254, 240, 138, 0.15)" />
-            </linearGradient>
-
-            {/* Universal 3D Spherical Light Shadow Overlay */}
-            <radialGradient id="sphere3DShade" cx="30%" cy="30%" r="70%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.45" />
-              <stop offset="50%" stopColor="#ffffff" stopOpacity="0.0" />
-              <stop offset="85%" stopColor="#000000" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#000000" stopOpacity="0.9" />
-            </radialGradient>
+            <filter id="vectorSunGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="10" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
           </defs>
 
-          <g transform={`translate(${isMaximized ? 450 : 350}, ${isMaximized ? 300 : 250}) scale(${zoomScale * (isMaximized ? 1.25 : 1.0)})`}>
+          {/* Deep Space Background Stars */}
+          <rect width="700" height="380" fill="#020617" />
+          {Array.from({ length: 45 }).map((_, i) => (
+            <circle 
+              key={i} 
+              cx={(i * 17 + (i * i * 3)) % 700} 
+              cy={(i * 13 + 7) % 380} 
+              r={(i % 3 === 0) ? 1.5 : 1} 
+              fill="#ffffff" 
+              opacity={(i % 2 === 0) ? 0.8 : 0.4} 
+            />
+          ))}
+
+          {/* Solar System Center Group */}
+          <g transform="translate(350, 190)">
             
-            {/* 3D Concentric Orbit Ellipses (Solid smooth lines, no dashed dots) */}
+            {/* Concentric Orbit Paths */}
             {orbitPlanetKeys.map((key) => {
               const p = planetData[key];
               const isSel = selectedPlanetKey === key;
               return (
-                <ellipse 
-                  key={key} 
-                  cx="0" cy="0" 
-                  rx={p.radius} ry={p.radius * aspectY} 
-                  fill="none" 
-                  stroke={isSel ? '#38bdf8' : 'rgba(255, 255, 255, 0.12)'} 
-                  strokeWidth={isSel ? 2 : 1} 
-                  transform={`rotate(${yawAngle})`}
+                <ellipse
+                  key={`orbit_${key}`}
+                  cx="0" cy="0"
+                  rx={p.rx} ry={p.ry}
+                  fill="none"
+                  stroke={isSel ? p.color : "rgba(255, 255, 255, 0.15)"}
+                  strokeWidth={isSel ? "2.5" : "1"}
+                  strokeDasharray={isSel ? "none" : "3 3"}
+                  style={{ transition: 'stroke 0.2s ease' }}
                 />
               );
             })}
 
-            {/* Glowing Fiery Sun in Center */}
-            <g style={{ cursor: 'pointer' }} onClick={() => handleSelectCelestial('sun')}>
-              <circle cx="0" cy="0" r="42" fill="url(#sunShader)" style={{ filter: 'drop-shadow(0 0 45px #fde047)' }} />
-              <circle cx="0" cy="0" r="35" fill="#fef08a" opacity="0.4" />
-              <text x="0" y="4" fill="#0f172a" fontSize="10" fontWeight="900" textAnchor="middle">MẶT TRỜI</text>
+            {/* Sun in Center */}
+            <g onClick={() => handleSelectCelestial('sun')} style={{ cursor: 'pointer' }}>
+              <circle cx="0" cy="0" r="42" fill="rgba(245, 158, 11, 0.2)" style={{ filter: 'blur(12px)' }} />
+              <circle cx="0" cy="0" r={planetData.sun.pSize} fill="url(#vectorSunGrad)" filter="url(#vectorSunGlow)" />
+              <text x="0" y="38" fill="#fde047" fontSize="10" fontWeight="900" textAnchor="middle" style={{ pointerEvents: 'none' }}>
+                MẶT TRỜI
+              </text>
             </g>
 
-            {/* Realistic Textured Planets in 3D Orbits */}
-            {orbitPlanetKeys.map((key, i) => {
+            {/* 8 Orbiting Planets */}
+            {orbitPlanetKeys.map((key, idx) => {
               const p = planetData[key];
-              const ang = (planetAngles[i] || 0) + yawRad;
-              
-              // 3D Projected coordinates
-              const px = p.radius * Math.cos(ang);
-              const py = p.radius * Math.sin(ang) * aspectY;
-              
-              // Depth Z sorting (farther planets smaller & dimmer)
-              const depthZ = Math.sin(ang); // -1 (back) to +1 (front)
-              const planetScale = 1 + depthZ * 0.25;
-              const r = p.pSize * planetScale;
+              const ang = planetAngles[idx];
+              const px = Math.cos(ang) * p.rx;
+              const py = Math.sin(ang) * p.ry;
               const isSel = selectedPlanetKey === key;
 
               return (
-                <g key={key} transform={`translate(${px}, ${py})`}>
-                  {/* Selection Glowing Halo (Solid glow ring, no dashes) */}
+                <g 
+                  key={`planet_${key}`} 
+                  transform={`translate(${px}, ${py})`}
+                  onClick={() => handleSelectCelestial(key)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {/* Selection Ring Glow */}
                   {isSel && (
-                    <circle cx="0" cy="0" r={r + 6} fill="none" stroke="#38bdf8" strokeWidth="2" opacity="0.85" />
+                    <circle cx="0" cy="0" r={p.pSize + 7} fill="none" stroke={p.color} strokeWidth="2" strokeDasharray="3 2">
+                      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite" />
+                    </circle>
                   )}
 
-                  {/* Saturn Ring (Back Layer) */}
-                  {key === 'saturn' && (
-                    <g transform="rotate(-15)">
-                      <ellipse cx="0" cy="0" rx={r * 2.5} ry={r * 0.8} fill="none" stroke="url(#saturnRingsGrad)" strokeWidth={r * 0.9} opacity="0.95" />
-                    </g>
+                  {/* Saturn Rings */}
+                  {p.ring && (
+                    <ellipse cx="0" cy="0" rx={p.pSize * 1.8} ry={p.pSize * 0.55} fill="none" stroke="#fde047" strokeWidth="3" opacity="0.85" transform="rotate(-15)" />
                   )}
 
-                  {/* PLANET BODY SPECIFIC REALISTIC TEXTURED GRAPHICS */}
-                  <g style={{ cursor: 'pointer' }} onClick={() => handleSelectCelestial(key)}>
-                    <defs>
-                      <clipPath id={`clip-${key}`}>
-                        <circle cx="0" cy="0" r={r} />
-                      </clipPath>
-                    </defs>
+                  {/* Planet Sphere */}
+                  <circle cx="0" cy="0" r={p.pSize} fill={p.color} style={{ filter: isSel ? `drop-shadow(0 0 10px ${p.color})` : 'none' }} />
 
-                    {/* Base Photorealistic Surface Map Texture generated via Aslan.io.vn NASA Shader Engine */}
-                    {planetTextures[key] ? (
-                      <image 
-                        href={planetTextures[key]} 
-                        x={-r} 
-                        y={-r} 
-                        width={r * 2} 
-                        height={r * 2} 
-                        preserveAspectRatio="none"
-                        clipPath={`url(#clip-${key})`} 
-                      />
-                    ) : (
-                      <circle cx="0" cy="0" r={r} fill={p.color} />
-                    )}
-
-                    {/* Earth Atmospheric Cyan Glow Halo */}
-                    {key === 'earth' && (
-                      <circle cx="0" cy="0" r={r + 1.2} fill="none" stroke="#38bdf8" strokeWidth="1.2" opacity="0.85" />
-                    )}
-
-                    {/* Universal 3D Spherical Light Shadow Overlay */}
-                    <circle cx="0" cy="0" r={r} fill="url(#sphere3DShade)" style={{ pointerEvents: 'none' }} />
-                  </g>
-
-                  {/* Full Planet Name Tag (Tên đầy đủ của hành tinh) */}
+                  {/* Planet Label Badge */}
                   <text 
-                    x="0" y={-r - 8} 
-                    fill={isSel ? '#38bdf8' : '#ffffff'} 
-                    fontSize="10" fontWeight={isSel ? 900 : 800} 
-                    textAnchor="middle" 
-                    style={{ cursor: 'pointer', textShadow: '0 2px 6px rgba(0,0,0,0.95)' }}
-                    onClick={() => handleSelectCelestial(key)}
+                    x="0" 
+                    y={p.pSize + 14} 
+                    fill={isSel ? '#ffffff' : '#cbd5e1'} 
+                    fontSize={isSel ? "11" : "9.5"} 
+                    fontWeight={isSel ? "900" : "700"} 
+                    textAnchor="middle"
+                    style={{ textShadow: '0 2px 4px #000000' }}
                   >
-                    {p.shortName}
+                    {p.name.split(' (')[0]}
                   </text>
                 </g>
               );
             })}
+
           </g>
         </svg>
 
-        {/* Side Info Modal / Panel matching Aslan.io.vn */}
+        {/* Side Info Modal for Selected Planet */}
         {activePlanet && (
           <div style={{
-            position: 'absolute', top: '75px', left: '20px', maxWidth: '340px',
-            background: 'rgba(15, 23, 42, 0.94)', backdropFilter: 'blur(12px)',
+            position: 'absolute', top: '75px', left: '20px', maxWidth: '320px',
+            background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(12px)',
             border: `2px solid ${activePlanet.color}`, borderRadius: '16px',
-            padding: '18px', color: '#f8fafc', boxShadow: '0 10px 40px rgba(0,0,0,0.7)',
-            animation: 'fadeIn 0.25s ease-out', zIndex: 20
+            padding: '16px', color: '#f8fafc', boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+            zIndex: 20
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: activePlanet.color, display: 'inline-block', boxShadow: `0 0 10px ${activePlanet.color}` }} />
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: activePlanet.color, margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: activePlanet.color, display: 'inline-block' }} />
+                <h4 style={{ fontSize: '1rem', fontWeight: 900, color: activePlanet.color, margin: 0 }}>
                   {activePlanet.name}
                 </h4>
               </div>
               <button 
                 onClick={() => setSelectedPlanetKey(null)}
-                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#cbd5e1', borderRadius: '6px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 800, fontSize: '0.9rem' }}
-                title="Quay về tổng quan"
+                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#cbd5e1', borderRadius: '6px', width: '24px', height: '24px', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem' }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div>• Khoảng cách tới Mặt Trời: <b style={{ color: '#fff' }}>{activePlanet.dist}</b></div>
-              <div>• Chu kỳ quỹ đạo: <b style={{ color: '#fff' }}>{activePlanet.period}</b></div>
+            <div style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <div>• Khoảng cách: <b style={{ color: '#fff' }}>{activePlanet.dist}</b></div>
+              <div>• Chu kỳ quay: <b style={{ color: '#fff' }}>{activePlanet.period}</b></div>
               <div>• Đường kính: <b style={{ color: '#fff' }}>{activePlanet.size}</b></div>
               <div>• Nhiệt độ: <b style={{ color: '#fde047' }}>{activePlanet.temp}</b></div>
-              <div>• Vệ tinh tự nhiên: <b style={{ color: '#fff' }}>{activePlanet.moons}</b></div>
+              <div>• Vệ tinh: <b style={{ color: '#fff' }}>{activePlanet.moons}</b></div>
               
-              <div style={{ marginTop: '10px', background: 'rgba(56, 189, 248, 0.12)', borderLeft: `4px solid ${activePlanet.color}`, padding: '10px 12px', borderRadius: '0 10px 10px 0', fontSize: '0.78rem', color: '#e2e8f0' }}>
-                <b>📌 Đặc điểm chi tiết:</b> {activePlanet.feature}
-              </div>
-              <div style={{ textAlign: 'right', marginTop: '6px', fontSize: '0.7rem', color: '#64748b', fontStyle: 'italic' }}>
-                (💡 Bấm lại thiên thể hoặc bấm ✕ để đóng)
+              <div style={{ marginTop: '8px', background: 'rgba(56, 189, 248, 0.12)', borderLeft: `4px solid ${activePlanet.color}`, padding: '8px 10px', borderRadius: '0 8px 8px 0', fontSize: '0.75rem', color: '#e2e8f0' }}>
+                <b>📌 Đặc điểm:</b> {activePlanet.feature}
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom Capsule Navigation Toolbar matching Aslan.io.vn */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '20px',
-        padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px'
-      }}>
         {/* Celestial body chips bar matching Aslan */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', flex: 1 }}>
           {[
