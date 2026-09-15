@@ -3,8 +3,11 @@
 ## 1. React Component Scope Safety
 - **NEVER** define sub-component classes (e.g. `GameErrorBoundary`) or inner function components inside the body of another React functional component. Doing so causes component type identity changes on re-renders, forcing React to unmount the entire subtree (resulting in blank screens). Always declare Error Boundaries and sub-components at the top-level scope of the module.
 
-## 2. User Accounts & Authentication Architecture Rules
-- **Cross-Device & Incognito Readiness**: All core system accounts (`philthienhao`, `phamtham`, `thanhthao`, `thanhlai`) MUST remain registered in `INITIAL_USERS` in `src/services/storage.js` so that ANY browser, ANY device, and ANY Incognito window can log in out-of-the-box without requiring prior localStorage populated on that specific client device.
+## 2. User Accounts & Authentication Architecture Rules (Quy Tắc Tạo Tài Khoản 100% Thành Công)
+- **1. Quy tắc Khai báo Đồng bộ (Dual-Seed Protocol)**: Mọi tài khoản mới bắt buộc phải được khai báo đồng thời ở cả 2 file: `INITIAL_USERS` trong `src/services/storage.js` VÀ `public/cloud_users.json` với đầy đủ `id`, `username`, `password`, `name`, `role`, `subject`, `school`.
+- **2. Quy tắc Đẩy Bản Build Live (Git Push & Vercel Trigger)**: Sau khi tạo tài khoản địa phương, bắt buộc phải thực hiện lệnh `git add . && git commit -m "..." && git push origin main` HOẶC hướng dẫn/chạy lệnh `npm run deploy` để Vercel build lại bản live và liên kết tên miền `eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`.
+- **3. Hướng dẫn Bộ Nhớ Đệm Trình Duyệt (Browser Cache Guidance)**: Luôn chủ động nhắc người dùng bấm `Ctrl + F5` (`Cmd + Shift + R`) hoặc tải lại trang để trình duyệt xóa cache cũ và nhận ngay file JavaScript chứa tài khoản mới.
+- **Cross-Device & Incognito Readiness**: All core system accounts (`philthienhao`, `phamtham`, `thanhthao`, `thanhlai`, `tritoan`, `bachhat`) MUST remain registered in `INITIAL_USERS` in `src/services/storage.js` so that ANY browser, ANY device, and ANY Incognito window can log in out-of-the-box without requiring prior localStorage populated on that specific client device.
 - **No Seed Overwriting (`...iu`)**: In `StorageService.init()`, `INITIAL_USERS` seed records MUST NEVER overwrite existing user properties (e.g. custom password, updated name, subject) stored in `localStorage`. If `username` exists in `localStorage`, the stored object MUST be preserved 100%.
 - **Safe String Password Validation**: In `authenticateUser`, `createUser`, and `updateUser`, ALWAYS cast `username` and `password` to trimmed strings (`String(u.password).trim()`) to prevent `TypeError` crashes if passwords are ever stored as numeric types or non-string values.
 - **No Volatile Blacklists**: DO NOT use fragile `gvd_deleted_usernames` local blacklists that can cause newly created accounts to be blocked on login or deleted during `init()`. The `users` list in `localStorage` + `IndexedDB` is the single source of truth.
@@ -16,7 +19,10 @@
 - **Universal Parser**: Must automatically detect `Họ và tên học sinh` columns when teachers import student roster Excel files for Đua Vịt & Đua Rùa.
 
 ## 4. Vercel Deployment & Alias Synchronization
-- Whenever building and deploying to Vercel via CLI, ensure domain aliases (`eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`) are explicitly bound to the newest deployment ID using `npx vercel alias set` or deployment scripts.
+- **Complete Live Production Deployment Protocol**: Whenever adding teacher accounts or updating core features:
+  1. Seed the account in `src/services/storage.js` (`INITIAL_USERS`) and `public/cloud_users.json`.
+  2. Execute `git add . && git commit -m "..." && git push origin main` and `npm run deploy` to update production Vercel aliases `eduvth.vercel.app` & `giao-vien-sky-line.vercel.app`.
+  3. Instruct the user to perform a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`) on `eduvth.vercel.app` to clear stale browser cache.
 - Always inspect runtime errors silently and verify visually before reporting completion to the user.
 
 ## 5. Strict Per-User Data Isolation & Permanent Storage Invariants
