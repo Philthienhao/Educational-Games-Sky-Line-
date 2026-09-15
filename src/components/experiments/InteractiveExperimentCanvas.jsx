@@ -5485,22 +5485,67 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         return <BiologyCellPlasmolysisSim onLog={addLog} />;
       case 'biology_dna_extraction':
         return <BiologyDNAExtractionSim onLog={addLog} />;
+      case 'exp_geo_6_01':
+      case 'geo_6_01':
       case 'geo_solar_system':
         return <GeoSolarSystemSim onLog={addLog} />;
+      case 'exp_geo_6_02':
+      case 'geo_6_02':
       case 'geo_earth_sun_moon':
         return <GeoEarthSunMoonSim onLog={addLog} />;
+      case 'exp_geo_6_03':
+      case 'geo_6_03':
       case 'geo_volcano':
         return <GeoVolcanoSim onLog={addLog} />;
+      case 'exp_geo_6_04':
+      case 'geo_6_04':
       case 'geo_earthquake':
         return <GeoEarthquakeSim onLog={addLog} />;
+      case 'exp_geo_6_05':
+      case 'geo_6_05':
       case 'geo_water_cycle':
         return <GeoWaterCycleSim onLog={addLog} />;
+      case 'exp_geo_6_06':
+      case 'geo_6_06':
       case 'geo_earth_structure':
         return <GeoEarthStructureSim onLog={addLog} />;
+      case 'exp_geo_6_07':
+      case 'geo_6_07':
       case 'geo_glacial_river':
         return <GeoGlacialRiverSim onLog={addLog} />;
-      default:
-        return <ChemistryAcidBaseSim config={experiment.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+      default: {
+        const sub = (experiment?.subject || '').toLowerCase();
+        const title = (experiment?.title || '').toLowerCase();
+        const type = (experiment?.interactiveType || '').toLowerCase();
+        const expId = (experiment?.id || '').toLowerCase();
+        const isGeo = sub.includes('địa') || sub.includes('dia') || type.startsWith('geo') || expId.includes('geo') || title.includes('địa') || title.includes('dia');
+
+        if (isGeo) {
+          if (title.includes('hành tinh') || title.includes('mặt trời') || title.includes('vũ trụ')) {
+            return <GeoSolarSystemSim onLog={addLog} />;
+          }
+          if (title.includes('ngày') || title.includes('đêm') || title.includes('trăng') || title.includes('thực')) {
+            return <GeoEarthSunMoonSim onLog={addLog} />;
+          }
+          if (title.includes('núi lửa') || title.includes('magma')) {
+            return <GeoVolcanoSim onLog={addLog} />;
+          }
+          if (title.includes('động đất') || title.includes('sóng') || title.includes('kiến tạo')) {
+            return <GeoEarthquakeSim onLog={addLog} />;
+          }
+          if (title.includes('tuần hoàn') || title.includes('nước') || title.includes('mưa')) {
+            return <GeoWaterCycleSim onLog={addLog} />;
+          }
+          if (title.includes('bóc tách') || title.includes('cấu tạo') || title.includes('manti') || title.includes('nhân') || title.includes('lõi')) {
+            return <GeoEarthStructureSim onLog={addLog} />;
+          }
+          if (title.includes('sông') || title.includes('suối') || title.includes('băng') || title.includes('tuyết')) {
+            return <GeoGlacialRiverSim onLog={addLog} />;
+          }
+          return <GeoSolarSystemSim onLog={addLog} />;
+        }
+        return <ChemistryAcidBaseSim config={experiment?.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+      }
     }
   };
 
