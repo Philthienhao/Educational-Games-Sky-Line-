@@ -3351,22 +3351,21 @@ function GeoEarthquakeSim({ onLog }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
+      <style>{`
+        @keyframes quakeShake {
+          0% { transform: translate(0, 0); }
+          20% { transform: translate(-6px, 4px); }
+          40% { transform: translate(6px, -5px); }
+          60% { transform: translate(-5px, 5px); }
+          80% { transform: translate(5px, -3px); }
+          100% { transform: translate(0, 0); }
+        }
+        .earthquake-shake {
+          animation: quakeShake 0.15s infinite;
+        }
+      `}</style>
       <div style={{ flex: 1, background: '#070f1e', borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.4)', padding: '20px', position: 'relative', overflow: 'hidden' }}>
         <svg width="100%" height="100%" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet" className={isShaking ? "earthquake-shake" : ""}>
-          <style>{`
-            @keyframes quakeShake {
-              0% { transform: translate(0, 0); }
-              20% { transform: translate(-6px, 4px); }
-              40% { transform: translate(6px, -5px); }
-              60% { transform: translate(-5px, 5px); }
-              80% { transform: translate(5px, -3px); }
-              100% { transform: translate(0, 0); }
-            }
-            .earthquake-shake {
-              animation: quakeShake 0.15s infinite;
-            }
-          `}</style>
-
           <rect width="600" height="320" fill="#030816" />
 
           {/* Tectonic Plate 1 (Left) */}
