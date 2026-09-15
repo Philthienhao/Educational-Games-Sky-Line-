@@ -5367,6 +5367,8 @@ class SimErrorBoundary extends React.Component {
 }
 
 export function InteractiveExperimentCanvas({ experiment, onClose }) {
+  if (!experiment) return null;
+
   const [logs, setLogs] = useState([
     `[Hệ thống] Đã tải bài thí nghiệm/mô hình: "${experiment?.title || ''}" (Khối ${experiment?.grade || ''} - ${experiment?.subject || ''}).`
   ]);
@@ -5528,10 +5530,10 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           </div>
           <div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#2dd4bf', margin: 0, lineHeight: 1.2 }}>
-              {experiment.title}
+              {experiment?.title || 'Bài Thí Nghiệm'}
             </h2>
             <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>
-              Khối {experiment.grade} • {experiment.subject} • GDPT 2018
+              Khối {experiment?.grade || ''} • {experiment?.subject || ''} • GDPT 2018
             </span>
           </div>
         </div>
@@ -5692,7 +5694,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           <div style={{ background: 'rgba(13, 148, 136, 0.15)', borderLeft: '4px solid #0d9488', padding: '12px 14px', borderRadius: '0 10px 10px 0' }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2dd4bf', margin: '0 0 4px 0' }}>🎯 MỤC ĐÍCH THÍ NGHIỆM / MÔ HÌNH</h4>
             <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
-              {experiment.objective}
+              {experiment?.objective || ''}
             </p>
           </div>
 
@@ -5702,7 +5704,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
               🛠️ DỤNG CỤ & MÔ HÌNH THỰC HÀNH
             </h4>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {experiment.equipment?.map((item, idx) => (
+              {experiment?.equipment?.map((item, idx) => (
                 <span key={idx} style={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0', fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px' }}>
                   {item}
                 </span>
@@ -5716,7 +5718,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
               📝 CÁC BƯỚC THỰC HÀNH & QUAN SÁT
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {experiment.steps?.map((step, idx) => (
+              {experiment?.steps?.map((step, idx) => (
                 <div key={idx} style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4, background: '#09131d', padding: '8px 12px', borderRadius: '8px', borderLeft: '3px solid #0284c7' }}>
                   {step}
                 </div>
@@ -5728,7 +5730,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           <div style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '12px', borderRadius: '10px' }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', margin: '0 0 4px 0' }}>👁️ HIỆN TƯỢNG QUAN SÁT TRỰC QUAN</h4>
             <p style={{ fontSize: '0.8rem', color: '#fef08a', margin: 0, lineHeight: 1.4 }}>
-              {experiment.phenomenon}
+              {experiment?.phenomenon || ''}
             </p>
           </div>
 
@@ -5736,7 +5738,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           <div style={{ background: 'rgba(147, 51, 234, 0.15)', border: '1px solid rgba(147, 51, 234, 0.3)', padding: '12px', borderRadius: '10px' }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#c084fc', margin: '0 0 4px 0' }}>💡 GIẢI THÍCH BẢN CHẤT ĐỊA LÍ / KHOA HỌC</h4>
             <p style={{ fontSize: '0.8rem', color: '#e9d5ff', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-              {experiment.explanation}
+              {experiment?.explanation || ''}
             </p>
           </div>
         </div>
