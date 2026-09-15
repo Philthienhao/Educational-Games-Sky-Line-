@@ -484,18 +484,25 @@ export function VirtualLabManager({ currentUser }) {
                   <span style={{ fontSize: '0.75rem', color: '#2dd4bf', fontWeight: 700 }}>
                     {exp.equipment?.length || 0} Dụng cụ & Hóa chất
                   </span>
-                  <button style={{
-                    background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '10px',
-                    padding: '8px 14px',
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveExperiment(exp);
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '8px 14px',
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer'
+                    }}
+                  >
                     <Play size={14} fill="#ffffff" /> Trình Chiếu Thí Nghiệm
                   </button>
                 </div>

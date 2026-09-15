@@ -5315,6 +5315,10 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   const [simOverride, setSimOverride] = useState(null);
 
   useEffect(() => {
+    setSimOverride(null);
+  }, [experiment?.id]);
+
+  useEffect(() => {
     const handleFSChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
