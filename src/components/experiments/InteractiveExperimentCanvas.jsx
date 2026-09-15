@@ -2414,7 +2414,6 @@ function GeoSolarSystemSim({ onLog }) {
 
   // Wheel to Zoom
   const handleWheel = (e) => {
-    e.preventDefault();
     setZoomScale(prev => Math.min(2.5, Math.max(0.5, prev - e.deltaY * 0.0015)));
   };
 

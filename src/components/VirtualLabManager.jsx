@@ -45,6 +45,10 @@ export function VirtualLabManager({ currentUser }) {
 
   useEffect(() => {
     loadExperiments();
+    if (currentUser?.subject && (currentUser.subject.includes('Địa') || currentUser.subject.includes('Dia'))) {
+      setSelectedSubject('Địa lí');
+      setSelectedGrade('6');
+    }
   }, [currentUser]);
 
   const loadExperiments = () => {
@@ -171,6 +175,30 @@ export function VirtualLabManager({ currentUser }) {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => {
+                setSelectedSubject('Địa lí');
+                setSelectedGrade('6');
+                setSearchTerm('');
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                color: '#ffffff',
+                border: '1.5px solid #fde047',
+                borderRadius: '12px',
+                padding: '12px 20px',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 18px rgba(217, 119, 6, 0.45)'
+              }}
+            >
+              <Sparkles size={18} color="#ffffff" /> 🌍 7 Thí Nghiệm Địa Lí Khối 6
+            </button>
+
             <button 
               onClick={() => setActiveExperiment({
                 id: 'exp_chem_sandbox_00',
