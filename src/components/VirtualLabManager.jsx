@@ -92,13 +92,28 @@ export function VirtualLabManager({ currentUser }) {
   const filteredExperiments = experiments.filter(exp => {
     const matchGrade = selectedGrade === 'all' || String(exp.grade) === String(selectedGrade);
     const isKHTNFilter = selectedSubject === 'KHTN' || selectedSubject === 'Khoa học tự nhiên';
+    
+    // Support both 'Địa lí' and 'Địa lý' spellings
+    const isGeoSubject = selectedSubject === 'Địa lí' || selectedSubject === 'Địa lý';
+    const expIsGeo = exp.subject === 'Địa lí' || exp.subject === 'Địa lý';
+
     const matchSubject = selectedSubject === 'all' || 
-      exp.subject === selectedSubject || 
-      (isKHTNFilter && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên' || exp.subject === 'Địa lí' || Number(exp.grade) <= 9));
-    const matchSearch = !searchTerm.trim() || 
-      exp.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      exp.explanation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      exp.objective?.toLowerCase().includes(searchTerm.toLowerCase());
+      (isGeoSubject ? expIsGeo : exp.subject === selectedSubject) || 
+      (isKHTNFilter && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên' || expIsGeo || Number(exp.grade) <= 9));
+    
+    // Normalize diacritics for search matching: treat 'lý' and 'lí' identically
+    const normSearch = (searchTerm || '').trim().toLowerCase().replace(/lý/g, 'lí');
+    const normTitle = (exp.title || '').toLowerCase().replace(/lý/g, 'lí');
+    const normExplanation = (exp.explanation || '').toLowerCase().replace(/lý/g, 'lí');
+    const normObjective = (exp.objective || '').toLowerCase().replace(/lý/g, 'lí');
+    const normChapter = (exp.chapter || '').toLowerCase().replace(/lý/g, 'lí');
+
+    const matchSearch = !normSearch || 
+      normTitle.includes(normSearch) || 
+      normExplanation.includes(normSearch) ||
+      normObjective.includes(normSearch) ||
+      normChapter.includes(normSearch);
+
     return matchGrade && matchSubject && matchSearch;
   });
 
