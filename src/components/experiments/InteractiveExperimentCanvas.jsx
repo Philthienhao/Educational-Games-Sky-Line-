@@ -2857,13 +2857,14 @@ function GeoEarthSunMoonSim({ onLog }) {
             {/* Dark night hemisphere facing away from Sun */}
             {(() => {
               const sunAngleToEarth = Math.atan2(sunY - earthY, sunX - earthX);
-              const nightStartAngle = sunAngleToEarth + Math.PI / 2;
-              const nightEndAngle = sunAngleToEarth - Math.PI / 2;
+              const rotationDeg = (sunAngleToEarth * 180 / Math.PI) + 90;
               return (
-                <path 
-                  d={`M 0 0 L ${16 * Math.cos(nightStartAngle)} ${16 * Math.sin(nightStartAngle)} A 16 16 0 0 0 ${16 * Math.cos(nightEndAngle)} ${16 * Math.sin(nightEndAngle)} Z`} 
-                  fill="rgba(15, 23, 42, 0.82)" 
-                />
+                <g transform={`rotate(${rotationDeg})`}>
+                  <path 
+                    d="M 0 -16 A 16 16 0 0 1 0 16 Z" 
+                    fill="rgba(15, 23, 42, 0.82)" 
+                  />
+                </g>
               );
             })()}
 
@@ -3183,8 +3184,13 @@ function GeoGlacialRiverSim({ onLog }) {
   const [temp, setTemp] = useState(15);
   const flowRate = Math.max(0, (temp - 0) * 4);
 
+  const isFirstRender = useRef(true);
   useEffect(() => {
-    onLog(`Nhiệt độ mùa hè t = ${temp}°C ➔ Băng tuyết tan với lưu lượng dòng chảy ${flowRate} m³/s hình thành dòng sông cuồn cuộn.`);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (onLog) onLog(`Nhiệt độ mùa hè t = ${temp}°C ➔ Băng tuyết tan với lưu lượng dòng chảy ${flowRate} m³/s hình thành dòng sông cuồn cuộn.`);
   }, [temp]);
 
   return (
@@ -3223,16 +3229,14 @@ function GeoVolcanoSim({ onLog }) {
   const [isErupting, setIsErupting] = useState(false);
 
   const handleIncreasePressure = () => {
-    setPressure(prev => {
-      const next = Math.min(120, prev + 20);
-      if (next >= 100 && !isErupting) {
-        setIsErupting(true);
-        if (onLog) onLog("🌋 Áp suất buồng Magma vượt ngưỡng 100 MPa ➔ BÙNG NỔ NÚI LỬA! Dung nham đỏ rực 1200°C và tro bụi phun trào dữ dội!");
-      } else if (onLog) {
-        onLog(`🔥 Áp suất buồng Magma tăng lên: ${next} MPa. Nhiệt độ Magma t° ~ 1200°C.`);
-      }
-      return next;
-    });
+    const next = Math.min(120, pressure + 20);
+    setPressure(next);
+    if (next >= 100 && !isErupting) {
+      setIsErupting(true);
+      if (onLog) onLog("🌋 Áp suất buồng Magma vượt ngưỡng 100 MPa ➔ BÙNG NỔ NÚI LỬA! Dung nham đỏ rực 1200°C và tro bụi phun trào dữ dội!");
+    } else if (onLog) {
+      onLog(`🔥 Áp suất buồng Magma tăng lên: ${next} MPa. Nhiệt độ Magma t° ~ 1200°C.`);
+    }
   };
 
   const handleReset = () => {
@@ -5304,6 +5308,66 @@ function Chem9Fe2O3COSim({ onLog, onSensorUpdate }) {
 
 
 
+class SimErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Simulation Rendering Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#09131d',
+          borderRadius: '16px',
+          border: '1.5px solid rgba(13, 148, 136, 0.4)',
+          padding: '28px',
+          color: '#f8fafc',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>⚙️</div>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#38bdf8', marginBottom: '8px' }}>
+            Mô Phỏng Trực Quan Nâng Cao
+          </h3>
+          <p style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '420px', marginBottom: '18px', lineHeight: 1.5 }}>
+            Hệ thống đang tự động tối ưu hóa hiệu năng đồ họa 3D/Interactive cho thiết bị. Vui lòng bấm nút bên dưới để khởi chạy lại mô hình.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            style={{
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '12px 24px',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)'
+            }}
+          >
+            🔄 Tải Lại Mô Phỏng
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export function InteractiveExperimentCanvas({ experiment, onClose }) {
   const [logs, setLogs] = useState([
     `[Hệ thống] Đã tải bài thí nghiệm/mô hình: "${experiment?.title || ''}" (Khối ${experiment?.grade || ''} - ${experiment?.subject || ''}).`
@@ -5596,7 +5660,9 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           </div>
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-            {renderSimComponent()}
+            <SimErrorBoundary key={experiment?.id || experiment?.interactiveType || 'sim'}>
+              {renderSimComponent()}
+            </SimErrorBoundary>
           </div>
 
           {/* Live Experiment Log Output */}
