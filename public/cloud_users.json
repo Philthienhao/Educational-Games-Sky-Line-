@@ -158,5 +158,15 @@
     "subject": "Giáo viên",
     "school": "Hệ thống giáo dục Sky-Line",
     "createdAt": "2026-09-16"
+  },
+  {
+    "id": "user_tran_vi_hung",
+    "username": "vihung",
+    "password": "123456",
+    "name": "Trần Vi Hùng",
+    "role": "teacher",
+    "subject": "Giáo viên",
+    "school": "Trường THCS Hiệp Mỹ",
+    "createdAt": "2026-09-16"
   }
 ]
