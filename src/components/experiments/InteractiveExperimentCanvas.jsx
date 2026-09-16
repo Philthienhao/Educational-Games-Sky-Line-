@@ -2900,6 +2900,7 @@ function GeoSolarSystemSim({ onLog }) {
   const [isXRayMode, setIsXRayMode] = useState(false);
   const [pilotSpeed, setPilotSpeed] = useState(0);
   const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
+  const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
 
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
@@ -3042,6 +3043,7 @@ function GeoSolarSystemSim({ onLog }) {
                 flightVectorRef.current.pitch += -steerY * 0.035;
               }
 
+              setSteerPos({ x: steerX, y: steerY });
               setPilotSpeed(Number(flightVectorRef.current.speed.toFixed(1)));
             } else {
               setCurrentGesture('NONE');
@@ -3583,89 +3585,161 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         )}
 
-        {/* 3D Holographic STEM Chemical Data Panel when inside planet core */}
-        {(isXRayMode || isGesturePilot) && CELESTIAL_CHEMICAL_DATA[targetPlanetKey] && (
-          <div style={{
-            position: 'absolute', top: '16px', left: '24px', zIndex: 25,
-            background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(20px)',
-            border: `2px solid ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}`,
-            borderRadius: '18px', padding: '14px 18px', maxWidth: '360px', color: '#fff',
-            boxShadow: `0 0 24px ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}`
-          }}>
-            <div style={{ fontSize: '0.72rem', fontWeight: 900, color: CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
-              🧪 CẤU TRÚC HÓA HỌC & VẬT LÝ 3D (STEM GEOGRAPHY)
-            </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', margin: '4px 0 10px 0' }}>
-              {CELESTIAL_CHEMICAL_DATA[targetPlanetKey].name}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem' }}>
-              {CELESTIAL_CHEMICAL_DATA[targetPlanetKey].layers.map((layer, lIdx) => (
-                <div key={lIdx} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 10px', borderLeft: `3px solid ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}` }}>
-                  <div style={{ fontWeight: 800, color: '#fff', marginBottom: '2px' }}>{layer.name}</div>
-                  <div style={{ color: '#cbd5e1' }}>🧪 Thành phần: <b style={{ color: '#38bdf8' }}>{layer.chem}</b></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px', color: '#94a3b8' }}>
-                    <span>🌡️ Nhiệt độ: <b style={{ color: '#fde047' }}>{layer.temp}</b></span>
-                    <span>⚓ Áp suất: <b style={{ color: '#fca5a5' }}>{layer.press}</b></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SPACESHIFF COCKPIT HUD OVERLAY (When AI Gesture Pilot is Active) */}
+        {/* IMMERSIVE 1ST-PERSON 3D SPACESHIP COCKPIT INTERIOR OVERLAY */}
         {isGesturePilot && (
-          <>
-            {/* Cockpit Frame & Status HUD */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 25,
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+            overflow: 'hidden'
+          }}>
+            {/* 1. Curved Sci-Fi Glass Windshield Overlay */}
             <div style={{
-              position: 'absolute', top: '16px', right: '24px', zIndex: 25,
-              background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(20px)',
-              border: '2px solid #38bdf8', borderRadius: '18px', padding: '14px 18px',
-              maxWidth: '380px', color: '#fff', boxShadow: '0 0 30px rgba(56, 189, 248, 0.4)'
+              position: 'absolute', inset: 0,
+              background: 'radial-gradient(ellipse at center, transparent 60%, rgba(2, 6, 23, 0.45) 85%, rgba(2, 6, 23, 0.95) 100%)',
+              boxShadow: 'inset 0 0 80px rgba(56, 189, 248, 0.2)',
+              border: '2px solid rgba(56, 189, 248, 0.25)'
+            }} />
+
+            {/* 2. Cockpit Targeting Crosshair / Flight HUD Reticle */}
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%',
+              transform: `translate(-50%, -50%) translate(${steerPos.x * 55}px, ${steerPos.y * 40}px)`,
+              transition: 'transform 0.08s ease-out', pointerEvents: 'none',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  🛸 COCKPIT PHI THUYỀN VŨ TRỤ AI
-                </span>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#0284c7', padding: '2px 8px', borderRadius: '10px' }}>
-                  {pilotSpeed > 3 ? '⚡ WARP SPEED' : 'NORMAL'}
-                </span>
+              {/* Sci-Fi Aiming Reticle Circle */}
+              <div style={{
+                width: '60px', height: '60px', borderRadius: '50%',
+                border: '2px dashed #38bdf8', boxShadow: '0 0 16px rgba(56, 189, 248, 0.8)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: 'pulse 2s infinite'
+              }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
               </div>
 
-              <div style={{ fontSize: '0.78rem', color: '#e2e8f0', background: 'rgba(56, 189, 248, 0.15)', padding: '8px 10px', borderRadius: '8px', borderLeft: '4px solid #38bdf8', marginBottom: '10px' }}>
+              {/* Minimal Planet Target Badge (Only when approaching a planet) */}
+              {targetPlanetName && (
+                <div style={{
+                  marginTop: '12px', background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(12px)',
+                  border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '6px 14px',
+                  boxShadow: '0 0 20px rgba(56, 189, 248, 0.5)', pointerEvents: 'auto',
+                  display: 'flex', alignItems: 'center', gap: '10px'
+                }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047' }}>
+                    🎯 TIẾP CẬN: {targetPlanetName}
+                  </span>
+                  <button
+                    onClick={() => setIsXRayMode(!isXRayMode)}
+                    style={{
+                      background: isXRayMode ? '#f59e0b' : 'rgba(56, 189, 248, 0.2)',
+                      color: isXRayMode ? '#000' : '#38bdf8', border: '1px solid #38bdf8',
+                      borderRadius: '8px', padding: '3px 9px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer'
+                    }}
+                  >
+                    {isXRayMode ? '✌️ TẮT LÕI X-RAY' : '✌️ XEM LÕI X-RAY'}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Top Canopy Status Bar */}
+            <div style={{
+              position: 'relative', top: 0, left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', alignItems: 'center', gap: '16px',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 75%, transparent 100%)',
+              padding: '10px 24px', borderBottom: '1.5px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '0 0 20px 20px', pointerEvents: 'auto', zIndex: 30
+            }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🛸 BUỒNG LÁI PHI THUYỀN VŨ TRỤ
+              </div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                 {gestureStatus}
               </div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#fde047' }}>
+                WARP: {pilotSpeed}
+              </div>
+              <button
+                onClick={() => setIsGesturePilot(false)}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.25)', color: '#fca5a5',
+                  border: '1px solid #ef4444', borderRadius: '8px', padding: '4px 10px',
+                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer'
+                }}
+              >
+                ✕ THOÁT LÁI
+              </button>
+            </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                <button
-                  onClick={() => setIsXRayMode(!isXRayMode)}
-                  style={{
-                    background: isXRayMode ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.1)',
-                    color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px',
-                    padding: '6px 12px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
-                  }}
-                >
-                  {isXRayMode ? '✌️ TẮT X-RAY LÕI' : '✌️ BẬT X-RAY XUYÊN LÒNG HÀNH TINH'}
-                </button>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fde047' }}>
-                  Tốc độ: <b>{pilotSpeed} Warp</b>
+            {/* 4. Bottom Spaceship Dashboard & 3D Control Yokes (Bàn điều khiển & Cần lái 3D) */}
+            <div style={{
+              position: 'relative', bottom: 0, left: 0, right: 0, height: '140px',
+              background: 'linear-gradient(0deg, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.9) 70%, transparent 100%)',
+              borderTop: '1.5px solid rgba(56, 189, 248, 0.35)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+              padding: '0 30px 14px 30px', pointerEvents: 'auto', zIndex: 30
+            }}>
+              {/* Left Control Handle Yoke (Nghiêng theo bàn tay) */}
+              <div style={{
+                transform: `rotate(${steerPos.x * 24}deg) translateY(${steerPos.y * 10}px)`,
+                transition: 'transform 0.08s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center'
+              }}>
+                <svg width="120" height="70" viewBox="0 0 120 70">
+                  {/* Futuristic Yoke Handle Left */}
+                  <path d="M 20 60 L 35 20 L 55 20 L 50 60 Z" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+                  <circle cx="35" cy="20" r="12" fill="#09131d" stroke="#f59e0b" strokeWidth="2" />
+                  <line x1="10" y1="20" x2="35" y2="20" stroke="#38bdf8" strokeWidth="4" />
+                </svg>
+                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>TAY LÁI TRÁI</span>
+              </div>
+
+              {/* Center Dashboard Status Gauges */}
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', background: 'rgba(9, 19, 29, 0.85)', padding: '6px 16px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>TỐC ĐỘ (WARP)</div>
+                  <div style={{ fontSize: '1rem', color: '#fde047', fontWeight: 900 }}>{pilotSpeed}</div>
+                </div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>GÓC NGHIÊNG YAW</div>
+                  <div style={{ fontSize: '1rem', color: '#38bdf8', fontWeight: 900 }}>{(steerPos.x * 45).toFixed(0)}°</div>
+                </div>
+                <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>GÓC NGHIÊNG PITCH</div>
+                  <div style={{ fontSize: '1rem', color: '#38bdf8', fontWeight: 900 }}>{(-steerPos.y * 45).toFixed(0)}°</div>
+                </div>
+              </div>
+
+              {/* Right Control Handle Yoke & Compact Integrated Webcam HUD Monitor */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+                {/* Embedded Webcam AI Tracker Monitor */}
+                <div style={{
+                  background: 'rgba(9, 19, 29, 0.95)', border: '1.5px solid #f59e0b',
+                  borderRadius: '10px', padding: '4px', boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)'
+                }}>
+                  <div style={{ fontSize: '0.58rem', fontWeight: 900, color: '#f59e0b', marginBottom: '2px', textAlign: 'center' }}>
+                    📷 WEBCAM BÀN TAY AI
+                  </div>
+                  <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
+                  <canvas ref={webcamCanvasRef} width={120} height={90} style={{ borderRadius: '6px', background: '#020617', display: 'block' }} />
+                </div>
+
+                {/* Right Yoke Handle */}
+                <div style={{
+                  transform: `rotate(${steerPos.x * 24}deg) translateY(${steerPos.y * 10}px)`,
+                  transition: 'transform 0.08s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center'
+                }}>
+                  <svg width="120" height="70" viewBox="0 0 120 70">
+                    <path d="M 100 60 L 85 20 L 65 20 L 70 60 Z" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+                    <circle cx="85" cy="20" r="12" fill="#09131d" stroke="#f59e0b" strokeWidth="2" />
+                    <line x1="110" y1="20" x2="85" y2="20" stroke="#38bdf8" strokeWidth="4" />
+                  </svg>
+                  <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>TAY LÁI PHẢI</span>
                 </div>
               </div>
             </div>
-
-            {/* Webcam AI Hand Tracking Live Preview Box */}
-            <div style={{
-              position: 'absolute', bottom: '80px', right: '24px', zIndex: 25,
-              background: 'rgba(15, 23, 42, 0.9)', border: '2px solid #f59e0b',
-              borderRadius: '16px', padding: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.8)'
-            }}>
-              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f59e0b', marginBottom: '4px', textAlign: 'center' }}>
-                📷 WEBCAM CỬ CHỈ TAY REALTIME
-              </div>
-              <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
-              <canvas ref={webcamCanvasRef} width={160} height={120} style={{ borderRadius: '10px', background: '#090d16' }} />
-            </div>
-          </>
+          </div>
         )}
 
         {/* Bottom Pill Navigation Toolbar */}
@@ -6750,79 +6824,81 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           </div>
         </div>
 
-        {/* Right Side: Theory, Steps, & Scientific Explanation */}
-        <div style={{
-          flex: 1, background: 'rgba(15, 23, 42, 0.85)', borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.1)', padding: '20px',
-          display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto'
-        }}>
-          {/* 3D Controls Guide (Docked on Right Panel) */}
+        {/* Right Side: Theory, Steps, & Scientific Explanation (Hidden in Fullscreen or Pilot Mode) */}
+        {!isFullscreen && !isGesturePilot && (
           <div style={{
-            background: 'rgba(9, 25, 43, 0.9)', border: '1px solid rgba(56, 189, 248, 0.35)',
-            borderRadius: '12px', padding: '12px 16px', color: '#f8fafc'
+            flex: 1, background: 'rgba(15, 23, 42, 0.85)', borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)', padding: '20px',
+            display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto'
           }}>
-            <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🎮 BẢNG HƯỚNG DẪN ĐIỀU KHIỂN 3D
+            {/* 3D Controls Guide (Docked on Right Panel) */}
+            <div style={{
+              background: 'rgba(9, 25, 43, 0.9)', border: '1px solid rgba(56, 189, 248, 0.35)',
+              borderRadius: '12px', padding: '12px 16px', color: '#f8fafc'
+            }}>
+              <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🎮 BẢNG HƯỚNG DẪN ĐIỀU KHIỂN 3D
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.78rem', color: '#cbd5e1' }}>
+                <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay 360°</div>
+                <div>• <b style={{ color: '#fff' }}>Cuộn chuột:</b> Thu phóng</div>
+                <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển</div>
+                <div>• <b style={{ color: '#fff' }}>Nhấp tinh cầu:</b> Du hành</div>
+              </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.78rem', color: '#cbd5e1' }}>
-              <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay 360°</div>
-              <div>• <b style={{ color: '#fff' }}>Cuộn chuột:</b> Thu phóng</div>
-              <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển</div>
-              <div>• <b style={{ color: '#fff' }}>Nhấp tinh cầu:</b> Du hành</div>
+            {/* Objective */}
+            <div style={{ background: 'rgba(13, 148, 136, 0.15)', borderLeft: '4px solid #0d9488', padding: '12px 14px', borderRadius: '0 10px 10px 0' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2dd4bf', margin: '0 0 4px 0' }}>🎯 MỤC ĐÍCH THÍ NGHIỆM / MÔ HÌNH</h4>
+              <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
+                {experiment?.objective || ''}
+              </p>
+            </div>
+
+            {/* Equipment & Reagents */}
+            <div>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🛠️ DỤNG CỤ & MÔ HÌNH THỰC HÀNH
+              </h4>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {experiment?.equipment?.map((item, idx) => (
+                  <span key={idx} style={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0', fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px' }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Procedure Steps */}
+            <div>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', margin: '0 0 8px 0' }}>
+                📝 CÁC BƯỚC THỰC HÀNH & QUAN SÁT
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {experiment?.steps?.map((step, idx) => (
+                  <div key={idx} style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4, background: '#09131d', padding: '8px 12px', borderRadius: '8px', borderLeft: '3px solid #0284c7' }}>
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Observed Phenomenon */}
+            <div style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '12px', borderRadius: '10px' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', margin: '0 0 4px 0' }}>👁️ HIỆN TƯỢNG QUAN SÁT TRỰC QUAN</h4>
+              <p style={{ fontSize: '0.8rem', color: '#fef08a', margin: 0, lineHeight: 1.4 }}>
+                {experiment?.phenomenon || ''}
+              </p>
+            </div>
+
+            {/* Scientific Explanation & Equations */}
+            <div style={{ background: 'rgba(147, 51, 234, 0.15)', border: '1px solid rgba(147, 51, 234, 0.3)', padding: '12px', borderRadius: '10px' }}>
+              <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#c084fc', margin: '0 0 4px 0' }}>💡 GIẢI THÍCH BẢN CHẤT ĐỊA LÍ / KHOA HỌC</h4>
+              <p style={{ fontSize: '0.8rem', color: '#e9d5ff', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
+                {experiment?.explanation || ''}
+              </p>
             </div>
           </div>
-          {/* Objective */}
-          <div style={{ background: 'rgba(13, 148, 136, 0.15)', borderLeft: '4px solid #0d9488', padding: '12px 14px', borderRadius: '0 10px 10px 0' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2dd4bf', margin: '0 0 4px 0' }}>🎯 MỤC ĐÍCH THÍ NGHIỆM / MÔ HÌNH</h4>
-            <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
-              {experiment?.objective || ''}
-            </p>
-          </div>
-
-          {/* Equipment & Reagents */}
-          <div>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              🛠️ DỤNG CỤ & MÔ HÌNH THỰC HÀNH
-            </h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {experiment?.equipment?.map((item, idx) => (
-                <span key={idx} style={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0', fontSize: '0.75rem', fontWeight: 600, padding: '4px 10px', borderRadius: '6px' }}>
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Procedure Steps */}
-          <div>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', margin: '0 0 8px 0' }}>
-              📝 CÁC BƯỚC THỰC HÀNH & QUAN SÁT
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {experiment?.steps?.map((step, idx) => (
-                <div key={idx} style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4, background: '#09131d', padding: '8px 12px', borderRadius: '8px', borderLeft: '3px solid #0284c7' }}>
-                  {step}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Observed Phenomenon */}
-          <div style={{ background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.3)', padding: '12px', borderRadius: '10px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047', margin: '0 0 4px 0' }}>👁️ HIỆN TƯỢNG QUAN SÁT TRỰC QUAN</h4>
-            <p style={{ fontSize: '0.8rem', color: '#fef08a', margin: 0, lineHeight: 1.4 }}>
-              {experiment?.phenomenon || ''}
-            </p>
-          </div>
-
-          {/* Scientific Explanation & Equations */}
-          <div style={{ background: 'rgba(147, 51, 234, 0.15)', border: '1px solid rgba(147, 51, 234, 0.3)', padding: '12px', borderRadius: '10px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#c084fc', margin: '0 0 4px 0' }}>💡 GIẢI THÍCH BẢN CHẤT ĐỊA LÍ / KHOA HỌC</h4>
-            <p style={{ fontSize: '0.8rem', color: '#e9d5ff', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-              {experiment?.explanation || ''}
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
