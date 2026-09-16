@@ -15,7 +15,7 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '8 hành tinh & hàng triệu tiểu hành tinh',
     feature: 'Ngôi sao lùn vàng chiếm 99,86% tổng khối lượng toàn Hệ Mặt Trời. Cung cấp ánh sáng và nhiệt năng nuôi sống Trái Đất.',
     color: '#f59e0b',
-    radius: 14,
+    radius: 12.5,
     orbitRadius: 0,
     speed: 0
   },
@@ -30,8 +30,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '0',
     feature: 'Hành tinh nhỏ nhất và gần Mặt Trời nhất. Bề mặt phủ nhiều hố thiên thạch.',
     color: '#cbd5e1',
-    radius: 2.2,
-    orbitRadius: 32,
+    radius: 2.0,
+    orbitRadius: 26,
     speed: 1.4
   },
   venus: {
@@ -45,8 +45,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '0',
     feature: 'Hành tinh nóng nhất Hệ Mặt Trời với bầu khí quyển CO2 cực dày và mây axit.',
     color: '#fbbf24',
-    radius: 3.4,
-    orbitRadius: 50,
+    radius: 3.0,
+    orbitRadius: 40,
     speed: 0.95
   },
   earth: {
@@ -60,8 +60,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '1 (Mặt Trăng)',
     feature: 'Hành tinh duy nhất có nước lỏng (71% bề mặt) và sự sống phong phú.',
     color: '#38bdf8',
-    radius: 3.8,
-    orbitRadius: 72,
+    radius: 3.4,
+    orbitRadius: 56,
     speed: 0.70,
     hasMoon: true
   },
@@ -76,8 +76,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '2 (Phobos & Deimos)',
     feature: 'Hành tinh Đỏ phủ bụi oxit sắt. Có ngọn núi lửa Olympus Mons cao nhất Hệ Mặt Trời.',
     color: '#ef4444',
-    radius: 2.8,
-    orbitRadius: 96,
+    radius: 2.5,
+    orbitRadius: 72,
     speed: 0.52
   },
   jupiter: {
@@ -91,8 +91,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '95+ (Ganymede, Callisto...)',
     feature: 'Hành tinh khí khổng lồ lớn nhất Hệ Mặt Trời với Vết Đỏ Lớn tồn tại hàng trăm năm.',
     color: '#d97706',
-    radius: 7.5,
-    orbitRadius: 130,
+    radius: 6.4,
+    orbitRadius: 96,
     speed: 0.32
   },
   saturn: {
@@ -106,8 +106,8 @@ const SOLAR_PLANETS_CONFIG = {
     moons: '146+ (Titan)',
     feature: 'Hành tinh tráng lệ nhất với vành đai đá và băng rực rỡ dẹt khổng lồ.',
     color: '#fde047',
-    radius: 6.2,
-    orbitRadius: 165,
+    radius: 5.2,
+    orbitRadius: 122,
     speed: 0.22,
     hasRings: true
   },
@@ -121,10 +121,11 @@ const SOLAR_PLANETS_CONFIG = {
     temp: '-195°C',
     moons: '28',
     feature: 'Hành tinh băng nghiêng trục 98° có màu xanh lam nhẹ do khí metan.',
-    color: '#2dd4bf',
-    radius: 4.6,
-    orbitRadius: 200,
-    speed: 0.15
+    color: '#22d3ee',
+    radius: 4.0,
+    orbitRadius: 148,
+    speed: 0.15,
+    hasRings: true
   },
   neptune: {
     key: 'neptune',
@@ -136,9 +137,9 @@ const SOLAR_PLANETS_CONFIG = {
     temp: '-200°C',
     moons: '16 (Triton)',
     feature: 'Hành tinh xa nhất Hệ Mặt Trời với màu xanh thẫm và những trận bão gió cực mạnh.',
-    color: '#6366f1',
-    radius: 4.4,
-    orbitRadius: 235,
+    color: '#3b82f6',
+    radius: 3.8,
+    orbitRadius: 172,
     speed: 0.10
   }
 };
@@ -2713,9 +2714,9 @@ function GeoSolarSystemSim({ onLog }) {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
 
-    // 2. Camera setup
+    // 2. Camera setup (Wide angle framing all 8 planets seamlessly)
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 3000);
-    camera.position.set(0, 130, 260);
+    camera.position.set(0, 145, 255);
 
     // 3. Renderer setup
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -2731,7 +2732,7 @@ function GeoSolarSystemSim({ onLog }) {
     controls.enableZoom = true;
     controls.zoomSpeed = 1.2;
     controls.enablePan = true;
-    controls.maxDistance = 800;
+    controls.maxDistance = 1000;
     controls.minDistance = 3.0;
 
     // 5. Starfield background
@@ -2794,7 +2795,7 @@ function GeoSolarSystemSim({ onLog }) {
       const orbitCurve = new THREE.EllipseCurve(0, 0, cfg.orbitRadius, cfg.orbitRadius, 0, 2 * Math.PI, false, 0);
       const points = orbitCurve.getPoints(160);
       const orbitGeo = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
-      const orbitMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25 });
+      const orbitMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.28 });
       const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
       scene.add(orbitLine);
       orbitLines[key] = orbitLine;
@@ -2832,15 +2833,24 @@ function GeoSolarSystemSim({ onLog }) {
         group.add(moonMesh);
       }
 
-      // Saturn Rings
+      // Saturn & Uranus Rings
       if (cfg.hasRings) {
-        const ringTexture = createPhotorealisticSaturnRingsTexture();
-        const ringGeo = new THREE.RingGeometry(cfg.radius * 1.35, cfg.radius * 2.45, 96);
-        ringGeo.rotateX(-Math.PI / 2);
-        const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.88 });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        ringMesh.rotation.x = Math.PI * 0.15;
-        group.add(ringMesh);
+        if (key === 'saturn') {
+          const ringTexture = createPhotorealisticSaturnRingsTexture();
+          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.25, cfg.radius * 1.82, 96);
+          ringGeo.rotateX(-Math.PI / 2);
+          const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.rotation.x = Math.PI * 0.12;
+          group.add(ringMesh);
+        } else if (key === 'uranus') {
+          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.25, cfg.radius * 1.5, 64);
+          ringGeo.rotateX(-Math.PI / 2);
+          const ringMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+          const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.rotation.z = Math.PI * 0.54;
+          group.add(ringMesh);
+        }
       }
     });
 
