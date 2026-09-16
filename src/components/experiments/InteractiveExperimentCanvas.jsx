@@ -2708,6 +2708,92 @@ function generateProceduralPlanetTexture(id) {
 // --- GEOGRAPHY GRADE 6 SIMULATOR COMPONENTS ---
 // ==========================================
 
+// Web Audio Sound Synthesizer for Space Flight & Core Scanners
+function playSpaceSFX(type) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!window.__spaceAudioCtx) window.__spaceAudioCtx = new AudioCtx();
+    const ctx = window.__spaceAudioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+
+    if (type === 'thrust') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(60, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.3);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'xray') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.linearRampToValueAtTime(880, now + 0.4);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.45);
+      osc.start(now);
+      osc.stop(now + 0.45);
+    } else if (type === 'brake') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(40, now + 0.25);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.28);
+      osc.start(now);
+      osc.stop(now + 0.28);
+    }
+  } catch (e) {
+    // Audio context optional
+  }
+}
+
+// 3D Multi-Planet Internal Core Cutaway Layer Engine
+function createPlanetCoreCutawayMesh(key, radius) {
+  const coreGroup = new THREE.Group();
+  coreGroup.name = `${key}CoreGroup`;
+
+  if (key === 'sun') {
+    // Sun Nuclear Fusion Core (15,000,000°C)
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.28, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    const c1Glow = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.33, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.7 }));
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.62, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide }));
+    const c3 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.86, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0xd97706, side: THREE.DoubleSide }));
+    const c4 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0xeab308, side: THREE.DoubleSide }));
+    coreGroup.add(c1, c1Glow, c2, c3, c4);
+  } else if (key === 'jupiter' || key === 'saturn') {
+    // Gas Giants: Heavy Rock/Ice Core -> Liquid Metallic Hydrogen -> H/He Atmosphere
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.28, 32, 32), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+    const c1Glow = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.33, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.6 }));
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.72, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.3, side: THREE.DoubleSide }));
+    const c3 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: key === 'saturn' ? 0xeab308 : 0xc9a97a, roughness: 0.5, side: THREE.DoubleSide }));
+    coreGroup.add(c1, c1Glow, c2, c3);
+  } else if (key === 'uranus' || key === 'neptune') {
+    // Ice Giants: Rocky Core -> Water/Ammonia/Methane Mantle -> Atmosphere
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.26, 32, 32), new THREE.MeshBasicMaterial({ color: 0xcbd5e1 }));
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.76, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.3, side: THREE.DoubleSide }));
+    const c3 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: key === 'uranus' ? 0xa8dde0 : 0x1d4ed8, roughness: 0.5, side: THREE.DoubleSide }));
+    coreGroup.add(c1, c2, c3);
+  } else {
+    // Rocky Planets (Earth, Mars, Mercury, Venus)
+    const c1 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.24, 32, 32), new THREE.MeshBasicMaterial({ color: 0xfef08a }));
+    const c1Glow = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.29, 32, 32), new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.55 }));
+    const c2 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.55, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.3, side: THREE.DoubleSide }));
+    const c3 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.85, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.5, side: THREE.DoubleSide }));
+    const c4 = new THREE.Mesh(new THREE.SphereGeometry(radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.6, side: THREE.DoubleSide }));
+    coreGroup.add(c1, c1Glow, c2, c3, c4);
+  }
+
+  coreGroup.visible = false;
+  return coreGroup;
+}
+
 // 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
 function GeoSolarSystemSim({ onLog }) {
   const mountRef = useRef(null);
@@ -2846,17 +2932,20 @@ function GeoSolarSystemSim({ onLog }) {
                 setCurrentGesture('PINCH_THRUST');
                 setGestureStatus('🤌 PHI THUYỀN DÙNG GA TĂNG TỐC (THRUSTING forward!)');
                 flightVectorRef.current.speed = Math.min(flightVectorRef.current.speed + 0.35, 8.5);
+                playSpaceSFX('thrust');
               } else if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
                 // ✌️ Victory Sign: Toggle X-Ray Planet Core Cutaway
                 setCurrentGesture('VICTORY_XRAY');
                 setGestureStatus('✌️ BẬT X-RAY XUYÊN LÒNG HÀNH TINH (Planet Core Mode)');
                 setIsXRayMode(true);
                 flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed * 0.9, 0.5);
+                playSpaceSFX('xray');
               } else if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
                 // ✊ Fist: Brakes
                 setCurrentGesture('FIST_BRAKE');
                 setGestureStatus('✊ HÃM PHANH TỨC THÌ (Braking)');
                 flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed - 0.4, 0);
+                playSpaceSFX('brake');
               } else {
                 // 🖐️ Open Palm: Steering yaw/pitch
                 setCurrentGesture('OPEN_PALM_STEER');
@@ -2983,6 +3072,11 @@ function GeoSolarSystemSim({ onLog }) {
     const sunGlowMesh = new THREE.Mesh(sunGlowGeo, sunGlowMat);
     sunMesh.add(sunGlowMesh);
 
+    // Sun 3D Core Cutaway Group
+    const sunCoreGroup = createPlanetCoreCutawayMesh('sun', sunConfig.radius);
+    sunMesh.add(sunCoreGroup);
+    planetCoreGroups['sun'] = sunCoreGroup;
+
     scene.add(sunMesh);
     planetMeshes['sun'] = sunMesh;
 
@@ -3021,41 +3115,10 @@ function GeoSolarSystemSim({ onLog }) {
       group.add(pMesh);
       planetMeshes[key] = pMesh;
 
-      // 3D PLANETARY INTERNAL CORE EXPLORATION ENGINE (Chế độ Xem Xuyên Lòng Hành Tinh)
-      if (key === 'earth') {
-        const earthCoreGroup = new THREE.Group();
-        earthCoreGroup.name = 'earthCoreGroup';
-
-        // 1. Inner Core (Lõi Trong Rắn) - 6,000°C
-        const innerCoreGeo = new THREE.SphereGeometry(cfg.radius * 0.24, 32, 32);
-        const innerCoreMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
-        const innerCoreMesh = new THREE.Mesh(innerCoreGeo, innerCoreMat);
-        earthCoreGroup.add(innerCoreMesh);
-
-        // Inner Core Glow
-        const innerGlowGeo = new THREE.SphereGeometry(cfg.radius * 0.29, 32, 32);
-        const innerGlowMat = new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.55 });
-        earthCoreGroup.add(new THREE.Mesh(innerGlowGeo, innerGlowMat));
-
-        // 2. Outer Core (Lõi Ngoài Lỏng) - 4,500°C (3/4 Cutaway)
-        const outerCoreGeo = new THREE.SphereGeometry(cfg.radius * 0.55, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
-        const outerCoreMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.3, side: THREE.DoubleSide });
-        earthCoreGroup.add(new THREE.Mesh(outerCoreGeo, outerCoreMat));
-
-        // 3. Mantle (Lớp Manti) - 2,000°C (3/4 Cutaway)
-        const mantleGeo = new THREE.SphereGeometry(cfg.radius * 0.85, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
-        const mantleMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.5, side: THREE.DoubleSide });
-        earthCoreGroup.add(new THREE.Mesh(mantleGeo, mantleMat));
-
-        // 4. Crust (Vỏ Trái Đất) (3/4 Cutaway)
-        const crustGeo = new THREE.SphereGeometry(cfg.radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
-        const crustMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.6, side: THREE.DoubleSide });
-        earthCoreGroup.add(new THREE.Mesh(crustGeo, crustMat));
-
-        earthCoreGroup.visible = false;
-        group.add(earthCoreGroup);
-        planetCoreGroups['earth'] = earthCoreGroup;
-      }
+      // 3D PLANETARY INTERNAL CORE EXPLORATION ENGINE (Cutaway models for ALL bodies)
+      const pCoreGroup = createPlanetCoreCutawayMesh(key, cfg.radius);
+      group.add(pCoreGroup);
+      planetCoreGroups[key] = pCoreGroup;
 
       // Earth's Cloud Layer & Moon
       if (cfg.hasMoon) {
@@ -3226,6 +3289,58 @@ function GeoSolarSystemSim({ onLog }) {
         controls.target.lerp(defaultTarget, 0.05);
         camera.position.lerp(defaultCamPos, 0.05);
         setBadgePos(null);
+      }
+
+      // AI Hand Gesture Spaceship Flight & Dynamic Core Cutaway Visibility
+      if (isGesturePilotRef.current) {
+        controls.enabled = false;
+
+        const fv = flightVectorRef.current;
+        const forwardX = Math.sin(fv.yaw) * Math.cos(fv.pitch);
+        const forwardY = Math.sin(fv.pitch);
+        const forwardZ = Math.cos(fv.yaw) * Math.cos(fv.pitch);
+
+        fv.posX += forwardX * fv.speed;
+        fv.posY += forwardY * fv.speed;
+        fv.posZ += forwardZ * fv.speed;
+
+        camera.position.set(fv.posX, fv.posY, fv.posZ);
+        const lookAtTarget = new THREE.Vector3(
+          fv.posX + forwardX * 10,
+          fv.posY + forwardY * 10,
+          fv.posZ + forwardZ * 10
+        );
+        camera.lookAt(lookAtTarget);
+
+        // Dynamic 3D Cutaway Core visibility & Holographic Labels for ALL Celestial Bodies
+        planetKeys.concat(['sun']).forEach(pKey => {
+          const pMesh = planetMeshes[pKey];
+          const cGroup = planetCoreGroups[pKey];
+          if (!pMesh || !cGroup) return;
+
+          let worldPos = new THREE.Vector3();
+          if (pKey === 'sun') {
+            worldPos.set(0, 0, 0);
+          } else if (planetGroups[pKey]) {
+            planetGroups[pKey].getWorldPosition(worldPos);
+          }
+
+          const distToPlanet = camera.position.distanceTo(worldPos);
+          const planetRadius = SOLAR_PLANETS_CONFIG[pKey]?.radius || 12;
+
+          if (isXRayModeRef.current || distToPlanet < planetRadius * 3.5) {
+            cGroup.visible = true;
+            pMesh.visible = false;
+            if (distToPlanet < planetRadius * 3.5) {
+              setTargetPlanetName(SOLAR_PLANETS_CONFIG[pKey]?.name || pKey.toUpperCase());
+            }
+          } else {
+            cGroup.visible = false;
+            pMesh.visible = true;
+          }
+        });
+      } else {
+        controls.enabled = true;
       }
 
       controls.update();
