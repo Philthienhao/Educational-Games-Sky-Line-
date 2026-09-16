@@ -5807,6 +5807,31 @@ class SimErrorBoundary extends React.Component {
   }
 }
 
+export const isGeoExperiment = (exp) => {
+  if (!exp) return false;
+  if (exp.isGeo) return true;
+  
+  const sub = String(exp.subject || '').toLowerCase();
+  const cat = String(exp.category || exp.subjectCategory || '').toLowerCase();
+  const title = String(exp.title || '').toLowerCase();
+  const type = String(exp.interactiveType || '').toLowerCase();
+  const expId = String(exp.id || '').toLowerCase();
+  const chapter = String(exp.chapter || '').toLowerCase();
+  const tags = Array.isArray(exp.tags) ? exp.tags.join(' ').toLowerCase() : String(exp.tags || '').toLowerCase();
+
+  const keywords = [
+    'địa', 'dia', 'geo', 'trái đất', 'trai dat', 'hành tinh', 'hanh tinh', 
+    'mặt trời', 'mat troi', 'vũ trụ', 'vu tru', 'núi lửa', 'nui lua', 
+    'động đất', 'dong dat', 'thủy triều', 'thuy trieu', 'khí hậu', 'khi hau', 
+    'vòng tuần hoàn', 'cấu tạo trái đất', 'băng', 'kiến tạo', 'bản đồ', 
+    'xoáy thuận', 'bão', 'địa hình', 'khí quyển', 'mặt trăng', 'mat trang',
+    'nhật thực', 'nguyệt thực', 'mùa', 'ngày và đêm'
+  ];
+
+  const searchStr = `${sub} ${cat} ${title} ${type} ${expId} ${chapter} ${tags}`;
+  return keywords.some(kw => searchStr.includes(kw));
+};
+
 export function InteractiveExperimentCanvas({ experiment, onClose }) {
   if (!experiment) return null;
 
@@ -5955,11 +5980,8 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'geo_glacial_river':
         return <GeoGlacialRiverSim onLog={addLog} />;
       default: {
-        const sub = (experiment?.subject || '').toLowerCase();
         const title = (experiment?.title || '').toLowerCase();
-        const type = (experiment?.interactiveType || '').toLowerCase();
-        const expId = (experiment?.id || '').toLowerCase();
-        const isGeo = sub.includes('địa') || sub.includes('dia') || type.startsWith('geo') || expId.includes('geo') || title.includes('địa') || title.includes('dia');
+        const isGeo = isGeoExperiment(experiment);
 
         if (isGeo) {
           if (title.includes('hành tinh') || title.includes('mặt trời') || title.includes('vũ trụ')) {
@@ -6074,8 +6096,8 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         {/* Left Side: Interactive Canvas Simulator */}
         <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', minHeight: 0, paddingRight: '4px' }}>
           
-          {/* Zperiod Real-Time Digital Sensors HUD Bar (Hidden for Geography & Solar System Experiments) */}
-          {!((experiment?.subject || '').toLowerCase().includes('địa') || (experiment?.subject || '').toLowerCase().includes('dia') || (experiment?.interactiveType || '').toLowerCase().startsWith('geo') || (experiment?.id || '').toLowerCase().includes('geo') || (experiment?.title || '').toLowerCase().includes('hành tinh') || (experiment?.title || '').toLowerCase().includes('mặt trời') || (experiment?.title || '').toLowerCase().includes('vũ trụ')) && (
+          {/* Real-Time Digital Sensors HUD Bar (Hidden for All Geography Experiments) */}
+          {!isGeoExperiment(experiment) && (
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)',

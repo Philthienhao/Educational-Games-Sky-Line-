@@ -269,7 +269,7 @@ export function GeoExperimentsView({ currentUser }) {
       {/* Active Experiment Modal Canvas */}
       {activeExperiment && (
         <InteractiveExperimentCanvas 
-          experiment={activeExperiment}
+          experiment={{ ...activeExperiment, isGeo: true }}
           onClose={() => setActiveExperiment(null)}
         />
       )}
