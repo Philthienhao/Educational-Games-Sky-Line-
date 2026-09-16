@@ -95,7 +95,7 @@ export function GeoExperimentsView({ currentUser }) {
                   WebkitTextFillColor: 'transparent',
                   margin: '4px 0 0 0'
                 }}>
-                  Phòng Thí Nghiệm & Mô Phỏng Địa Lý
+                  Mô Hình 3D Địa Lí
                 </h1>
               </div>
             </div>

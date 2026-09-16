@@ -219,7 +219,7 @@ export function Sidebar({
                 onClick={() => { setActiveTab('virtual-lab'); if (isMobileOpen) setIsMobileOpen(false); }}
               >
                 <FlaskConical size={18} />
-                <span>Thí Nghiệm Trực Quan</span>
+                <span>Mô phỏng thí nghiệm KHTN</span>
               </button>
 
               <button 
@@ -231,7 +231,7 @@ export function Sidebar({
                 }}
               >
                 <Globe size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#f59e0b'} />
-                <span style={{ color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', fontWeight: 800 }}>Thí Nghiệm Địa Lý 6</span>
+                <span style={{ color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', fontWeight: 800 }}>Mô hình 3D Địa Lí</span>
               </button>
 
               <button 

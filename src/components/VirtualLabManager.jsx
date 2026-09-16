@@ -166,7 +166,7 @@ export function VirtualLabManager({ currentUser }) {
                 WebkitTextFillColor: 'transparent',
                 margin: 0
               }}>
-                Phòng Thí Nghiệm Trực Quan
+                Mô phỏng thí nghiệm KHTN
               </h1>
             </div>
             <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: 0, fontWeight: 500, maxWidth: '700px' }}>
@@ -196,7 +196,7 @@ export function VirtualLabManager({ currentUser }) {
                 boxShadow: '0 4px 18px rgba(217, 119, 6, 0.45)'
               }}
             >
-              <Sparkles size={18} color="#ffffff" /> 🌍 7 Thí Nghiệm Địa Lí Khối 6
+              <Sparkles size={18} color="#ffffff" /> 🌍 Mô hình 3D Địa Lí
             </button>
 
             <button 
