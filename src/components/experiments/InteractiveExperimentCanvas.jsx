@@ -6074,78 +6074,80 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         {/* Left Side: Interactive Canvas Simulator */}
         <div style={{ flex: 1.6, display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', minHeight: 0, paddingRight: '4px' }}>
           
-          {/* Zperiod Real-Time Digital Sensors HUD Bar */}
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(13, 148, 136, 0.35)', borderRadius: '12px',
-            padding: '8px 16px', boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-            flexShrink: 0
-          }}>
-            {/* Temp Sensor & Interactive Temperature Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.15)', padding: '4px 10px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
-              <Flame size={18} color="#f97316" />
-              <span style={{ fontSize: '0.75rem', color: '#fde047', fontWeight: 800 }}>Nhiệt độ:</span>
-              <span style={{ fontSize: '0.92rem', color: '#ffffff', fontWeight: 900, fontFamily: 'monospace', minWidth: '65px' }}>{sensorData.temp.toFixed(1)} °C</span>
-              
-              {/* Quick +/- temperature buttons and slider directly in the header sensor bar */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
-                <button
-                  onClick={() => {
-                    const newT = Math.max(25, sensorData.temp - 10);
-                    handleSensorUpdate({ temp: newT });
-                  }}
-                  title="Giảm 10°C"
-                  style={{ background: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
-                >
-                  ➖ 10°
-                </button>
+          {/* Zperiod Real-Time Digital Sensors HUD Bar (Hidden for Geography & Solar System Experiments) */}
+          {!((experiment?.subject || '').toLowerCase().includes('địa') || (experiment?.subject || '').toLowerCase().includes('dia') || (experiment?.interactiveType || '').toLowerCase().startsWith('geo') || (experiment?.id || '').toLowerCase().includes('geo') || (experiment?.title || '').toLowerCase().includes('hành tinh') || (experiment?.title || '').toLowerCase().includes('mặt trời') || (experiment?.title || '').toLowerCase().includes('vũ trụ')) && (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(13, 148, 136, 0.35)', borderRadius: '12px',
+              padding: '8px 16px', boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+              flexShrink: 0
+            }}>
+              {/* Temp Sensor & Interactive Temperature Controls */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.15)', padding: '4px 10px', borderRadius: '10px', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+                <Flame size={18} color="#f97316" />
+                <span style={{ fontSize: '0.75rem', color: '#fde047', fontWeight: 800 }}>Nhiệt độ:</span>
+                <span style={{ fontSize: '0.92rem', color: '#ffffff', fontWeight: 900, fontFamily: 'monospace', minWidth: '65px' }}>{sensorData.temp.toFixed(1)} °C</span>
+                
+                {/* Quick +/- temperature buttons and slider directly in the header sensor bar */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                  <button
+                    onClick={() => {
+                      const newT = Math.max(25, sensorData.temp - 10);
+                      handleSensorUpdate({ temp: newT });
+                    }}
+                    title="Giảm 10°C"
+                    style={{ background: '#0284c7', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    ➖ 10°
+                  </button>
 
-                <input
-                  type="range" min="25" max="1000" step="5"
-                  value={sensorData.temp}
-                  onChange={(e) => handleSensorUpdate({ temp: Number(e.target.value) })}
-                  style={{ accentColor: '#f97316', cursor: 'pointer', width: '85px', height: '6px' }}
-                  title="Kéo thanh trượt để tùy chỉnh nhiệt độ"
-                />
+                  <input
+                    type="range" min="25" max="1000" step="5"
+                    value={sensorData.temp}
+                    onChange={(e) => handleSensorUpdate({ temp: Number(e.target.value) })}
+                    style={{ accentColor: '#f97316', cursor: 'pointer', width: '85px', height: '6px' }}
+                    title="Kéo thanh trượt để tùy chỉnh nhiệt độ"
+                  />
 
-                <button
-                  onClick={() => {
-                    const newT = Math.min(1000, sensorData.temp + 10);
-                    handleSensorUpdate({ temp: newT });
-                  }}
-                  title="Tăng 10°C"
-                  style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
-                >
-                  ➕ 10°
-                </button>
+                  <button
+                    onClick={() => {
+                      const newT = Math.min(1000, sensorData.temp + 10);
+                      handleSensorUpdate({ temp: newT });
+                    }}
+                    title="Tăng 10°C"
+                    style={{ background: '#ef4444', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '3px 8px', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    ➕ 10°
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* pH Sensor */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Activity size={18} color="#38bdf8" />
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Cảm biến pH:</span>
-              <span style={{ fontSize: '0.9rem', color: sensorData.ph < 7 ? '#ef4444' : sensorData.ph > 7 ? '#3b82f6' : '#2dd4bf', fontWeight: 900, fontFamily: 'monospace' }}>
-                pH {sensorData.ph.toFixed(1)}
-              </span>
-            </div>
+              {/* pH Sensor */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Activity size={18} color="#38bdf8" />
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Cảm biến pH:</span>
+                <span style={{ fontSize: '0.9rem', color: sensorData.ph < 7 ? '#ef4444' : sensorData.ph > 7 ? '#3b82f6' : '#2dd4bf', fontWeight: 900, fontFamily: 'monospace' }}>
+                  pH {sensorData.ph.toFixed(1)}
+                </span>
+              </div>
 
-            {/* Mass Sensor */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sliders size={18} color="#a855f7" />
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Cân điện tử:</span>
-              <span style={{ fontSize: '0.9rem', color: '#c084fc', fontWeight: 900, fontFamily: 'monospace' }}>{sensorData.mass.toFixed(2)} g</span>
-            </div>
+              {/* Mass Sensor */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sliders size={18} color="#a855f7" />
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Cân điện tử:</span>
+                <span style={{ fontSize: '0.9rem', color: '#c084fc', fontWeight: 900, fontFamily: 'monospace' }}>{sensorData.mass.toFixed(2)} g</span>
+              </div>
 
-            {/* Audio SFX Toggle */}
-            <button 
-              onClick={() => setAudioEnabled(!audioEnabled)}
-              style={{ background: audioEnabled ? 'rgba(13, 148, 136, 0.25)' : 'rgba(51, 65, 85, 0.4)', border: '1px solid rgba(13, 148, 136, 0.4)', borderRadius: '8px', padding: '4px 10px', color: audioEnabled ? '#2dd4bf' : '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-            >
-              <Volume2 size={14} /> {audioEnabled ? 'Âm thanh SFX: BẬT' : 'Âm thanh SFX: TẮT'}
-            </button>
-          </div>
+              {/* Audio SFX Toggle */}
+              <button 
+                onClick={() => setAudioEnabled(!audioEnabled)}
+                style={{ background: audioEnabled ? 'rgba(13, 148, 136, 0.25)' : 'rgba(51, 65, 85, 0.4)', border: '1px solid rgba(13, 148, 136, 0.4)', borderRadius: '8px', padding: '4px 10px', color: audioEnabled ? '#2dd4bf' : '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              >
+                <Volume2 size={14} /> {audioEnabled ? 'Âm thanh SFX: BẬT' : 'Âm thanh SFX: TẮT'}
+              </button>
+            </div>
+          )}
 
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <SimErrorBoundary key={experiment?.id || experiment?.interactiveType || 'sim'}>
