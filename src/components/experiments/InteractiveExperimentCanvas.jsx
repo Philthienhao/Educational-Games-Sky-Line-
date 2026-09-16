@@ -351,21 +351,21 @@ function createPhotorealisticSaturnRingsTexture() {
     let alpha = 0;
     let color = '#fef08a';
 
-    if (normX >= 0.12 && normX <= 0.32) {
-      alpha = 0.22;
-      color = '#ca8a04';
-    } else if (normX > 0.32 && normX <= 0.72) {
-      alpha = 0.85;
+    if (normX >= 0.18 && normX <= 0.35) {
+      alpha = 0.25;
+      color = '#a16207';
+    } else if (normX > 0.35 && normX <= 0.68) {
+      alpha = 0.88;
       color = '#fde047';
-    } else if (normX > 0.72 && normX < 0.77) {
-      alpha = 0.02; // Cassini Division gap
-      color = '#020617';
-    } else if (normX >= 0.77 && normX <= 0.90) {
-      alpha = 0.62;
+    } else if (normX > 0.68 && normX < 0.74) {
+      alpha = 0.0; // Cassini Division gap
+      color = '#000000';
+    } else if (normX >= 0.74 && normX <= 0.88) {
+      alpha = 0.65;
       color = '#eab308';
     }
 
-    if (x % 9 === 0) alpha *= 0.6;
+    if (x % 8 === 0) alpha *= 0.6;
 
     ctx.fillStyle = color;
     ctx.globalAlpha = alpha;
@@ -2838,16 +2838,16 @@ function GeoSolarSystemSim({ onLog }) {
       if (cfg.hasRings) {
         if (key === 'saturn') {
           const ringTexture = createPhotorealisticSaturnRingsTexture();
-          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.12, cfg.radius * 1.40, 96);
+          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.15, cfg.radius * 1.58, 128);
           ringGeo.rotateX(-Math.PI / 2);
-          const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.88 });
+          const ringMat = new THREE.MeshStandardMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.90, roughness: 0.5, metalness: 0.1 });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.rotation.x = Math.PI * 0.14;
+          ringMesh.rotation.x = Math.PI * 0.16;
           group.add(ringMesh);
         } else if (key === 'uranus') {
           const ringGeo = new THREE.RingGeometry(cfg.radius * 1.15, cfg.radius * 1.35, 64);
           ringGeo.rotateX(-Math.PI / 2);
-          const ringMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9, side: THREE.DoubleSide, transparent: true, opacity: 0.55 });
+          const ringMat = new THREE.MeshStandardMaterial({ color: 0x67e8f9, side: THREE.DoubleSide, transparent: true, opacity: 0.55, roughness: 0.5 });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
           ringMesh.rotation.z = Math.PI * 0.54;
           group.add(ringMesh);
@@ -3048,8 +3048,8 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         </div>
 
-        {/* Collapsible Bottom-Left 3D Orbit Controls Help Badge (Zero obstruction of orbits) */}
-        <div style={{ position: 'absolute', bottom: '24px', left: '24px', zIndex: 20, pointerEvents: 'auto' }}>
+        {/* Docked Right-Side 3D Orbit Controls Help Card */}
+        <div style={{ position: 'absolute', top: '20px', right: '24px', zIndex: 20, pointerEvents: 'auto' }}>
           {!showControlsGuide ? (
             <button
               onClick={() => setShowControlsGuide(true)}
@@ -3107,10 +3107,10 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         )}
 
-        {/* Left Celestial Glassmorphic Detail Card */}
+        {/* Docked Right-Side Celestial Glassmorphic Detail Card */}
         {activePlanet && (
           <div style={{
-            position: 'absolute', top: '105px', left: '24px', maxWidth: '330px', width: 'calc(100% - 48px)',
+            position: 'absolute', top: '60px', right: '24px', maxWidth: '330px', width: 'calc(100% - 48px)',
             background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
             border: `2px solid ${activePlanet.color}`, borderRadius: '18px',
             padding: '18px', color: '#f8fafc', boxShadow: '0 12px 48px rgba(0, 0, 0, 0.7)',
