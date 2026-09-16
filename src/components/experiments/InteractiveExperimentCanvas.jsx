@@ -164,35 +164,35 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 2048, 1024);
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
-    for (let i = 0; i < 300; i++) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+    for (let i = 0; i < 400; i++) {
       ctx.beginPath();
-      ctx.arc(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 30 + 5, 0, Math.PI * 2);
+      ctx.arc(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 25 + 5, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.fillStyle = '#3a0800';
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 22; i++) {
       const rx = pseudoRandom() * 2048;
       const ry = pseudoRandom() * 600 + 212;
       ctx.beginPath();
-      ctx.arc(rx, ry, pseudoRandom() * 20 + 6, 0, Math.PI * 2);
+      ctx.arc(rx, ry, pseudoRandom() * 18 + 6, 0, Math.PI * 2);
       ctx.fill();
     }
   } else if (key === 'mercury') {
     ctx.fillStyle = '#858585';
     ctx.fillRect(0, 0, 2048, 1024);
 
-    for (let i = 0; i < 90; i++) {
-      ctx.fillStyle = `rgba(40, 40, 40, ${pseudoRandom() * 0.28 + 0.1})`;
+    for (let i = 0; i < 110; i++) {
+      ctx.fillStyle = `rgba(35, 35, 35, ${pseudoRandom() * 0.3 + 0.1})`;
       ctx.beginPath();
-      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 130 + 30, pseudoRandom() * 80 + 20, pseudoRandom(), 0, Math.PI * 2);
+      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 140 + 30, pseudoRandom() * 85 + 20, pseudoRandom(), 0, Math.PI * 2);
       ctx.fill();
     }
 
-    for (let i = 0; i < 280; i++) {
+    for (let i = 0; i < 320; i++) {
       const cx = pseudoRandom() * 2048;
       const cy = pseudoRandom() * 1024;
-      const cr = pseudoRandom() * 24 + 3;
+      const cr = pseudoRandom() * 22 + 3;
 
       ctx.fillStyle = 'rgba(20, 20, 20, 0.45)';
       ctx.beginPath();
@@ -205,15 +205,15 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     }
   } else if (key === 'venus') {
     const grad = ctx.createLinearGradient(0, 0, 0, 1024);
-    grad.addColorStop(0, '#eab308');
-    grad.addColorStop(0.3, '#ca8a04');
+    grad.addColorStop(0, '#fef08a');
+    grad.addColorStop(0.3, '#eab308');
     grad.addColorStop(0.7, '#d97706');
     grad.addColorStop(1, '#a16207');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, 2048, 1024);
 
     for (let y = 0; y < 1024; y += 8) {
-      ctx.fillStyle = (y % 16 < 8) ? 'rgba(254, 240, 138, 0.2)' : 'rgba(180, 83, 9, 0.15)';
+      ctx.fillStyle = (y % 16 < 8) ? 'rgba(254, 240, 138, 0.25)' : 'rgba(180, 83, 9, 0.18)';
       ctx.beginPath();
       for (let x = 0; x < 2048; x += 40) {
         const offset = Math.sin(x * 0.01 + y * 0.02) * 15;
@@ -250,8 +250,8 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     ctx.fillRect(0, 949, 2048, 75);
   } else if (key === 'earthClouds') {
     ctx.clearRect(0, 0, 2048, 1024);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    for (let i = 0; i < 95; i++) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+    for (let i = 0; i < 110; i++) {
       const cx = pseudoRandom() * 2048;
       const cy = pseudoRandom() * 800 + 112;
       ctx.beginPath();
@@ -263,9 +263,9 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     ctx.fillRect(0, 0, 2048, 1024);
 
     ctx.fillStyle = 'rgba(67, 20, 7, 0.48)';
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 55; i++) {
       ctx.beginPath();
-      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 600 + 212, pseudoRandom() * 150 + 30, pseudoRandom() * 75 + 20, pseudoRandom(), 0, Math.PI * 2);
+      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 600 + 212, pseudoRandom() * 160 + 30, pseudoRandom() * 80 + 20, pseudoRandom(), 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -287,10 +287,10 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
       ctx.fillRect(0, y, 2048, 16);
     }
 
-    for (let i = 0; i < 130; i++) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${pseudoRandom() * 0.28})`;
+    for (let i = 0; i < 150; i++) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${pseudoRandom() * 0.32})`;
       ctx.beginPath();
-      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 110 + 20, pseudoRandom() * 15 + 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 120 + 20, pseudoRandom() * 16 + 4, 0, 0, Math.PI * 2);
       ctx.fill();
     }
 
@@ -303,9 +303,17 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     ctx.lineWidth = 6;
     ctx.stroke();
   } else if (key === 'saturn') {
-    for (let y = 0; y < 1024; y += 12) {
-      ctx.fillStyle = (y % 24 < 12) ? '#fef08a' : '#eab308';
-      ctx.fillRect(0, y, 2048, 12);
+    const saturnGrad = ctx.createLinearGradient(0, 0, 0, 1024);
+    saturnGrad.addColorStop(0, '#fef08a');
+    saturnGrad.addColorStop(0.3, '#fde047');
+    saturnGrad.addColorStop(0.6, '#eab308');
+    saturnGrad.addColorStop(1, '#ca8a04');
+    ctx.fillStyle = saturnGrad;
+    ctx.fillRect(0, 0, 2048, 1024);
+
+    for (let y = 0; y < 1024; y += 8) {
+      ctx.fillStyle = (y % 16 < 8) ? 'rgba(255, 255, 255, 0.12)' : 'rgba(161, 98, 7, 0.1)';
+      ctx.fillRect(0, y, 2048, 4);
     }
   } else if (key === 'uranus') {
     const grad = ctx.createLinearGradient(0, 0, 0, 1024);
@@ -328,7 +336,7 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
     ctx.fill();
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-    for (let i = 0; i < 35; i++) {
+    for (let i = 0; i < 45; i++) {
       ctx.beginPath();
       ctx.ellipse(pseudoRandom() * 2048, pseudoRandom() * 1024, pseudoRandom() * 170 + 40, pseudoRandom() * 7 + 2, 0, 0, Math.PI * 2);
       ctx.fill();
@@ -351,21 +359,21 @@ function createPhotorealisticSaturnRingsTexture() {
     let alpha = 0;
     let color = '#fef08a';
 
-    if (normX >= 0.18 && normX <= 0.35) {
-      alpha = 0.25;
+    if (normX >= 0.20 && normX <= 0.40) {
+      alpha = 0.28;
       color = '#a16207';
-    } else if (normX > 0.35 && normX <= 0.68) {
-      alpha = 0.88;
+    } else if (normX > 0.40 && normX <= 0.72) {
+      alpha = 0.90;
       color = '#fde047';
-    } else if (normX > 0.68 && normX < 0.74) {
+    } else if (normX > 0.72 && normX < 0.78) {
       alpha = 0.0; // Cassini Division gap
       color = '#000000';
-    } else if (normX >= 0.74 && normX <= 0.88) {
-      alpha = 0.65;
+    } else if (normX >= 0.78 && normX <= 0.92) {
+      alpha = 0.70;
       color = '#eab308';
     }
 
-    if (x % 8 === 0) alpha *= 0.6;
+    if (x % 6 === 0) alpha *= 0.5;
 
     ctx.fillStyle = color;
     ctx.globalAlpha = alpha;
