@@ -148,5 +148,15 @@
     "subject": "Giáo viên",
     "school": "Trường TH và THCS Nguyễn Văn Trỗi",
     "createdAt": "2026-09-15"
+  },
+  {
+    "id": "user_tieu_ngoc",
+    "username": "tieungoc",
+    "password": "123456",
+    "name": "Huỳnh Tiểu Ngọc",
+    "role": "teacher",
+    "subject": "Giáo viên",
+    "school": "Hệ thống giáo dục Sky-Line",
+    "createdAt": "2026-09-16"
   }
 ]

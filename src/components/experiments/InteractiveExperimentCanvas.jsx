@@ -2530,7 +2530,9 @@ function GeoSolarSystemSim({ onLog }) {
         )}
       </div>
 
-        {/* Celestial body chips bar matching Aslan */}
+      {/* Bottom Control Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          {/* Celestial body chips bar matching Aslan */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', flex: 1 }}>
           {[
             { key: 'sun', label: 'MẶT TRỜI' },
