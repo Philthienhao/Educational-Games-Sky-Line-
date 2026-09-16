@@ -21,7 +21,7 @@ Parse the user input (image, table, or text) into standard fields:
 ## 2. Dual-Seed Protocol (Mandatory Synchronous Declaration)
 1. Add account object to `INITIAL_USERS` array in `src/services/storage.js`.
 2. Add matching JSON object to array in `public/cloud_users.json`.
-3. Add username to `AGENTS.md` core account list.
+3. Add username to core account lists in both `AGENTS.md` and `.agents/AGENTS.md`.
 
 ## 3. Local Verification
 Run `npm run build` to verify clean build without any syntax or bundle errors.
@@ -29,9 +29,10 @@ Run `npm run build` to verify clean build without any syntax or bundle errors.
 ## 4. Production Deployment & Sandbox Network Clearance
 1. Execute `git add . && git commit -m "Add teacher account <username> (<name>)"`.
 2. Push and deploy:
-   - Run `git push origin main` and `npm run deploy` (or `node scripts/deploy_vercel.cjs`).
-   - If executed in AI background task and sandbox prompts for network permission, request user **Approve** directly in chat interface.
+   - Run `git push origin main` and `npm run deploy`.
+   - If remote Vercel queue is delayed or aliases do not resolve, run `npx vercel build --prod --yes && npx vercel deploy --prebuilt --prod --yes` and explicitly set aliases: `npx vercel alias set <deployment_url> eduvth.vercel.app` and `npx vercel alias set <deployment_url> giao-vien-sky-line.vercel.app`.
 
 ## 5. User Feedback & Cache Refresh Guidance
-- Report clean summary of created credentials.
-- Remind user to hard refresh browser (`Ctrl + F5` or `Cmd + Shift + R`) on `eduvth.vercel.app`.
+1. Verify live endpoints using `curl -s "https://eduvth.vercel.app/cloud_users.json"` and `curl -s "https://giao-vien-sky-line.vercel.app/cloud_users.json"`.
+2. Report clean summary of created credentials.
+3. Remind user to hard refresh browser (`Ctrl + F5` or `Cmd + Shift + R`) on `eduvth.vercel.app`.

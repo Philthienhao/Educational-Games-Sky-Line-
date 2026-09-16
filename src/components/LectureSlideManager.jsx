@@ -62,12 +62,23 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
   const [slideDriveUrl, setSlideDriveUrl] = useState('');
   const [slideDesc, setSlideDesc] = useState('');
 
-  // Load Per-User Account Data strictly from StorageService
+  // Load Per-User Account Data strictly from StorageService with Cloud Sync
   useEffect(() => {
-    const folders = StorageService.getGradeDriveFolders(effectiveUserId);
-    const slides = StorageService.getLectureSlides(effectiveUserId);
-    setGradeFoldersList(Array.isArray(folders) ? folders : []);
-    setSlidesList(Array.isArray(slides) ? slides : []);
+    let isMounted = true;
+    const loadUserDataAsync = async () => {
+      if (effectiveUserId) {
+        // Sync from Cloud & IndexedDB first
+        await StorageService.syncAllUserDataFromCloud(effectiveUserId);
+      }
+      if (isMounted) {
+        const folders = StorageService.getGradeDriveFolders(effectiveUserId);
+        const slides = StorageService.getLectureSlides(effectiveUserId);
+        setGradeFoldersList(Array.isArray(folders) ? folders : []);
+        setSlidesList(Array.isArray(slides) ? slides : []);
+      }
+    };
+    loadUserDataAsync();
+    return () => { isMounted = false; };
   }, [effectiveUserId]);
 
   // Toast Helper

@@ -128,59 +128,51 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
 
   const isDataLoadedRef = React.useRef(false);
 
-  // Load homeroom data when teacherId changes & auto-optimize oversized avatars
+  // Load homeroom data asynchronously from Cloud DB & IndexedDB BEFORE enabling auto-save
   useEffect(() => {
-    let data = null;
-    if (readOnlyAdminClass) {
-      data = readOnlyAdminClass.classData;
-    } else if (teacherId) {
-      data = StorageService.getTeacherHomeroom(teacherId);
-    }
-    if (data) {
-      if (!data.pointRules) {
-        data.pointRules = { basePoints: 100, rewardBonus: 10, violationDeduction: 5, topHonorsCount: 3 };
-      }
-      if (!data.schoolYear || data.schoolYear === '2025 - 2026') {
-        data.schoolYear = '2026 - 2027';
-      }
-      setClassData(data);
-      setTempRules(data.pointRules);
+    let isMounted = true;
+    isDataLoadedRef.current = false;
 
-      // Async sync from IndexedDB & Cloud for guaranteed high-capacity storage restoration
-      if (!readOnlyAdminClass && teacherId) {
-        StorageService.syncHomeroomWithIndexedDB(teacherId).then(idbData => {
-          if (idbData && typeof idbData === 'object' && Array.isArray(idbData.students)) {
-            // CRITICAL FIX: If idbData is customized OR if local data was just un-customized sampleClass, ALWAYS accept idbData!
-            if (idbData.isCustomized || !data?.isCustomized || idbData.students.length > 0) {
-              setClassData(idbData);
-              if (idbData.pointRules) setTempRules(idbData.pointRules);
-            }
-          }
-        }).catch(() => {});
+    const loadDataAsync = async () => {
+      let data = null;
+      if (readOnlyAdminClass) {
+        data = readOnlyAdminClass.classData;
+      } else if (teacherId) {
+        // 1. Fetch from Cloud DB & IndexedDB first
+        data = await StorageService.syncHomeroomWithIndexedDB(teacherId);
       }
 
-      // Preload all avatars into AvatarStorageService memory cache
-      if (Array.isArray(data.students)) {
-        AvatarStorageService.preloadAvatars(data.students).then(() => {
-          setClassData(prev => ({ ...prev }));
-        });
-      }
-
-      // Auto-compress any old oversized base64 student avatars from previous uncompressed uploads
-      optimizeHomeroomClassData(data).then(optimizedData => {
-        if (optimizedData && optimizedData !== data) {
-          setClassData(optimizedData);
-          if (!readOnlyAdminClass && teacherId) {
-            StorageService.saveTeacherHomeroom(teacherId, optimizedData);
-          }
+      if (isMounted && data) {
+        if (!data.pointRules) {
+          data.pointRules = { basePoints: 100, rewardBonus: 10, violationDeduction: 5, topHonorsCount: 3 };
         }
-      });
-    }
-    // Mark as safely loaded
-    isDataLoadedRef.current = true;
+        if (!data.schoolYear || data.schoolYear === '2025 - 2026') {
+          data.schoolYear = '2026 - 2027';
+        }
+        setClassData(data);
+        setTempRules(data.pointRules);
+
+        // Preload student avatars into AvatarStorageService memory cache
+        if (Array.isArray(data.students)) {
+          AvatarStorageService.preloadAvatars(data.students).then(() => {
+            if (isMounted) setClassData(prev => ({ ...prev }));
+          }).catch(() => {});
+        }
+      }
+
+      // Mark as safely loaded ONLY AFTER async cloud restoration resolves
+      if (isMounted) {
+        setTimeout(() => {
+          if (isMounted) isDataLoadedRef.current = true;
+        }, 300);
+      }
+    };
+
+    loadDataAsync();
+    return () => { isMounted = false; };
   }, [teacherId, readOnlyAdminClass]);
 
-  // REAL-TIME AUTO-SAVE EFFECT: Safely persists any user change (Class Name, Photos, Students) instantly!
+  // REAL-TIME AUTO-SAVE EFFECT: Safely persists user changes ONLY AFTER cloud sync is 100% complete
   useEffect(() => {
     if (!isReadOnlyAdmin && teacherId && classData && classData.className && isDataLoadedRef.current) {
       StorageService.saveTeacherHomeroom(teacherId, classData);
