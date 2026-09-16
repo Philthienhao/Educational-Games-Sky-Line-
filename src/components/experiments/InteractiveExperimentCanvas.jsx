@@ -3048,49 +3048,7 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         </div>
 
-        {/* Docked Right-Side 3D Orbit Controls Help Card */}
-        <div style={{ position: 'absolute', top: '20px', right: '24px', zIndex: 20, pointerEvents: 'auto' }}>
-          {!showControlsGuide ? (
-            <button
-              onClick={() => setShowControlsGuide(true)}
-              style={{
-                background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '20px',
-                padding: '6px 14px', color: '#38bdf8', fontSize: '0.78rem',
-                fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-                display: 'flex', alignItems: 'center', gap: '6px'
-              }}
-            >
-              🎮 Hướng dẫn điều khiển 3D
-            </button>
-          ) : (
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(14px)',
-              border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '16px',
-              padding: '12px 16px', color: '#f8fafc', fontSize: '0.75rem',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)', maxWidth: '280px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  🎮 ĐIỀU KHIỂN KHÔNG GIAN 3D
-                </span>
-                <button
-                  onClick={() => setShowControlsGuide(false)}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem', padding: '0 4px' }}
-                >
-                  ✕
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#cbd5e1' }}>
-                <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay góc nhìn 360°</div>
-                <div>• <b style={{ color: '#fff' }}>Cuộn chuột / Pinch:</b> Thu phóng camera</div>
-                <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển khung hình</div>
-                <div>• <b style={{ color: '#fff' }}>Nhấp thiên thể:</b> Du hành & xem chi tiết</div>
-                <div>• <b style={{ color: '#38bdf8' }}>Phím Esc:</b> Quay về tổng quan</div>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Floating 3D Planet Target Screen Badge */}
 
         {/* Floating 3D Planet Target Screen Badge */}
         {activePlanet && badgePos && (
@@ -6235,6 +6193,21 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           border: '1px solid rgba(255, 255, 255, 0.1)', padding: '20px',
           display: 'flex', flexDirection: 'column', gap: '18px', overflowY: 'auto'
         }}>
+          {/* 3D Controls Guide (Docked on Right Panel) */}
+          <div style={{
+            background: 'rgba(9, 25, 43, 0.9)', border: '1px solid rgba(56, 189, 248, 0.35)',
+            borderRadius: '12px', padding: '12px 16px', color: '#f8fafc'
+          }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              🎮 BẢNG HƯỚNG DẪN ĐIỀU KHIỂN 3D
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.78rem', color: '#cbd5e1' }}>
+              <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay 360°</div>
+              <div>• <b style={{ color: '#fff' }}>Cuộn chuột:</b> Thu phóng</div>
+              <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển</div>
+              <div>• <b style={{ color: '#fff' }}>Nhấp tinh cầu:</b> Du hành</div>
+            </div>
+          </div>
           {/* Objective */}
           <div style={{ background: 'rgba(13, 148, 136, 0.15)', borderLeft: '4px solid #0d9488', padding: '12px 14px', borderRadius: '0 10px 10px 0' }}>
             <h4 style={{ fontSize: '0.85rem', fontWeight: 900, color: '#2dd4bf', margin: '0 0 4px 0' }}>🎯 MỤC ĐÍCH THÍ NGHIỆM / MÔ HÌNH</h4>
