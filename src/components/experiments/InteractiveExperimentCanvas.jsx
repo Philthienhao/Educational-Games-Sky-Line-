@@ -351,21 +351,21 @@ function createPhotorealisticSaturnRingsTexture() {
     let alpha = 0;
     let color = '#fef08a';
 
-    if (normX > 0.05 && normX < 0.35) {
-      alpha = 0.25;
+    if (normX >= 0.12 && normX <= 0.32) {
+      alpha = 0.22;
       color = '#ca8a04';
-    } else if (normX >= 0.35 && normX <= 0.7) {
-      alpha = 0.88;
+    } else if (normX > 0.32 && normX <= 0.72) {
+      alpha = 0.85;
       color = '#fde047';
-    } else if (normX > 0.7 && normX < 0.74) {
-      alpha = 0.04;
-      color = '#1e293b';
-    } else if (normX >= 0.74 && normX <= 0.95) {
-      alpha = 0.68;
+    } else if (normX > 0.72 && normX < 0.77) {
+      alpha = 0.02; // Cassini Division gap
+      color = '#020617';
+    } else if (normX >= 0.77 && normX <= 0.90) {
+      alpha = 0.62;
       color = '#eab308';
     }
 
-    if (x % 7 === 0) alpha *= 0.5;
+    if (x % 9 === 0) alpha *= 0.6;
 
     ctx.fillStyle = color;
     ctx.globalAlpha = alpha;
@@ -2686,6 +2686,7 @@ function GeoSolarSystemSim({ onLog }) {
   const [speed, setSpeed] = useState(1);
   const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
   const [badgePos, setBadgePos] = useState(null);
+  const [showControlsGuide, setShowControlsGuide] = useState(false);
 
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
@@ -2837,16 +2838,16 @@ function GeoSolarSystemSim({ onLog }) {
       if (cfg.hasRings) {
         if (key === 'saturn') {
           const ringTexture = createPhotorealisticSaturnRingsTexture();
-          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.25, cfg.radius * 1.82, 96);
+          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.12, cfg.radius * 1.40, 96);
           ringGeo.rotateX(-Math.PI / 2);
-          const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+          const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.88 });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.rotation.x = Math.PI * 0.12;
+          ringMesh.rotation.x = Math.PI * 0.14;
           group.add(ringMesh);
         } else if (key === 'uranus') {
-          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.25, cfg.radius * 1.5, 64);
+          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.15, cfg.radius * 1.35, 64);
           ringGeo.rotateX(-Math.PI / 2);
-          const ringMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9, side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+          const ringMat = new THREE.MeshBasicMaterial({ color: 0x67e8f9, side: THREE.DoubleSide, transparent: true, opacity: 0.55 });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
           ringMesh.rotation.z = Math.PI * 0.54;
           group.add(ringMesh);
@@ -3047,24 +3048,48 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         </div>
 
-        {/* Top-Right Glassmorphic Controls Panel */}
-        <div style={{
-          position: 'absolute', top: '20px', right: '24px', zIndex: 10,
-          background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '14px',
-          padding: '12px 16px', color: '#f8fafc', fontSize: '0.75rem',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', pointerEvents: 'auto'
-        }}>
-          <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            🎮 ĐIỀU KHIỂN KHÔNG GIAN 3D
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#cbd5e1' }}>
-            <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay góc nhìn 360°</div>
-            <div>• <b style={{ color: '#fff' }}>Cuộn chuột / Pinch:</b> Thu phóng camera</div>
-            <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển khung hình</div>
-            <div>• <b style={{ color: '#fff' }}>Nhấp thiên thể:</b> Du hành & xem chi tiết</div>
-            <div>• <b style={{ color: '#38bdf8' }}>Phím Esc:</b> Quay về tổng quan</div>
-          </div>
+        {/* Collapsible Bottom-Left 3D Orbit Controls Help Badge (Zero obstruction of orbits) */}
+        <div style={{ position: 'absolute', bottom: '24px', left: '24px', zIndex: 20, pointerEvents: 'auto' }}>
+          {!showControlsGuide ? (
+            <button
+              onClick={() => setShowControlsGuide(true)}
+              style={{
+                background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '20px',
+                padding: '6px 14px', color: '#38bdf8', fontSize: '0.78rem',
+                fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                display: 'flex', alignItems: 'center', gap: '6px'
+              }}
+            >
+              🎮 Hướng dẫn điều khiển 3D
+            </button>
+          ) : (
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(14px)',
+              border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '16px',
+              padding: '12px 16px', color: '#f8fafc', fontSize: '0.75rem',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)', maxWidth: '280px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  🎮 ĐIỀU KHIỂN KHÔNG GIAN 3D
+                </span>
+                <button
+                  onClick={() => setShowControlsGuide(false)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 900, fontSize: '0.9rem', padding: '0 4px' }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#cbd5e1' }}>
+                <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay góc nhìn 360°</div>
+                <div>• <b style={{ color: '#fff' }}>Cuộn chuột / Pinch:</b> Thu phóng camera</div>
+                <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển khung hình</div>
+                <div>• <b style={{ color: '#fff' }}>Nhấp thiên thể:</b> Du hành & xem chi tiết</div>
+                <div>• <b style={{ color: '#38bdf8' }}>Phím Esc:</b> Quay về tổng quan</div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Floating 3D Planet Target Screen Badge */}
