@@ -359,9 +359,7 @@ function applyRadialUVsToRingGeometry(geometry, innerRadius, outerRadius) {
     const y = pos.getY(i);
     const r = Math.sqrt(x * x + y * y);
     const normR = Math.max(0, Math.min(1, (r - innerRadius) / (outerRadius - innerRadius)));
-    const angle = Math.atan2(y, x);
-    const normAngle = (angle + Math.PI) / (2 * Math.PI);
-    uv.setXY(i, normR, normAngle);
+    uv.setXY(i, normR, 0.5);
   }
   uv.needsUpdate = true;
 }
@@ -2877,16 +2875,12 @@ function GeoSolarSystemSim({ onLog }) {
           applyRadialUVsToRingGeometry(ringGeo, innerR, outerR);
           ringGeo.rotateX(-Math.PI / 2);
 
-          const ringMat = new THREE.MeshStandardMaterial({
+          const ringMat = new THREE.MeshBasicMaterial({
             map: ringTexture,
             side: THREE.DoubleSide,
             transparent: true,
-            opacity: 0.96,
-            roughness: 0.25,
-            metalness: 0.1,
-            depthWrite: false, // CRITICAL: Fixes transparent depth-buffer clipping of Saturn's body
-            depthTest: true,
-            alphaTest: 0.005
+            opacity: 0.95,
+            depthWrite: false, // Prevents depth-buffer clipping of Saturn's body
           });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
           ringMesh.rotation.x = Math.PI * 0.16; // ~28.8 deg inclination matching reference photo
