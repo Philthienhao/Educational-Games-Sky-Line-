@@ -351,56 +351,59 @@ function createPhotorealisticPlanetTexture(key, baseColor) {
   return texture;
 }
 
+function applyRadialUVsToRingGeometry(geometry, innerRadius, outerRadius) {
+  const pos = geometry.attributes.position;
+  const uv = geometry.attributes.uv;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const y = pos.getY(i);
+    const r = Math.sqrt(x * x + y * y);
+    const normR = Math.max(0, Math.min(1, (r - innerRadius) / (outerRadius - innerRadius)));
+    const angle = Math.atan2(y, x);
+    const normAngle = (angle + Math.PI) / (2 * Math.PI);
+    uv.setXY(i, normR, normAngle);
+  }
+  uv.needsUpdate = true;
+}
+
 function createPhotorealisticSaturnRingsTexture() {
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 1024;
+  canvas.width = 2048;
+  canvas.height = 128;
   const ctx = canvas.getContext('2d');
 
-  const cx = 512;
-  const cy = 512;
-
-  // Clear background
-  ctx.clearRect(0, 0, 1024, 1024);
-
-  // Radial gradient matching Saturn's multi-layered ring system in reference photo
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 512);
+  // Linear gradient mapping radial distance U from 0.0 (inner radius) to 1.0 (outer radius)
+  const grad = ctx.createLinearGradient(0, 0, 2048, 0);
   grad.addColorStop(0.00, 'rgba(0, 0, 0, 0)');
-  grad.addColorStop(0.56, 'rgba(0, 0, 0, 0)'); // Inner gap (1.22 / 2.15 = ~0.567)
-  grad.addColorStop(0.57, 'rgba(140, 90, 30, 0.20)'); // D Ring
-  grad.addColorStop(0.62, 'rgba(180, 120, 45, 0.60)'); // C Ring (amber tone)
-  grad.addColorStop(0.68, 'rgba(245, 200, 80, 0.92)'); // B Ring inner edge
-  grad.addColorStop(0.75, 'rgba(254, 243, 199, 0.98)'); // B Ring peak bright golden cream
-  grad.addColorStop(0.80, 'rgba(217, 140, 20, 0.92)'); // B Ring outer amber
-  grad.addColorStop(0.82, 'rgba(15, 23, 42, 0.04)'); // Cassini Division start
-  grad.addColorStop(0.85, 'rgba(15, 23, 42, 0.04)'); // Cassini Division end
-  grad.addColorStop(0.87, 'rgba(234, 179, 8, 0.88)'); // A Ring inner edge
-  grad.addColorStop(0.93, 'rgba(180, 90, 15, 0.75)'); // A Ring body
-  grad.addColorStop(0.97, 'rgba(120, 50, 10, 0.40)'); // A Ring outer rim
-  grad.addColorStop(1.00, 'rgba(0, 0, 0, 0)');       // Transparent outer boundary
+  grad.addColorStop(0.04, 'rgba(160, 110, 45, 0.35)'); // D Ring
+  grad.addColorStop(0.18, 'rgba(217, 140, 25, 0.70)'); // C Ring (amber tone)
+  grad.addColorStop(0.30, 'rgba(245, 205, 90, 0.95)'); // B Ring inner bright edge
+  grad.addColorStop(0.44, 'rgba(254, 243, 199, 0.98)'); // B Ring main intense bright golden-cream peak
+  grad.addColorStop(0.64, 'rgba(217, 119, 6, 0.92)');  // B Ring outer rich amber gold
+  grad.addColorStop(0.68, 'rgba(15, 23, 42, 0.02)');  // Cassini Division start (dark gap)
+  grad.addColorStop(0.74, 'rgba(15, 23, 42, 0.02)');  // Cassini Division end
+  grad.addColorStop(0.76, 'rgba(234, 179, 8, 0.88)');  // A Ring warm golden tan
+  grad.addColorStop(0.88, 'rgba(100, 50, 10, 0.30)');  // Encke Division line
+  grad.addColorStop(0.94, 'rgba(180, 83, 9, 0.65)');   // A Ring outer rim
+  grad.addColorStop(1.00, 'rgba(0, 0, 0, 0)');        // Transparent outer boundary
 
   ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 512, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(0, 0, 2048, 128);
 
-  // Draw fine concentric ring bands (striations)
-  const rInner = Math.round(512 * 0.567); // ~290px
-  const rOuter = Math.round(512 * 0.97);  // ~496px
-  const rCassiniStart = Math.round(512 * 0.82); // ~420px
-  const rCassiniEnd = Math.round(512 * 0.85);   // ~435px
+  // Draw fine vertical striation lines (which wrap around into concentric rings)
+  const xCassiniStart = Math.round(2048 * 0.68);
+  const xCassiniEnd = Math.round(2048 * 0.74);
 
-  for (let r = rInner; r < rOuter; r += 2) {
-    if (r >= rCassiniStart && r <= rCassiniEnd) continue; // Skip Cassini division gap
-    const alpha = (Math.sin(r * 0.5) * 0.07 + 0.07);
-    ctx.strokeStyle = (r % 4 === 0) ? `rgba(255, 255, 255, ${alpha})` : `rgba(40, 20, 0, ${alpha})`;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
+  for (let x = 0; x < 2048; x += 2) {
+    if (x >= xCassiniStart && x <= xCassiniEnd) continue; // Skip Cassini division gap
+    const alpha = (Math.sin(x * 0.4) * 0.08 + 0.08);
+    ctx.fillStyle = (x % 4 === 0) ? `rgba(255, 255, 255, ${alpha})` : `rgba(40, 20, 0, ${alpha})`;
+    ctx.fillRect(x, 0, 1.5, 128);
   }
 
   const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
   texture.needsUpdate = true;
   return texture;
 }
@@ -2868,8 +2871,12 @@ function GeoSolarSystemSim({ onLog }) {
       if (cfg.hasRings) {
         if (key === 'saturn') {
           const ringTexture = createPhotorealisticSaturnRingsTexture();
-          const ringGeo = new THREE.RingGeometry(cfg.radius * 1.22, cfg.radius * 2.15, 256, 8);
+          const innerR = cfg.radius * 1.25;
+          const outerR = cfg.radius * 2.25;
+          const ringGeo = new THREE.RingGeometry(innerR, outerR, 256, 16);
+          applyRadialUVsToRingGeometry(ringGeo, innerR, outerR);
           ringGeo.rotateX(-Math.PI / 2);
+
           const ringMat = new THREE.MeshStandardMaterial({
             map: ringTexture,
             side: THREE.DoubleSide,
@@ -2877,11 +2884,14 @@ function GeoSolarSystemSim({ onLog }) {
             opacity: 0.96,
             roughness: 0.25,
             metalness: 0.1,
-            alphaTest: 0.01
+            depthWrite: false, // CRITICAL: Fixes transparent depth-buffer clipping of Saturn's body
+            depthTest: true,
+            alphaTest: 0.005
           });
           const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-          ringMesh.rotation.x = Math.PI * 0.18; // ~32 deg inclination matching reference photo
-          ringMesh.rotation.y = -Math.PI * 0.06;
+          ringMesh.rotation.x = Math.PI * 0.16; // ~28.8 deg inclination matching reference photo
+          ringMesh.rotation.y = -Math.PI * 0.04;
+          ringMesh.renderOrder = 2;
           group.add(ringMesh);
         } else if (key === 'uranus') {
           const ringGeo = new THREE.RingGeometry(cfg.radius * 1.25, cfg.radius * 1.55, 128);
