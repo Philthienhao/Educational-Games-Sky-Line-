@@ -2794,6 +2794,92 @@ function createPlanetCoreCutawayMesh(key, radius) {
   return coreGroup;
 }
 
+// Planetary Chemical Composition & Physical Data Dictionary for STEM Geography
+const CELESTIAL_CHEMICAL_DATA = {
+  sun: {
+    name: 'MẶT TRỜI',
+    color: '#f59e0b',
+    layers: [
+      { name: 'Vỏ Quang cầu (Photosphere)', chem: '73% H₂, 25% He', temp: '5.500°C', press: '0.86 atm' },
+      { name: 'Vùng Đối lưu (Convective Zone)', chem: 'Hydro & Heli Ion hóa', temp: '2.000.000°C', press: '1.000.000 atm' },
+      { name: 'Vùng Bức xạ (Radiative Zone)', chem: 'Plasma Photons Gamma', temp: '7.000.000°C', press: '100.000.000 atm' },
+      { name: 'Lõi Nhiệt Hạch (Nuclear Core)', chem: 'Phản ứng 4H → He + Năng lượng', temp: '15.000.000°C', press: '250 Tỷ atm' }
+    ]
+  },
+  earth: {
+    name: 'TRÁI ĐẤT',
+    color: '#0284c7',
+    layers: [
+      { name: 'Vỏ Trái Đất (Crust)', chem: 'SiO₂, Al₂O₃, Fe₂O₃', temp: '15 - 1.000°C', press: '1 - 10.000 atm' },
+      { name: 'Lớp Manti (Mantle)', chem: 'Silicat Magie & Sắt (Mg,Fe)₂SiO₄', temp: '1.000 - 3.700°C', press: '140 GPa (1.4M atm)' },
+      { name: 'Lõi Ngoài Lỏng (Outer Core)', chem: 'Sắt (Fe) & Niken (Ni) Lỏng', temp: '4.500°C', press: '330 GPa (3.3M atm)' },
+      { name: 'Lõi Trong Rắn (Inner Core)', chem: 'Hợp kim Sắt - Niken Rắn', temp: '6.000°C', press: '3.6M atm (360 GPa)' }
+    ]
+  },
+  mars: {
+    name: 'SAO HỎA',
+    color: '#ef4444',
+    layers: [
+      { name: 'Vỏ Oxit Sắt', chem: 'Fe₂O₃ (Oxit Sắt), Basalt', temp: '-60°C - 20°C', press: '0.006 atm' },
+      { name: 'Manti Silicat', chem: 'Olivin, Pyroxen', temp: '1.500°C', press: '40 GPa' },
+      { name: 'Lõi Kim loại', chem: 'Fe, Ni, FeS (Sắt Sulfua)', temp: '1.800°C', press: '50 GPa' }
+    ]
+  },
+  jupiter: {
+    name: 'SAO MỘC',
+    color: '#c9a97a',
+    layers: [
+      { name: 'Tầng mây Khí quyển', chem: '89% H₂, 10% He, NH₃', temp: '-110°C', press: '1 - 10 atm' },
+      { name: 'Hydro Kim loại Lỏng', chem: 'Liquid Metallic H⁺ + e⁻', temp: '10.000°C', press: '2.000 GPa (20M atm)' },
+      { name: 'Lõi Đá & Băng Khổng lồ', chem: 'Sắt, Silicat, Nước (H₂O), Băng', temp: '30.000°C', press: '4.000 GPa' }
+    ]
+  },
+  saturn: {
+    name: 'SAO THỔ',
+    color: '#eab308',
+    layers: [
+      { name: 'Tầng mây Khí quyển & Vành đai', chem: '96% H₂, 3% He, H₂O băng', temp: '-140°C', press: '1.4 atm' },
+      { name: 'Hydro Kim loại', chem: 'Metallic Hydrogen', temp: '8.000°C', press: '1.000 GPa' },
+      { name: 'Lõi Rắn Băng & Đá', chem: 'Silicat & Băng nước áp suất cao', temp: '11.700°C', press: '1.500 GPa' }
+    ]
+  },
+  uranus: {
+    name: 'SAO THIÊN VƯƠNG',
+    color: '#38bdf8',
+    layers: [
+      { name: 'Tầng mây Mêtan', chem: '83% H₂, 15% He, 2% CH₄', temp: '-195°C', press: '1.2 atm' },
+      { name: 'Manti Băng Nóng', chem: 'H₂O, NH₃, CH₄ (Manti Băng)', temp: '5.000°C', press: '800 GPa' },
+      { name: 'Lõi Đá', chem: 'Sắt - Niken & Silicat', temp: '7.000°C', press: '900 GPa' }
+    ]
+  },
+  neptune: {
+    name: 'SAO HẢI VƯƠNG',
+    color: '#2563eb',
+    layers: [
+      { name: 'Khí quyển Xanh Mêtan', chem: '80% H₂, 19% He, 1.5% CH₄', temp: '-200°C', press: '1.5 atm' },
+      { name: 'Manti Dung dịch Băng Nóng', chem: 'Dung dịch H₂O, NH₃, CH₄ Áp suất cao', temp: '5.100°C', press: '850 GPa' },
+      { name: 'Lõi Kim loại Đá', chem: 'Silicat Đá & Sắt', temp: '7.200°C', press: '1.000 GPa' }
+    ]
+  },
+  mercury: {
+    name: 'SAO THỦY',
+    color: '#94a3b8',
+    layers: [
+      { name: 'Vỏ Lục địa Khô', chem: 'Silicat Basalt', temp: '430°C / -180°C', press: '0 atm' },
+      { name: 'Lõi Sắt Khổng lồ (75% R)', chem: 'Sắt Kim loại Rắn & Lỏng', temp: '2.000°C', press: '40 GPa' }
+    ]
+  },
+  venus: {
+    name: 'SAO KIM',
+    color: '#f97316',
+    layers: [
+      { name: 'Khí quyển CO₂ Dày', chem: '96.5% CO₂, 3.5% N₂, H₂SO₄', temp: '465°C', press: '92 atm' },
+      { name: 'Manti Silicat', chem: 'Silicat Đá Nóng chảy', temp: '2.500°C', press: '100 GPa' },
+      { name: 'Lõi Sắt Bán Lỏng', chem: 'Sắt & Niken', temp: '3.500°C', press: '150 GPa' }
+    ]
+  }
+};
+
 // 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
 function GeoSolarSystemSim({ onLog }) {
   const mountRef = useRef(null);
@@ -2808,16 +2894,18 @@ function GeoSolarSystemSim({ onLog }) {
 
   // Gesture Pilot & X-Ray Core Exploration State
   const [isGesturePilot, setIsGesturePilot] = useState(false);
+  const [isAutopilot, setIsAutopilot] = useState(false);
   const [gestureStatus, setGestureStatus] = useState('🖐️ Xòe tay để Lái | 🤌 Chụm tay để Tăng tốc | ✊ Nắm tay để Hãm phanh | ✌️ 2 ngón xem Lõi');
   const [currentGesture, setCurrentGesture] = useState('NONE');
   const [isXRayMode, setIsXRayMode] = useState(false);
   const [pilotSpeed, setPilotSpeed] = useState(0);
-  const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
+  const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
 
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
   const selectedPlanetKeyRef = useRef(selectedPlanetKey);
   const isGesturePilotRef = useRef(isGesturePilot);
+  const isAutopilotRef = useRef(isAutopilot);
   const isXRayModeRef = useRef(isXRayMode);
 
   // Flight vectors
@@ -3491,6 +3579,36 @@ function GeoSolarSystemSim({ onLog }) {
               <div style={{ marginTop: '6px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '10px 12px', borderRadius: '0 10px 10px 0', fontSize: '0.76rem', color: '#e2e8f0', lineHeight: 1.5 }}>
                 <b>📌 Đặc điểm:</b> {activePlanet.feature}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* 3D Holographic STEM Chemical Data Panel when inside planet core */}
+        {(isXRayMode || isGesturePilot) && CELESTIAL_CHEMICAL_DATA[targetPlanetKey] && (
+          <div style={{
+            position: 'absolute', top: '16px', left: '24px', zIndex: 25,
+            background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(20px)',
+            border: `2px solid ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}`,
+            borderRadius: '18px', padding: '14px 18px', maxWidth: '360px', color: '#fff',
+            boxShadow: `0 0 24px ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}`
+          }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 900, color: CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color, textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+              🧪 CẤU TRÚC HÓA HỌC & VẬT LÝ 3D (STEM GEOGRAPHY)
+            </div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', margin: '4px 0 10px 0' }}>
+              {CELESTIAL_CHEMICAL_DATA[targetPlanetKey].name}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem' }}>
+              {CELESTIAL_CHEMICAL_DATA[targetPlanetKey].layers.map((layer, lIdx) => (
+                <div key={lIdx} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 10px', borderLeft: `3px solid ${CELESTIAL_CHEMICAL_DATA[targetPlanetKey].color}` }}>
+                  <div style={{ fontWeight: 800, color: '#fff', marginBottom: '2px' }}>{layer.name}</div>
+                  <div style={{ color: '#cbd5e1' }}>🧪 Thành phần: <b style={{ color: '#38bdf8' }}>{layer.chem}</b></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2px', color: '#94a3b8' }}>
+                    <span>🌡️ Nhiệt độ: <b style={{ color: '#fde047' }}>{layer.temp}</b></span>
+                    <span>⚓ Áp suất: <b style={{ color: '#fca5a5' }}>{layer.press}</b></span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
