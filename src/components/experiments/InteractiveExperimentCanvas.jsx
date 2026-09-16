@@ -2711,15 +2711,31 @@ function generateProceduralPlanetTexture(id) {
 // 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
 function GeoSolarSystemSim({ onLog }) {
   const mountRef = useRef(null);
+  const videoRef = useRef(null);
+  const webcamCanvasRef = useRef(null);
+
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
   const [badgePos, setBadgePos] = useState(null);
   const [showControlsGuide, setShowControlsGuide] = useState(false);
 
+  // Gesture Pilot & X-Ray Core Exploration State
+  const [isGesturePilot, setIsGesturePilot] = useState(false);
+  const [gestureStatus, setGestureStatus] = useState('🖐️ Xòe tay để Lái | 🤌 Chụm tay để Tăng tốc | ✊ Nắm tay để Hãm phanh | ✌️ 2 ngón xem Lõi');
+  const [currentGesture, setCurrentGesture] = useState('NONE');
+  const [isXRayMode, setIsXRayMode] = useState(false);
+  const [pilotSpeed, setPilotSpeed] = useState(0);
+  const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
+
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
   const selectedPlanetKeyRef = useRef(selectedPlanetKey);
+  const isGesturePilotRef = useRef(isGesturePilot);
+  const isXRayModeRef = useRef(isXRayMode);
+
+  // Flight vectors
+  const flightVectorRef = useRef({ yaw: 0, pitch: 0, speed: 0, posX: -25, posY: 140, posZ: 245 });
 
   useEffect(() => {
     speedRef.current = speed;
@@ -2732,6 +2748,163 @@ function GeoSolarSystemSim({ onLog }) {
   useEffect(() => {
     selectedPlanetKeyRef.current = selectedPlanetKey;
   }, [selectedPlanetKey]);
+
+  useEffect(() => {
+    isGesturePilotRef.current = isGesturePilot;
+  }, [isGesturePilot]);
+
+  useEffect(() => {
+    isXRayModeRef.current = isXRayMode;
+  }, [isXRayMode]);
+
+  // Dynamically load MediaPipe Hands AI scripts
+  useEffect(() => {
+    if (!isGesturePilot) return;
+
+    let cameraUtilsScript = document.querySelector('script[src*="camera_utils"]');
+    let handsScript = document.querySelector('script[src*="hands.js"]');
+    let isCancelled = false;
+
+    const loadScripts = async () => {
+      if (!cameraUtilsScript) {
+        cameraUtilsScript = document.createElement('script');
+        cameraUtilsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+        cameraUtilsScript.crossOrigin = 'anonymous';
+        document.head.appendChild(cameraUtilsScript);
+        await new Promise(r => cameraUtilsScript.onload = r);
+      }
+      if (!handsScript) {
+        handsScript = document.createElement('script');
+        handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+        handsScript.crossOrigin = 'anonymous';
+        document.head.appendChild(handsScript);
+        await new Promise(r => handsScript.onload = r);
+      }
+
+      if (isCancelled) return;
+
+      if (window.Hands && videoRef.current) {
+        try {
+          const hands = new window.Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+          });
+
+          hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
+          });
+
+          hands.onResults((results) => {
+            if (isCancelled) return;
+            const canvasCtx = webcamCanvasRef.current?.getContext('2d');
+            if (canvasCtx && webcamCanvasRef.current) {
+              canvasCtx.clearRect(0, 0, webcamCanvasRef.current.width, webcamCanvasRef.current.height);
+            }
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+              const landmarks = results.multiHandLandmarks[0];
+
+              // Draw hand skeleton landmarks
+              if (canvasCtx) {
+                canvasCtx.fillStyle = '#38bdf8';
+                canvasCtx.strokeStyle = '#f59e0b';
+                canvasCtx.lineWidth = 2;
+                landmarks.forEach((pt) => {
+                  const x = pt.x * webcamCanvasRef.current.width;
+                  const y = pt.y * webcamCanvasRef.current.height;
+                  canvasCtx.beginPath();
+                  canvasCtx.arc(x, y, 3, 0, Math.PI * 2);
+                  canvasCtx.fill();
+                });
+              }
+
+              // 1. Hand center (wrist 0 & middle MCP 9)
+              const centerX = (landmarks[0].x + landmarks[9].x) / 2;
+              const centerY = (landmarks[0].y + landmarks[9].y) / 2;
+
+              // Steer flight vector: [-1, 1]
+              const steerX = (centerX - 0.5) * 2.2;
+              const steerY = (centerY - 0.5) * 2.2;
+
+              // 2. Gesture classification
+              const thumbTip = landmarks[4];
+              const indexTip = landmarks[8];
+              const middleTip = landmarks[12];
+              const ringTip = landmarks[16];
+              const pinkyTip = landmarks[20];
+
+              const pinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+              const isIndexUp = indexTip.y < landmarks[6].y;
+              const isMiddleUp = middleTip.y < landmarks[10].y;
+              const isRingUp = ringTip.y < landmarks[14].y;
+              const isPinkyUp = pinkyTip.y < landmarks[18].y;
+
+              if (pinchDist < 0.065) {
+                // 🤌 Pinch Gesture: Hyper-thrust speed
+                setCurrentGesture('PINCH_THRUST');
+                setGestureStatus('🤌 PHI THUYỀN DÙNG GA TĂNG TỐC (THRUSTING forward!)');
+                flightVectorRef.current.speed = Math.min(flightVectorRef.current.speed + 0.35, 8.5);
+              } else if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
+                // ✌️ Victory Sign: Toggle X-Ray Planet Core Cutaway
+                setCurrentGesture('VICTORY_XRAY');
+                setGestureStatus('✌️ BẬT X-RAY XUYÊN LÒNG HÀNH TINH (Planet Core Mode)');
+                setIsXRayMode(true);
+                flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed * 0.9, 0.5);
+              } else if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
+                // ✊ Fist: Brakes
+                setCurrentGesture('FIST_BRAKE');
+                setGestureStatus('✊ HÃM PHANH TỨC THÌ (Braking)');
+                flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed - 0.4, 0);
+              } else {
+                // 🖐️ Open Palm: Steering yaw/pitch
+                setCurrentGesture('OPEN_PALM_STEER');
+                setGestureStatus(`🖐️ ĐANG LÁI: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
+                flightVectorRef.current.yaw += steerX * 0.035;
+                flightVectorRef.current.pitch += -steerY * 0.035;
+              }
+
+              setPilotSpeed(Number(flightVectorRef.current.speed.toFixed(1)));
+            } else {
+              setCurrentGesture('NONE');
+              setGestureStatus('✋ Đưa bàn tay trước Camera để bắt đầu lái phi thuyền...');
+            }
+          });
+
+          // Start Video Camera Stream
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+
+            const processFrame = async () => {
+              if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2) {
+                await hands.send({ image: videoRef.current });
+              }
+              if (!isCancelled && isGesturePilotRef.current) {
+                requestAnimationFrame(processFrame);
+              }
+            };
+            requestAnimationFrame(processFrame);
+          }
+        } catch (err) {
+          console.warn('Webcam Gesture Init Warning:', err);
+          setGestureStatus('⚠️ Chưa cấp quyền Camera. Hãy sử dụng phím WASD / Mũi tên để lái!');
+        }
+      }
+    };
+
+    loadScripts();
+
+    return () => {
+      isCancelled = true;
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+        tracks.forEach(track => track.stop());
+      }
+    };
+  }, [isGesturePilot]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -2767,7 +2940,7 @@ function GeoSolarSystemSim({ onLog }) {
     controls.target.set(35, 0, 0);
     controls.update();
 
-    // 5. Starfield background
+    // 5. Starfield background & Warp Particles
     const starsGeo = new THREE.BufferGeometry();
     const starCount = 3000;
     const starPositions = new Float32Array(starCount * 3);
@@ -2792,6 +2965,7 @@ function GeoSolarSystemSim({ onLog }) {
     // 7. Celestial Mesh Creation
     const planetGroups = {};
     const planetMeshes = {};
+    const planetCoreGroups = {};
     const orbitLines = {};
     const orbitAngles = {};
 
@@ -2846,6 +3020,42 @@ function GeoSolarSystemSim({ onLog }) {
 
       group.add(pMesh);
       planetMeshes[key] = pMesh;
+
+      // 3D PLANETARY INTERNAL CORE EXPLORATION ENGINE (Chế độ Xem Xuyên Lòng Hành Tinh)
+      if (key === 'earth') {
+        const earthCoreGroup = new THREE.Group();
+        earthCoreGroup.name = 'earthCoreGroup';
+
+        // 1. Inner Core (Lõi Trong Rắn) - 6,000°C
+        const innerCoreGeo = new THREE.SphereGeometry(cfg.radius * 0.24, 32, 32);
+        const innerCoreMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
+        const innerCoreMesh = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+        earthCoreGroup.add(innerCoreMesh);
+
+        // Inner Core Glow
+        const innerGlowGeo = new THREE.SphereGeometry(cfg.radius * 0.29, 32, 32);
+        const innerGlowMat = new THREE.MeshBasicMaterial({ color: 0xf97316, transparent: true, opacity: 0.55 });
+        earthCoreGroup.add(new THREE.Mesh(innerGlowGeo, innerGlowMat));
+
+        // 2. Outer Core (Lõi Ngoài Lỏng) - 4,500°C (3/4 Cutaway)
+        const outerCoreGeo = new THREE.SphereGeometry(cfg.radius * 0.55, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
+        const outerCoreMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.3, side: THREE.DoubleSide });
+        earthCoreGroup.add(new THREE.Mesh(outerCoreGeo, outerCoreMat));
+
+        // 3. Mantle (Lớp Manti) - 2,000°C (3/4 Cutaway)
+        const mantleGeo = new THREE.SphereGeometry(cfg.radius * 0.85, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
+        const mantleMat = new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.5, side: THREE.DoubleSide });
+        earthCoreGroup.add(new THREE.Mesh(mantleGeo, mantleMat));
+
+        // 4. Crust (Vỏ Trái Đất) (3/4 Cutaway)
+        const crustGeo = new THREE.SphereGeometry(cfg.radius * 0.99, 32, 32, 0, Math.PI * 1.5, 0, Math.PI);
+        const crustMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.6, side: THREE.DoubleSide });
+        earthCoreGroup.add(new THREE.Mesh(crustGeo, crustMat));
+
+        earthCoreGroup.visible = false;
+        group.add(earthCoreGroup);
+        planetCoreGroups['earth'] = earthCoreGroup;
+      }
 
       // Earth's Cloud Layer & Moon
       if (cfg.hasMoon) {
@@ -3170,6 +3380,61 @@ function GeoSolarSystemSim({ onLog }) {
           </div>
         )}
 
+        {/* SPACESHIFF COCKPIT HUD OVERLAY (When AI Gesture Pilot is Active) */}
+        {isGesturePilot && (
+          <>
+            {/* Cockpit Frame & Status HUD */}
+            <div style={{
+              position: 'absolute', top: '16px', right: '24px', zIndex: 25,
+              background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(20px)',
+              border: '2px solid #38bdf8', borderRadius: '18px', padding: '14px 18px',
+              maxWidth: '380px', color: '#fff', boxShadow: '0 0 30px rgba(56, 189, 248, 0.4)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🛸 COCKPIT PHI THUYỀN VŨ TRỤ AI
+                </span>
+                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#0284c7', padding: '2px 8px', borderRadius: '10px' }}>
+                  {pilotSpeed > 3 ? '⚡ WARP SPEED' : 'NORMAL'}
+                </span>
+              </div>
+
+              <div style={{ fontSize: '0.78rem', color: '#e2e8f0', background: 'rgba(56, 189, 248, 0.15)', padding: '8px 10px', borderRadius: '8px', borderLeft: '4px solid #38bdf8', marginBottom: '10px' }}>
+                {gestureStatus}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                <button
+                  onClick={() => setIsXRayMode(!isXRayMode)}
+                  style={{
+                    background: isXRayMode ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'rgba(255,255,255,0.1)',
+                    color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '10px',
+                    padding: '6px 12px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer'
+                  }}
+                >
+                  {isXRayMode ? '✌️ TẮT X-RAY LÕI' : '✌️ BẬT X-RAY XUYÊN LÒNG HÀNH TINH'}
+                </button>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fde047' }}>
+                  Tốc độ: <b>{pilotSpeed} Warp</b>
+                </div>
+              </div>
+            </div>
+
+            {/* Webcam AI Hand Tracking Live Preview Box */}
+            <div style={{
+              position: 'absolute', bottom: '80px', right: '24px', zIndex: 25,
+              background: 'rgba(15, 23, 42, 0.9)', border: '2px solid #f59e0b',
+              borderRadius: '16px', padding: '8px', boxShadow: '0 10px 30px rgba(0,0,0,0.8)'
+            }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#f59e0b', marginBottom: '4px', textAlign: 'center' }}>
+                📷 WEBCAM CỬ CHỈ TAY REALTIME
+              </div>
+              <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
+              <canvas ref={webcamCanvasRef} width={160} height={120} style={{ borderRadius: '10px', background: '#090d16' }} />
+            </div>
+          </>
+        )}
+
         {/* Bottom Pill Navigation Toolbar */}
         <div style={{
           position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10,
@@ -3227,10 +3492,26 @@ function GeoSolarSystemSim({ onLog }) {
         </div>
       </div>
 
-      {/* Control Bar (Speed & Play/Pause) */}
+      {/* Control Bar (Speed, Play/Pause, & AI Gesture Pilot Toggle) */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>🚀 DU HÀNH HỆ MẶT TRỜI 3D · THREE.JS WEBGL REALTIME</span>
+          <button
+            onClick={() => {
+              const nextState = !isGesturePilot;
+              setIsGesturePilot(nextState);
+              if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Cử chỉ tay AI MediaPipe.' : 'Tắt Chế độ Lái Phi thuyền.');
+            }}
+            style={{
+              background: isGesturePilot ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #0284c7, #2563eb)',
+              color: '#fff', border: 'none', borderRadius: '10px',
+              padding: '6px 14px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer',
+              boxShadow: isGesturePilot ? '0 0 16px rgba(239, 68, 68, 0.6)' : '0 0 16px rgba(56, 189, 248, 0.4)',
+              display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px'
+            }}
+          >
+            {isGesturePilot ? '🛸 TẮT PHI THUYỀN' : '🚀 LÁI PHI THUYỀN CỬ CHỈ TAY AI'}
+          </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>Tốc độ quỹ đạo: <b style={{ color: '#38bdf8' }}>{speed}x</b></span>
