@@ -1,4 +1,266 @@
 import React, { useState, useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+// --- TOP-LEVEL SOLAR SYSTEM 3D PROCEDURAL TEXTURES & CONFIG (Rule 1 compliance) ---
+const SOLAR_PLANETS_CONFIG = {
+  sun: {
+    key: 'sun',
+    name: 'Mặt Trời',
+    enName: 'THE SUN',
+    dist: '— (Trung tâm hệ)',
+    size: '1.392.700 km (Gấp 109 lần Trái Đất)',
+    period: '≈ 25,4 ngày (Tự quay)',
+    temp: '5.500°C (Bề mặt) • 15 triệu °C (Lõi)',
+    moons: '8 hành tinh & hàng triệu tiểu hành tinh',
+    feature: 'Ngôi sao lùn vàng chiếm 99,86% tổng khối lượng toàn Hệ Mặt Trời. Cung cấp ánh sáng và nhiệt năng nuôi sống Trái Đất.',
+    color: '#f59e0b',
+    radius: 14,
+    orbitRadius: 0,
+    speed: 0
+  },
+  mercury: {
+    key: 'mercury',
+    name: 'Sao Thủy',
+    enName: 'MERCURY',
+    dist: '57,9 triệu km (0.39 AU)',
+    size: '4.879 km',
+    period: '88 ngày',
+    temp: '-180°C đến +430°C',
+    moons: '0',
+    feature: 'Hành tinh nhỏ nhất và gần Mặt Trời nhất. Bề mặt phủ nhiều hố thiên thạch.',
+    color: '#cbd5e1',
+    radius: 2.2,
+    orbitRadius: 32,
+    speed: 1.4
+  },
+  venus: {
+    key: 'venus',
+    name: 'Sao Kim',
+    enName: 'VENUS',
+    dist: '108,2 triệu km (0.72 AU)',
+    size: '12.104 km',
+    period: '225 ngày',
+    temp: '≈ 465°C (Nóng nhất)',
+    moons: '0',
+    feature: 'Hành tinh nóng nhất Hệ Mặt Trời với bầu khí quyển CO2 cực dày và mây axit.',
+    color: '#fbbf24',
+    radius: 3.4,
+    orbitRadius: 50,
+    speed: 0.95
+  },
+  earth: {
+    key: 'earth',
+    name: 'Trái Đất',
+    enName: 'EARTH',
+    dist: '149,6 triệu km (1.00 AU)',
+    size: '12.742 km',
+    period: '365,25 ngày',
+    temp: '15°C (Trung bình)',
+    moons: '1 (Mặt Trăng)',
+    feature: 'Hành tinh duy nhất có nước lỏng (71% bề mặt) và sự sống phong phú.',
+    color: '#38bdf8',
+    radius: 3.8,
+    orbitRadius: 72,
+    speed: 0.70,
+    hasMoon: true
+  },
+  mars: {
+    key: 'mars',
+    name: 'Sao Hỏa',
+    enName: 'MARS',
+    dist: '227,9 triệu km (1.52 AU)',
+    size: '6.779 km',
+    period: '687 ngày',
+    temp: '-63°C',
+    moons: '2 (Phobos & Deimos)',
+    feature: 'Hành tinh Đỏ phủ bụi oxit sắt. Có ngọn núi lửa Olympus Mons cao nhất Hệ Mặt Trời.',
+    color: '#ef4444',
+    radius: 2.8,
+    orbitRadius: 96,
+    speed: 0.52
+  },
+  jupiter: {
+    key: 'jupiter',
+    name: 'Sao Mộc',
+    enName: 'JUPITER',
+    dist: '778,5 triệu km (5.20 AU)',
+    size: '139.820 km',
+    period: '11,86 năm',
+    temp: '-110°C',
+    moons: '95+ (Ganymede, Callisto...)',
+    feature: 'Hành tinh khí khổng lồ lớn nhất Hệ Mặt Trời với Vết Đỏ Lớn tồn tại hàng trăm năm.',
+    color: '#d97706',
+    radius: 7.5,
+    orbitRadius: 130,
+    speed: 0.32
+  },
+  saturn: {
+    key: 'saturn',
+    name: 'Sao Thổ',
+    enName: 'SATURN',
+    dist: '1,43 tỷ km (9.58 AU)',
+    size: '116.460 km',
+    period: '29,45 năm',
+    temp: '-140°C',
+    moons: '146+ (Titan)',
+    feature: 'Hành tinh tráng lệ nhất với vành đai đá và băng rực rỡ dẹt khổng lồ.',
+    color: '#fde047',
+    radius: 6.2,
+    orbitRadius: 165,
+    speed: 0.22,
+    hasRings: true
+  },
+  uranus: {
+    key: 'uranus',
+    name: 'Sao Thiên Vương',
+    enName: 'URANUS',
+    dist: '2,87 tỷ km (19.2 AU)',
+    size: '50.724 km',
+    period: '84 năm',
+    temp: '-195°C',
+    moons: '28',
+    feature: 'Hành tinh băng nghiêng trục 98° có màu xanh lam nhẹ do khí metan.',
+    color: '#2dd4bf',
+    radius: 4.6,
+    orbitRadius: 200,
+    speed: 0.15
+  },
+  neptune: {
+    key: 'neptune',
+    name: 'Sao Hải Vương',
+    enName: 'NEPTUNE',
+    dist: '4,5 tỷ km (30.1 AU)',
+    size: '49.244 km',
+    period: '164,8 năm',
+    temp: '-200°C',
+    moons: '16 (Triton)',
+    feature: 'Hành tinh xa nhất Hệ Mặt Trời với màu xanh thẫm và những trận bão gió cực mạnh.',
+    color: '#6366f1',
+    radius: 4.4,
+    orbitRadius: 235,
+    speed: 0.10
+  }
+};
+
+function createProceduralPlanetTexture(key, baseColor) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = baseColor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (key === 'sun') {
+    const grad = ctx.createRadialGradient(256, 128, 10, 256, 128, 250);
+    grad.addColorStop(0, '#ffffff');
+    grad.addColorStop(0.3, '#fde047');
+    grad.addColorStop(0.7, '#f59e0b');
+    grad.addColorStop(1, '#dc2626');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    for (let i = 0; i < 35; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 18 + 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (key === 'mercury') {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+    for (let i = 0; i < 50; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 10 + 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (key === 'venus') {
+    for (let y = 0; y < 256; y += 4) {
+      ctx.fillStyle = (y % 8 === 0) ? 'rgba(255, 230, 150, 0.2)' : 'rgba(200, 140, 40, 0.15)';
+      ctx.fillRect(0, y, 512, 4);
+    }
+  } else if (key === 'earth') {
+    ctx.fillStyle = '#16a34a';
+    for (let i = 0; i < 16; i++) {
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 512, Math.random() * 180 + 38, Math.random() * 40 + 15, Math.random() * 25 + 10, Math.random(), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    for (let i = 0; i < 20; i++) {
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 512, Math.random() * 256, Math.random() * 50 + 20, Math.random() * 7 + 3, Math.random(), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (key === 'mars') {
+    ctx.fillStyle = 'rgba(120, 30, 10, 0.3)';
+    for (let i = 0; i < 28; i++) {
+      ctx.beginPath();
+      ctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 22 + 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 512, 16);
+    ctx.fillRect(0, 240, 512, 16);
+  } else if (key === 'jupiter') {
+    for (let y = 0; y < 256; y += 6) {
+      ctx.fillStyle = (y % 12 < 6) ? 'rgba(180, 80, 20, 0.35)' : 'rgba(245, 200, 140, 0.3)';
+      ctx.fillRect(0, y, 512, 6);
+    }
+    ctx.fillStyle = '#b91c1c';
+    ctx.beginPath();
+    ctx.ellipse(340, 160, 32, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (key === 'saturn') {
+    for (let y = 0; y < 256; y += 5) {
+      ctx.fillStyle = (y % 10 < 5) ? 'rgba(234, 179, 8, 0.25)' : 'rgba(253, 224, 71, 0.15)';
+      ctx.fillRect(0, y, 512, 5);
+    }
+  } else if (key === 'uranus') {
+    const grad = ctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, '#5eead4');
+    grad.addColorStop(0.5, '#0d9488');
+    grad.addColorStop(1, '#115e59');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 256);
+  } else if (key === 'neptune') {
+    const grad = ctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, '#38bdf8');
+    grad.addColorStop(0.5, '#1d4ed8');
+    grad.addColorStop(1, '#1e1b4b');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 256);
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    for (let i = 0; i < 10; i++) {
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 512, Math.random() * 256, Math.random() * 50 + 20, 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createSaturnRingsTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+
+  for (let x = 0; x < 512; x++) {
+    const alpha = (x > 30 && x < 480) ? (0.25 + Math.sin(x * 0.1) * 0.35 + (x % 6 === 0 ? 0.4 : 0)) : 0;
+    ctx.fillStyle = `rgba(253, 224, 71, ${Math.max(0, Math.min(0.85, alpha))})`;
+    ctx.fillRect(x, 0, 1, 64);
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
 import { 
   Play, 
   Pause,
@@ -2300,53 +2562,307 @@ function generateProceduralPlanetTexture(id) {
 // --- GEOGRAPHY GRADE 6 SIMULATOR COMPONENTS ---
 // ==========================================
 
-// 1. Solar System Orbits Simulator (Clean Lightweight Vector Sim)
+// 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
 function GeoSolarSystemSim({ onLog }) {
+  const mountRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
   const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
+  const [badgePos, setBadgePos] = useState(null);
 
-  const orbitPlanetKeys = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
-
-  const planetData = {
-    sun: { key: 'sun', name: 'Mặt Trời (The Sun)', dist: '— (Trung tâm hệ)', size: '1.392.700 km (Gấp 109 lần Trái Đất)', period: '≈ 25,4 ngày (Tự quay)', temp: '5.500°C (Bề mặt) • 15 triệu °C (Lõi)', moons: '8 hành tinh & hàng triệu tiểu hành tinh', feature: 'Ngôi sao lùn vàng chiếm 99,86% tổng khối lượng toàn Hệ Mặt Trời. Cung cấp ánh sáng và nhiệt năng nuôi sống Trái Đất.', color: '#f59e0b', pSize: 28 },
-    mercury: { key: 'mercury', name: 'Sao Thủy (Mercury)', dist: '57,9 triệu km (0.39 AU)', size: '4.879 km', period: '88 ngày', temp: '-180°C đến +430°C', moons: '0', feature: 'Hành tinh nhỏ nhất và gần Mặt Trời nhất. Bề mặt phủ nhiều hố thiên thạch.', color: '#94a3b8', rx: 55, ry: 25, pSize: 6, speedVal: 3.5 },
-    venus: { key: 'venus', name: 'Sao Kim (Venus)', dist: '108,2 triệu km (0.72 AU)', size: '12.104 km', period: '225 ngày', temp: '≈ 465°C (Nóng nhất)', moons: '0', feature: 'Hành tinh nóng nhất Hệ Mặt Trời với bầu khí quyển CO2 cực dày.', color: '#f59e0b', rx: 85, ry: 38, pSize: 9, speedVal: 2.0 },
-    earth: { key: 'earth', name: 'Trái Đất (Earth)', dist: '149,6 triệu km (1.00 AU)', size: '12.742 km', period: '365,25 ngày', temp: '15°C (Trung bình)', moons: '1 (Mặt Trăng)', feature: 'Hành tinh duy nhất có nước lỏng (71% bề mặt) và sự sống phong phú.', color: '#38bdf8', rx: 120, ry: 54, pSize: 10, speedVal: 1.2 },
-    mars: { key: 'mars', name: 'Sao Hỏa (Mars)', dist: '227,9 triệu km (1.52 AU)', size: '6.779 km', period: '687 ngày', temp: '-63°C', moons: '2 (Phobos & Deimos)', feature: 'Hành tinh Đỏ phủ bụi oxit sắt. Có ngọn núi lửa Olympus Mons cao nhất Hệ Mặt Trời.', color: '#ef4444', rx: 155, ry: 70, pSize: 8, speedVal: 0.8 },
-    jupiter: { key: 'jupiter', name: 'Sao Mộc (Jupiter)', dist: '778,5 triệu km (5.20 AU)', size: '139.820 km', period: '11,86 năm', temp: '-110°C', moons: '95+ (Ganymede, Callisto...)', feature: 'Hành tinh khí khổng lồ lớn nhất Hệ Mặt Trời với Vết Đỏ Lớn tồn tại hàng trăm năm.', color: '#d97706', rx: 195, ry: 88, pSize: 17, speedVal: 0.4 },
-    saturn: { key: 'saturn', name: 'Sao Thổ (Saturn)', dist: '1,43 tỷ km (9.58 AU)', size: '116.460 km', period: '29,45 năm', temp: '-140°C', moons: '146+ (Titan)', feature: 'Hành tinh tráng lệ nhất với vành đai đá và băng rực rỡ dẹt khổng lồ.', color: '#fde047', rx: 235, ry: 106, pSize: 14, speedVal: 0.25, ring: true },
-    uranus: { key: 'uranus', name: 'Sao Thiên Vương (Uranus)', dist: '2,87 tỷ km (19.2 AU)', size: '50.724 km', period: '84 năm', temp: '-195°C', moons: '28', feature: 'Hành tinh băng nghiêng trục 98° có màu xanh lam nhẹ do khí metan.', color: '#2dd4bf', rx: 275, ry: 124, pSize: 12, speedVal: 0.15 },
-    neptune: { key: 'neptune', name: 'Sao Hải Vương (Neptune)', dist: '4,5 tỷ km (30.1 AU)', size: '49.244 km', period: '164,8 năm', temp: '-200°C', moons: '16 (Triton)', feature: 'Hành tinh xa nhất Hệ Mặt Trời với màu xanh thẫm và những trận bão gió cực mạnh.', color: '#6366f1', rx: 310, ry: 140, pSize: 12, speedVal: 0.08 }
-  };
-
-  const animRef = useRef(null);
-  const anglesRef = useRef([0.2, 1.1, 2.3, 3.5, 4.2, 5.1, 0.8, 1.9]);
-  const [planetAngles, setPlanetAngles] = useState(anglesRef.current);
+  const speedRef = useRef(speed);
+  const isPlayingRef = useRef(isPlaying);
+  const selectedPlanetKeyRef = useRef(selectedPlanetKey);
 
   useEffect(() => {
-    if (!isPlaying) return;
-    let lastTime = performance.now();
+    speedRef.current = speed;
+  }, [speed]);
 
-    const animate = (now) => {
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
 
-      const nextAngles = anglesRef.current.map((ang, i) => {
-        const key = orbitPlanetKeys[i];
-        return ang + planetData[key].speedVal * dt * speed * 0.8;
+  useEffect(() => {
+    selectedPlanetKeyRef.current = selectedPlanetKey;
+  }, [selectedPlanetKey]);
+
+  useEffect(() => {
+    const container = mountRef.current;
+    if (!container) return;
+
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
+
+    // 1. Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020617);
+
+    // 2. Camera setup
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2500);
+    camera.position.set(0, 110, 220);
+
+    // 3. Renderer setup
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    // 4. Orbit Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 600;
+    controls.minDistance = 10;
+
+    // 5. Starfield background
+    const starsGeo = new THREE.BufferGeometry();
+    const starCount = 2200;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starPositions[i] = (Math.random() - 0.5) * 1200;
+      starPositions[i + 1] = (Math.random() - 0.5) * 1200;
+      starPositions[i + 2] = (Math.random() - 0.5) * 1200;
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, transparent: true, opacity: 0.8 });
+    const starField = new THREE.Points(starsGeo, starsMat);
+    scene.add(starField);
+
+    // 6. Lights
+    const ambientLight = new THREE.AmbientLight(0x404050, 0.8);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.PointLight(0xffffff, 2.8, 800);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
+
+    // 7. Celestial Mesh Creation
+    const planetGroups = {};
+    const planetMeshes = {};
+    const orbitLines = {};
+    const orbitAngles = {};
+
+    // Sun
+    const sunConfig = SOLAR_PLANETS_CONFIG.sun;
+    const sunTexture = createProceduralPlanetTexture('sun', sunConfig.color);
+    const sunGeo = new THREE.SphereGeometry(sunConfig.radius, 32, 32);
+    const sunMat = new THREE.MeshBasicMaterial({ map: sunTexture });
+    const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+    sunMesh.userData = { key: 'sun' };
+
+    // Sun Glow Halo Mesh
+    const sunGlowGeo = new THREE.SphereGeometry(sunConfig.radius * 1.3, 32, 32);
+    const sunGlowMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.25, side: THREE.BackSide });
+    const sunGlowMesh = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+    sunMesh.add(sunGlowMesh);
+
+    scene.add(sunMesh);
+    planetMeshes['sun'] = sunMesh;
+
+    // 8 Planets
+    const planetKeys = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
+    planetKeys.forEach((key, idx) => {
+      const cfg = SOLAR_PLANETS_CONFIG[key];
+      orbitAngles[key] = idx * 0.8 + 0.3;
+
+      // Group parent (positioned on orbit)
+      const group = new THREE.Group();
+      scene.add(group);
+      planetGroups[key] = group;
+
+      // Orbit Circle Line
+      const orbitCurve = new THREE.EllipseCurve(0, 0, cfg.orbitRadius, cfg.orbitRadius, 0, 2 * Math.PI, false, 0);
+      const points = orbitCurve.getPoints(128);
+      const orbitGeo = new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(p.x, 0, p.y)));
+      const orbitMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.2 });
+      const orbitLine = new THREE.LineLoop(orbitGeo, orbitMat);
+      scene.add(orbitLine);
+      orbitLines[key] = orbitLine;
+
+      // Planet Sphere Mesh
+      const texture = createProceduralPlanetTexture(key, cfg.color);
+      const pGeo = new THREE.SphereGeometry(cfg.radius, 32, 32);
+      const pMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.7, metalness: 0.1 });
+      const pMesh = new THREE.Mesh(pGeo, pMat);
+      pMesh.userData = { key };
+      group.add(pMesh);
+      planetMeshes[key] = pMesh;
+
+      // Saturn Rings
+      if (cfg.hasRings) {
+        const ringTexture = createSaturnRingsTexture();
+        const ringGeo = new THREE.RingGeometry(cfg.radius * 1.4, cfg.radius * 2.4, 64);
+        ringGeo.rotateX(-Math.PI / 2);
+        const ringMat = new THREE.MeshBasicMaterial({ map: ringTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.rotation.x = Math.PI * 0.15;
+        group.add(ringMesh);
+      }
+
+      // Earth's Moon
+      if (cfg.hasMoon) {
+        const moonTexture = createProceduralPlanetTexture('mercury', '#cbd5e1');
+        const moonGeo = new THREE.SphereGeometry(cfg.radius * 0.3, 16, 16);
+        const moonMat = new THREE.MeshStandardMaterial({ map: moonTexture });
+        const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+        moonMesh.name = 'earthMoon';
+        moonMesh.position.set(cfg.radius * 2.2, 0, 0);
+        group.add(moonMesh);
+      }
+    });
+
+    // 8. Raycasting for Mouse Clicks & Hover
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const handlePointerDown = (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const targets = [sunMesh, ...Object.values(planetMeshes)];
+      const intersects = raycaster.intersectObjects(targets, true);
+
+      if (intersects.length > 0) {
+        let obj = intersects[0].object;
+        while (obj && !obj.userData?.key && obj.parent) {
+          obj = obj.parent;
+        }
+        if (obj && obj.userData?.key) {
+          handleSelectCelestial(obj.userData.key);
+        }
+      }
+    };
+
+    const domElement = renderer.domElement;
+    domElement.addEventListener('pointerdown', handlePointerDown);
+
+    // 9. Animation & Camera Target Physics Loop
+    let animationFrameId;
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+
+      // Rotate Sun
+      sunMesh.rotation.y += delta * 0.2;
+
+      // Update Planet Positions
+      planetKeys.forEach(key => {
+        const cfg = SOLAR_PLANETS_CONFIG[key];
+        if (isPlayingRef.current) {
+          orbitAngles[key] += delta * cfg.speed * speedRef.current * 0.2;
+        }
+        const ang = orbitAngles[key];
+        const px = Math.cos(ang) * cfg.orbitRadius;
+        const pz = Math.sin(ang) * cfg.orbitRadius;
+
+        const group = planetGroups[key];
+        if (group) {
+          group.position.set(px, 0, pz);
+        }
+
+        const pMesh = planetMeshes[key];
+        if (pMesh) {
+          pMesh.rotation.y += delta * 0.8;
+        }
+
+        // Rotate Earth's Moon
+        if (key === 'earth' && group) {
+          const moonMesh = group.getObjectByName('earthMoon');
+          if (moonMesh) {
+            const moonAng = clock.getElapsedTime() * 2.0;
+            moonMesh.position.set(Math.cos(moonAng) * cfg.radius * 2.2, 0, Math.sin(moonAng) * cfg.radius * 2.2);
+          }
+        }
+
+        // Highlight Orbit Line if Selected
+        const orbitLine = orbitLines[key];
+        if (orbitLine) {
+          const isSel = selectedPlanetKeyRef.current === key;
+          orbitLine.material.opacity = isSel ? 0.8 : 0.2;
+          orbitLine.material.color.setHex(isSel ? 0x38bdf8 : 0x38bdf8);
+        }
       });
-      anglesRef.current = nextAngles;
-      setPlanetAngles([...nextAngles]);
 
-      animRef.current = requestAnimationFrame(animate);
+      // Camera Lerp Focus Physics
+      const selKey = selectedPlanetKeyRef.current;
+      if (selKey) {
+        let targetWorldPos = new THREE.Vector3();
+        let radius = 10;
+
+        if (selKey === 'sun') {
+          targetWorldPos.set(0, 0, 0);
+          radius = SOLAR_PLANETS_CONFIG.sun.radius;
+        } else if (planetGroups[selKey]) {
+          planetGroups[selKey].getWorldPosition(targetWorldPos);
+          radius = SOLAR_PLANETS_CONFIG[selKey].radius;
+        }
+
+        const desiredCamPos = targetWorldPos.clone().add(new THREE.Vector3(radius * 3.8, radius * 2.2, radius * 3.8));
+        controls.target.lerp(targetWorldPos, 0.08);
+        camera.position.lerp(desiredCamPos, 0.08);
+
+        // Project Badge position to 2D Screen
+        const proj = targetWorldPos.clone().project(camera);
+        const sx = (proj.x * 0.5 + 0.5) * width;
+        const sy = (-proj.y * 0.5 + 0.5) * height;
+        if (proj.z < 1) {
+          setBadgePos({ x: sx, y: sy });
+        } else {
+          setBadgePos(null);
+        }
+      } else {
+        const defaultTarget = new THREE.Vector3(0, 0, 0);
+        const defaultCamPos = new THREE.Vector3(0, 110, 220);
+        controls.target.lerp(defaultTarget, 0.05);
+        camera.position.lerp(defaultCamPos, 0.05);
+        setBadgePos(null);
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
     };
 
-    animRef.current = requestAnimationFrame(animate);
+    animate();
+
+    // 10. Resize handler
+    const handleResize = () => {
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
+    // 11. Cleanup
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+      cancelAnimationFrame(animationFrameId);
+      domElement.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('resize', handleResize);
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
     };
-  }, [isPlaying, speed]);
+  }, []);
+
+  // Keyboard handler for Esc key reset
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedPlanetKey(null);
+        if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời (Esc).`);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onLog]);
 
   const handleSelectCelestial = (key) => {
     if (selectedPlanetKey === key) {
@@ -2354,186 +2870,138 @@ function GeoSolarSystemSim({ onLog }) {
       if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời.`);
     } else {
       setSelectedPlanetKey(key);
-      const p = planetData[key];
+      const p = SOLAR_PLANETS_CONFIG[key];
       if (onLog) onLog(`Khám phá ${p.name}: Khoảng cách ${p.dist}, Đường kính ${p.size}.`);
     }
   };
 
-  const activePlanet = selectedPlanetKey ? planetData[selectedPlanetKey] : null;
+  const activePlanet = selectedPlanetKey ? SOLAR_PLANETS_CONFIG[selectedPlanetKey] : null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none', position: 'relative' }}>
       
-      {/* Main Vector Interactive Canvas Area */}
-      <div style={{
-        flex: 1, minHeight: '340px', background: 'radial-gradient(circle at center, #091a2a 0%, #020617 100%)',
-        borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.35)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative', overflow: 'hidden'
-      }}>
-        {/* Title HUD Header */}
-        <div style={{ position: 'absolute', top: '16px', left: '20px', zIndex: 10, pointerEvents: 'none' }}>
-          <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-            MÔ HÌNH THƯỜNG TRỰC VẬT LÝ · ĐỊA LÝ KHỐI 6
+      {/* 3D WebGL Scene Canvas Container */}
+      <div 
+        ref={mountRef} 
+        style={{
+          flex: 1, minHeight: '440px', background: '#020617',
+          borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.35)',
+          position: 'relative', overflow: 'hidden'
+        }}
+      >
+        {/* Top-Left Title HUD Header */}
+        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 10, pointerEvents: 'none' }}>
+          <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+            THREE.JS · INTERACTIVE EXPERIENCE
           </div>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f8fafc', margin: '2px 0 0 0', textShadow: '0 0 15px rgba(56, 189, 248, 0.5)' }}>
-            HỆ MẶT TRỜI (SOLAR SYSTEM)
-          </h3>
-          <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
-            Mô phỏng 8 hành tinh quay chuyển động quanh Mặt Trời trên quỹ đạo
+          <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
+            HỆ MẶT TRỜI
+          </h2>
+          <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '3px' }}>
+            Mô hình 3D tương tác — tám hành tinh quanh một ngôi sao
           </div>
         </div>
 
-        {/* Dynamic Vector SVG Solar System */}
-        <svg width="100%" height="100%" viewBox="0 0 700 380" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', inset: 0 }}>
-          <defs>
-            <radialGradient id="vectorSunGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="30%" stopColor="#fde047" />
-              <stop offset="70%" stopColor="#f59e0b" />
-              <stop offset="100%" stopColor="#ea580c" />
-            </radialGradient>
-            <filter id="vectorSunGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="10" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
+        {/* Top-Right Glassmorphic Controls Panel */}
+        <div style={{
+          position: 'absolute', top: '20px', right: '24px', zIndex: 10,
+          background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '14px',
+          padding: '12px 16px', color: '#f8fafc', fontSize: '0.75rem',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)', pointerEvents: 'auto'
+        }}>
+          <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            🎮 ĐIỀU KHIỂN KHÔNG GIAN 3D
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', color: '#cbd5e1' }}>
+            <div>• <b style={{ color: '#fff' }}>Kéo trái:</b> Xoay góc nhìn</div>
+            <div>• <b style={{ color: '#fff' }}>Cuộn chuột:</b> Thu phóng</div>
+            <div>• <b style={{ color: '#fff' }}>Kéo phải:</b> Di chuyển khung hình</div>
+            <div>• <b style={{ color: '#fff' }}>Nhấp thiên thể:</b> Đi tới & xem chi tiết</div>
+            <div>• <b style={{ color: '#38bdf8' }}>Phím Esc:</b> Quay về tổng quan</div>
+          </div>
+        </div>
 
-          {/* Deep Space Background Stars */}
-          <rect width="700" height="380" fill="#020617" />
-          {Array.from({ length: 45 }).map((_, i) => (
-            <circle 
-              key={i} 
-              cx={(i * 17 + (i * i * 3)) % 700} 
-              cy={(i * 13 + 7) % 380} 
-              r={(i % 3 === 0) ? 1.5 : 1} 
-              fill="#ffffff" 
-              opacity={(i % 2 === 0) ? 0.8 : 0.4} 
-            />
-          ))}
+        {/* Floating 3D Planet Target Screen Badge */}
+        {activePlanet && badgePos && (
+          <div style={{
+            position: 'absolute', left: `${badgePos.x}px`, top: `${badgePos.y - 45}px`,
+            transform: 'translate(-50%, -100%)', zIndex: 15, pointerEvents: 'none',
+            background: 'rgba(15, 23, 42, 0.85)', border: `1.5px solid ${activePlanet.color}`,
+            borderRadius: '20px', padding: '4px 12px', color: '#fff',
+            fontSize: '0.75rem', fontWeight: 900, boxShadow: `0 0 16px ${activePlanet.color}`,
+            whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px'
+          }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: activePlanet.color }} />
+            {activePlanet.name.toUpperCase()} ({activePlanet.enName})
+          </div>
+        )}
 
-          {/* Solar System Center Group */}
-          <g transform="translate(350, 190)">
-            
-            {/* Concentric Orbit Paths */}
-            {orbitPlanetKeys.map((key) => {
-              const p = planetData[key];
-              const isSel = selectedPlanetKey === key;
-              return (
-                <ellipse
-                  key={`orbit_${key}`}
-                  cx="0" cy="0"
-                  rx={p.rx} ry={p.ry}
-                  fill="none"
-                  stroke={isSel ? p.color : "rgba(255, 255, 255, 0.15)"}
-                  strokeWidth={isSel ? "2.5" : "1"}
-                  strokeDasharray={isSel ? "none" : "3 3"}
-                  style={{ transition: 'stroke 0.2s ease' }}
-                />
-              );
-            })}
-
-            {/* Sun in Center */}
-            <g onClick={() => handleSelectCelestial('sun')} style={{ cursor: 'pointer' }}>
-              <circle cx="0" cy="0" r="42" fill="rgba(245, 158, 11, 0.2)" style={{ filter: 'blur(12px)' }} />
-              <circle cx="0" cy="0" r={planetData.sun.pSize} fill="url(#vectorSunGrad)" filter="url(#vectorSunGlow)" />
-              <text x="0" y="38" fill="#fde047" fontSize="10" fontWeight="900" textAnchor="middle" style={{ pointerEvents: 'none' }}>
-                MẶT TRỜI
-              </text>
-            </g>
-
-            {/* 8 Orbiting Planets */}
-            {orbitPlanetKeys.map((key, idx) => {
-              const p = planetData[key];
-              const ang = planetAngles[idx];
-              const px = Math.cos(ang) * p.rx;
-              const py = Math.sin(ang) * p.ry;
-              const isSel = selectedPlanetKey === key;
-
-              return (
-                <g 
-                  key={`planet_${key}`} 
-                  transform={`translate(${px}, ${py})`}
-                  onClick={() => handleSelectCelestial(key)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {/* Selection Ring Glow */}
-                  {isSel && (
-                    <circle cx="0" cy="0" r={p.pSize + 7} fill="none" stroke={p.color} strokeWidth="2" strokeDasharray="3 2">
-                      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="4s" repeatCount="indefinite" />
-                    </circle>
-                  )}
-
-                  {/* Saturn Rings */}
-                  {p.ring && (
-                    <ellipse cx="0" cy="0" rx={p.pSize * 1.8} ry={p.pSize * 0.55} fill="none" stroke="#fde047" strokeWidth="3" opacity="0.85" transform="rotate(-15)" />
-                  )}
-
-                  {/* Planet Sphere */}
-                  <circle cx="0" cy="0" r={p.pSize} fill={p.color} style={{ filter: isSel ? `drop-shadow(0 0 10px ${p.color})` : 'none' }} />
-
-                  {/* Planet Label Badge */}
-                  <text 
-                    x="0" 
-                    y={p.pSize + 14} 
-                    fill={isSel ? '#ffffff' : '#cbd5e1'} 
-                    fontSize={isSel ? "11" : "9.5"} 
-                    fontWeight={isSel ? "900" : "700"} 
-                    textAnchor="middle"
-                    style={{ textShadow: '0 2px 4px #000000' }}
-                  >
-                    {p.name.split(' (')[0]}
-                  </text>
-                </g>
-              );
-            })}
-
-          </g>
-        </svg>
-
-        {/* Side Info Modal for Selected Planet */}
+        {/* Left Celestial Glassmorphic Detail Card */}
         {activePlanet && (
           <div style={{
-            position: 'absolute', top: '75px', left: '20px', maxWidth: '320px',
-            background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(12px)',
-            border: `2px solid ${activePlanet.color}`, borderRadius: '16px',
-            padding: '16px', color: '#f8fafc', boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+            position: 'absolute', top: '105px', left: '24px', maxWidth: '330px', width: 'calc(100% - 48px)',
+            background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
+            border: `2px solid ${activePlanet.color}`, borderRadius: '18px',
+            padding: '18px', color: '#f8fafc', boxShadow: '0 12px 48px rgba(0, 0, 0, 0.7)',
             zIndex: 20
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.12)', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: activePlanet.color, display: 'inline-block' }} />
-                <h4 style={{ fontSize: '1rem', fontWeight: 900, color: activePlanet.color, margin: 0 }}>
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: activePlanet.color, boxShadow: `0 0 10px ${activePlanet.color}` }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
                   {activePlanet.name}
-                </h4>
+                </h3>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '2px 8px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
+                  {activePlanet.enName}
+                </span>
               </div>
               <button 
                 onClick={() => setSelectedPlanetKey(null)}
-                style={{ background: 'rgba(255,255,255,0.1)', border: 'none', color: '#cbd5e1', borderRadius: '6px', width: '24px', height: '24px', cursor: 'pointer', fontWeight: 800, fontSize: '0.85rem' }}
+                style={{ background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1', borderRadius: '8px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 800 }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <div>• Khoảng cách: <b style={{ color: '#fff' }}>{activePlanet.dist}</b></div>
-              <div>• Chu kỳ quay: <b style={{ color: '#fff' }}>{activePlanet.period}</b></div>
-              <div>• Đường kính: <b style={{ color: '#fff' }}>{activePlanet.size}</b></div>
-              <div>• Nhiệt độ: <b style={{ color: '#fde047' }}>{activePlanet.temp}</b></div>
-              <div>• Vệ tinh: <b style={{ color: '#fff' }}>{activePlanet.moons}</b></div>
-              
-              <div style={{ marginTop: '8px', background: 'rgba(56, 189, 248, 0.12)', borderLeft: `4px solid ${activePlanet.color}`, padding: '8px 10px', borderRadius: '0 8px 8px 0', fontSize: '0.75rem', color: '#e2e8f0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.78rem', color: '#cbd5e1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+                <span>Khoảng cách Mặt Trời:</span>
+                <strong style={{ color: '#fff' }}>{activePlanet.dist}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+                <span>Chu kỳ quỹ đạo:</span>
+                <strong style={{ color: '#fff' }}>{activePlanet.period}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+                <span>Đường kính:</span>
+                <strong style={{ color: '#fff' }}>{activePlanet.size}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+                <span>Nhiệt độ:</span>
+                <strong style={{ color: '#fde047' }}>{activePlanet.temp}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+                <span>Số vệ tinh:</span>
+                <strong style={{ color: '#fff' }}>{activePlanet.moons}</strong>
+              </div>
+
+              <div style={{ marginTop: '6px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '10px 12px', borderRadius: '0 10px 10px 0', fontSize: '0.76rem', color: '#e2e8f0', lineHeight: 1.5 }}>
                 <b>📌 Đặc điểm:</b> {activePlanet.feature}
               </div>
             </div>
           </div>
         )}
-      </div>
 
-      {/* Bottom Control Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 12px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          {/* Celestial body chips bar matching Aslan */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', flex: 1 }}>
+        {/* Bottom Pill Navigation Toolbar */}
+        <div style={{
+          position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10,
+          display: 'flex', alignItems: 'center', gap: '6px',
+          background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '30px',
+          padding: '6px 14px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+          maxWidth: '92%', overflowX: 'auto'
+        }}>
           {[
             { key: 'sun', label: 'MẶT TRỜI' },
             { key: 'mercury', label: 'SAO THỦY' },
@@ -2544,44 +3012,52 @@ function GeoSolarSystemSim({ onLog }) {
             { key: 'saturn', label: 'SAO THỔ' },
             { key: 'uranus', label: 'SAO THIÊN VƯƠNG' },
             { key: 'neptune', label: 'SAO HẢI VƯƠNG' }
-          ].map(c => {
-            const p = planetData[c.key];
-            const isSel = selectedPlanetKey === c.key;
+          ].map(item => {
+            const p = SOLAR_PLANETS_CONFIG[item.key];
+            const isSel = selectedPlanetKey === item.key;
             return (
               <button
-                key={c.key}
-                onClick={() => handleSelectCelestial(c.key)}
+                key={item.key}
+                onClick={() => handleSelectCelestial(item.key)}
                 style={{
-                  background: isSel ? p.color : 'rgba(30, 41, 59, 0.8)',
-                  color: isSel ? '#000' : '#cbd5e1',
-                  border: isSel ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px', padding: '6px 12px',
-                  fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  boxShadow: isSel ? `0 0 12px ${p.color}` : 'none'
+                  background: isSel ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+                  color: isSel ? '#38bdf8' : '#94a3b8',
+                  border: isSel ? '1.5px solid #38bdf8' : '1px solid transparent',
+                  borderRadius: '20px', padding: '6px 14px',
+                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer',
+                  whiteSpace: 'nowrap', transition: 'all 0.2s ease',
+                  boxShadow: isSel ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none'
                 }}
               >
-                {c.label}
+                {item.label}
               </button>
             );
           })}
 
-          <button
-            onClick={() => setSelectedPlanetKey(null)}
-            style={{
-              background: selectedPlanetKey === null ? '#0d9488' : '#334155',
-              color: '#fff', border: 'none', borderRadius: '12px', padding: '6px 14px',
-              fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer'
-            }}
-          >
-            🔄 QUAY VỀ TỔNG QUAN
-          </button>
+          {selectedPlanetKey && (
+            <button
+              onClick={() => setSelectedPlanetKey(null)}
+              style={{
+                background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5',
+                border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '20px',
+                padding: '6px 14px', fontWeight: 800, fontSize: '0.75rem',
+                cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '6px'
+              }}
+            >
+              ← QUAY VỀ TỔNG QUAN
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* Speed Slider & Play/Pause */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '14px' }}>
-          <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>Tốc độ: <b style={{ color: '#2dd4bf' }}>{speed}x</b></span>
-          <input type="range" min="0.2" max="5.0" step="0.2" value={speed} onChange={e => setSpeed(Number(e.target.value))} style={{ width: '100px', accentColor: '#0d9488', cursor: 'pointer' }} />
+      {/* Control Bar (Speed & Play/Pause) */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>🛰️ MÔ HÌNH VẬT LÝ HỆ MẶT TRỜI 3D THỜI REALTIME</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>Tốc độ quỹ đạo: <b style={{ color: '#38bdf8' }}>{speed}x</b></span>
+          <input type="range" min="0.2" max="5.0" step="0.2" value={speed} onChange={e => setSpeed(Number(e.target.value))} style={{ width: '100px', accentColor: '#38bdf8', cursor: 'pointer' }} />
           <button onClick={() => setIsPlaying(!isPlaying)} style={{ background: isPlaying ? '#eab308' : '#0d9488', color: isPlaying ? '#000' : '#fff', border: 'none', borderRadius: '10px', padding: '7px 14px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
             {isPlaying ? '⏸️ Dừng' : '▶️ Chạy'}
           </button>
