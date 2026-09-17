@@ -846,6 +846,15 @@ export const StorageService = {
         navigator.storage.persist().catch(() => {});
       }
 
+      // 0b. Restore active session CURRENT_USER_KEY from IndexedDB if LocalStorage was cleared
+      if (!localStorage.getItem(CURRENT_USER_KEY)) {
+        IDBStorageService.getItem(CURRENT_USER_KEY).then(idbSession => {
+          if (idbSession && idbSession.isLoggedIn) {
+            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(idbSession));
+          }
+        }).catch(() => {});
+      }
+
       // 1. Purge heavy snapshot key if present to free up 2.5MB+ of local storage space
       try {
         localStorage.removeItem('gvd_auto_backup_snapshot');
@@ -1104,11 +1113,15 @@ export const StorageService = {
           if (cg && cg.id && !deletedIds.includes(cg.id)) {
             const idx = runtimeSavedGamesCache.findIndex(rg => rg.id === cg.id);
             if (idx >= 0) {
-              runtimeSavedGamesCache[idx] = cg;
+              const localG = runtimeSavedGamesCache[idx];
+              if (!localG.updatedAt || (cg.updatedAt && cg.updatedAt >= localG.updatedAt)) {
+                runtimeSavedGamesCache[idx] = cg;
+                updated = true;
+              }
             } else {
               runtimeSavedGamesCache.push(cg);
+              updated = true;
             }
-            updated = true;
           }
         });
         runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g && !deletedIds.includes(g.id));
@@ -1122,32 +1135,58 @@ export const StorageService = {
 
       // 2. Homeroom Class
       const cloudHomeroom = await CloudStorageService.getUserPrivateCloudData(userId, 'homeroom');
-      if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students)) {
+      if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students) && cloudHomeroom.isCustomized) {
         const key = `gvd_homeroom_${userId}`;
-        try {
-          localStorage.setItem(key, JSON.stringify(cloudHomeroom));
-          IDBStorageService.setItem(key, cloudHomeroom).catch(() => {});
-        } catch (e) {}
+        const localStr = localStorage.getItem(key);
+        let shouldApplyCloud = true;
+        if (localStr) {
+          try {
+            const localH = JSON.parse(localStr);
+            if (localH && localH.isCustomized && Array.isArray(localH.students) && localH.students.length > cloudHomeroom.students.length) {
+              shouldApplyCloud = false;
+            }
+          } catch (e) {}
+        }
+        if (shouldApplyCloud) {
+          try {
+            localStorage.setItem(key, JSON.stringify(cloudHomeroom));
+            IDBStorageService.setItem(key, cloudHomeroom).catch(() => {});
+          } catch (e) {}
+        }
       }
 
       // 3. Lecture Slides
       const cloudSlides = await CloudStorageService.getUserPrivateCloudData(userId, 'slides');
       if (Array.isArray(cloudSlides) && cloudSlides.length > 0) {
         const key = `gvd_user_slides_${userId}`;
-        try {
-          localStorage.setItem(key, JSON.stringify(cloudSlides));
-          IDBStorageService.setItem(key, cloudSlides).catch(() => {});
-        } catch (e) {}
+        const localStr = localStorage.getItem(key);
+        let localCount = 0;
+        if (localStr) {
+          try { localCount = (JSON.parse(localStr) || []).length; } catch (e) {}
+        }
+        if (cloudSlides.length >= localCount) {
+          try {
+            localStorage.setItem(key, JSON.stringify(cloudSlides));
+            IDBStorageService.setItem(key, cloudSlides).catch(() => {});
+          } catch (e) {}
+        }
       }
 
       // 4. Grade Drive Folders
       const cloudFolders = await CloudStorageService.getUserPrivateCloudData(userId, 'grade_folders');
       if (Array.isArray(cloudFolders) && cloudFolders.length > 0) {
         const key = `gvd_user_grade_folders_${userId}`;
-        try {
-          localStorage.setItem(key, JSON.stringify(cloudFolders));
-          IDBStorageService.setItem(key, cloudFolders).catch(() => {});
-        } catch (e) {}
+        const localStr = localStorage.getItem(key);
+        let localCount = 0;
+        if (localStr) {
+          try { localCount = (JSON.parse(localStr) || []).length; } catch (e) {}
+        }
+        if (cloudFolders.length >= localCount) {
+          try {
+            localStorage.setItem(key, JSON.stringify(cloudFolders));
+            IDBStorageService.setItem(key, cloudFolders).catch(() => {});
+          } catch (e) {}
+        }
       }
 
       return true;
@@ -1233,6 +1272,9 @@ export const StorageService = {
 
   setCurrentUser: (user) => {
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    if (user && user.isLoggedIn) {
+      IDBStorageService.setItem(CURRENT_USER_KEY, user).catch(() => {});
+    }
   },
 
   // Users Management
@@ -1469,23 +1511,23 @@ export const StorageService = {
     );
     runtimeSavedGamesCache = cleanSaved;
 
-    // CRITICAL: Only return games belonging to the current user
-    // If no userId provided, return empty array (no cross-user data leaking)
+    // CRITICAL: Return games belonging to the current user OR initial sample games (unless blacklisted deleted)
     if (!effectiveUserId) return [];
-    return cleanSaved.filter(g => g.userId === effectiveUserId);
+    return cleanSaved.filter(g => g.userId === effectiveUserId || (g.userId === 'user_admin' && !deletedIds.includes(g.id)));
   },
 
   saveTeacherGame: (arg1, arg2) => {
     StorageService.init();
-    let targetUserId = StorageService.getCurrentUser()?.id || 'user_admin';
+    const activeCurrentUser = StorageService.getCurrentUser();
+    let targetUserId = activeCurrentUser?.id || 'user_admin';
     let rawGameData = null;
 
     if (arg1 && typeof arg1 === 'object') {
       rawGameData = arg1;
-      targetUserId = rawGameData.userId || arg2 || StorageService.getCurrentUser()?.id || 'user_admin';
+      targetUserId = (rawGameData.userId && rawGameData.userId !== 'user_admin') ? rawGameData.userId : (activeCurrentUser?.id || rawGameData.userId || 'user_admin');
     } else if (arg2 && typeof arg2 === 'object') {
       rawGameData = arg2;
-      targetUserId = (typeof arg1 === 'string' && arg1) ? arg1 : (rawGameData.userId || StorageService.getCurrentUser()?.id || 'user_admin');
+      targetUserId = (typeof arg1 === 'string' && arg1 && arg1 !== 'user_admin') ? arg1 : (activeCurrentUser?.id || rawGameData.userId || 'user_admin');
     } else if (typeof arg1 === 'string') {
       targetUserId = arg1;
       if (arg2 && typeof arg2 === 'object') rawGameData = arg2;
@@ -1824,19 +1866,62 @@ export const StorageService = {
       ]
     };
 
-    // DO NOT auto-write sampleClass to localStorage so syncFromIndexedDB / Cloud is NEVER overwritten by sampleClass
-    return sampleClass;
+    // For admin (user_admin), return full initial sample class
+    if (effectiveId === 'user_admin') {
+      return sampleClass;
+    }
+
+    // For non-admin teacher accounts, return clean empty class so sample students NEVER pollute or overwrite custom homeroom
+    return {
+      isCustomized: false,
+      className: defaultClassName,
+      schoolYear: '2026 - 2027',
+      classBgImage: '',
+      classPhoto: '',
+      pointRules: {
+        basePoints: 100,
+        rewardBonus: 10,
+        violationDeduction: 5,
+        topHonorsCount: 3
+      },
+      students: []
+    };
   },
 
   syncHomeroomWithIndexedDB: async (userId) => {
     StorageService.init();
     const effectiveId = userId || StorageService.getCurrentUser()?.id || 'user_admin';
     const key = `gvd_homeroom_${effectiveId}`;
+
+    // 1. Check LocalStorage first if customized
+    const localStored = localStorage.getItem(key);
+    if (localStored) {
+      try {
+        const parsed = JSON.parse(localStored);
+        if (parsed && typeof parsed === 'object' && parsed.isCustomized) {
+          IDBStorageService.setItem(key, parsed).catch(() => {});
+          CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', parsed).catch(() => {});
+          return parsed;
+        }
+      } catch (e) {}
+    }
+
+    // 2. Try IndexedDB Permanent Storage next
+    try {
+      const idbClass = await IDBStorageService.getItem(key);
+      if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
+        try {
+          localStorage.setItem(key, JSON.stringify(idbClass));
+        } catch(err) {}
+        CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', idbClass).catch(() => {});
+        return idbClass;
+      }
+    } catch(e) {}
     
-    // 1. Try Cloud API Vercel Serverless Sync
+    // 3. Try Cloud API Vercel Serverless Sync last
     try {
       const cloudClass = await CloudStorageService.getUserPrivateCloudData(effectiveId, 'homeroom');
-      if (cloudClass && typeof cloudClass === 'object' && Array.isArray(cloudClass.students)) {
+      if (cloudClass && typeof cloudClass === 'object' && Array.isArray(cloudClass.students) && cloudClass.isCustomized) {
         try {
           localStorage.setItem(key, JSON.stringify(cloudClass));
         } catch (err) {}
@@ -1844,17 +1929,6 @@ export const StorageService = {
         return cloudClass;
       }
     } catch (e) {}
-
-    // 2. Try IndexedDB Permanent Storage
-    try {
-      const idbClass = await IDBStorageService.getItem(key);
-      if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
-        try {
-          localStorage.setItem(key, JSON.stringify(idbClass));
-        } catch(err) {}
-        return idbClass;
-      }
-    } catch(e) {}
     
     return StorageService.getTeacherHomeroom(effectiveId);
   },
