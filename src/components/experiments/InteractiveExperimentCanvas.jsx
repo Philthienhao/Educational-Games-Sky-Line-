@@ -2881,7 +2881,7 @@ const CELESTIAL_CHEMICAL_DATA = {
 };
 
 // 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
-function GeoSolarSystemSim({ onLog }) {
+function GeoSolarSystemSim({ experiment, onLog }) {
   const mountRef = useRef(null);
   const videoRef = useRef(null);
   const webcamCanvasRef = useRef(null);
@@ -2893,7 +2893,9 @@ function GeoSolarSystemSim({ onLog }) {
   const [showControlsGuide, setShowControlsGuide] = useState(false);
 
   // Gesture Pilot & X-Ray Core Exploration State
-  const [isGesturePilot, setIsGesturePilot] = useState(false);
+  const [isGesturePilot, setIsGesturePilot] = useState(() => {
+    return !!(experiment?.startInCockpit || experiment?.isCockpit);
+  });
   const [isAutopilot, setIsAutopilot] = useState(false);
   const [gestureStatus, setGestureStatus] = useState('🖐️ Xòe tay để Lái | 🤌 Chụm tay để Tăng tốc | ✊ Nắm tay để Hãm phanh | ✌️ 2 ngón xem Lõi');
   const [currentGesture, setCurrentGesture] = useState('NONE');
@@ -6687,7 +6689,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_01':
       case 'geo_6_01':
       case 'geo_solar_system':
-        return <GeoSolarSystemSim onLog={addLog} />;
+        return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
       case 'exp_geo_6_02':
       case 'geo_6_02':
       case 'geo_earth_sun_moon':
@@ -6718,7 +6720,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
 
         if (isGeo) {
           if (title.includes('hành tinh') || title.includes('mặt trời') || title.includes('vũ trụ')) {
-            return <GeoSolarSystemSim onLog={addLog} />;
+            return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
           }
           if (title.includes('ngày') || title.includes('đêm') || title.includes('trăng') || title.includes('thực')) {
             return <GeoEarthSunMoonSim onLog={addLog} />;
@@ -6738,7 +6740,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           if (title.includes('sông') || title.includes('suối') || title.includes('băng') || title.includes('tuyết')) {
             return <GeoGlacialRiverSim onLog={addLog} />;
           }
-          return <GeoSolarSystemSim onLog={addLog} />;
+          return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
         }
         return <ChemistryAcidBaseSim config={experiment?.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       }

@@ -615,12 +615,39 @@ const INITIAL_BASE_GAMES = [
     engineType: 'jeopardy',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'geo-3d-experiments-game',
+    title: '🌐 Mô Hình 3D Địa Lý — Lái Phi Thuyền Vũ Trụ',
+    subtitle: 'Khám Phá 3D Hệ Mặt Trời, Trái Đất, Núi Lửa & Lái Phi Thuyền',
+    category: 'Khám phá 3D',
+    subject: 'Địa Lý',
+    icon: '🛸',
+    gradient: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+    description: 'Tập hợp 7 mô hình 3D trực quan môn Địa Lý 6: Vũ Trụ, Trái Đất, Nhật/Nguyệt Thực, Núi Lửa, Động Đất & Chế độ Lái Phi Thuyền Vũ Trụ 3D (WASD & AI Cử Chỉ Tay).',
+    engineType: 'geo-3d-model',
+    playsCount: 0,
+    defaultQuestions: []
   }
 ];
 
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_geo_3d',
+    userId: 'user_admin',
+    baseGameId: 'geo-3d-experiments-game',
+    title: '🌐 Mô Hình 3D Địa Lý — Lái Phi Thuyền Vũ Trụ',
+    lessonTitle: '🌐 Mô Hình 3D Địa Lý — Lái Phi Thuyền Vũ Trụ',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+    icon: '🛸',
+    engineType: 'geo-3d-model',
+    description: 'Tập hợp 7 mô hình 3D trực quan môn Địa Lý 6: Vũ Trụ, Trái Đất, Nhật/Nguyệt Thực, Núi Lửa, Động Đất & Chế độ Lái Phi Thuyền Vũ Trụ 3D (WASD & AI Cử Chỉ Tay).',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_astronaut',
     userId: 'user_admin',

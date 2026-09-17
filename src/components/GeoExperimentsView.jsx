@@ -104,13 +104,38 @@ export function GeoExperimentsView({ currentUser }) {
             </p>
           </div>
 
-          <div style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>TÁC GIẢ BỘ MÔ NÂNG CAO</div>
-              <div style={{ fontSize: '1rem', fontWeight: 900, color: '#fde047' }}>Thầy Hảo Địa Lý</div>
-            </div>
-            <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '1.2rem', boxShadow: '0 0 12px rgba(245, 158, 11, 0.6)' }}>
-              🌐
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => {
+                const solarExp = geoExperiments.find(e => e.interactiveType === 'geo_solar_system') || geoExperiments[0];
+                setActiveExperiment({ ...solarExp, startInCockpit: true });
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                color: '#ffffff',
+                border: '2px solid #fde047',
+                borderRadius: '16px',
+                padding: '12px 20px',
+                fontWeight: 900,
+                fontSize: '0.92rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 6px 24px rgba(245, 158, 11, 0.5)'
+              }}
+            >
+              <Sparkles size={18} color="#ffffff" /> 🚀 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D NGAY
+            </button>
+
+            <div style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>TÁC GIẢ BỘ MÔ NÂNG CAO</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fde047' }}>Thầy Hảo Địa Lý</div>
+              </div>
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '1.1rem', boxShadow: '0 0 12px rgba(245, 158, 11, 0.6)' }}>
+                🌐
+              </div>
             </div>
           </div>
         </div>
@@ -238,30 +263,59 @@ export function GeoExperimentsView({ currentUser }) {
               )}
             </div>
 
-            {/* Action Launch Button */}
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveExperiment(exp);
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '12px 18px',
-                fontSize: '0.88rem',
-                fontWeight: 900,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(217, 119, 6, 0.4)'
-              }}
-            >
-              <Play size={16} fill="#ffffff" /> ▶️ Trình Chiếu Thí Nghiệm Địa Lý
-            </button>
+            {/* Action Launch Buttons */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveExperiment(exp);
+                }}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '10px 14px',
+                  fontSize: '0.82rem',
+                  fontWeight: 900,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(217, 119, 6, 0.4)'
+                }}
+              >
+                <Play size={14} fill="#ffffff" /> ▶️ Trình Chiếu 3D
+              </button>
+
+              {exp.interactiveType === 'geo_solar_system' && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveExperiment({ ...exp, startInCockpit: true });
+                  }}
+                  style={{
+                    background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                    color: '#ffffff',
+                    border: '1.5px solid #fde047',
+                    borderRadius: '12px',
+                    padding: '10px 14px',
+                    fontSize: '0.82rem',
+                    fontWeight: 900,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(2, 132, 199, 0.4)'
+                  }}
+                >
+                  🛸 Lái Phi Thuyền 3D
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

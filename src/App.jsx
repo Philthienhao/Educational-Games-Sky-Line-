@@ -46,7 +46,27 @@ export function App() {
     StorageService.init();
     return StorageService.getCurrentUser();
   });
-  const [activeTab, setActiveTab] = useState('catalog');
+  const [activeTab, setActiveTabState] = useState(() => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const tabParam = searchParams.get('tab');
+      if (tabParam) return tabParam;
+
+      const hash = window.location.hash.replace('#', '').trim();
+      if (hash) return hash;
+    } catch (e) {}
+    return 'catalog';
+  });
+
+  const setActiveTab = (newTab) => {
+    setActiveTabState(newTab);
+    try {
+      if (window.location.hash !== `#${newTab}`) {
+        window.location.hash = newTab;
+      }
+    } catch (e) {}
+  };
+
   const [baseGames, setBaseGames] = useState(() => {
     StorageService.init();
     return StorageService.getBaseGames();
@@ -68,10 +88,33 @@ export function App() {
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
 
-  // Initial Load
+  // Initial Load & URL Hash Sync
   useEffect(() => {
     StorageService.init();
     loadAllData();
+
+    const handleHashOrStateChange = () => {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const tabParam = searchParams.get('tab');
+        if (tabParam) {
+          setActiveTabState(tabParam);
+          return;
+        }
+
+        const hash = window.location.hash.replace('#', '').trim();
+        if (hash) {
+          setActiveTabState(hash);
+        }
+      } catch (e) {}
+    };
+
+    window.addEventListener('hashchange', handleHashOrStateChange);
+    window.addEventListener('popstate', handleHashOrStateChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashOrStateChange);
+      window.removeEventListener('popstate', handleHashOrStateChange);
+    };
   }, []);
 
   const loadAllData = async () => {
@@ -345,6 +388,10 @@ export function App() {
                   game={game}
                   currentUser={currentUser}
                   onPlay={(template) => {
+                    if (template.engineType === 'geo-3d-model' || template.id === 'geo-3d-experiments-game') {
+                      setActiveTab('geo-experiments');
+                      return;
+                    }
                     StorageService.incrementPlayCount(template.id, false);
                     setBaseGames(StorageService.getBaseGames());
                     setPlayingGame(template);
@@ -371,6 +418,10 @@ export function App() {
           <StudentPickerManager 
             currentUser={currentUser} 
             onPlay={(game) => {
+              if (game.engineType === 'geo-3d-model' || game.id === 'geo-3d-experiments-game') {
+                setActiveTab('geo-experiments');
+                return;
+              }
               StorageService.incrementPlayCount(game.id, false);
               setBaseGames(StorageService.getBaseGames());
               setPlayingGame(game);
@@ -396,6 +447,10 @@ export function App() {
             savedGames={savedGames}
             currentUser={currentUser}
             onPlayGame={(savedGame) => {
+              if (savedGame.engineType === 'geo-3d-model' || savedGame.baseGameId === 'geo-3d-experiments-game') {
+                setActiveTab('geo-experiments');
+                return;
+              }
               StorageService.incrementPlayCount(savedGame.id, true);
               setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
               setPlayingGame(savedGame);
@@ -410,7 +465,11 @@ export function App() {
 
         {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
         {activeTab === 'textbook-download' && (
-          <TextbookDownloadManager searchTerm={searchTerm} onOpenVirtualLab={() => setActiveTab('virtual-lab')} />
+          <TextbookDownloadManager 
+            searchTerm={searchTerm} 
+            onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
+            onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
+          />
         )}
 
         {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
