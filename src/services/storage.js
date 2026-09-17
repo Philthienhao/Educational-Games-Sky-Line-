@@ -1318,7 +1318,13 @@ export const StorageService = {
       }
     } catch (e) {}
 
-    // Require login for new visitors
+    // Auto-login default seed user (Thầy Hảo Địa Lí) for instant 100% out-of-the-box incognito & fresh browser access
+    const defaultUser = INITIAL_USERS.find(u => u.username === 'philthienhao') || INITIAL_USERS[0];
+    if (defaultUser) {
+      const activeUser = { ...defaultUser, isLoggedIn: true };
+      try { localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(activeUser)); } catch (e) {}
+      return activeUser;
+    }
     return null;
   },
 
