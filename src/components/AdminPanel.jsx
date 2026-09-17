@@ -4,15 +4,18 @@ import { StorageService } from '../services/storage';
 import { HomeroomManager } from './HomeroomManager';
 import { SoundFX } from '../utils/sound';
 
-export function AdminPanel({ onOpenCreateGame }) {
-  const [users, setUsers] = useState(StorageService.getUsers());
-  const [baseGames, setBaseGames] = useState(StorageService.getBaseGames());
+export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: propBaseGames, onDeleteGame }) {
+  const [users, setUsers] = useState(() => StorageService.getUsers());
+  const [baseGames, setBaseGames] = useState(() => (Array.isArray(propBaseGames) && propBaseGames.length > 0) ? propBaseGames : StorageService.getBaseGames());
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [adminTab, setAdminTab] = useState('accounts'); // 'accounts' | 'homerooms' | 'games'
   const [selectedHomeroomTeacherId, setSelectedHomeroomTeacherId] = useState(null);
 
-  const allHomeroomClasses = StorageService.getAllHomeroomClassesForAdmin();
-  const selectedHomeroomObj = allHomeroomClasses.find(c => c.teacher.id === selectedHomeroomTeacherId) || allHomeroomClasses[0];
+  const allHomeroomClasses = StorageService.getAllHomeroomClassesForAdmin() || [];
+  const selectedHomeroomObj = (allHomeroomClasses.length > 0) 
+    ? (allHomeroomClasses.find(c => c && c.teacher && c.teacher.id === selectedHomeroomTeacherId) || allHomeroomClasses[0]) 
+    : null;
+
 
   // User Deletion Modal State
   const [userToDelete, setUserToDelete] = useState(null); // { id, name }
@@ -300,7 +303,9 @@ export function AdminPanel({ onOpenCreateGame }) {
 
             <button 
               className="btn btn-accent"
-              onClick={onOpenCreateGame}
+              onClick={() => {
+                if (typeof onOpenCreateGame === 'function') onOpenCreateGame();
+              }}
               style={{ borderRadius: '12px' }}
             >
               <PlusCircle size={18} /> Tạo Mẫu Game Mới

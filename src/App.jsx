@@ -436,6 +436,7 @@ export function App() {
             onAddGame={handleAdminAddGame}
             onDeleteGame={handleDeleteBaseGame}
             onOpenUserManagement={() => setIsUserManagementOpen(true)}
+            onOpenCreateGame={() => setIsAdminCreateGameOpen(true)}
           />
         )}
 
