@@ -2900,6 +2900,7 @@ function GeoSolarSystemSim({ onLog }) {
   const [isXRayMode, setIsXRayMode] = useState(false);
   const [pilotSpeed, setPilotSpeed] = useState(0);
   const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
+  const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
   const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
 
   const speedRef = useRef(speed);
