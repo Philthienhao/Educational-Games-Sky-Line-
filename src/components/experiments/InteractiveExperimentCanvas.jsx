@@ -2902,8 +2902,19 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const [isXRayMode, setIsXRayMode] = useState(false);
   const [pilotSpeed, setPilotSpeed] = useState(0);
   const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
-  const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
   const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
+  const [debugInfo, setDebugInfo] = useState({
+    webcamStatus: 'ĐANG KHỞI TẠO...',
+    handCount: 0,
+    hand1Coords: 'Chưa phát hiện',
+    hand2Coords: 'Chưa phát hiện',
+    steerAngleDeg: '0.0',
+    yaw: '0.00',
+    pitch: '0.00',
+    isMoving: false,
+    speed: '0.0',
+    currentCommand: '🛑 Dừng lại / Lơ lửng'
+  });
 
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
@@ -2997,7 +3008,17 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       if (moved) {
         setSteerPos({ x: steerX, y: steerY });
         setPilotSpeed(Number(fv.speed.toFixed(1)));
-        setGestureStatus(`🎮 ĐANG LÁI: Phím W/A/S/D / Mũi tên | Space: Tăng tốc | Shift: Phanh | X: Xem lõi`);
+        const cmd = steerX < 0 ? '◄ Rẽ trái' : steerX > 0 ? '► Rẽ phải' : fv.speed > 0 ? '🚀 Tiến về phía trước' : '🛑 Dừng lại / Lơ lửng';
+        setGestureStatus(`🎮 ĐANG LÁI BÀN PHÍM (WASD/Mũi tên): ${cmd} | Speed: ${fv.speed.toFixed(1)}`);
+        setDebugInfo(prev => ({
+          ...prev,
+          steerAngleDeg: (steerX * 45).toFixed(1),
+          yaw: fv.yaw.toFixed(2),
+          pitch: fv.pitch.toFixed(2),
+          isMoving: fv.speed !== 0,
+          speed: fv.speed.toFixed(1),
+          currentCommand: `🎮 Bàn phím: ${cmd}`
+        }));
       }
     }, 30);
 
@@ -3025,11 +3046,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           if (videoRef.current && !isCancelled) {
             videoRef.current.srcObject = cameraStream;
             videoRef.current.play().catch(() => {});
+            setDebugInfo(prev => ({ ...prev, webcamStatus: 'HOẠT ĐỘNG (ACTIVE 320x240)' }));
           }
         }
       } catch (err) {
         console.warn('Webcam stream notice:', err);
         setGestureStatus('✋ Sẵn sàng lái bằng Phím W/A/S/D hoặc Rê chuột/Chạm Vô Lăng AI');
+        setDebugInfo(prev => ({ ...prev, webcamStatus: 'KHÔNG CÓ WEBCAM / LỖI MỞ CAM' }));
       }
     };
 
@@ -3107,17 +3130,33 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
             const canvasCtx = webcamCanvasRef.current?.getContext('2d');
             const handCount = (results.multiHandLandmarks && Array.isArray(results.multiHandLandmarks)) ? results.multiHandLandmarks.length : 0;
 
+            const fv = flightVectorRef.current;
+
             // RULE 1: Hand Removal or Release (< 2 Hands) -> STOP / HOVER IN PLACE (Dừng hẳn hoặc lơ lửng tại chỗ)
             if (handCount < 2) {
-              flightVectorRef.current.speed = 0;
+              fv.speed = 0;
               setPilotSpeed(0);
               setSteerPos({ x: 0, y: 0 });
               setCurrentGesture('STOP_HOVER');
-              setGestureStatus(
-                handCount === 0
-                  ? '🛑 DỪNG LẠI / LƠ LỬNG — BUÔNG 2 TAY KHỎI VÔ LĂNG (SPEED 0)'
-                  : '🛑 DỪNG LẠI / LƠ LỬNG — BỎ 1 TAY KHỎI VÔ LĂNG (SPEED 0)'
-              );
+              const cmd = handCount === 0 ? '🛑 Dừng lại / Lơ lửng (Buông 2 tay)' : '🛑 Dừng lại / Lơ lửng (Bỏ 1 tay)';
+              setGestureStatus(cmd);
+
+              const h1Pt = (handCount === 1 && results.multiHandLandmarks[0]?.[0])
+                ? `(${results.multiHandLandmarks[0][0].x.toFixed(2)}, ${results.multiHandLandmarks[0][0].y.toFixed(2)})`
+                : 'Chưa phát hiện';
+
+              setDebugInfo(prev => ({
+                ...prev,
+                handCount,
+                hand1Coords: h1Pt,
+                hand2Coords: 'Chưa phát hiện',
+                steerAngleDeg: '0.0',
+                yaw: fv.yaw.toFixed(2),
+                pitch: fv.pitch.toFixed(2),
+                isMoving: false,
+                speed: '0.0',
+                currentCommand: cmd
+              }));
 
               // Draw single hand skeleton points on webcam canvas overlay if 1 hand present
               if (canvasCtx && webcamCanvasRef.current && handCount === 1) {
@@ -3187,35 +3226,62 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               }
 
               // Both Hands on Wheel -> Continuous Forward Movement Speed
-              flightVectorRef.current.speed = 5.0;
+              fv.speed = 5.0;
               setPilotSpeed(5.0);
+
+              let cmd = '🚀 Tiến về phía trước';
 
               // Steering Wheel Rotation Mapping:
               // angleDeg > 10° -> Turning Left (Xoay Vô Lăng Trái -> Rẽ Trái)
               // angleDeg < -10° -> Turning Right (Xoay Vô Lăng Phải -> Rẽ Phải)
               if (angleDeg > 10) {
                 const steerX = -Math.min(1.0, (angleDeg - 10) / 30);
-                flightVectorRef.current.yaw += steerX * 0.045;
+                fv.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
                 setCurrentGesture('STEER_LEFT');
+                cmd = '◄ Rẽ trái (Tàu vũ trụ nghiêng sang trái)';
                 setGestureStatus('◄ RẼ TRÁI — TÀU VŨ TRỤ NGHIÊNG SANG TRÁI (TIẾN VỀ PHÍA TRƯỚC)');
               } else if (angleDeg < -10) {
                 const steerX = Math.min(1.0, (-10 - angleDeg) / 30);
-                flightVectorRef.current.yaw += steerX * 0.045;
+                fv.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
                 setCurrentGesture('STEER_RIGHT');
+                cmd = '► Rẽ phải (Tàu vũ trụ nghiêng sang phải)';
                 setGestureStatus('► RẼ PHẢI — TÀU VŨ TRỤ NGHIÊNG SANG PHẢI (TIẾN VỀ PHÍA TRƯỚC)');
               } else {
                 setSteerPos({ x: 0, y: 0 });
                 setCurrentGesture('FORWARD');
+                cmd = '🚀 Tiến về phía trước';
                 setGestureStatus('🚀 TIẾN VỀ PHÍA TRƯỚC — ĐANG LÁI VÔ LĂNG THẲNG');
               }
+
+              setDebugInfo(prev => ({
+                ...prev,
+                handCount: 2,
+                hand1Coords: `(${leftHand[0].x.toFixed(2)}, ${leftHand[0].y.toFixed(2)})`,
+                hand2Coords: `(${rightHand[0].x.toFixed(2)}, ${rightHand[0].y.toFixed(2)})`,
+                steerAngleDeg: angleDeg.toFixed(1),
+                yaw: fv.yaw.toFixed(2),
+                pitch: fv.pitch.toFixed(2),
+                isMoving: true,
+                speed: '5.0',
+                currentCommand: cmd
+              }));
             }
           });
 
+          // Non-blocking frame processing loop using re-entrancy lock
+          let isProcessingFrame = false;
           const processFrame = async () => {
-            if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2) {
-              await hands.send({ image: videoRef.current }).catch(() => {});
+            if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2 && !isProcessingFrame) {
+              isProcessingFrame = true;
+              try {
+                await hands.send({ image: videoRef.current });
+              } catch (err) {
+                // skip frame if busy
+              } finally {
+                isProcessingFrame = false;
+              }
             }
             if (!isCancelled && isGesturePilotRef.current) {
               requestAnimationFrame(processFrame);
@@ -3830,6 +3896,30 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               boxShadow: 'inset 0 0 100px rgba(56, 189, 248, 0.25)',
               border: '2.5px solid rgba(56, 189, 248, 0.3)'
             }} />
+
+            {/* REAL-TIME DEBUGGING TELEMETRY HUD TEXT OVERLAY */}
+            <div style={{
+              position: 'absolute', top: '65px', left: '24px', zIndex: 35, pointerEvents: 'auto',
+              background: 'rgba(2, 6, 23, 0.92)', backdropFilter: 'blur(14px)',
+              border: '1.5px solid #38bdf8', borderRadius: '14px',
+              padding: '10px 14px', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.68rem',
+              boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)', maxWidth: '280px',
+              display: 'flex', flexDirection: 'column', gap: '4px'
+            }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fde047', borderBottom: '1px dashed rgba(56, 189, 248, 0.4)', paddingBottom: '4px', marginBottom: '2px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>📡 HUD GỠ LỖI PHI THUYỀN</span>
+                <span style={{ fontSize: '0.58rem', color: '#2dd4bf', background: 'rgba(45, 212, 191, 0.2)', padding: '1px 6px', borderRadius: '6px' }}>REALTIME</span>
+              </div>
+              <div><b>📷 WEBCAM:</b> <span style={{ color: debugInfo.webcamStatus.includes('ACTIVE') ? '#4ade80' : '#f87171' }}>{debugInfo.webcamStatus}</span> ({debugInfo.handCount} BÀN TAY)</div>
+              <div><b>📍 TỌA ĐỘ TAY 1:</b> {debugInfo.hand1Coords}</div>
+              <div><b>📍 TỌA ĐỘ TAY 2:</b> {debugInfo.hand2Coords}</div>
+              <div><b>🛞 GÓC VÔ LĂNG:</b> <span style={{ color: '#f59e0b', fontWeight: 900 }}>{debugInfo.steerAngleDeg}°</span></div>
+              <div><b>📐 HƯỚNG YAW / PITCH:</b> Yaw: {debugInfo.yaw} | Pitch: {debugInfo.pitch}</div>
+              <div><b>🚀 TRẠNG THÁI BAY:</b> isMoving: <b style={{ color: debugInfo.isMoving ? '#4ade80' : '#ef4444' }}>{debugInfo.isMoving ? 'TRUE' : 'FALSE'}</b> | Speed: <b style={{ color: '#fde047' }}>{debugInfo.speed}</b></div>
+              <div style={{ marginTop: '2px', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 8px', borderRadius: '6px', borderLeft: '3px solid #f59e0b', color: '#ffffff', fontWeight: 900 }}>
+                🎮 LỆNH: {debugInfo.currentCommand}
+              </div>
+            </div>
 
             {/* Sci-Fi Cockpit Windshield Struts (Left & Right Metallic Pillars) */}
             <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
