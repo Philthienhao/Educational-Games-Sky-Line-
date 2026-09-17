@@ -40,8 +40,10 @@ export function Sidebar({
     return thayHaoAvatar;
   });
 
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin';
+
   const handleAuthorPhotoUpload = async (e) => {
-    if (currentUser?.role !== 'admin') return;
+    if (!isAdmin) return;
     const file = e.target.files[0];
     if (!file) return;
     const compressedDataUrl = await compressImage(file, 600, 600, 0.72);
@@ -245,7 +247,7 @@ export function Sidebar({
           </div>
 
           {/* Admin Category */}
-          {currentUser?.role === 'admin' && (
+          {isAdmin && (
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
                 QUẢN TRỊ VIÊN
@@ -319,9 +321,9 @@ export function Sidebar({
             border: '1px solid rgba(245, 158, 11, 0.4)'
           }}>
             <label 
-              htmlFor={currentUser?.role === 'admin' ? "sidebar-author-file-input" : undefined} 
-              style={{ cursor: currentUser?.role === 'admin' ? 'pointer' : 'default', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              title={currentUser?.role === 'admin' ? "Bấm vào để đổi ảnh Thầy Hảo" : "Tác giả Website: Thầy Hảo Địa Lí"}
+              htmlFor={isAdmin ? "sidebar-author-file-input" : undefined} 
+              style={{ cursor: isAdmin ? 'pointer' : 'default', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              title={isAdmin ? "Bấm vào để đổi ảnh Thầy Hảo" : "Tác giả Website: Thầy Hảo Địa Lí"}
             >
               <img 
                 src={authorPhoto || thayHaoAvatar} 
@@ -329,7 +331,7 @@ export function Sidebar({
                 onError={(e) => { e.target.src = thayHaoAvatar; }} 
                 style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #fbbf24', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.45)', flexShrink: 0 }} 
               />
-              {currentUser?.role === 'admin' && (
+              {isAdmin && (
                 <input type="file" id="sidebar-author-file-input" accept="image/*" onChange={handleAuthorPhotoUpload} style={{ display: 'none' }} />
               )}
             </label>
@@ -346,7 +348,7 @@ export function Sidebar({
 
           {/* User Info Card (No Role Switcher Trigger for Teachers) */}
           <div 
-            onClick={currentUser?.role === 'admin' ? onOpenRoleSwitcher : undefined}
+            onClick={isAdmin ? onOpenRoleSwitcher : undefined}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -355,16 +357,16 @@ export function Sidebar({
               borderRadius: '14px',
               background: 'rgba(255, 255, 255, 0.05)',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              cursor: currentUser?.role === 'admin' ? 'pointer' : 'default'
+              cursor: isAdmin ? 'pointer' : 'default'
             }}
-            title={currentUser?.role === 'admin' ? "Bấm để đổi tài khoản" : "Tài khoản cá nhân"}
+            title={isAdmin ? "Bấm để đổi tài khoản" : "Tài khoản cá nhân"}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                background: currentUser?.role === 'admin' ? 'var(--danger-glow)' : 'var(--secondary-glow)',
+                background: isAdmin ? 'var(--danger-glow)' : 'var(--secondary-glow)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -378,8 +380,8 @@ export function Sidebar({
                 <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fff' }}>
                   {currentUser?.name}
                 </div>
-                <span className={currentUser?.role === 'admin' ? 'badge badge-admin' : 'badge badge-teacher'} style={{ fontSize: '0.62rem' }}>
-                  {currentUser?.role === 'admin' ? 'ADMIN' : 'Giáo viên'}
+                <span className={isAdmin ? 'badge badge-admin' : 'badge badge-teacher'} style={{ fontSize: '0.62rem' }}>
+                  {isAdmin ? 'ADMIN' : 'Giáo viên'}
                 </span>
               </div>
             </div>

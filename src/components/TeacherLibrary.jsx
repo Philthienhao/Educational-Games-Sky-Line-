@@ -136,7 +136,7 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
               {isSyncing ? 'Đang đồng bộ...' : '🔄 Đồng Bộ Game'}
             </button>
 
-            {currentUser?.role === 'admin' && (
+            {(currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin') && (
               <button 
                 className="btn btn-secondary"
                 onClick={handleRestoreAdminData}

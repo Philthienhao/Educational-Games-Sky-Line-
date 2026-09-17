@@ -884,6 +884,9 @@ export const StorageService = {
           } else {
             // Rule #2: Preserved 100% stored user properties; initial seed records MUST NEVER overwrite existing user properties
             users[idx] = { ...iu, ...users[idx] };
+            if (iuName === 'philthienhao' || iu.id === 'user_admin') {
+              users[idx].role = 'admin';
+            }
           }
         });
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
@@ -1216,7 +1219,12 @@ export const StorageService = {
         cleanUser === 'annatran'
       );
     });
-    if (seedUser) return seedUser;
+    if (seedUser) {
+      if (seedUser.username === 'philthienhao' || seedUser.id === 'user_admin') {
+        seedUser.role = 'admin';
+      }
+      return seedUser;
+    }
 
     // 2. Active Users Check (LocalStorage & IndexedDB synced users)
     const users = StorageService.getUsers();
@@ -1231,18 +1239,32 @@ export const StorageService = {
       );
     });
 
+    if (found && (found.username === 'philthienhao' || found.id === 'user_admin')) {
+      found.role = 'admin';
+    }
+
     return found || null;
   },
 
   // Authenticate User Async (Checks local first, then queries Cloud Storage for newly created remote accounts)
   authenticateUserAsync: async (username, password) => {
     const localUser = StorageService.authenticateUser(username, password);
-    if (localUser) return localUser;
+    if (localUser) {
+      if (localUser.username === 'philthienhao' || localUser.id === 'user_admin') {
+        localUser.role = 'admin';
+      }
+      return localUser;
+    }
 
     // Check Cloud Database for cross-device newly created accounts
     try {
       const cloudUser = await CloudStorageService.authenticateCloudUser(username, password);
-      if (cloudUser) return cloudUser;
+      if (cloudUser) {
+        if (cloudUser.username === 'philthienhao' || cloudUser.id === 'user_admin') {
+          cloudUser.role = 'admin';
+        }
+        return cloudUser;
+      }
     } catch (e) {}
 
     return null;
@@ -1261,6 +1283,9 @@ export const StorageService = {
       const userStr = localStorage.getItem(CURRENT_USER_KEY);
       if (userStr) {
         const user = JSON.parse(userStr);
+        if (user && (user.username === 'philthienhao' || user.id === 'user_admin')) {
+          user.role = 'admin';
+        }
         if (user && user.isLoggedIn) return user;
         if (user && (user.isLoggedIn === false || user.loggedOut)) return null;
       }
@@ -1271,6 +1296,9 @@ export const StorageService = {
   },
 
   setCurrentUser: (user) => {
+    if (user && (user.username === 'philthienhao' || user.id === 'user_admin')) {
+      user.role = 'admin';
+    }
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
     if (user && user.isLoggedIn) {
       IDBStorageService.setItem(CURRENT_USER_KEY, user).catch(() => {});
@@ -1280,7 +1308,13 @@ export const StorageService = {
   // Users Management
   getUsers: () => {
     StorageService.init();
-    return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+    return users.map(u => {
+      if (u && (u.username === 'philthienhao' || u.id === 'user_admin')) {
+        return { ...u, role: 'admin' };
+      }
+      return u;
+    });
   },
 
   createUser: (userData) => {

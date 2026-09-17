@@ -430,7 +430,7 @@ export function App() {
         )}
 
         {/* View 7: Quản Trị Admin */}
-        {activeTab === 'admin' && currentUser?.role === 'admin' && (
+        {activeTab === 'admin' && (currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin') && (
           <AdminPanel 
             baseGames={baseGames}
             onAddGame={handleAdminAddGame}

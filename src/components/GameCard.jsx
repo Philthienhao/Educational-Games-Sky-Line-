@@ -16,7 +16,7 @@ export function GameCard({
   onDeleteBaseGame,
   onUpdateLessonTitle 
 }) {
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin';
   const handlePlay = onPlay || onPlayDirect;
   const handleCustomize = onCustomize || onEditTemplate;
   const handleDelete = onDelete || onDeleteBaseGame;
