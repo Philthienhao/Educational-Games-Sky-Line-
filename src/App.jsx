@@ -321,7 +321,7 @@ export function App() {
               }}
             >
               <User size={16} />
-              <span>{currentUser ? (currentUser.name.split(' ').pop() || 'Tài Khoản') : 'Đăng Nhập'}</span>
+              <span>{currentUser ? (String(currentUser.name || currentUser.username || 'Tài Khoản').split(' ').pop() || 'Tài Khoản') : 'Đăng Nhập'}</span>
             </button>
 
             <button 

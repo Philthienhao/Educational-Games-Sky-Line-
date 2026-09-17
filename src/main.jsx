@@ -29,9 +29,10 @@ const performHardPurgeAndReload = async () => {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map(r => r.unregister()));
     }
-    // Purge corrupted local state keys if present
+    // Purge local state keys that could cause crashes
     localStorage.removeItem('gvd_base_games');
     localStorage.removeItem('gvd_saved_games');
+    localStorage.removeItem('gvd_active_tab');
   } catch (e) {
     console.warn("Purge caches error:", e);
   }
@@ -41,10 +42,29 @@ const performHardPurgeAndReload = async () => {
   window.location.href = targetUrl;
 };
 
+const performDeepResetAndReload = async () => {
+  try {
+    localStorage.clear();
+    sessionStorage.clear();
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if (window.indexedDB) {
+      try { window.indexedDB.deleteDatabase('GVD_Educational_Games_DB'); } catch (e) {}
+    }
+  } catch (e) {}
+  window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+};
+
 class GlobalErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, showDetails: false };
+    this.state = { hasError: false, error: null, showDetails: true };
   }
 
   static getDerivedStateFromError(error) {
@@ -57,6 +77,9 @@ class GlobalErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
+      const errorMsg = this.state.error ? this.state.error.toString() : 'Unknown Error';
+      const errorStack = this.state.error ? this.state.error.stack : '';
+
       return (
         <div style={{
           minHeight: '100vh',
@@ -78,7 +101,7 @@ class GlobalErrorBoundary extends React.Component {
             Đã có phiên bản cập nhật mới trên hệ thống. Vui lòng bấm vào nút bên dưới để xóa cache và tải bản mới nhất!
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '360px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', maxWidth: '380px' }}>
             <button
               onClick={performHardPurgeAndReload}
               style={{
@@ -101,64 +124,57 @@ class GlobalErrorBoundary extends React.Component {
             </button>
 
             <button
-              onClick={() => {
-                try {
-                  localStorage.removeItem('gvd_active_tab');
-                } catch (e) {}
-                performHardPurgeAndReload();
-              }}
+              onClick={performDeepResetAndReload}
               style={{
-                background: 'rgba(255, 255, 255, 0.08)',
-                color: '#94a3b8',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'rgba(239, 68, 68, 0.2)',
+                color: '#fca5a5',
+                border: '1px solid rgba(239, 68, 68, 0.4)',
                 borderRadius: '14px',
-                padding: '10px 20px',
+                padding: '12px 20px',
                 fontWeight: 700,
-                fontSize: '0.85rem',
+                fontSize: '0.88rem',
                 cursor: 'pointer'
               }}
             >
-              🧹 Xóa Cache & Khôi Phục Trang Chủ
+              ⚡ Xóa Sạch Dữ Liệu Cũ & Reset Trang Web
             </button>
 
-            {this.state.error && (
-              <button
-                onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
-                style={{
-                  background: 'transparent',
-                  color: '#64748b',
-                  border: 'none',
-                  fontSize: '0.75rem',
-                  cursor: 'pointer',
-                  marginTop: '8px',
-                  textDecoration: 'underline'
-                }}
-              >
-                {this.state.showDetails ? 'Ẩn chi tiết kỹ thuật' : 'Xem chi tiết báo lỗi'}
-              </button>
-            )}
+            <button
+              onClick={() => this.setState(prev => ({ showDetails: !prev.showDetails }))}
+              style={{
+                background: 'transparent',
+                color: '#64748b',
+                border: 'none',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                marginTop: '4px',
+                textDecoration: 'underline'
+              }}
+            >
+              {this.state.showDetails ? 'Ẩn chi tiết báo lỗi' : 'Xem chi tiết báo lỗi'}
+            </button>
           </div>
 
-          {this.state.showDetails && this.state.error && (
+          {this.state.showDetails && (
             <div style={{
               marginTop: '16px',
               padding: '14px',
-              background: 'rgba(15, 23, 42, 0.9)',
+              background: 'rgba(15, 23, 42, 0.95)',
               borderRadius: '12px',
               border: '1px solid rgba(239, 68, 68, 0.4)',
-              maxHeight: '180px',
+              maxHeight: '220px',
               overflowY: 'auto',
               textAlign: 'left',
               fontSize: '0.75rem',
               color: '#fca5a5',
               fontFamily: 'monospace',
-              maxWidth: '550px',
+              maxWidth: '600px',
               width: '100%'
             }}>
-              <b>Error:</b> {this.state.error.toString()}
-              {this.state.error.stack && (
+              <b>Chi tiết lỗi kỹ thuật:</b> {errorMsg}
+              {errorStack && (
                 <pre style={{ marginTop: '6px', whiteSpace: 'pre-wrap', fontSize: '0.7rem', color: '#94a3b8' }}>
-                  {this.state.error.stack}
+                  {errorStack}
                 </pre>
               )}
             </div>
@@ -177,3 +193,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </GlobalErrorBoundary>
   </React.StrictMode>
 );
+

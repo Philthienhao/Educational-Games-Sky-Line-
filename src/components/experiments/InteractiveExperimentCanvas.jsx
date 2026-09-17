@@ -2881,7 +2881,7 @@ const CELESTIAL_CHEMICAL_DATA = {
 };
 
 // 1. Solar System Orbits 3D Interactive Simulator (Three.js WebGL Engine matching Thinghiemdiali.mp4)
-function GeoSolarSystemSim({ experiment, onLog }) {
+function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }) {
   const mountRef = useRef(null);
   const videoRef = useRef(null);
   const webcamCanvasRef = useRef(null);
@@ -2897,7 +2897,7 @@ function GeoSolarSystemSim({ experiment, onLog }) {
     return !!(experiment?.startInCockpit || experiment?.isCockpit);
   });
   const [isAutopilot, setIsAutopilot] = useState(false);
-  const [gestureStatus, setGestureStatus] = useState('🖐️ Xòe tay để Lái | 🤌 Chụm tay để Tăng tốc | ✊ Nắm tay để Hãm phanh | ✌️ 2 ngón xem Lõi');
+  const [gestureStatus, setGestureStatus] = useState('🖐️ Vẫy tay trước Camera AI | 🤌 Chụm tay: Tăng tốc | ✊ Nắm tay: Phanh | ✌️ 2 Ngón: Xem Lõi');
   const [currentGesture, setCurrentGesture] = useState('NONE');
   const [isXRayMode, setIsXRayMode] = useState(false);
   const [pilotSpeed, setPilotSpeed] = useState(0);
@@ -3008,146 +3008,226 @@ function GeoSolarSystemSim({ experiment, onLog }) {
     };
   }, [isGesturePilot]);
 
-  // Dynamically load MediaPipe Hands AI scripts
+  // Guaranteed Active Webcam Stream & MediaPipe AI Dual-Hand Steering Wheel Engine
   useEffect(() => {
     if (!isGesturePilot) return;
 
-    let cameraUtilsScript = document.querySelector('script[src*="camera_utils"]');
-
-    let handsScript = document.querySelector('script[src*="hands.js"]');
     let isCancelled = false;
+    let cameraStream = null;
+
+    // 1. Direct High-Speed Video Stream Activation
+    const initWebcam = async () => {
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 320 }, height: { ideal: 240 }, facingMode: 'user' }
+          });
+          if (videoRef.current && !isCancelled) {
+            videoRef.current.srcObject = cameraStream;
+            videoRef.current.play().catch(() => {});
+          }
+        }
+      } catch (err) {
+        console.warn('Webcam stream notice:', err);
+        setGestureStatus('✋ Sẵn sàng lái bằng Phím W/A/S/D hoặc Rê chuột/Chạm Vô Lăng AI');
+      }
+    };
+
+    initWebcam();
+
+    // 2. Render loop on canvas for webcam HUD box
+    const renderWebcamCanvas = () => {
+      if (isCancelled) return;
+      const v = videoRef.current;
+      const c = webcamCanvasRef.current;
+      if (v && c && v.readyState >= 2) {
+        const ctx = c.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          ctx.scale(-1, 1);
+          ctx.drawImage(v, -c.width, 0, c.width, c.height);
+          ctx.restore();
+
+          // Draw AI tracking target grid overlay
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.strokeRect(10, 8, c.width - 20, c.height - 16);
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = '#f59e0b';
+          ctx.font = 'bold 9px monospace';
+          ctx.fillText('DUAL-HAND AI STEERING', 14, 20);
+        }
+      }
+      if (!isCancelled && isGesturePilotRef.current) {
+        requestAnimationFrame(renderWebcamCanvas);
+      }
+    };
+    requestAnimationFrame(renderWebcamCanvas);
+
+    // 3. MediaPipe Hands AI Dual-Hand Tracker Loading
+    let cameraUtilsScript = document.querySelector('script[src*="camera_utils"]');
+    let handsScript = document.querySelector('script[src*="hands.js"]');
 
     const loadScripts = async () => {
-      if (!cameraUtilsScript) {
-        cameraUtilsScript = document.createElement('script');
-        cameraUtilsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
-        cameraUtilsScript.crossOrigin = 'anonymous';
-        document.head.appendChild(cameraUtilsScript);
-        await new Promise(r => cameraUtilsScript.onload = r);
-      }
-      if (!handsScript) {
-        handsScript = document.createElement('script');
-        handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
-        handsScript.crossOrigin = 'anonymous';
-        document.head.appendChild(handsScript);
-        await new Promise(r => handsScript.onload = r);
-      }
+      try {
+        if (!cameraUtilsScript) {
+          cameraUtilsScript = document.createElement('script');
+          cameraUtilsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js';
+          cameraUtilsScript.crossOrigin = 'anonymous';
+          document.head.appendChild(cameraUtilsScript);
+          await new Promise(r => cameraUtilsScript.onload = r);
+        }
+        if (!handsScript) {
+          handsScript = document.createElement('script');
+          handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js';
+          handsScript.crossOrigin = 'anonymous';
+          document.head.appendChild(handsScript);
+          await new Promise(r => handsScript.onload = r);
+        }
 
-      if (isCancelled) return;
+        if (isCancelled) return;
 
-      if (window.Hands && videoRef.current) {
-        try {
+        if (window.Hands && videoRef.current) {
           const hands = new window.Hands({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
           });
 
+          // Enable Dual-Hand Tracking for Steering Wheel Gesture
           hands.setOptions({
-            maxNumHands: 1,
+            maxNumHands: 2,
             modelComplexity: 1,
-            minDetectionConfidence: 0.6,
-            minTrackingConfidence: 0.6
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
           });
 
           hands.onResults((results) => {
             if (isCancelled) return;
             const canvasCtx = webcamCanvasRef.current?.getContext('2d');
-            if (canvasCtx && webcamCanvasRef.current) {
-              canvasCtx.clearRect(0, 0, webcamCanvasRef.current.width, webcamCanvasRef.current.height);
+            const handCount = (results.multiHandLandmarks && Array.isArray(results.multiHandLandmarks)) ? results.multiHandLandmarks.length : 0;
+
+            // RULE 1: 0 Hands Detected -> STOP (Buông 2 tay = Dừng lại)
+            if (handCount === 0) {
+              flightVectorRef.current.speed = 0;
+              setPilotSpeed(0);
+              setSteerPos({ x: 0, y: 0 });
+              setCurrentGesture('NO_HANDS_STOP');
+              setGestureStatus('🛑 BUÔNG 2 TAY — PHI THUYỀN DỪNG LẠI TỨC THÌ (SPEED 0)');
+              return;
             }
 
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-              const landmarks = results.multiHandLandmarks[0];
-
-              // Draw hand skeleton landmarks
-              if (canvasCtx) {
-                canvasCtx.fillStyle = '#38bdf8';
-                canvasCtx.strokeStyle = '#f59e0b';
-                canvasCtx.lineWidth = 2;
+            // Draw hand skeleton points on canvas
+            if (canvasCtx && webcamCanvasRef.current) {
+              results.multiHandLandmarks.forEach((landmarks, idx) => {
+                canvasCtx.fillStyle = idx === 0 ? '#00f2fe' : '#f59e0b';
+                canvasCtx.strokeStyle = '#ffffff';
+                canvasCtx.lineWidth = 1.5;
                 landmarks.forEach((pt) => {
-                  const x = pt.x * webcamCanvasRef.current.width;
+                  const x = (1 - pt.x) * webcamCanvasRef.current.width;
                   const y = pt.y * webcamCanvasRef.current.height;
                   canvasCtx.beginPath();
-                  canvasCtx.arc(x, y, 3, 0, Math.PI * 2);
+                  canvasCtx.arc(x, y, 2.5, 0, Math.PI * 2);
                   canvasCtx.fill();
                 });
-              }
+              });
+            }
 
-              // 1. Hand center (wrist 0 & middle MCP 9)
-              const centerX = (landmarks[0].x + landmarks[9].x) / 2;
-              const centerY = (landmarks[0].y + landmarks[9].y) / 2;
-
-              // Steer flight vector: [-1, 1]
-              const steerX = (centerX - 0.5) * 2.2;
+            // RULE 2: 1 Hand Detected -> REVERSE (Lái 1 tay = Đi lui lại)
+            if (handCount === 1) {
+              const h1 = results.multiHandLandmarks[0];
+              const centerX = (h1[0].x + h1[9].x) / 2;
+              const centerY = (h1[0].y + h1[9].y) / 2;
+              const steerX = (0.5 - centerX) * 2.2;
               const steerY = (centerY - 0.5) * 2.2;
 
-              // 2. Gesture classification
-              const thumbTip = landmarks[4];
-              const indexTip = landmarks[8];
-              const middleTip = landmarks[12];
-              const ringTip = landmarks[16];
-              const pinkyTip = landmarks[20];
-
-              const pinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
-              const isIndexUp = indexTip.y < landmarks[6].y;
-              const isMiddleUp = middleTip.y < landmarks[10].y;
-              const isRingUp = ringTip.y < landmarks[14].y;
-              const isPinkyUp = pinkyTip.y < landmarks[18].y;
-
-              if (pinchDist < 0.065) {
-                // 🤌 Pinch Gesture: Hyper-thrust speed
-                setCurrentGesture('PINCH_THRUST');
-                setGestureStatus('🤌 PHI THUYỀN DÙNG GA TĂNG TỐC (THRUSTING forward!)');
-                flightVectorRef.current.speed = Math.min(flightVectorRef.current.speed + 0.35, 8.5);
-                playSpaceSFX('thrust');
-              } else if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) {
-                // ✌️ Victory Sign: Toggle X-Ray Planet Core Cutaway
-                setCurrentGesture('VICTORY_XRAY');
-                setGestureStatus('✌️ BẬT X-RAY XUYÊN LÒNG HÀNH TINH (Planet Core Mode)');
-                setIsXRayMode(true);
-                flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed * 0.9, 0.5);
-                playSpaceSFX('xray');
-              } else if (!isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) {
-                // ✊ Fist: Brakes
-                setCurrentGesture('FIST_BRAKE');
-                setGestureStatus('✊ HÃM PHANH TỨC THÌ (Braking)');
-                flightVectorRef.current.speed = Math.max(flightVectorRef.current.speed - 0.4, 0);
-                playSpaceSFX('brake');
-              } else {
-                // 🖐️ Open Palm: Steering yaw/pitch
-                setCurrentGesture('OPEN_PALM_STEER');
-                setGestureStatus(`🖐️ ĐANG LÁI: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
-                flightVectorRef.current.yaw += steerX * 0.035;
-                flightVectorRef.current.pitch += -steerY * 0.035;
-              }
+              flightVectorRef.current.speed = -2.5; // Reverse move backward
+              flightVectorRef.current.yaw += steerX * 0.035;
+              flightVectorRef.current.pitch += -steerY * 0.035;
 
               setSteerPos({ x: steerX, y: steerY });
-              setPilotSpeed(Number(flightVectorRef.current.speed.toFixed(1)));
-            } else {
-              setCurrentGesture('NONE');
-              setGestureStatus('✋ Đưa bàn tay trước Camera để bắt đầu lái phi thuyền...');
+              setPilotSpeed(-2.5);
+              setCurrentGesture('ONE_HAND_REVERSE');
+              setGestureStatus('◀️ LÁI 1 TAY — PHI THUYỀN ĐANG ĐI LUI LẠI (REVERSE)');
+              return;
+            }
+
+            // RULE 3 & 4: 2 Hands Detected -> FORWARD & VIRTUAL STEERING WHEEL ROTATION
+            if (handCount >= 2) {
+              const hA = results.multiHandLandmarks[0];
+              const hB = results.multiHandLandmarks[1];
+
+              // Sort hands horizontally (Left Hand vs Right Hand)
+              const leftHand = hA[0].x < hB[0].x ? hB : hA; // Mirrored coordinate: lower x in video = screen right
+              const rightHand = hA[0].x < hB[0].x ? hA : hB;
+
+              // Calculate Steering Wheel Line Angle (in degrees)
+              const xLeft = (1 - leftHand[0].x) * webcamCanvasRef.current.width;
+              const yLeft = leftHand[0].y * webcamCanvasRef.current.height;
+              const xRight = (1 - rightHand[0].x) * webcamCanvasRef.current.width;
+              const yRight = rightHand[0].y * webcamCanvasRef.current.height;
+
+              const dx = xRight - xLeft;
+              const dy = yRight - yLeft;
+              const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
+
+              // Draw Glowing Steering Wheel Connecting Line on Webcam Canvas
+              if (canvasCtx && webcamCanvasRef.current) {
+                canvasCtx.strokeStyle = '#f59e0b';
+                canvasCtx.lineWidth = 3;
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(xLeft, yLeft);
+                canvasCtx.lineTo(xRight, yRight);
+                canvasCtx.stroke();
+
+                // Draw Steering Wheel Center Hub Indicator
+                const midX = (xLeft + xRight) / 2;
+                const midY = (yLeft + yRight) / 2;
+                canvasCtx.fillStyle = '#38bdf8';
+                canvasCtx.beginPath();
+                canvasCtx.arc(midX, midY, 6, 0, Math.PI * 2);
+                canvasCtx.fill();
+              }
+
+              // 2 Hands = Forward Motion Speed
+              flightVectorRef.current.speed = 5.0;
+              setPilotSpeed(5.0);
+
+              // Steering Wheel Rotation Mapping:
+              // angleDeg > 12° -> Turning Left (Xoay Vô Lăng Trái)
+              // angleDeg < -12° -> Turning Right (Xoay Vô Lăng Phải)
+              if (angleDeg > 12) {
+                const steerX = -Math.min(1.0, (angleDeg - 12) / 30);
+                flightVectorRef.current.yaw += steerX * 0.045;
+                setSteerPos({ x: steerX, y: 0 });
+                setCurrentGesture('STEER_LEFT');
+                setGestureStatus('🛞 2 TAY XOAY VÔ LĂNG TRÁI — PHI THUYỀN LỆCH BÊN TRÁI ◄');
+              } else if (angleDeg < -12) {
+                const steerX = Math.min(1.0, (-12 - angleDeg) / 30);
+                flightVectorRef.current.yaw += steerX * 0.045;
+                setSteerPos({ x: steerX, y: 0 });
+                setCurrentGesture('STEER_RIGHT');
+                setGestureStatus('🛞 2 TAY XOAY VÔ LĂNG PHẢI — PHI THUYỀN LỆCH BÊN PHẢI ►');
+              } else {
+                setSteerPos({ x: 0, y: 0 });
+                setCurrentGesture('STEER_FORWARD');
+                setGestureStatus('🚀 2 TAY LÁI VÔ LĂNG THẲNG — PHI THUYỀN TIẾN THẲNG VỀ PHÍA TRƯỚC ▲');
+              }
             }
           });
 
-          // Start Video Camera Stream
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 320, height: 240 } });
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-            videoRef.current.play();
-
-            const processFrame = async () => {
-              if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2) {
-                await hands.send({ image: videoRef.current });
-              }
-              if (!isCancelled && isGesturePilotRef.current) {
-                requestAnimationFrame(processFrame);
-              }
-            };
-            requestAnimationFrame(processFrame);
-          }
-        } catch (err) {
-          console.warn('Webcam Gesture Init Warning:', err);
-          setGestureStatus('⚠️ Chưa cấp quyền Camera. Hãy sử dụng phím WASD / Mũi tên để lái!');
+          const processFrame = async () => {
+            if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2) {
+              await hands.send({ image: videoRef.current }).catch(() => {});
+            }
+            if (!isCancelled && isGesturePilotRef.current) {
+              requestAnimationFrame(processFrame);
+            }
+          };
+          requestAnimationFrame(processFrame);
         }
+      } catch (err) {
+        console.warn('MediaPipe hands load warning:', err);
       }
     };
 
@@ -3155,9 +3235,8 @@ function GeoSolarSystemSim({ experiment, onLog }) {
 
     return () => {
       isCancelled = true;
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
       }
     };
   }, [isGesturePilot]);
@@ -3463,6 +3542,34 @@ function GeoSolarSystemSim({ experiment, onLog }) {
         controls.enabled = false;
 
         const fv = flightVectorRef.current;
+
+        // Automatically orient ship heading towards selected target planet if set
+        const selPKey = selectedPlanetKeyRef.current;
+        if (selPKey) {
+          let targetWorldPos = new THREE.Vector3();
+          if (selPKey === 'sun') {
+            targetWorldPos.set(0, 0, 0);
+          } else if (planetGroups[selPKey]) {
+            planetGroups[selPKey].getWorldPosition(targetWorldPos);
+          }
+
+          const dx = targetWorldPos.x - fv.posX;
+          const dy = targetWorldPos.y - fv.posY;
+          const dz = targetWorldPos.z - fv.posZ;
+          const distToTarget = Math.hypot(dx, dy, dz);
+          const targetRadius = SOLAR_PLANETS_CONFIG[selPKey]?.radius || 12;
+
+          if (distToTarget > targetRadius * 3.2) {
+            const targetYaw = Math.atan2(dx, dz);
+            const targetPitch = Math.atan2(dy, Math.hypot(dx, dz));
+
+            let yawDiff = targetYaw - fv.yaw;
+            yawDiff = Math.atan2(Math.sin(yawDiff), Math.cos(yawDiff));
+            fv.yaw += yawDiff * 0.08;
+            fv.pitch += (targetPitch - fv.pitch) * 0.08;
+          }
+        }
+
         const forwardX = Math.sin(fv.yaw) * Math.cos(fv.pitch);
         const forwardY = Math.sin(fv.pitch);
         const forwardZ = Math.cos(fv.yaw) * Math.cos(fv.pitch);
@@ -3557,7 +3664,29 @@ function GeoSolarSystemSim({ experiment, onLog }) {
       if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời.`);
     } else {
       setSelectedPlanetKey(key);
+      setTargetPlanetKey(key);
       const p = SOLAR_PLANETS_CONFIG[key];
+      setTargetPlanetName(p ? p.name.toUpperCase() : key.toUpperCase());
+
+      if (isGesturePilotRef.current) {
+        // Automatically engage forward warp speed to fly straight to target planet
+        const fv = flightVectorRef.current;
+        let targetPos = new THREE.Vector3();
+        if (key === 'sun') {
+          targetPos.set(0, 0, 0);
+        } else if (planetGroups[key]) {
+          planetGroups[key].getWorldPosition(targetPos);
+        }
+        const dx = targetPos.x - fv.posX;
+        const dy = targetPos.y - fv.posY;
+        const dz = targetPos.z - fv.posZ;
+        fv.yaw = Math.atan2(dx, dz);
+        fv.pitch = Math.atan2(dy, Math.hypot(dx, dz));
+        fv.speed = 5.5; // Engage auto warp thrust
+        setPilotSpeed(5.5);
+        setGestureStatus(`🚀 WARP TỰ ĐỘNG BAY TỚI ${p.name.toUpperCase()} (TỐC ĐỘ 5.5)`);
+      }
+
       if (onLog) onLog(`Khám phá 3D ${p.name}: Khoảng cách ${p.dist}, Đường kính ${p.size}.`);
     }
   };
@@ -3690,44 +3819,58 @@ function GeoSolarSystemSim({ experiment, onLog }) {
           </div>
         )}
 
-        {/* IMMERSIVE 1ST-PERSON 3D SPACESHIP COCKPIT INTERIOR OVERLAY */}
+        {/* IMMERSIVE 1ST-PERSON 3D SPACESHIP COCKPIT INTERIOR OVERLAY WITH SEATED PILOT */}
         {isGesturePilot && (
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 25,
             display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             overflow: 'hidden'
           }}>
-            {/* 1. Curved Sci-Fi Glass Windshield Overlay */}
+            {/* 1. Curved Sci-Fi Glass Windshield Overlay & Canopy Struts */}
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'radial-gradient(ellipse at center, transparent 60%, rgba(2, 6, 23, 0.45) 85%, rgba(2, 6, 23, 0.95) 100%)',
-              boxShadow: 'inset 0 0 80px rgba(56, 189, 248, 0.2)',
-              border: '2px solid rgba(56, 189, 248, 0.25)'
+              background: 'radial-gradient(ellipse at center, transparent 55%, rgba(2, 6, 23, 0.5) 80%, rgba(2, 6, 23, 0.98) 100%)',
+              boxShadow: 'inset 0 0 100px rgba(56, 189, 248, 0.25)',
+              border: '2.5px solid rgba(56, 189, 248, 0.3)'
             }} />
+
+            {/* Sci-Fi Cockpit Windshield Struts (Left & Right Metallic Pillars) */}
+            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+              {/* Left Canopy Pillar */}
+              <polygon points="0,0 80,0 200,600 0,600" fill="url(#pillarGrad)" opacity="0.85" />
+              {/* Right Canopy Pillar */}
+              <polygon points="1000,0 920,0 800,600 1000,600" fill="url(#pillarGrad)" opacity="0.85" />
+              <defs>
+                <linearGradient id="pillarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#0f172a" />
+                  <stop offset="50%" stopColor="#1e293b" />
+                  <stop offset="100%" stopColor="#020617" />
+                </linearGradient>
+              </defs>
+            </svg>
 
             {/* 2. Cockpit Targeting Crosshair / Flight HUD Reticle */}
             <div style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: `translate(-50%, -50%) translate(${steerPos.x * 55}px, ${steerPos.y * 40}px)`,
+              position: 'absolute', top: '48%', left: '50%',
+              transform: `translate(-50%, -50%) translate(${steerPos.x * 60}px, ${steerPos.y * 45}px)`,
               transition: 'transform 0.08s ease-out', pointerEvents: 'none',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
             }}>
               {/* Sci-Fi Aiming Reticle Circle */}
               <div style={{
-                width: '60px', height: '60px', borderRadius: '50%',
-                border: '2px dashed #38bdf8', boxShadow: '0 0 16px rgba(56, 189, 248, 0.8)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                animation: 'pulse 2s infinite'
+                width: '70px', height: '70px', borderRadius: '50%',
+                border: '2px dashed #38bdf8', boxShadow: '0 0 20px rgba(56, 189, 248, 0.9)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 12px #f59e0b' }} />
               </div>
 
-              {/* Minimal Planet Target Badge (Only when approaching a planet) */}
+              {/* Minimal Planet Target Badge */}
               {targetPlanetName && (
                 <div style={{
-                  marginTop: '12px', background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(12px)',
+                  marginTop: '10px', background: 'rgba(15, 23, 42, 0.94)', backdropFilter: 'blur(12px)',
                   border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '6px 14px',
-                  boxShadow: '0 0 20px rgba(56, 189, 248, 0.5)', pointerEvents: 'auto',
+                  boxShadow: '0 0 20px rgba(56, 189, 248, 0.6)', pointerEvents: 'auto',
                   display: 'flex', alignItems: 'center', gap: '10px'
                 }}>
                   <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047' }}>
@@ -3747,16 +3890,16 @@ function GeoSolarSystemSim({ experiment, onLog }) {
               )}
             </div>
 
-            {/* 3. Top Canopy Status Bar */}
+            {/* 3. Top Canopy Status Bar with FULLSCREEN Button */}
             <div style={{
               position: 'relative', top: 0, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', alignItems: 'center', gap: '16px',
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.75) 75%, transparent 100%)',
+              display: 'flex', alignItems: 'center', gap: '14px',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 75%, transparent 100%)',
               padding: '10px 24px', borderBottom: '1.5px solid rgba(56, 189, 248, 0.35)',
               borderRadius: '0 0 20px 20px', pointerEvents: 'auto', zIndex: 30
             }}>
-              <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🛸 BUỒNG LÁI PHI THUYỀN VŨ TRỤ
+              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🛸 BUỒNG LÁI PHI THUYỀN VŨ TRỤ 3D
               </div>
               <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
                 {gestureStatus}
@@ -3764,11 +3907,26 @@ function GeoSolarSystemSim({ experiment, onLog }) {
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#fde047' }}>
                 WARP: {pilotSpeed}
               </div>
+
+              {/* Dedicated Fullscreen Toggle Button */}
+              {toggleFullscreen && (
+                <button
+                  onClick={toggleFullscreen}
+                  style={{
+                    background: isFullscreen ? 'rgba(13, 148, 136, 0.35)' : 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                    color: '#ffffff', border: '1px solid #38bdf8', borderRadius: '8px', padding: '4px 12px',
+                    fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', boxShadow: '0 0 10px rgba(56, 189, 248, 0.4)'
+                  }}
+                >
+                  {isFullscreen ? '↙️ THOÁT TOÀN MÀN HÌNH' : '🖥️ TOÀN MÀN HÌNH'}
+                </button>
+              )}
+
               <button
                 onClick={() => setIsGesturePilot(false)}
                 style={{
                   background: 'rgba(239, 68, 68, 0.25)', color: '#fca5a5',
-                  border: '1px solid #ef4444', borderRadius: '8px', padding: '4px 10px',
+                  border: '1px solid #ef4444', borderRadius: '8px', padding: '4px 12px',
                   fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer'
                 }}
               >
@@ -3776,71 +3934,215 @@ function GeoSolarSystemSim({ experiment, onLog }) {
               </button>
             </div>
 
-            {/* 4. Bottom Spaceship Dashboard & 3D Control Yokes (Bàn điều khiển & Cần lái 3D) */}
+            {/* Bottom Dashboard Panel */}
             <div style={{
-              position: 'relative', bottom: 0, left: 0, right: 0, height: '140px',
-              background: 'linear-gradient(0deg, rgba(2, 6, 23, 0.98) 0%, rgba(15, 23, 42, 0.9) 70%, transparent 100%)',
-              borderTop: '1.5px solid rgba(56, 189, 248, 0.35)',
+              position: 'relative', bottom: 0, left: 0, right: 0,
               display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-              padding: '0 30px 14px 30px', pointerEvents: 'auto', zIndex: 30
+              padding: '0 24px 10px 24px', pointerEvents: 'auto', zIndex: 30
             }}>
-              {/* Left Control Handle Yoke (Nghiêng theo bàn tay) */}
-              <div style={{
-                transform: `rotate(${steerPos.x * 24}deg) translateY(${steerPos.y * 10}px)`,
-                transition: 'transform 0.08s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center'
-              }}>
-                <svg width="120" height="70" viewBox="0 0 120 70">
-                  {/* Futuristic Yoke Handle Left */}
-                  <path d="M 20 60 L 35 20 L 55 20 L 50 60 Z" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
-                  <circle cx="35" cy="20" r="12" fill="#09131d" stroke="#f59e0b" strokeWidth="2" />
-                  <line x1="10" y1="20" x2="35" y2="20" stroke="#38bdf8" strokeWidth="4" />
-                </svg>
-                <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>TAY LÁI TRÁI</span>
-              </div>
-
-              {/* Center Dashboard Status Gauges */}
-              <div style={{ display: 'flex', gap: '14px', alignItems: 'center', background: 'rgba(9, 19, 29, 0.85)', padding: '6px 16px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>TỐC ĐỘ (WARP)</div>
-                  <div style={{ fontSize: '1rem', color: '#fde047', fontWeight: 900 }}>{pilotSpeed}</div>
-                </div>
-                <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>GÓC NGHIÊNG YAW</div>
-                  <div style={{ fontSize: '1rem', color: '#38bdf8', fontWeight: 900 }}>{(steerPos.x * 45).toFixed(0)}°</div>
-                </div>
-                <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 800 }}>GÓC NGHIÊNG PITCH</div>
-                  <div style={{ fontSize: '1rem', color: '#38bdf8', fontWeight: 900 }}>{(-steerPos.y * 45).toFixed(0)}°</div>
-                </div>
-              </div>
-
-              {/* Right Control Handle Yoke & Compact Integrated Webcam HUD Monitor */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
-                {/* Embedded Webcam AI Tracker Monitor */}
+              
+              {/* Left Dashboard Panel: Seated Pilot Helmet & O2 Gauge */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                 <div style={{
-                  background: 'rgba(9, 19, 29, 0.95)', border: '1.5px solid #f59e0b',
-                  borderRadius: '10px', padding: '4px', boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)'
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  transform: `rotate(${steerPos.x * 8}deg)`, transition: 'transform 0.1s ease-out'
                 }}>
+                  {/* Space Helmet Visor */}
+                  <div style={{
+                    width: '44px', height: '36px', borderRadius: '20px 20px 10px 10px',
+                    background: 'linear-gradient(135deg, #09131d 0%, #1e293b 100%)',
+                    border: '2px solid #38bdf8', boxShadow: '0 0 16px rgba(56, 189, 248, 0.6)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <div style={{
+                      width: '32px', height: '16px', borderRadius: '10px',
+                      background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.9) 0%, rgba(56, 189, 248, 0.9) 100%)',
+                      boxShadow: '0 0 10px #f59e0b'
+                    }} />
+                  </div>
+                  {/* Astronaut Suit Rig */}
+                  <div style={{
+                    width: '84px', height: '22px', borderRadius: '10px 10px 0 0',
+                    background: '#0f172a', border: '1.5px solid #38bdf8', borderBottom: 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '0 4px'
+                  }}>
+                    <span style={{ fontSize: '0.55rem', color: '#2dd4bf', fontWeight: 900 }}>O2: 100%</span>
+                    <span style={{ fontSize: '0.55rem', color: '#fde047', fontWeight: 900 }}>PHI CÔNG</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CENTER HUB: PROMINENT SCI-FI VIRTUAL STEERING WHEEL (VÔ LĂNG ẢO) WITH TOUCH & MOUSE STEERING */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', margin: '0 auto' }}>
+                
+                {/* Steering Guidance Badge */}
+                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🛞 VÔ LĂNG ẢO SCI-FI</span>
+                  <span style={{ fontSize: '0.6rem', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '2px 6px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
+                    RÊ CHUỘT / CẢM ỨNG LÁI
+                  </span>
+                </div>
+
+                {/* THE VIRTUAL STEERING WHEEL (VÔ LĂNG ẢO) SVG GRAPHIC */}
+                <div 
+                  onPointerDown={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const handlePointerMove = (moveEvt) => {
+                      const dx = moveEvt.clientX - centerX;
+                      const dy = moveEvt.clientY - centerY;
+                      const steerX = Math.max(-1.0, Math.min(1.0, dx / (rect.width / 2)));
+                      const steerY = Math.max(-1.0, Math.min(1.0, dy / (rect.height / 2)));
+                      
+                      setSteerPos({ x: steerX, y: steerY });
+                      flightVectorRef.current.yaw += steerX * 0.045;
+                      flightVectorRef.current.pitch += -steerY * 0.035;
+                      if (flightVectorRef.current.speed === 0) {
+                        flightVectorRef.current.speed = 4.5;
+                        setPilotSpeed(4.5);
+                      }
+                      setGestureStatus(`🛞 ĐANG XOAY VÔ LĂNG ẢO: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
+                    };
+                    const handlePointerUp = () => {
+                      window.removeEventListener('pointermove', handlePointerMove);
+                      window.removeEventListener('pointerup', handlePointerUp);
+                    };
+                    window.addEventListener('pointermove', handlePointerMove);
+                    window.addEventListener('pointerup', handlePointerUp);
+                  }}
+                  title="🛞 Xoay Vô Lăng Ảo để bẻ lái phi thuyền sang Trái/Phải & Lên/Xuống"
+                  style={{
+                    width: '180px', height: '115px', position: 'relative', cursor: 'grab',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  {/* Glowing SVG Virtual Steering Wheel */}
+                  <svg 
+                    width="170" height="110" viewBox="0 0 200 130"
+                    style={{
+                      transform: `rotate(${steerPos.x * 45}deg) translateY(${steerPos.y * 6}px)`,
+                      transition: 'transform 0.08s ease-out',
+                      filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.7))'
+                    }}
+                  >
+                    {/* Outer Sci-Fi Wheel Rim */}
+                    <path 
+                      d="M 20 65 A 80 80 0 0 1 180 65 A 80 80 0 0 1 20 65 Z" 
+                      fill="none" stroke="#38bdf8" strokeWidth="8" strokeDasharray="140 18 140 18"
+                    />
+                    <path 
+                      d="M 25 65 A 75 75 0 0 1 175 65 A 75 75 0 0 1 25 65 Z" 
+                      fill="none" stroke="#f59e0b" strokeWidth="2.5"
+                    />
+                    
+                    {/* Left & Right Ergonomic Leather Grip Handles */}
+                    <rect x="12" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+                    <rect x="172" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+
+                    {/* Wheel Center Spokes */}
+                    <line x1="28" y1="65" x2="70" y2="65" stroke="#38bdf8" strokeWidth="6" />
+                    <line x1="172" y1="65" x2="130" y2="65" stroke="#38bdf8" strokeWidth="6" />
+                    <line x1="100" y1="125" x2="100" y2="85" stroke="#38bdf8" strokeWidth="6" />
+
+                    {/* Central Glowing Steering Hub */}
+                    <circle cx="100" cy="65" r="28" fill="#09131d" stroke="#f59e0b" strokeWidth="3.5" />
+                    <circle cx="100" cy="65" r="18" fill="url(#hubGrad)" />
+                    <text x="100" y="69" fill="#ffffff" fontSize="10" fontWeight="900" textAnchor="middle">
+                      {(steerPos.x * 45).toFixed(0)}°
+                    </text>
+
+                    {/* Steering Direction Arrow Hints */}
+                    <path d="M 40 30 L 25 25 L 35 40 Z" fill="#fde047" />
+                    <path d="M 160 30 L 175 25 L 165 40 Z" fill="#fde047" />
+
+                    <defs>
+                      <linearGradient id="hubGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#0284c7" />
+                        <stop offset="100%" stopColor="#0f172a" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+
+                {/* Dashboard Speed & Flight Quick Action Buttons */}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={() => {
+                      flightVectorRef.current.speed = 5.0;
+                      setPilotSpeed(5.0);
+                      setGestureStatus('🚀 BẬT WARP PHI THUYỀN TIẾN THẲNG VỀ PHÍA TRƯỚC (SPEED 5.0)');
+                    }}
+                    style={{
+                      background: pilotSpeed > 0 ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'rgba(15, 23, 42, 0.8)',
+                      color: '#ffffff', border: '1px solid #38bdf8', borderRadius: '8px',
+                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer',
+                      boxShadow: pilotSpeed > 0 ? '0 0 10px rgba(56, 189, 248, 0.6)' : 'none'
+                    }}
+                  >
+                    🚀 TIẾN THẲNG
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      flightVectorRef.current.speed = 0;
+                      setPilotSpeed(0);
+                      setGestureStatus('🛑 PHANH HÃM — PHI THUYỀN DỪNG LẠI TỨC THÌ (SPEED 0)');
+                    }}
+                    style={{
+                      background: pilotSpeed === 0 ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(15, 23, 42, 0.8)',
+                      color: '#ffffff', border: '1px solid #ef4444', borderRadius: '8px',
+                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                    }}
+                  >
+                    🛑 DỪNG
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      flightVectorRef.current.speed = -2.5;
+                      setPilotSpeed(-2.5);
+                      setGestureStatus('◀️ BAY LÙI PHI THUYỀN (SPEED -2.5)');
+                    }}
+                    style={{
+                      background: pilotSpeed < 0 ? 'linear-gradient(135deg, #d97706, #f59e0b)' : 'rgba(15, 23, 42, 0.8)',
+                      color: '#ffffff', border: '1px solid #f59e0b', borderRadius: '8px',
+                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                    }}
+                  >
+                    ◀️ LÙI LẠI
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Dashboard Panel: Embedded Interactive Webcam AI Monitor */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
+                <div 
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const steerX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+                    const steerY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+                    setSteerPos({ x: steerX, y: steerY });
+                    flightVectorRef.current.yaw += steerX * 0.035;
+                    flightVectorRef.current.pitch += -steerY * 0.035;
+                    setGestureStatus(`🖐️ ĐANG LÁI THEO CỬ CHỈ: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
+                  }}
+                  onClick={() => {
+                    flightVectorRef.current.speed = flightVectorRef.current.speed > 0 ? 0 : 5.0;
+                    setPilotSpeed(Number(flightVectorRef.current.speed.toFixed(1)));
+                  }}
+                  title="📷 Webcam AI nhận diện cử chỉ tay (Rê chuột/Chạm để lái thủ công)"
+                  style={{
+                    background: 'rgba(9, 19, 29, 0.95)', border: '1.5px solid #f59e0b',
+                    borderRadius: '10px', padding: '4px', boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
+                    cursor: 'crosshair'
+                  }}
+                >
                   <div style={{ fontSize: '0.58rem', fontWeight: 900, color: '#f59e0b', marginBottom: '2px', textAlign: 'center' }}>
                     📷 WEBCAM BÀN TAY AI
                   </div>
                   <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
-                  <canvas ref={webcamCanvasRef} width={120} height={90} style={{ borderRadius: '6px', background: '#020617', display: 'block' }} />
-                </div>
-
-                {/* Right Yoke Handle */}
-                <div style={{
-                  transform: `rotate(${steerPos.x * 24}deg) translateY(${steerPos.y * 10}px)`,
-                  transition: 'transform 0.08s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center'
-                }}>
-                  <svg width="120" height="70" viewBox="0 0 120 70">
-                    <path d="M 100 60 L 85 20 L 65 20 L 70 60 Z" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
-                    <circle cx="85" cy="20" r="12" fill="#09131d" stroke="#f59e0b" strokeWidth="2" />
-                    <line x1="110" y1="20" x2="85" y2="20" stroke="#38bdf8" strokeWidth="4" />
-                  </svg>
-                  <span style={{ fontSize: '0.62rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>TAY LÁI PHẢI</span>
+                  <canvas ref={webcamCanvasRef} width={110} height={80} style={{ borderRadius: '6px', background: '#020617', display: 'block' }} />
                 </div>
               </div>
             </div>
@@ -6689,7 +6991,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_01':
       case 'geo_6_01':
       case 'geo_solar_system':
-        return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
+        return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_02':
       case 'geo_6_02':
       case 'geo_earth_sun_moon':
@@ -6720,7 +7022,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
 
         if (isGeo) {
           if (title.includes('hành tinh') || title.includes('mặt trời') || title.includes('vũ trụ')) {
-            return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
+            return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('ngày') || title.includes('đêm') || title.includes('trăng') || title.includes('thực')) {
             return <GeoEarthSunMoonSim onLog={addLog} />;
@@ -6740,7 +7042,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           if (title.includes('sông') || title.includes('suối') || title.includes('băng') || title.includes('tuyết')) {
             return <GeoGlacialRiverSim onLog={addLog} />;
           }
-          return <GeoSolarSystemSim experiment={experiment} onLog={addLog} />;
+          return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         return <ChemistryAcidBaseSim config={experiment?.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       }
@@ -6929,8 +7231,8 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           </div>
         </div>
 
-        {/* Right Side: Theory, Steps, & Scientific Explanation (Hidden in Fullscreen or Pilot Mode) */}
-        {!isFullscreen && !isGesturePilot && (
+        {/* Right Side: Theory, Steps, & Scientific Explanation (Hidden in Fullscreen Mode) */}
+        {!isFullscreen && (
           <div style={{
             flex: 1, background: 'rgba(15, 23, 42, 0.85)', borderRadius: '16px',
             border: '1px solid rgba(255, 255, 255, 0.1)', padding: '20px',
