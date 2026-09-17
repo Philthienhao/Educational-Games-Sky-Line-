@@ -29,6 +29,9 @@ const performHardPurgeAndReload = async () => {
       const regs = await navigator.serviceWorker.getRegistrations();
       await Promise.all(regs.map(r => r.unregister()));
     }
+    // Purge corrupted local state keys if present
+    localStorage.removeItem('gvd_base_games');
+    localStorage.removeItem('gvd_saved_games');
   } catch (e) {
     console.warn("Purge caches error:", e);
   }

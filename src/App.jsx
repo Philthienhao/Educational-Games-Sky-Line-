@@ -229,13 +229,23 @@ export function App() {
     'Thử thách phiêu lưu'
   ];
 
-  const filteredBaseGames = baseGames.filter(game => {
+  const filteredBaseGames = (baseGames || []).filter(game => {
+    if (!game || typeof game !== 'object') return false;
+    const gCategory = game.category || '';
+    const gSubject = game.subject || '';
     const matchesCategory = selectedCategory === 'Tất cả' || 
-                            game.category === selectedCategory || 
-                            game.subject === selectedCategory;
-    const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          game.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          (game.tags && game.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase())));
+                            gCategory === selectedCategory || 
+                            gSubject === selectedCategory;
+
+    const sTerm = (searchTerm || '').trim().toLowerCase();
+    const gTitle = String(game.title || game.name || game.lessonTitle || '').toLowerCase();
+    const gDesc = String(game.description || '').toLowerCase();
+    const gTags = Array.isArray(game.tags) ? game.tags : [];
+
+    const matchesSearch = !sTerm || 
+                          gTitle.includes(sTerm) || 
+                          gDesc.includes(sTerm) ||
+                          gTags.some(t => String(t || '').toLowerCase().includes(sTerm));
     return matchesCategory && matchesSearch;
   });
 
