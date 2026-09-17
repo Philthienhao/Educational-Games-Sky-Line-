@@ -47,3 +47,9 @@
 - **QuotaExceeded Storage Safety**: High-capacity image base64 strings MUST be offloaded to `AvatarStorageService` and `IndexedDB` (`GVD_Educational_Games_DB`) before writing to `localStorage`, keeping `localStorage` payloads small and preventing `QuotaExceededError` write failures under browser limits.
 - **Universal JSON Backup Portability**: `StorageService.exportFullBackup()` and `StorageService.importFullBackup()` MUST be maintained across all UI screens so users can export and import a complete 100% system backup anytime.
 - **Universal New Account Protection Inheritance**: All newly created accounts (via `createUser` or Sign up) automatically inherit the 3-tier storage architecture (LocalStorage + IndexedDB + Vercel Serverless `/api/storage`). Once any new account saves homeroom or games, the payload is permanently stored on Vercel Cloud Server and IndexedDB with `isCustomized: true` to prevent any future data loss.
+
+## 11. Supabase Cloud DB & Vercel Cron Keepalive Invariants
+- **Embedded Zero-Config Supabase Anon Key**: The Supabase REST API URL (`https://ebdzuzykdhyczqijxzjn.supabase.co`) and Anon Key MUST remain embedded in `src/services/cloudStorage.js` and `api/storage.js` so all clients and serverless functions can read/write Cloud DB out-of-the-box without manual UI setup.
+- **Vercel Cron Ping Keepalive (`vercel.json`)**: A 3-day cron schedule (`0 0 */3 * *`) targeting `/api/storage?userId=system_keepalive&dataType=ping` MUST remain active in `vercel.json` to guarantee Supabase free-tier DB instances are pinged regularly and NEVER paused due to inactivity.
+- **Timestamp & Customization Preserving Sync**: `syncAllUserDataFromCloud` MUST strictly compare ISO `updatedAt` timestamps and `isCustomized: true` flags before applying cloud payloads to local storage, ensuring newer local edits are never overwritten by older cloud snapshots.
+

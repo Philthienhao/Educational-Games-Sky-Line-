@@ -62,4 +62,10 @@
 ## 10. React Inline Style Object Syntax Safety
 - **Strict Property Colon Invariant**: In JSX inline `style={{ ... }}` objects, ALWAYS verify property syntax (e.g., `fontWeight: 900`, `fontSize: '1rem'`). Never omit colons between CSS property keys and values.
 
+## 11. Supabase Cloud DB & Vercel Cron Keepalive Invariants
+- **Embedded Zero-Config Supabase Anon Key**: The Supabase REST API URL (`https://ebdzuzykdhyczqijxzjn.supabase.co`) and Anon Key MUST remain embedded in `src/services/cloudStorage.js` and `api/storage.js` so all clients and serverless functions can read/write Cloud DB out-of-the-box without manual UI setup.
+- **Vercel Cron Ping Keepalive (`vercel.json`)**: A 3-day cron schedule (`0 0 */3 * *`) targeting `/api/storage?userId=system_keepalive&dataType=ping` MUST remain active in `vercel.json` to guarantee Supabase free-tier DB instances are pinged regularly and NEVER paused due to inactivity.
+- **Timestamp & Customization Preserving Sync**: `syncAllUserDataFromCloud` MUST strictly compare ISO `updatedAt` timestamps and `isCustomized: true` flags before applying cloud payloads to local storage, ensuring newer local edits are never overwritten by older cloud snapshots.
+
+
 
