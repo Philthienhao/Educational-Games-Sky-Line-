@@ -558,12 +558,12 @@ const INITIAL_BASE_GAMES = [
   },
   {
     id: 'astronaut-quiz',
-    title: 'Phi Hành Gia May Mắn — Thám Hiểm Vũ Trụ',
-    subtitle: 'Tên Lửa Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
+    title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
+    subtitle: 'Lái Phi Thuyền Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
     category: 'Tương tác & Quay số',
-    icon: '🧑‍🚀',
+    icon: '🚀',
     gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
-    description: 'Giao diện không gian huyền ảo. Đếm ngược 5s kịch tính, tên lửa vũ trụ rực rỡ sẽ cất cánh và hạ cánh ngẫu nhiên xuống hành tinh gắn tên 1 học sinh may mắn!',
+    description: 'Trò chơi lái phi thuyền vũ trụ không gian huyền ảo. Đếm ngược 5s kịch tính, tên lửa rực rỡ cất cánh và hạ cánh ngẫu nhiên xuống hành tinh gắn tên 1 học sinh may mắn!',
     engineType: 'astronaut-explorer',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
@@ -621,6 +621,20 @@ const INITIAL_BASE_GAMES = [
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_astronaut',
+    userId: 'user_admin',
+    baseGameId: 'astronaut-quiz',
+    title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
+    lessonTitle: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
+    icon: '🚀',
+    engineType: 'astronaut-explorer',
+    description: 'Trò chơi lái phi thuyền thám hiểm vũ trụ không gian. Đếm ngược 5s kịch tính, tên lửa rực rỡ cất cánh và hạ cánh ngẫu nhiên chọn học sinh may mắn!',
+    questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_mario',
     userId: 'user_admin',

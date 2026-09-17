@@ -147,6 +147,7 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}
             >
               <option value="mario-race">🍄 Mario Phiêu Lưu Tri Thức (Super Mario Race)</option>
+              <option value="astronaut-explorer">🚀 Phi Hành Gia Lái Phi Thuyền (Astronaut Explorer)</option>
               <option value="tower-builder">🏗️ Kiến Trúc Sư Tri Thức (Tower Builder Quiz)</option>
               <option value="pose-imitation">🏃‍♂️ Bắt chước nhanh - Cơ hội lớn (Pose Camera Quiz)</option>
               <option value="head-tilt">👤 Nghiêng Đầu Chuẩn - Đáp Án Đúng (Head Tilt Camera Quiz)</option>
@@ -163,6 +164,10 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               <option value="flying-words">✈️ Từ Ngữ Biết Bay (Flying Words Builder)</option>
               <option value="matching-pairs">🔗 Kéo Thả Nối Ý (Drag & Match Pairs)</option>
               <option value="duck-race">🦆 Đua Vịt Tri Thức (Duck Race)</option>
+              <option value="turtle-race">🐢 Đua Rùa Tri Thức (Turtle Race)</option>
+              <option value="claw-machine">🧸 Gắp Thú Gọi Tên (Claw Machine)</option>
+              <option value="magic-hat">🎩 Chiếc Mũ Ma Thuật (Magic Hat)</option>
+              <option value="magic-grimoire">📜 Cổ Thư Triệu Hồi (Magic Grimoire)</option>
               <option value="jeopardy">🟨 Đấu Trí Jeopardy (Jeopardy Board Matrix)</option>
             </select>
           </div>

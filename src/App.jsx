@@ -187,12 +187,6 @@ export function App() {
   ];
 
   const filteredBaseGames = baseGames.filter(game => {
-    // Exclude 'Gọi Tên Học Sinh' race/picker games from the general Educational Game Catalog
-    const pickerTypes = ['duck-race', 'turtle-race', 'claw-machine', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'];
-    const pickerIds = ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'];
-    if (pickerTypes.includes(game.engineType) || pickerIds.includes(game.id)) {
-      return false;
-    }
     const matchesCategory = selectedCategory === 'Tất cả' || 
                             game.category === selectedCategory || 
                             game.subject === selectedCategory;
