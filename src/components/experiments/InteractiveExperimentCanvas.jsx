@@ -3107,20 +3107,22 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
             const canvasCtx = webcamCanvasRef.current?.getContext('2d');
             const handCount = (results.multiHandLandmarks && Array.isArray(results.multiHandLandmarks)) ? results.multiHandLandmarks.length : 0;
 
-            // RULE 1: 0 Hands Detected -> STOP (Buông 2 tay = Dừng lại)
-            if (handCount === 0) {
+            // RULE 1: Hand Removal or Release (< 2 Hands) -> STOP / HOVER IN PLACE (Dừng hẳn hoặc lơ lửng tại chỗ)
+            if (handCount < 2) {
               flightVectorRef.current.speed = 0;
               setPilotSpeed(0);
               setSteerPos({ x: 0, y: 0 });
-              setCurrentGesture('NO_HANDS_STOP');
-              setGestureStatus('🛑 BUÔNG 2 TAY — PHI THUYỀN DỪNG LẠI TỨC THÌ (SPEED 0)');
-              return;
-            }
+              setCurrentGesture('STOP_HOVER');
+              setGestureStatus(
+                handCount === 0
+                  ? '🛑 DỪNG LẠI / LƠ LỬNG — BUÔNG 2 TAY KHỎI VÔ LĂNG (SPEED 0)'
+                  : '🛑 DỪNG LẠI / LƠ LỬNG — BỎ 1 TAY KHỎI VÔ LĂNG (SPEED 0)'
+              );
 
-            // Draw hand skeleton points on canvas
-            if (canvasCtx && webcamCanvasRef.current) {
-              results.multiHandLandmarks.forEach((landmarks, idx) => {
-                canvasCtx.fillStyle = idx === 0 ? '#00f2fe' : '#f59e0b';
+              // Draw single hand skeleton points on webcam canvas overlay if 1 hand present
+              if (canvasCtx && webcamCanvasRef.current && handCount === 1) {
+                const landmarks = results.multiHandLandmarks[0];
+                canvasCtx.fillStyle = '#f59e0b';
                 canvasCtx.strokeStyle = '#ffffff';
                 canvasCtx.lineWidth = 1.5;
                 landmarks.forEach((pt) => {
@@ -3130,29 +3132,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                   canvasCtx.arc(x, y, 2.5, 0, Math.PI * 2);
                   canvasCtx.fill();
                 });
-              });
-            }
-
-            // RULE 2: 1 Hand Detected -> REVERSE (Lái 1 tay = Đi lui lại)
-            if (handCount === 1) {
-              const h1 = results.multiHandLandmarks[0];
-              const centerX = (h1[0].x + h1[9].x) / 2;
-              const centerY = (h1[0].y + h1[9].y) / 2;
-              const steerX = (0.5 - centerX) * 2.2;
-              const steerY = (centerY - 0.5) * 2.2;
-
-              flightVectorRef.current.speed = -2.5; // Reverse move backward
-              flightVectorRef.current.yaw += steerX * 0.035;
-              flightVectorRef.current.pitch += -steerY * 0.035;
-
-              setSteerPos({ x: steerX, y: steerY });
-              setPilotSpeed(-2.5);
-              setCurrentGesture('ONE_HAND_REVERSE');
-              setGestureStatus('◀️ LÁI 1 TAY — PHI THUYỀN ĐANG ĐI LUI LẠI (REVERSE)');
+              }
               return;
             }
 
-            // RULE 3 & 4: 2 Hands Detected -> FORWARD & VIRTUAL STEERING WHEEL ROTATION
+            // RULE 2: Both Hands Holding Steering Wheel (>= 2 Hands) -> CONTINUOUS FORWARD & DYNAMIC STEERING
             if (handCount >= 2) {
               const hA = results.multiHandLandmarks[0];
               const hB = results.multiHandLandmarks[1];
@@ -3171,10 +3155,23 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               const dy = yRight - yLeft;
               const angleDeg = Math.atan2(dy, dx) * (180 / Math.PI);
 
-              // Draw Glowing Steering Wheel Connecting Line on Webcam Canvas
+              // Draw Glowing Steering Wheel Line & Hand Skeleton Overlay
               if (canvasCtx && webcamCanvasRef.current) {
+                results.multiHandLandmarks.forEach((landmarks, idx) => {
+                  canvasCtx.fillStyle = idx === 0 ? '#00f2fe' : '#f59e0b';
+                  canvasCtx.strokeStyle = '#ffffff';
+                  canvasCtx.lineWidth = 1.5;
+                  landmarks.forEach((pt) => {
+                    const x = (1 - pt.x) * webcamCanvasRef.current.width;
+                    const y = pt.y * webcamCanvasRef.current.height;
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(x, y, 2.5, 0, Math.PI * 2);
+                    canvasCtx.fill();
+                  });
+                });
+
                 canvasCtx.strokeStyle = '#f59e0b';
-                canvasCtx.lineWidth = 3;
+                canvasCtx.lineWidth = 3.5;
                 canvasCtx.beginPath();
                 canvasCtx.moveTo(xLeft, yLeft);
                 canvasCtx.lineTo(xRight, yRight);
@@ -3189,29 +3186,29 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 canvasCtx.fill();
               }
 
-              // 2 Hands = Forward Motion Speed
+              // Both Hands on Wheel -> Continuous Forward Movement Speed
               flightVectorRef.current.speed = 5.0;
               setPilotSpeed(5.0);
 
               // Steering Wheel Rotation Mapping:
-              // angleDeg > 12° -> Turning Left (Xoay Vô Lăng Trái)
-              // angleDeg < -12° -> Turning Right (Xoay Vô Lăng Phải)
-              if (angleDeg > 12) {
-                const steerX = -Math.min(1.0, (angleDeg - 12) / 30);
+              // angleDeg > 10° -> Turning Left (Xoay Vô Lăng Trái -> Rẽ Trái)
+              // angleDeg < -10° -> Turning Right (Xoay Vô Lăng Phải -> Rẽ Phải)
+              if (angleDeg > 10) {
+                const steerX = -Math.min(1.0, (angleDeg - 10) / 30);
                 flightVectorRef.current.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
                 setCurrentGesture('STEER_LEFT');
-                setGestureStatus('🛞 2 TAY XOAY VÔ LĂNG TRÁI — PHI THUYỀN LỆCH BÊN TRÁI ◄');
-              } else if (angleDeg < -12) {
-                const steerX = Math.min(1.0, (-12 - angleDeg) / 30);
+                setGestureStatus('◄ RẼ TRÁI — TÀU VŨ TRỤ NGHIÊNG SANG TRÁI (TIẾN VỀ PHÍA TRƯỚC)');
+              } else if (angleDeg < -10) {
+                const steerX = Math.min(1.0, (-10 - angleDeg) / 30);
                 flightVectorRef.current.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
                 setCurrentGesture('STEER_RIGHT');
-                setGestureStatus('🛞 2 TAY XOAY VÔ LĂNG PHẢI — PHI THUYỀN LỆCH BÊN PHẢI ►');
+                setGestureStatus('► RẼ PHẢI — TÀU VŨ TRỤ NGHIÊNG SANG PHẢI (TIẾN VỀ PHÍA TRƯỚC)');
               } else {
                 setSteerPos({ x: 0, y: 0 });
-                setCurrentGesture('STEER_FORWARD');
-                setGestureStatus('🚀 2 TAY LÁI VÔ LĂNG THẲNG — PHI THUYỀN TIẾN THẲNG VỀ PHÍA TRƯỚC ▲');
+                setCurrentGesture('FORWARD');
+                setGestureStatus('🚀 TIẾN VỀ PHÍA TRƯỚC — ĐANG LÁI VÔ LĂNG THẲNG');
               }
             }
           });
