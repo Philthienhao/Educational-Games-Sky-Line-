@@ -15,5 +15,11 @@
       "source": "/((?!assets/|textbooks/|textbook_texts/|.*\\.(?:pdf|txt|png|jpg|jpeg|svg|ico|js|css|json)$).*)",
       "destination": "/index.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/storage?userId=system_keepalive&dataType=ping",
+      "schedule": "0 0 */3 * *"
+    }
   ]
 }
