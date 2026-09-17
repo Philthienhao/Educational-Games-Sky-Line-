@@ -10,7 +10,7 @@ const KV_SERVERS = [
 ];
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || 'https://ebdzuzykdhyczqijxzjn.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.REACT_APP_SUPABASE_KEY || '';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.REACT_APP_SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViZHp1enlrZGh5Y3pxaWp4empuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDY0MjYsImV4cCI6MjEwNDQyMjQyNn0.eWSpAG14uwGsX2OOd2IdM4dSFl-DSotE9DQaRnz7kQs';
 
 export default async function handler(req, res) {
   // CORS Headers

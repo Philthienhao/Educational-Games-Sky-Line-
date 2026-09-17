@@ -12,6 +12,7 @@ const KV_ENDPOINTS = [
 
 // System Default Central Supabase Cloud DB Configuration
 const SYSTEM_DEFAULT_SUPABASE_URL = 'https://ebdzuzykdhyczqijxzjn.supabase.co';
+const SYSTEM_DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViZHp1enlrZGh5Y3pxaWp4empuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDY0MjYsImV4cCI6MjEwNDQyMjQyNn0.eWSpAG14uwGsX2OOd2IdM4dSFl-DSotE9DQaRnz7kQs';
 
 const getSupabaseCredentials = () => {
   let url = '';
@@ -19,15 +20,16 @@ const getSupabaseCredentials = () => {
 
   if (typeof window !== 'undefined') {
     url = window.__SKYLINE_SUPABASE_URL__ || localStorage.getItem('skyline_supabase_url') || SYSTEM_DEFAULT_SUPABASE_URL;
-    key = window.__SKYLINE_SUPABASE_KEY__ || localStorage.getItem('skyline_supabase_key') || '';
+    key = window.__SKYLINE_SUPABASE_KEY__ || localStorage.getItem('skyline_supabase_key') || SYSTEM_DEFAULT_SUPABASE_KEY;
   }
 
   if (!url && typeof process !== 'undefined' && process.env) {
     url = process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL || SYSTEM_DEFAULT_SUPABASE_URL;
-    key = process.env.REACT_APP_SUPABASE_KEY || process.env.SUPABASE_KEY || '';
+    key = process.env.REACT_APP_SUPABASE_KEY || process.env.SUPABASE_KEY || SYSTEM_DEFAULT_SUPABASE_KEY;
   }
 
   if (!url) url = SYSTEM_DEFAULT_SUPABASE_URL;
+  if (!key) key = SYSTEM_DEFAULT_SUPABASE_KEY;
 
   // Asynchronously restore from IDB if missing in LocalStorage
   if (!key && typeof window !== 'undefined') {
