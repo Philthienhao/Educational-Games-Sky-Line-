@@ -2923,6 +2923,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const isAutopilotRef = useRef(isAutopilot);
   const isXRayModeRef = useRef(isXRayMode);
 
+  const cameraRef = useRef(null);
   // Flight vectors
   const flightVectorRef = useRef({ yaw: 0, pitch: 0, speed: 0, posX: -25, posY: 140, posZ: 245 });
 
@@ -3318,6 +3319,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     // 2. Camera setup (Sun on left, planets radiating to right matching reference image)
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 3000);
     camera.position.set(-25, 140, 245);
+    cameraRef.current = camera;
 
     // 3. Renderer setup
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -3565,41 +3567,6 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         }
       });
 
-      // Camera Lerp Space Travel Physics
-      const selKey = selectedPlanetKeyRef.current;
-      if (selKey) {
-        let targetWorldPos = new THREE.Vector3();
-        let radius = 10;
-
-        if (selKey === 'sun') {
-          targetWorldPos.set(0, 0, 0);
-          radius = SOLAR_PLANETS_CONFIG.sun.radius;
-        } else if (planetGroups[selKey]) {
-          planetGroups[selKey].getWorldPosition(targetWorldPos);
-          radius = SOLAR_PLANETS_CONFIG[selKey].radius;
-        }
-
-        const desiredCamPos = targetWorldPos.clone().add(new THREE.Vector3(radius * 3.5, radius * 1.8, radius * 3.5));
-        controls.target.lerp(targetWorldPos, 0.08);
-        camera.position.lerp(desiredCamPos, 0.08);
-
-        // Project Badge position to 2D Screen
-        const proj = targetWorldPos.clone().project(camera);
-        const sx = (proj.x * 0.5 + 0.5) * width;
-        const sy = (-proj.y * 0.5 + 0.5) * height;
-        if (proj.z < 1) {
-          setBadgePos({ x: sx, y: sy });
-        } else {
-          setBadgePos(null);
-        }
-      } else {
-        const defaultTarget = new THREE.Vector3(0, 0, 0);
-        const defaultCamPos = new THREE.Vector3(0, 130, 260);
-        controls.target.lerp(defaultTarget, 0.05);
-        camera.position.lerp(defaultCamPos, 0.05);
-        setBadgePos(null);
-      }
-
       // AI Hand Gesture Spaceship Flight & Dynamic Core Cutaway Visibility
       if (isGesturePilotRef.current) {
         controls.enabled = false;
@@ -3623,7 +3590,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           const targetRadius = SOLAR_PLANETS_CONFIG[selPKey]?.radius || 12;
 
           if (distToTarget > targetRadius * 3.2) {
-            const targetYaw = Math.atan2(dx, dz);
+            const targetYaw = Math.atan2(dx, -dz);
             const targetPitch = Math.atan2(dy, Math.hypot(dx, dz));
 
             let yawDiff = targetYaw - fv.yaw;
@@ -3635,7 +3602,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
         const forwardX = Math.sin(fv.yaw) * Math.cos(fv.pitch);
         const forwardY = Math.sin(fv.pitch);
-        const forwardZ = Math.cos(fv.yaw) * Math.cos(fv.pitch);
+        const forwardZ = -Math.cos(fv.yaw) * Math.cos(fv.pitch);
 
         fv.posX += forwardX * fv.speed;
         fv.posY += forwardY * fv.speed;
@@ -3678,9 +3645,45 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         });
       } else {
         controls.enabled = true;
+
+        // Camera Lerp Space Travel Physics ONLY when Orbit Controls active
+        const selKey = selectedPlanetKeyRef.current;
+        if (selKey) {
+          let targetWorldPos = new THREE.Vector3();
+          let radius = 10;
+
+          if (selKey === 'sun') {
+            targetWorldPos.set(0, 0, 0);
+            radius = SOLAR_PLANETS_CONFIG.sun.radius;
+          } else if (planetGroups[selKey]) {
+            planetGroups[selKey].getWorldPosition(targetWorldPos);
+            radius = SOLAR_PLANETS_CONFIG[selKey].radius;
+          }
+
+          const desiredCamPos = targetWorldPos.clone().add(new THREE.Vector3(radius * 3.5, radius * 1.8, radius * 3.5));
+          controls.target.lerp(targetWorldPos, 0.08);
+          camera.position.lerp(desiredCamPos, 0.08);
+
+          // Project Badge position to 2D Screen
+          const proj = targetWorldPos.clone().project(camera);
+          const sx = (proj.x * 0.5 + 0.5) * width;
+          const sy = (-proj.y * 0.5 + 0.5) * height;
+          if (proj.z < 1) {
+            setBadgePos({ x: sx, y: sy });
+          } else {
+            setBadgePos(null);
+          }
+        } else {
+          const defaultTarget = new THREE.Vector3(0, 0, 0);
+          const defaultCamPos = new THREE.Vector3(0, 130, 260);
+          controls.target.lerp(defaultTarget, 0.05);
+          camera.position.lerp(defaultCamPos, 0.05);
+          setBadgePos(null);
+        }
+
+        controls.update();
       }
 
-      controls.update();
       renderer.render(scene, camera);
     };
 
@@ -3785,6 +3788,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           <button
             onClick={() => {
               const nextState = !isGesturePilot;
+              if (nextState && cameraRef.current) {
+                const cPos = cameraRef.current.position;
+                flightVectorRef.current.posX = cPos.x;
+                flightVectorRef.current.posY = cPos.y;
+                flightVectorRef.current.posZ = cPos.z;
+                flightVectorRef.current.speed = 0;
+              }
               setIsGesturePilot(nextState);
               if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Vũ trụ 3D (Bàn phím WASD & Cử chỉ tay AI).' : 'Tắt Chế độ Lái Phi thuyền.');
             }}
@@ -4300,6 +4310,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           <button
             onClick={() => {
               const nextState = !isGesturePilot;
+              if (nextState && cameraRef.current) {
+                const cPos = cameraRef.current.position;
+                flightVectorRef.current.posX = cPos.x;
+                flightVectorRef.current.posY = cPos.y;
+                flightVectorRef.current.posZ = cPos.z;
+                flightVectorRef.current.speed = 0;
+              }
               setIsGesturePilot(nextState);
               if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Cử chỉ tay AI MediaPipe.' : 'Tắt Chế độ Lái Phi thuyền.');
             }}
