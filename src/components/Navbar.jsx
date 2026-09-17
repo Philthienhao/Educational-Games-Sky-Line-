@@ -160,6 +160,25 @@ export function Navbar({
               Slide Bài Giảng
             </button>
 
+            <button 
+              className={`btn ${activeTab === 'geo-experiments' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('geo-experiments')}
+              style={{ background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(245, 158, 11, 0.15)', color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 900 }}
+            >
+              <Sparkles size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#fde047'} />
+              🌐 Mô Hình 3D Địa Lý
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'virtual-lab' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('virtual-lab')}
+              style={{ background: activeTab === 'virtual-lab' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(13, 148, 136, 0.15)', color: activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', fontWeight: 900 }}
+            >
+              <Sparkles size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
+              🧪 Thí Nghiệm KHTN
+            </button>
+
+
             {currentUser?.role === 'admin' && (
               <>
                 <button 

@@ -19,7 +19,7 @@ import {
 import { ExperimentService } from '../services/experimentService';
 import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
 
-export function VirtualLabManager({ currentUser }) {
+export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
   const [experiments, setExperiments] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [selectedSubject, setSelectedSubject] = useState('all');
@@ -177,9 +177,13 @@ export function VirtualLabManager({ currentUser }) {
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => {
-                setSelectedSubject('Địa lí');
-                setSelectedGrade('6');
-                setSearchTerm('');
+                if (onOpenGeoExperiments) {
+                  onOpenGeoExperiments();
+                } else {
+                  setSelectedSubject('Địa lí');
+                  setSelectedGrade('6');
+                  setSearchTerm('');
+                }
               }}
               style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
@@ -198,6 +202,7 @@ export function VirtualLabManager({ currentUser }) {
             >
               <Sparkles size={18} color="#ffffff" /> 🌍 Mô hình 3D Địa Lí
             </button>
+
 
             <button 
               onClick={() => setActiveExperiment({

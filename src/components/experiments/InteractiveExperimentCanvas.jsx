@@ -2933,11 +2933,85 @@ function GeoSolarSystemSim({ onLog }) {
     isXRayModeRef.current = isXRayMode;
   }, [isXRayMode]);
 
+  // Keyboard Piloting Engine (WASD, Arrows, Space, Shift, X)
+  useEffect(() => {
+    if (!isGesturePilot) return;
+
+    const pressedKeys = {};
+
+    const handleKeyDown = (e) => {
+      pressedKeys[e.code] = true;
+      pressedKeys[e.key?.toLowerCase()] = true;
+
+      if (e.key?.toLowerCase() === 'x') {
+        setIsXRayMode(prev => !prev);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      pressedKeys[e.code] = false;
+      pressedKeys[e.key?.toLowerCase()] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    const keyLoop = setInterval(() => {
+      if (!isGesturePilotRef.current) return;
+      const fv = flightVectorRef.current;
+      let moved = false;
+      let steerX = 0;
+      let steerY = 0;
+
+      if (pressedKeys['KeyW'] || pressedKeys['ArrowUp'] || pressedKeys['w']) {
+        fv.pitch -= 0.035;
+        steerY = -0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyS'] || pressedKeys['ArrowDown'] || pressedKeys['s']) {
+        fv.pitch += 0.035;
+        steerY = 0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyA'] || pressedKeys['ArrowLeft'] || pressedKeys['a']) {
+        fv.yaw -= 0.04;
+        steerX = -0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyD'] || pressedKeys['ArrowRight'] || pressedKeys['d']) {
+        fv.yaw += 0.04;
+        steerX = 0.7;
+        moved = true;
+      }
+      if (pressedKeys['Space'] || pressedKeys[' ']) {
+        fv.speed = Math.min(fv.speed + 0.45, 9.0);
+        moved = true;
+      }
+      if (pressedKeys['ShiftLeft'] || pressedKeys['ShiftRight'] || pressedKeys['shift']) {
+        fv.speed = Math.max(fv.speed - 0.5, 0);
+        moved = true;
+      }
+
+      if (moved) {
+        setSteerPos({ x: steerX, y: steerY });
+        setPilotSpeed(Number(fv.speed.toFixed(1)));
+        setGestureStatus(`🎮 ĐANG LÁI: Phím W/A/S/D / Mũi tên | Space: Tăng tốc | Shift: Phanh | X: Xem lõi`);
+      }
+    }, 30);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      clearInterval(keyLoop);
+    };
+  }, [isGesturePilot]);
+
   // Dynamically load MediaPipe Hands AI scripts
   useEffect(() => {
     if (!isGesturePilot) return;
 
     let cameraUtilsScript = document.querySelector('script[src*="camera_utils"]');
+
     let handsScript = document.querySelector('script[src*="hands.js"]');
     let isCancelled = false;
 
@@ -3501,16 +3575,44 @@ function GeoSolarSystemSim({ onLog }) {
         }}
       >
         {/* Top-Left Title HUD Header */}
-        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 10, pointerEvents: 'none' }}>
-          <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-            THREE.JS · INTERACTIVE EXPERIENCE
+        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+              THREE.JS · INTERACTIVE EXPERIENCE
+            </div>
+            <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
+              HỆ MẶT TRỜI
+            </h2>
+            <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '3px' }}>
+              Mô hình 3D tương tác — tám hành tinh quanh một ngôi sao
+            </div>
           </div>
-          <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
-            HỆ MẶT TRỜI
-          </h2>
-          <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '3px' }}>
-            Mô hình 3D tương tác — tám hành tinh quanh một ngôi sao
-          </div>
+
+          <button
+            onClick={() => {
+              const nextState = !isGesturePilot;
+              setIsGesturePilot(nextState);
+              if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Vũ trụ 3D (Bàn phím WASD & Cử chỉ tay AI).' : 'Tắt Chế độ Lái Phi thuyền.');
+            }}
+            style={{
+              background: isGesturePilot ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+              color: '#ffffff',
+              border: '2px solid #fde047',
+              borderRadius: '14px',
+              padding: '10px 18px',
+              fontWeight: 900,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: isGesturePilot ? '0 0 20px rgba(239, 68, 68, 0.8)' : '0 0 20px rgba(245, 158, 11, 0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              pointerEvents: 'auto',
+              transition: 'all 0.25s ease'
+            }}
+          >
+            {isGesturePilot ? '🛸 THOÁT PHI THUYỀN LÁI' : '🛸 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D'}
+          </button>
         </div>
 
         {/* Floating 3D Planet Target Screen Badge */}

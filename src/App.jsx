@@ -415,8 +415,9 @@ export function App() {
 
         {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
         {activeTab === 'virtual-lab' && (
-          <VirtualLabManager currentUser={currentUser} />
+          <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
         )}
+
 
         {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
         {activeTab === 'geo-experiments' && (
