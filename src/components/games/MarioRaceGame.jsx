@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
   RotateCcw, Trophy, Award, Sparkles, CheckCircle2, XCircle, Shield, Zap,
-  Edit3, Check
+  Edit3, Check, Users
 } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
@@ -313,7 +313,18 @@ const POWER_ITEMS = [
   { id: 'coin', name: 'Đồng Xu Tri Thức', icon: '💰', desc: 'Tiến +1 bước & Thưởng 20 điểm!' },
 ];
 
-export function MarioRaceGame({ game, onClose, currentUser }) {
+const ALL_MARIO_TEAMS = [
+  { id: 1, name: 'Mario Đỏ', color: '#ef4444', step: 0, score: 0, isStunned: false },
+  { id: 2, name: 'Mario Xanh Dương', color: '#3b82f6', step: 0, score: 0, isStunned: false },
+  { id: 3, name: 'Mario Xanh Lá', color: '#10b981', step: 0, score: 0, isStunned: false },
+  { id: 4, name: 'Mario Vàng', color: '#f59e0b', step: 0, score: 0, isStunned: false },
+  { id: 5, name: 'Mario Tím', color: '#8b5cf6', step: 0, score: 0, isStunned: false },
+  { id: 6, name: 'Mario Cam', color: '#f97316', step: 0, score: 0, isStunned: false },
+  { id: 7, name: 'Mario Hồng', color: '#ec4899', step: 0, score: 0, isStunned: false },
+  { id: 8, name: 'Mario Xám', color: '#64748b', step: 0, score: 0, isStunned: false },
+];
+
+export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, setTeams: propSetTeams }) {
   const questions = (game && game.questions && game.questions.length > 0) 
     ? game.questions 
     : (game && game.defaultQuestions && game.defaultQuestions.length > 0)
@@ -324,13 +335,44 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Teams setup: 4 Mario teams with different colors
-  const [teams, setTeams] = useState([
-    { id: 1, name: 'Mario Đỏ', color: '#ef4444', step: 0, score: 0, isStunned: false },
-    { id: 2, name: 'Mario Xanh Dương', color: '#3b82f6', step: 0, score: 0, isStunned: false },
-    { id: 3, name: 'Mario Xanh Lá', color: '#10b981', step: 0, score: 0, isStunned: false },
-    { id: 4, name: 'Mario Vàng', color: '#f59e0b', step: 0, score: 0, isStunned: false },
-  ]);
+  // Teams setup: Dynamic Mario teams count (2 to 8 teams)
+  const [teams, setTeams] = useState(() => {
+    if (propTeams && Array.isArray(propTeams) && propTeams.length >= 2) {
+      return propTeams.map((pt, idx) => ({
+        id: pt.id || idx + 1,
+        name: pt.name || `Mario Đội ${idx + 1}`,
+        color: pt.color || ALL_MARIO_TEAMS[idx % ALL_MARIO_TEAMS.length].color,
+        step: 0,
+        score: pt.score || 0,
+        isStunned: false
+      }));
+    }
+    return ALL_MARIO_TEAMS.slice(0, 4);
+  });
+
+  const handleTeamCountChange = (newCount) => {
+    const count = Math.max(2, Math.min(8, newCount));
+    setTeams((prev) => {
+      let updated = [];
+      for (let i = 0; i < count; i++) {
+        if (prev[i]) {
+          updated.push(prev[i]);
+        } else {
+          const tpl = ALL_MARIO_TEAMS[i] || {
+            id: i + 1,
+            name: `Mario Đội ${i + 1}`,
+            color: '#64748b',
+            step: 0,
+            score: 0,
+            isStunned: false
+          };
+          updated.push({ ...tpl, step: 0, score: 0, isStunned: false });
+        }
+      }
+      return updated;
+    });
+    setCurrentTurnIdx((prev) => prev % count);
+  };
 
   // Editable team names state
   const [editingTeamId, setEditingTeamId] = useState(null);
@@ -752,7 +794,7 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
         </div>
       </div>
 
-      {/* 2. SUB-HEADER BAR - POWER-UP ITEMS SHOWCASE & ACTION */}
+      {/* 2. SUB-HEADER BAR - POWER-UP ITEMS SHOWCASE, TEAM COUNT CONFIG & ACTION */}
       <div style={{
         padding: '8px 20px',
         background: 'rgba(255, 255, 255, 0.45)',
@@ -762,8 +804,51 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '16px',
-        zIndex: 90
+        zIndex: 90,
+        flexWrap: 'wrap'
       }}>
+        {/* Team Count Selector Control */}
+        <div style={{
+          background: 'rgba(15, 23, 42, 0.88)',
+          padding: '6px 14px',
+          borderRadius: '14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '5px', textTransform: 'uppercase' }}>
+            <Users size={15} color="#fbbf24" /> SỐ ĐỘI MARIO:
+          </span>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {[2, 3, 4, 5, 6, 7, 8].map((num) => {
+              const isSelected = teams.length === num;
+              return (
+                <button
+                  key={num}
+                  onClick={() => handleTeamCountChange(num)}
+                  style={{
+                    background: isSelected ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'rgba(255,255,255,0.12)',
+                    color: isSelected ? '#ffffff' : '#cbd5e1',
+                    border: isSelected ? '1.5px solid #fbbf24' : '1px solid rgba(255,255,255,0.15)',
+                    borderRadius: '8px',
+                    padding: '4px 10px',
+                    fontSize: '0.82rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    boxShadow: isSelected ? '0 0 10px rgba(245, 158, 11, 0.5)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                  title={`Chuyển sang ${num} đội Mario`}
+                >
+                  {num} Đội
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Power-up Showcase */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.85)',
@@ -821,7 +906,7 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
             animation: 'pulseTurnBtn 1.5s infinite'
           }}
         >
-          <span>❓ TRẢ LỜI CÂU HỎI MARIO ({teams[currentTurnIdx].name})</span>
+          <span>❓ TRẢ LỜI CÂU HỎI MARIO ({teams[currentTurnIdx]?.name || 'Mario'})</span>
         </button>
       </div>
 
@@ -832,7 +917,7 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-around',
-        padding: '20px 40px 60px 40px',
+        padding: '16px 40px 50px 40px',
         overflow: 'hidden'
       }}>
         {/* Background Clouds & Hills */}
@@ -844,13 +929,14 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
           const isTurn = idx === currentTurnIdx;
           const isJumping = activeJumpingTeamId === team.id;
           const leftPercent = Math.min(85, (team.step / TOTAL_STEPS) * 82);
+          const laneHeight = teams.length > 5 ? '72px' : teams.length > 4 ? '80px' : '92px';
 
           return (
             <div 
               key={team.id}
               style={{
                 position: 'relative',
-                height: '92px',
+                height: laneHeight,
                 background: isTurn ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.18)',
                 borderRadius: '16px',
                 border: isTurn ? `2.5px solid ${team.color}` : '1px stroke rgba(255,255,255,0.2)',
@@ -987,105 +1073,150 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
         }} />
       </div>
 
-      {/* 4. QUESTION POPUP MODAL */}
+      {/* 4. FULL-SCREEN HIGH-VISIBILITY QUESTION POPUP MODAL */}
       {activeQuestion && (
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(10px)',
+          background: 'rgba(11, 15, 25, 0.92)',
+          backdropFilter: 'blur(16px)',
           zIndex: 2000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px'
+          padding: '24px'
         }}>
           <div style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            maxWidth: '680px',
-            width: '100%',
-            padding: '32px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-            border: '4px solid #f59e0b',
+            background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+            borderRadius: '32px',
+            maxWidth: '1440px',
+            width: '96vw',
+            maxHeight: '93vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '36px 44px',
+            boxShadow: '0 30px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(245, 158, 11, 0.35)',
+            border: '6px solid #f59e0b',
             animation: 'modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            position: 'relative'
+            position: 'relative',
+            overflowY: 'auto'
           }}>
-            {/* Question Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Header: Turn Info + Question Badge + Giant Timer */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <span style={{
-                  background: teams[currentTurnIdx].color,
-                  color: '#fff',
+                  background: teams[currentTurnIdx]?.color || '#ef4444',
+                  color: '#ffffff',
                   fontWeight: 900,
-                  fontSize: '0.85rem',
-                  padding: '4px 12px',
-                  borderRadius: '12px'
+                  fontSize: '1.25rem',
+                  padding: '8px 22px',
+                  borderRadius: '16px',
+                  boxShadow: `0 4px 14px ${(teams[currentTurnIdx]?.color || '#ef4444')}66`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
-                  LƯỢT ĐUA: {teams[currentTurnIdx].name}
+                  <span>🏁</span> LƯỢT ĐUA: {teams[currentTurnIdx]?.name || 'Mario'}
                 </span>
+
                 <span style={{
-                  background: '#fef3c7',
-                  color: '#d97706',
-                  fontWeight: 800,
-                  fontSize: '0.8rem',
-                  padding: '4px 10px',
-                  borderRadius: '10px'
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                  color: '#b45309',
+                  fontWeight: 900,
+                  fontSize: '1.15rem',
+                  padding: '8px 20px',
+                  borderRadius: '16px',
+                  border: '1.5px solid #f59e0b',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
-                  ❓ HỘP DẤU HỎI MARIO BÍ ẨN
+                  <span>❓</span> HỘP DẤU HỎI MARIO BÍ ẨN
                 </span>
               </div>
 
-              {/* Timer */}
+              {/* Giant High-Visibility Classroom Timer */}
               <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                background: timerSeconds <= 5 ? '#fee2e2' : '#f1f5f9',
-                color: timerSeconds <= 5 ? '#dc2626' : '#0f172a',
-                border: `3px solid ${timerSeconds <= 5 ? '#ef4444' : '#cbd5e1'}`,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 900,
-                fontSize: '1.1rem'
+                gap: '10px',
+                background: timerSeconds <= 5 ? '#fef2f2' : '#f8fafc',
+                padding: '6px 20px',
+                borderRadius: '50px',
+                border: `3.5px solid ${timerSeconds <= 5 ? '#ef4444' : '#cbd5e1'}`,
+                boxShadow: timerSeconds <= 5 ? '0 0 20px rgba(239, 68, 68, 0.4)' : '0 4px 12px rgba(0,0,0,0.06)'
               }}>
-                {timerSeconds}
+                <span style={{ fontSize: '1.2rem', fontWeight: 800, color: timerSeconds <= 5 ? '#dc2626' : '#64748b' }}>⏰ NÓNG:</span>
+                <span style={{
+                  fontSize: '2.2rem',
+                  fontWeight: 900,
+                  color: timerSeconds <= 5 ? '#dc2626' : '#0f172a',
+                  minWidth: '48px',
+                  textAlign: 'center',
+                  fontFamily: 'monospace'
+                }}>
+                  {timerSeconds}s
+                </span>
               </div>
             </div>
 
-            {/* Question Text */}
-            <h3 style={{
-              fontSize: '1.35rem',
-              fontWeight: 800,
-              color: '#0f172a',
-              lineHeight: 1.4,
-              marginBottom: '24px'
+            {/* Question Text Box (Giant HD Presentation Card) */}
+            <div style={{
+              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+              borderRadius: '24px',
+              padding: '32px 40px',
+              marginBottom: '28px',
+              boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+              borderLeft: '10px solid #f59e0b',
+              borderTop: '1px solid rgba(255,255,255,0.1)'
             }}>
-              {activeQuestion.question}
-            </h3>
+              <h3 style={{
+                fontSize: '2.3rem',
+                fontWeight: 900,
+                color: '#ffffff',
+                lineHeight: 1.35,
+                margin: 0,
+                letterSpacing: '-0.01em',
+                textShadow: '0 2px 8px rgba(0,0,0,0.4)'
+              }}>
+                {activeQuestion.question}
+              </h3>
+            </div>
 
-            {/* Answer Options */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
+            {/* Answer Options Grid (Big 2x2 Layout) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
               {activeQuestion.options.map((opt, idx) => {
                 const optionKey = String.fromCharCode(65 + idx);
                 const isSelected = selectedAnswer === optionKey;
                 const correctOpt = activeQuestion.correct || activeQuestion.answer;
                 const isThisCorrect = optionKey.toUpperCase() === String(correctOpt).toUpperCase();
 
-                let btnBg = '#f8fafc';
+                let btnBg = '#ffffff';
                 let btnBorder = '#cbd5e1';
-                let btnColor = '#1e293b';
+                let btnColor = '#0f172a';
+                let badgeBg = '#f1f5f9';
+                let badgeColor = '#334155';
 
                 if (isAnswerSubmitted) {
                   if (isThisCorrect) {
                     btnBg = '#dcfce7';
-                    btnBorder = '#22c55e';
-                    btnColor = '#15803d';
+                    btnBorder = '#16a34a';
+                    btnColor = '#14532d';
+                    badgeBg = '#16a34a';
+                    badgeColor = '#ffffff';
                   } else if (isSelected) {
                     btnBg = '#fee2e2';
-                    btnBorder = '#ef4444';
-                    btnColor = '#b91c1c';
+                    btnBorder = '#dc2626';
+                    btnColor = '#7f1d1d';
+                    badgeBg = '#dc2626';
+                    badgeColor = '#ffffff';
+                  } else {
+                    btnBg = '#f8fafc';
+                    btnBorder = '#e2e8f0';
+                    btnColor = '#94a3b8';
+                    badgeBg = '#e2e8f0';
+                    badgeColor = '#94a3b8';
                   }
                 }
 
@@ -1096,63 +1227,70 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                     disabled={isAnswerSubmitted}
                     style={{
                       background: btnBg,
-                      border: `2px solid ${btnBorder}`,
+                      border: `3.5px solid ${btnBorder}`,
                       color: btnColor,
-                      padding: '14px 18px',
-                      borderRadius: '16px',
-                      fontSize: '1rem',
-                      fontWeight: 700,
+                      padding: '22px 28px',
+                      borderRadius: '24px',
+                      fontSize: '1.65rem',
+                      fontWeight: 800,
                       textAlign: 'left',
                       cursor: isAnswerSubmitted ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
-                      transition: 'all 0.2s ease'
+                      gap: '18px',
+                      boxShadow: isAnswerSubmitted && isThisCorrect 
+                        ? '0 0 25px rgba(34, 197, 94, 0.4)' 
+                        : '0 6px 18px rgba(0,0,0,0.06)',
+                      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      lineHeight: 1.3
                     }}
                   >
                     <span style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '8px',
-                      background: isAnswerSubmitted && isThisCorrect ? '#22c55e' : '#e2e8f0',
-                      color: isAnswerSubmitted && isThisCorrect ? '#fff' : '#475569',
+                      width: '54px',
+                      height: '54px',
+                      borderRadius: '16px',
+                      background: badgeBg,
+                      color: badgeColor,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 900,
-                      fontSize: '0.85rem'
+                      fontSize: '1.6rem',
+                      flexShrink: 0,
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
                     }}>
                       {optionKey}
                     </span>
-                    <span style={{ flex: 1 }}>{opt}</span>
+                    <span style={{ flex: 1, wordBreak: 'break-word' }}>{opt}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Result Banner */}
+            {/* Result & Explanation Banner */}
             {isAnswerSubmitted && (
               <div style={{
                 background: isCorrect ? '#f0fdf4' : '#fef2f2',
-                border: `2px solid ${isCorrect ? '#4ade80' : '#f87171'}`,
-                borderRadius: '16px',
-                padding: '16px 20px',
+                border: `3px solid ${isCorrect ? '#22c55e' : '#ef4444'}`,
+                borderRadius: '24px',
+                padding: '24px 32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '16px'
+                gap: '24px',
+                boxShadow: isCorrect ? '0 8px 24px rgba(34,197,94,0.18)' : '0 8px 24px rgba(239,68,68,0.18)',
+                animation: 'modalPop 0.3s ease'
               }}>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{
-                    fontSize: '1.05rem',
+                    fontSize: '1.5rem',
                     fontWeight: 900,
-                    color: isCorrect ? '#166534' : '#991b1b',
+                    color: isCorrect ? '#14532d' : '#7f1d1d',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '12px'
                   }}>
-                    {isCorrect ? <CheckCircle2 color="#22c55e" size={24} /> : <XCircle color="#ef4444" size={24} />}
+                    {isCorrect ? <CheckCircle2 color="#16a34a" size={32} /> : <XCircle color="#dc2626" size={32} />}
                     {isCorrect ? (
                       rewardItem ? (
                         <span>
@@ -1164,30 +1302,30 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                         </span>
                       )
                     ) : (
-                      'RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! MARIO BỊ KHỰNG LẠI! 😅'
+                      <span>RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! MARIO BỊ KHỰNG LẠI! 😅</span>
                     )}
                   </div>
                   {activeQuestion.explanation && (
-                    <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>
-                      💡 {activeQuestion.explanation}
+                    <div style={{ fontSize: '1.15rem', fontWeight: 600, color: '#334155', marginTop: '8px', paddingLeft: '44px' }}>
+                      💡 <b>Giải thích:</b> {activeQuestion.explanation}
                     </div>
                   )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
                   {isCorrect && rewardItem && rewardItem.id === 'shell' && (
                     <button
                       onClick={() => setIsSabotageModalOpen(true)}
                       style={{
                         background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                        color: '#fff',
+                        color: '#ffffff',
                         border: 'none',
-                        padding: '12px 18px',
-                        borderRadius: '14px',
+                        padding: '16px 24px',
+                        borderRadius: '18px',
                         fontWeight: 900,
-                        fontSize: '0.9rem',
+                        fontSize: '1.1rem',
                         cursor: 'pointer',
-                        boxShadow: '0 4px 14px rgba(239,68,68,0.5)',
+                        boxShadow: '0 6px 20px rgba(239,68,68,0.5)',
                         whiteSpace: 'nowrap'
                       }}
                     >
@@ -1199,14 +1337,14 @@ export function MarioRaceGame({ game, onClose, currentUser }) {
                     onClick={handleNextTurn}
                     style={{
                       background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                      color: '#fff',
+                      color: '#ffffff',
                       border: 'none',
-                      padding: '12px 24px',
-                      borderRadius: '14px',
-                      fontWeight: 800,
-                      fontSize: '0.95rem',
+                      padding: '16px 36px',
+                      borderRadius: '18px',
+                      fontWeight: 900,
+                      fontSize: '1.25rem',
                       cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
+                      boxShadow: '0 6px 22px rgba(37,99,235,0.45)',
                       whiteSpace: 'nowrap'
                     }}
                   >
