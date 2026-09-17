@@ -29,6 +29,16 @@ const getSupabaseCredentials = () => {
 
   if (!url) url = SYSTEM_DEFAULT_SUPABASE_URL;
 
+  // Asynchronously restore from IDB if missing in LocalStorage
+  if (!key && typeof window !== 'undefined') {
+    IDBStorageService.getItem('skyline_supabase_key').then(idbKey => {
+      if (idbKey) {
+        window.__SKYLINE_SUPABASE_KEY__ = idbKey;
+        try { localStorage.setItem('skyline_supabase_key', idbKey); } catch (e) {}
+      }
+    }).catch(() => {});
+  }
+
   return { url: url.trim(), key: key.trim() };
 };
 
@@ -37,14 +47,20 @@ export const CloudStorageService = {
 
   setCredentials: (url, key) => {
     if (typeof window !== 'undefined') {
-      if (url) localStorage.setItem('skyline_supabase_url', url.trim());
+      const cleanUrl = (url || '').trim();
+      const cleanKey = (key || '').trim();
+
+      if (cleanUrl) localStorage.setItem('skyline_supabase_url', cleanUrl);
       else localStorage.removeItem('skyline_supabase_url');
 
-      if (key) localStorage.setItem('skyline_supabase_key', key.trim());
+      if (cleanKey) localStorage.setItem('skyline_supabase_key', cleanKey);
       else localStorage.removeItem('skyline_supabase_key');
       
-      window.__SKYLINE_SUPABASE_URL__ = url.trim();
-      window.__SKYLINE_SUPABASE_KEY__ = key.trim();
+      window.__SKYLINE_SUPABASE_URL__ = cleanUrl;
+      window.__SKYLINE_SUPABASE_KEY__ = cleanKey;
+
+      if (cleanUrl) IDBStorageService.setItem('skyline_supabase_url', cleanUrl).catch(() => {});
+      if (cleanKey) IDBStorageService.setItem('skyline_supabase_key', cleanKey).catch(() => {});
     }
   },
 
