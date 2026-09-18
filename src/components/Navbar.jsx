@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock, HeartHandshake } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -176,6 +176,15 @@ export function Navbar({
             >
               <Sparkles size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
               🧪 Thí Nghiệm KHTN
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'parent-meeting' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('parent-meeting')}
+              style={{ background: activeTab === 'parent-meeting' ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' : 'rgba(236, 72, 153, 0.15)', color: activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6', border: '1px solid rgba(236, 72, 153, 0.4)', fontWeight: 900 }}
+            >
+              <HeartHandshake size={18} color={activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6'} />
+              🤝 Hỗ Trợ Họp Phụ Huynh
             </button>
 
 

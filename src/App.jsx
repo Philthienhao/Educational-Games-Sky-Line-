@@ -34,6 +34,7 @@ import { TextbookDownloadManager } from './components/TextbookDownloadManager';
 import { LectureSlideManager } from './components/LectureSlideManager';
 import { VirtualLabManager } from './components/VirtualLabManager';
 import { GeoExperimentsView } from './components/GeoExperimentsView';
+import { ParentMeetingSupport } from './components/ParentMeetingSupport';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import StudentPickerManager from './components/StudentPickerManager';
@@ -496,6 +497,11 @@ export function App() {
         {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
         {activeTab === 'lecture-slides' && (
           <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+        )}
+
+        {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}
+        {activeTab === 'parent-meeting' && (
+          <ParentMeetingSupport currentUser={currentUser} />
         )}
 
         {/* View 7: Quản Trị Admin */}
