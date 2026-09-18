@@ -53,3 +53,10 @@
 - **Vercel Cron Ping Keepalive (`vercel.json`)**: A 3-day cron schedule (`0 0 */3 * *`) targeting `/api/storage?userId=system_keepalive&dataType=ping` MUST remain active in `vercel.json` to guarantee Supabase free-tier DB instances are pinged regularly and NEVER paused due to inactivity.
 - **Timestamp & Customization Preserving Sync**: `syncAllUserDataFromCloud` MUST strictly compare ISO `updatedAt` timestamps and `isCustomized: true` flags before applying cloud payloads to local storage, ensuring newer local edits are never overwritten by older cloud snapshots.
 
+## 12. Student Silhouette & Parent Meeting Icebreaker Game Standards ("Đoán Bóng Tìm Con")
+- **High-Contrast Pure White Projection Theme**: `StudentSilhouetteGame` and parent meeting support views MUST use pure bright white backgrounds (`#ffffff` / `linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)`) with pure pitch-black pose cutouts (`#000000`). Dark background themes are strictly prohibited as they obscure black silhouettes on classroom projectors.
+- **Single-Viewport Grid Arena Invariant (Zero Vertical Scrollbars)**: 100% of student silhouette cards MUST fit on a single screen viewport without vertical scrolling (`maxHeight: calc(100vh - ...)` with `overflow: hidden`). Dynamic columns (`dynamicCols`) and rows (`dynamicRows`) MUST be computed based on `students.length` (e.g., 8 students = 4x2, 18 students = 6x3, 24 students = 6x4).
+- **Top-Level Variable Declaration Safety**: In `StudentSilhouetteGame.jsx`, `totalStudents` (`students.length`), `dynamicCols`, and `dynamicRows` MUST be declared explicitly before the component `return (...)` statement to prevent `ReferenceError: totalStudents is not defined` crashes at runtime.
+- **Robust FileReader & Canvas Cutout Upload**: Manual student photo upload handlers MUST reset the file input value (`fileInputRef.current.value = ''`) after reading and execute canvas body pose silhouette extraction asynchronously with a safety fallback timeout.
+
+
