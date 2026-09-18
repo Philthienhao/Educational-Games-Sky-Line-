@@ -36,102 +36,102 @@ const createSamplePoseSvg = (poseType) => {
     // Pose 1: Salute / Hand to head 🫡
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 85 78 L 115 78 L 132 180 L 68 180 Z" fill="#0f172a"/>
+      <path d="M 85 78 L 115 78 L 132 180 L 68 180 Z" fill="#000000"/>
       <!-- Left Arm down -->
-      <path d="M 68 85 L 50 145 L 62 148 L 78 95 Z" fill="#0f172a"/>
+      <path d="M 68 85 L 50 145 L 62 148 L 78 95 Z" fill="#000000"/>
       <!-- Right Arm Raised to Head (Salute) -->
-      <path d="M 132 85 L 158 115 L 140 120 L 122 68 L 118 58 L 105 58 L 118 72 Z" fill="#0f172a"/>
+      <path d="M 132 85 L 158 115 L 140 120 L 122 68 L 118 58 L 105 58 L 118 72 Z" fill="#000000"/>
     `;
   } else if (poseType === 'heart') {
     // Pose 2: Hand Heart / Bắn tim 🫶
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#000000"/>
       <!-- Arms bent inward forming heart over chest -->
-      <path d="M 72 85 L 55 110 L 85 118 L 92 100 Z" fill="#0f172a"/>
-      <path d="M 128 85 L 145 110 L 115 118 L 108 100 Z" fill="#0f172a"/>
+      <path d="M 72 85 L 55 110 L 85 118 L 92 100 Z" fill="#000000"/>
+      <path d="M 128 85 L 145 110 L 115 118 L 108 100 Z" fill="#000000"/>
       <!-- Heart shape formed by hands -->
-      <path d="M 100 102 C 92 90, 80 96, 92 108 L 100 116 L 108 108 C 120 96, 108 90, 100 102 Z" fill="#0f172a"/>
+      <path d="M 100 102 C 92 90, 80 96, 92 108 L 100 116 L 108 108 C 120 96, 108 90, 100 102 Z" fill="#000000"/>
     `;
   } else if (poseType === 'peace') {
     // Pose 3: Both Arms V Peace Sign ✌️✌️
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#000000"/>
       <!-- Left Arm Raised Peace -->
-      <path d="M 72 85 L 42 50 L 52 42 L 80 80 Z" fill="#0f172a"/>
-      <path d="M 38 42 L 32 20 L 40 20 L 44 38 Z" fill="#0f172a"/>
-      <path d="M 45 42 L 52 24 L 58 26 L 50 44 Z" fill="#0f172a"/>
+      <path d="M 72 85 L 42 50 L 52 42 L 80 80 Z" fill="#000000"/>
+      <path d="M 38 42 L 32 20 L 40 20 L 44 38 Z" fill="#000000"/>
+      <path d="M 45 42 L 52 24 L 58 26 L 50 44 Z" fill="#000000"/>
       <!-- Right Arm Raised Peace -->
-      <path d="M 128 85 L 158 50 L 148 42 L 120 80 Z" fill="#0f172a"/>
-      <path d="M 162 42 L 168 20 L 160 20 L 156 38 Z" fill="#0f172a"/>
-      <path d="M 155 42 L 148 24 L 142 26 L 150 44 Z" fill="#0f172a"/>
+      <path d="M 128 85 L 158 50 L 148 42 L 120 80 Z" fill="#000000"/>
+      <path d="M 162 42 L 168 20 L 160 20 L 156 38 Z" fill="#000000"/>
+      <path d="M 155 42 L 148 24 L 142 26 L 150 44 Z" fill="#000000"/>
     `;
   } else if (poseType === 'artwork') {
     // Pose 4: Holding Artwork Drawing Frame 🎨
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 132 180 L 68 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 132 180 L 68 180 Z" fill="#000000"/>
       <!-- Rectangular Drawing Frame held in hands -->
-      <rect x="52" y="105" width="96" height="64" rx="4" fill="#0f172a" stroke="#0f172a" strokeWidth="2"/>
+      <rect x="52" y="105" width="96" height="64" rx="4" fill="#000000" stroke="#000000" strokeWidth="2"/>
       <!-- Left Arm & Hand holding frame -->
-      <path d="M 72 85 L 48 115 L 56 125 L 78 95 Z" fill="#0f172a"/>
+      <path d="M 72 85 L 48 115 L 56 125 L 78 95 Z" fill="#000000"/>
       <!-- Right Arm & Hand holding frame -->
-      <path d="M 128 85 L 152 115 L 144 125 L 122 95 Z" fill="#0f172a"/>
+      <path d="M 128 85 L 152 115 L 144 125 L 122 95 Z" fill="#000000"/>
     `;
   } else if (poseType === 'cool') {
     // Pose 5: Cool Pose Hands in Pockets 🕶️
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#000000"/>
       <!-- Left Arm to Pocket -->
-      <path d="M 72 85 L 54 130 L 78 135 Z" fill="#0f172a"/>
+      <path d="M 72 85 L 54 130 L 78 135 Z" fill="#000000"/>
       <!-- Right Arm to Pocket -->
-      <path d="M 128 85 L 146 130 L 122 135 Z" fill="#0f172a"/>
+      <path d="M 128 85 L 146 130 L 122 135 Z" fill="#000000"/>
     `;
   } else if (poseType === 'victory') {
     // Pose 6: Victory Y-Arms Raised High 🏆
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#000000"/>
       <!-- Left Arm Raised High Y -->
-      <path d="M 75 85 L 35 25 L 48 20 L 85 78 Z" fill="#0f172a"/>
+      <path d="M 75 85 L 35 25 L 48 20 L 85 78 Z" fill="#000000"/>
       <!-- Right Arm Raised High Y -->
-      <path d="M 125 85 L 165 25 L 152 20 L 115 78 Z" fill="#0f172a"/>
+      <path d="M 125 85 L 165 25 L 152 20 L 115 78 Z" fill="#000000"/>
     `;
   } else if (poseType === 'tilt') {
     // Pose 7: Tilt Head Girl Pose 👧
     innerElements = `
       <!-- Hair & Tilted Head -->
-      <circle cx="106" cy="52" r="26" fill="#0f172a"/>
-      <path d="M 76 45 C 70 85, 82 105, 84 115 C 95 105, 126 105, 134 45 Z" fill="#0f172a"/>
+      <circle cx="106" cy="52" r="26" fill="#000000"/>
+      <path d="M 76 45 C 70 85, 82 105, 84 115 C 95 105, 126 105, 134 45 Z" fill="#000000"/>
       <!-- Torso -->
-      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#000000"/>
       <!-- Hands resting under chin -->
-      <path d="M 72 85 L 98 72 L 105 85 Z" fill="#0f172a"/>
-      <path d="M 128 85 L 102 72 L 95 85 Z" fill="#0f172a"/>
+      <path d="M 72 85 L 98 72 L 105 85 Z" fill="#000000"/>
+      <path d="M 128 85 L 102 72 L 95 85 Z" fill="#000000"/>
     `;
   } else {
     // Pose 8: Crossed Arms Tự Tin 💪
     innerElements = `
       <!-- Head -->
-      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <circle cx="100" cy="55" r="24" fill="#000000"/>
       <!-- Neck & Torso -->
-      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#000000"/>
       <!-- Horizontal Crossed Arms -->
-      <rect x="58" y="95" width="84" height="28" rx="14" fill="#0f172a"/>
+      <rect x="58" y="95" width="84" height="28" rx="14" fill="#000000"/>
     `;
   }
 
@@ -313,10 +313,10 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
             // Cutout background: set transparent!
             data[i + 3] = 0;
           } else {
-            // Solid dark silhouette pose for student body
-            data[i] = 15;
-            data[i + 1] = 23;
-            data[i + 2] = 42;
+            // Solid pure pitch black silhouette pose for student body (#000000)
+            data[i] = 0;
+            data[i + 1] = 0;
+            data[i + 2] = 0;
             data[i + 3] = 255;
           }
         }
@@ -813,15 +813,20 @@ export function StudentSilhouetteGame({ currentUser }) {
                 userSelect: 'none'
               }}
             >
-              {/* Individual Student Image Container */}
+              {/* Individual Student Image Container with Pure White Card Background (Matching Video trochoihph.mp4) */}
               <div 
                 style={{
-                  width: isFullscreen ? '200px' : '160px',
-                  height: isFullscreen ? '260px' : '210px',
+                  width: isFullscreen ? '210px' : '165px',
+                  height: isFullscreen ? '270px' : '215px',
                   position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isRevealed ? 'rgba(30, 41, 59, 0.4)' : 'transparent',
-                  borderRadius: '16px',
-                  padding: '8px',
+                  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+                  borderRadius: '20px',
+                  border: isRevealed ? '3px solid #10b981' : '3px solid #ffffff',
+                  boxShadow: isRevealed 
+                    ? '0 12px 30px rgba(16, 185, 129, 0.35), 0 0 0 2px #10b981' 
+                    : '0 12px 28px rgba(0,0,0,0.35), 0 0 20px rgba(255,255,255,0.7)',
+                  padding: '12px',
+                  overflow: 'hidden',
                   transition: 'all 0.3s ease'
                 }}
               >
