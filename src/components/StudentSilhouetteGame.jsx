@@ -582,7 +582,10 @@ export function StudentSilhouetteGame({ currentUser }) {
     }
   };
 
+  const totalStudents = students.length;
   const revealedCount = students.filter(s => s.isRevealed).length;
+  const dynamicCols = totalStudents <= 8 ? Math.max(1, Math.min(totalStudents, 4)) : (totalStudents <= 15 ? 5 : (totalStudents <= 24 ? 6 : 7));
+  const dynamicRows = Math.ceil(totalStudents / dynamicCols) || 1;
 
   return (
     <div 
