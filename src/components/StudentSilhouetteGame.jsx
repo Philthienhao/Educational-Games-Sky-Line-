@@ -503,31 +503,29 @@ export function StudentSilhouetteGame({ currentUser }) {
   };
 
   // Handle single photo upload with automatic image compression to prevent QuotaExceededError
-  const handleFileUpload = async (e) => {
+  const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsProcessingCutout(true);
-    try {
-      // Compress photo to max 500px under 40KB
-      const compressedBase64 = await compressImage(file, 500, 500, 0.82);
-      if (compressedBase64) {
-        setNewStudentPhoto(String(compressedBase64));
-      } else {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          setNewStudentPhoto(String(ev.target?.result || ''));
-        };
-        reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const rawDataUrl = String(ev.target?.result || '');
+        if (rawDataUrl) {
+          const compressed = await compressImage(rawDataUrl, 450, 450, 0.82);
+          setNewStudentPhoto(compressed || rawDataUrl);
+        }
+      } catch (err) {
+        console.warn('File upload read notice:', err);
+      } finally {
+        setIsProcessingCutout(false);
       }
-    } catch (err) {
-      console.warn('Image compression fallback:', err);
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setNewStudentPhoto(String(ev.target?.result || ''));
-      };
-      reader.readAsDataURL(file);
-    }
+    };
+    reader.onerror = () => {
+      setIsProcessingCutout(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   // Add new student photo
@@ -591,32 +589,32 @@ export function StudentSilhouetteGame({ currentUser }) {
       ref={containerRef}
       style={{
         display: 'flex', flexDirection: 'column', gap: '20px',
-        background: '#020617', color: '#ffffff', borderRadius: '20px',
-        border: '1.5px solid rgba(236, 72, 153, 0.4)', padding: '24px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(236, 72, 153, 0.15)',
+        background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)', color: '#0f172a', borderRadius: '24px',
+        border: '2px solid #cbd5e1', padding: '24px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.06), 0 0 30px rgba(236, 72, 153, 0.08)',
         position: 'relative', overflow: 'hidden'
       }}
     >
       {/* Top Header Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', borderBottom: '1.5px solid #e2e8f0', paddingBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div 
             style={{
               width: '48px', height: '48px', borderRadius: '14px',
               background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 20px rgba(236, 72, 153, 0.5)', color: '#ffffff'
+              boxShadow: '0 0 20px rgba(236, 72, 153, 0.3)', color: '#ffffff'
             }}
           >
             <HeartHandshake size={28} />
           </div>
 
           <div>
-            <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#f472b6', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#db2777', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
               TRÒ CHƠI KHỞI ĐỘNG HỌP PHỤ HUYNH
             </div>
-            <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#ffffff', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(236, 72, 153, 0.4)' }}>
-              🎭 ĐOÁN BÓNG TÌM CON (TỰ ĐỘNG TÁCH NỀN LẤY DÁNG TƯ THẾ)
+            <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#0f172a', margin: '2px 0 0 0', textShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+              🎭 ĐOÁN BÓNG TÌM CON (NỀN TRẮNG HIỂN THỊ NỔI BẬT)
             </h2>
           </div>
         </div>
@@ -628,9 +626,9 @@ export function StudentSilhouetteGame({ currentUser }) {
             onClick={() => setAudioEnabled(!audioEnabled)}
             title={audioEnabled ? 'Tắt âm thanh trò chơi' : 'Bật âm thanh trò chơi'}
             style={{
-              background: audioEnabled ? 'rgba(236, 72, 153, 0.2)' : 'rgba(255,255,255,0.1)',
-              color: audioEnabled ? '#f472b6' : '#94a3b8',
-              border: `1px solid ${audioEnabled ? 'rgba(236, 72, 153, 0.4)' : 'rgba(255,255,255,0.15)'}`,
+              background: audioEnabled ? 'rgba(236, 72, 153, 0.12)' : '#f1f5f9',
+              color: audioEnabled ? '#db2777' : '#64748b',
+              border: `1px solid ${audioEnabled ? 'rgba(236, 72, 153, 0.3)' : '#cbd5e1'}`,
               borderRadius: '10px', padding: '8px 12px', fontWeight: 800, fontSize: '0.82rem',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
             }}
@@ -645,7 +643,7 @@ export function StudentSilhouetteGame({ currentUser }) {
               background: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
               color: '#ffffff', border: 'none', borderRadius: '10px',
               padding: '8px 14px', fontWeight: 800, fontSize: '0.85rem',
-              cursor: 'pointer', boxShadow: '0 0 14px rgba(56, 189, 248, 0.4)',
+              cursor: 'pointer', boxShadow: '0 0 14px rgba(56, 189, 248, 0.3)',
               display: 'flex', alignItems: 'center', gap: '6px'
             }}
           >
@@ -660,8 +658,8 @@ export function StudentSilhouetteGame({ currentUser }) {
       <div 
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: '12px', background: 'rgba(15, 23, 42, 0.7)',
-          padding: '12px 18px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.08)'
+          flexWrap: 'wrap', gap: '12px', background: '#f8fafc',
+          padding: '12px 18px', borderRadius: '14px', border: '1.5px solid #cbd5e1'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -672,7 +670,7 @@ export function StudentSilhouetteGame({ currentUser }) {
               background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
               color: '#ffffff', border: 'none', borderRadius: '10px',
               padding: '7px 14px', fontWeight: 800, fontSize: '0.82rem',
-              cursor: 'pointer', boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)',
+              cursor: 'pointer', boxShadow: '0 0 12px rgba(16, 185, 129, 0.3)',
               display: 'flex', alignItems: 'center', gap: '6px'
             }}
           >
@@ -683,8 +681,8 @@ export function StudentSilhouetteGame({ currentUser }) {
           <button
             onClick={handleHideAll}
             style={{
-              background: 'rgba(239, 68, 68, 0.2)',
-              color: '#fca5a5', border: '1px solid rgba(239, 68, 68, 0.4)',
+              background: '#fee2e2',
+              color: '#dc2626', border: '1px solid #fca5a5',
               borderRadius: '10px', padding: '7px 14px', fontWeight: 800, fontSize: '0.82rem',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
             }}
@@ -696,8 +694,8 @@ export function StudentSilhouetteGame({ currentUser }) {
           <button
             onClick={handleShuffle}
             style={{
-              background: 'rgba(245, 158, 11, 0.2)',
-              color: '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)',
+              background: '#fef3c7',
+              color: '#b45309', border: '1px solid #fde047',
               borderRadius: '10px', padding: '7px 14px', fontWeight: 800, fontSize: '0.82rem',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
             }}
@@ -716,8 +714,8 @@ export function StudentSilhouetteGame({ currentUser }) {
             title="Lấy danh sách ảnh & tên học sinh từ Lớp Chủ Nhiệm"
             disabled={isProcessingCutout}
             style={{
-              background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8',
-              border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '10px',
+              background: '#e0f2fe', color: '#0284c7',
+              border: '1px solid #7dd3fc', borderRadius: '10px',
               padding: '7px 14px', fontWeight: 800, fontSize: '0.82rem',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px'
             }}
@@ -732,7 +730,7 @@ export function StudentSilhouetteGame({ currentUser }) {
               background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
               color: '#ffffff', border: 'none', borderRadius: '10px',
               padding: '7px 14px', fontWeight: 800, fontSize: '0.82rem',
-              cursor: 'pointer', boxShadow: '0 0 12px rgba(236, 72, 153, 0.4)',
+              cursor: 'pointer', boxShadow: '0 0 12px rgba(236, 72, 153, 0.3)',
               display: 'flex', alignItems: 'center', gap: '6px'
             }}
           >
@@ -744,8 +742,8 @@ export function StudentSilhouetteGame({ currentUser }) {
             onClick={handleResetToSample}
             title="Khôi phục về bộ dáng tư thế mẫu mặc định"
             style={{
-              background: 'rgba(255,255,255,0.08)', color: '#cbd5e1',
-              border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px',
+              background: '#f1f5f9', color: '#334155',
+              border: '1px solid #cbd5e1', borderRadius: '10px',
               padding: '7px 12px', fontWeight: 700, fontSize: '0.8rem',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
             }}
@@ -760,36 +758,36 @@ export function StudentSilhouetteGame({ currentUser }) {
       {/* Banner Guidance for Parents & Teachers */}
       <div 
         style={{
-          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(236, 72, 153, 0.12) 100%)',
-          borderRadius: '14px', border: '1px solid rgba(245, 158, 11, 0.3)',
+          background: 'linear-gradient(135deg, #fffbeb 0%, #fce7f3 100%)',
+          borderRadius: '14px', border: '1.5px solid #fcd34d',
           padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: '12px'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Sparkles size={20} color="#f59e0b" />
-          <span style={{ fontSize: '0.9rem', color: '#fde047', fontWeight: 800 }}>
+          <Sparkles size={20} color="#d97706" />
+          <span style={{ fontSize: '0.9rem', color: '#92400e', fontWeight: 800 }}>
             📌 Hướng Dẫn: Kính mời Phụ Huynh quan sát tư thế bóng dáng của học sinh (đã tách sạch khung nền) và đoán số tương ứng!
           </span>
         </div>
 
-        <div style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
-          Đã mở đáp án: <b style={{ color: '#38bdf8', fontSize: '0.95rem' }}>{revealedCount}</b> / {students.length} học sinh
+        <div style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 700 }}>
+          Đã mở đáp án: <b style={{ color: '#0284c7', fontSize: '0.95rem' }}>{revealedCount}</b> / {students.length} học sinh
         </div>
       </div>
 
-      {/* PRESENTATION STAGE ARENA: THE SILHOUETTE CARDS GRID (MATCHING REFERENCED VIDEO trochoihph.MP4) */}
+      {/* PRESENTATION STAGE ARENA: THE SILHOUETTE CARDS GRID (PURE WHITE BACKGROUND MATCHING VIDEO trochoihph.MP4) */}
       <div 
         style={{
-          background: 'linear-gradient(135deg, #09131d 0%, #0f172a 100%)',
-          borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.3)',
+          background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+          borderRadius: '20px', border: '2.5px solid #cbd5e1',
           padding: '30px 24px', minHeight: '480px',
           display: 'grid',
           gridTemplateColumns: `repeat(auto-fill, minmax(${isFullscreen ? '220px' : '180px'}, 1fr))`,
           gap: isFullscreen ? '28px' : '22px',
           alignItems: 'end',
           justifyContent: 'center',
-          boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8)'
+          boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
         {students.map((student, index) => {
@@ -915,20 +913,21 @@ export function StudentSilhouetteGame({ currentUser }) {
         >
           <div 
             style={{
-              background: '#0f172a', borderRadius: '20px',
-              border: '1.5px solid #ec4899', width: '100%', maxWidth: '540px',
-              padding: '28px', boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
-              display: 'flex', flexDirection: 'column', gap: '18px'
+              background: '#ffffff', borderRadius: '24px',
+              border: '2px solid #ec4899', width: '100%', maxWidth: '540px',
+              padding: '28px', boxShadow: '0 25px 50px rgba(0,0,0,0.18)',
+              display: 'flex', flexDirection: 'column', gap: '18px',
+              color: '#0f172a'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f472b6', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#db2777', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Camera size={22} />
                 Tải Ảnh & Tự Động Tách Nền Bóng Dáng
               </h3>
               <button 
                 onClick={() => setShowAddModal(false)}
-                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '1.2rem', cursor: 'pointer' }}
               >
                 ✕
               </button>
@@ -936,7 +935,7 @@ export function StudentSilhouetteGame({ currentUser }) {
 
             <form onSubmit={handleAddStudent} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: '#334155', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
                   Họ và Tên Học Sinh:
                 </label>
                 <input 
@@ -945,14 +944,14 @@ export function StudentSilhouetteGame({ currentUser }) {
                   value={newStudentName}
                   onChange={(e) => setNewStudentName(e.target.value)}
                   style={{
-                    width: '100%', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(236, 72, 153, 0.4)',
-                    borderRadius: '10px', padding: '10px 14px', color: '#ffffff', fontWeight: 700, fontSize: '0.9rem'
+                    width: '100%', background: '#f8fafc', border: '1.5px solid #cbd5e1',
+                    borderRadius: '10px', padding: '10px 14px', color: '#0f172a', fontWeight: 700, fontSize: '0.9rem'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.85rem', color: '#334155', fontWeight: 800, display: 'block', marginBottom: '6px' }}>
                   Hình Ảnh Học Sinh (Tải tệp từ máy tính):
                 </label>
                 
@@ -965,31 +964,36 @@ export function StudentSilhouetteGame({ currentUser }) {
                 />
 
                 <div 
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                      fileInputRef.current.click();
+                    }
+                  }}
                   style={{
-                    border: '2px dashed rgba(236, 72, 153, 0.5)', borderRadius: '14px',
+                    border: '2px dashed #ec4899', borderRadius: '16px',
                     padding: '16px', textAlign: 'center', cursor: 'pointer',
-                    background: 'rgba(236, 72, 153, 0.05)', transition: 'all 0.2s'
+                    background: '#fdf2f8', transition: 'all 0.2s'
                   }}
                 >
                   {newStudentPhoto ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
                       <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>Ảnh Gốc:</div>
-                        <img src={newStudentPhoto} alt="Original" style={{ maxHeight: '120px', borderRadius: '10px', objectFit: 'contain' }} />
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, marginBottom: '4px' }}>Ảnh Gốc:</div>
+                        <img src={newStudentPhoto} alt="Original" style={{ maxHeight: '120px', borderRadius: '10px', objectFit: 'contain', border: '1px solid #cbd5e1' }} />
                       </div>
                       <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.72rem', color: '#f472b6', fontWeight: 700, marginBottom: '4px' }}>Bóng Dáng Tách Nền:</div>
-                        <div style={{ background: '#020617', padding: '6px', borderRadius: '10px', display: 'inline-block' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#db2777', fontWeight: 700, marginBottom: '4px' }}>Bóng Dáng Tách Nền:</div>
+                        <div style={{ background: '#ffffff', border: '2px solid #cbd5e1', padding: '8px', borderRadius: '12px', display: 'inline-block' }}>
                           <img src={newSilhouettePhoto || newStudentPhoto} alt="Silhouette Cutout" style={{ maxHeight: '110px', objectFit: 'contain' }} />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#f472b6' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#db2777' }}>
                       <Upload size={28} />
                       <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Bấm vào đây để chọn tệp ảnh chụp tư thế học sinh</span>
-                      <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Hệ thống tự động cắt bỏ nền tường và lấy riêng bóng đen tư thế học sinh!</span>
+                      <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Hệ thống tự động cắt bỏ nền tường và lấy riêng bóng đen tư thế học sinh!</span>
                     </div>
                   )}
                 </div>
@@ -997,12 +1001,12 @@ export function StudentSilhouetteGame({ currentUser }) {
 
               {/* Tách Nền Fine-Tuning Controls */}
               {newStudentPhoto && (
-                <div style={{ background: 'rgba(15, 23, 42, 0.8)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: '14px', border: '1.5px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.78rem', color: '#fde047', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#b45309', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <Sliders size={14} /> Độ Nhạy Cắt Nền: {cutoutTolerance}
                     </span>
-                    {isProcessingCutout && <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 700 }}>Đang xử lý...</span>}
+                    {isProcessingCutout && <span style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700 }}>Đang xử lý...</span>}
                   </div>
                   <input 
                     type="range" min="15" max="110" step="3"
@@ -1015,8 +1019,8 @@ export function StudentSilhouetteGame({ currentUser }) {
                       type="button"
                       onClick={() => setCutoutMode('auto')}
                       style={{
-                        flex: 1, background: cutoutMode === 'auto' ? '#ec4899' : 'rgba(255,255,255,0.08)',
-                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                        flex: 1, background: cutoutMode === 'auto' ? '#ec4899' : '#e2e8f0',
+                        color: cutoutMode === 'auto' ? '#fff' : '#334155', border: 'none', borderRadius: '6px', padding: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
                       Tự Động Tách
@@ -1025,8 +1029,8 @@ export function StudentSilhouetteGame({ currentUser }) {
                       type="button"
                       onClick={() => setCutoutMode('light')}
                       style={{
-                        flex: 1, background: cutoutMode === 'light' ? '#ec4899' : 'rgba(255,255,255,0.08)',
-                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                        flex: 1, background: cutoutMode === 'light' ? '#ec4899' : '#e2e8f0',
+                        color: cutoutMode === 'light' ? '#fff' : '#334155', border: 'none', borderRadius: '6px', padding: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
                       Nền Tường Sáng
@@ -1035,8 +1039,8 @@ export function StudentSilhouetteGame({ currentUser }) {
                       type="button"
                       onClick={() => setCutoutMode('none')}
                       style={{
-                        flex: 1, background: cutoutMode === 'none' ? '#ec4899' : 'rgba(255,255,255,0.08)',
-                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                        flex: 1, background: cutoutMode === 'none' ? '#ec4899' : '#e2e8f0',
+                        color: cutoutMode === 'none' ? '#fff' : '#334155', border: 'none', borderRadius: '6px', padding: '6px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
                       Ảnh Đã Tách Nền Sẵn (PNG)
@@ -1050,8 +1054,8 @@ export function StudentSilhouetteGame({ currentUser }) {
                   type="button"
                   onClick={() => setShowAddModal(false)}
                   style={{
-                    flex: 1, background: 'rgba(255,255,255,0.1)', color: '#cbd5e1',
-                    border: 'none', borderRadius: '10px', padding: '10px', fontWeight: 800, cursor: 'pointer'
+                    flex: 1, background: '#f1f5f9', color: '#475569',
+                    border: '1px solid #cbd5e1', borderRadius: '10px', padding: '10px', fontWeight: 800, cursor: 'pointer'
                   }}
                 >
                   Hủy
@@ -1062,7 +1066,7 @@ export function StudentSilhouetteGame({ currentUser }) {
                   style={{
                     flex: 1, background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)', color: '#ffffff',
                     border: 'none', borderRadius: '10px', padding: '10px', fontWeight: 800, cursor: 'pointer',
-                    boxShadow: '0 0 15px rgba(236, 72, 153, 0.5)'
+                    boxShadow: '0 4px 15px rgba(236, 72, 153, 0.4)'
                   }}
                 >
                   {isProcessingCutout ? 'ĐANG TÁCH NỀN...' : '+ TẢI LÊN & THÊM VÀO GAME'}
