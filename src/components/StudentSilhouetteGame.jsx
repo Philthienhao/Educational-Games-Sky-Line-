@@ -776,27 +776,27 @@ export function StudentSilhouetteGame({ currentUser }) {
         </div>
       </div>
 
-      {/* PRESENTATION STAGE ARENA: THE SILHOUETTE CARDS GRID (PURE WHITE BACKGROUND MATCHING VIDEO trochoihph.MP4) */}
+      {/* PRESENTATION STAGE ARENA: SINGLE VIEWPORT FIT (0 SCROLLBARS, MATCHING VIDEO trochoihph.MP4) */}
       <div 
         style={{
           background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
           borderRadius: '20px', border: '2.5px solid #cbd5e1',
-          padding: '30px 24px', minHeight: '480px',
+          padding: totalStudents > 18 ? '10px' : '16px',
+          minHeight: '400px',
+          maxHeight: isFullscreen ? 'calc(100vh - 160px)' : 'calc(100vh - 280px)',
+          overflow: 'hidden',
           display: 'grid',
-          gridTemplateColumns: `repeat(auto-fill, minmax(${isFullscreen ? '220px' : '180px'}, 1fr))`,
-          gap: isFullscreen ? '28px' : '22px',
-          alignItems: 'end',
-          justifyContent: 'center',
+          gridTemplateColumns: `repeat(${dynamicCols}, 1fr)`,
+          gridTemplateRows: `repeat(${dynamicRows}, 1fr)`,
+          gap: totalStudents > 18 ? '8px' : '12px',
+          alignItems: 'center',
+          justifyItems: 'center',
           boxShadow: '0 10px 30px rgba(0,0,0,0.04)'
         }}
       >
         {students.map((student, index) => {
           const numberBadge = index + 1;
           const isRevealed = student.isRevealed;
-
-          // Determine which image URL to render:
-          // Unrevealed mode -> render student.silhouetteUrl (transparent background cutout!)
-          // Revealed mode -> render student.photoUrl (full color original photo!)
           const displayImage = isRevealed ? student.photoUrl : (student.silhouetteUrl || student.photoUrl);
 
           return (
@@ -805,44 +805,48 @@ export function StudentSilhouetteGame({ currentUser }) {
               onClick={() => handleToggleReveal(student.id)}
               title={isRevealed ? `Bấm để ẩn lại bóng dáng tư thế` : `Bấm vào đây để mở đáp án ảnh thật cho Phụ Huynh!`}
               style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: totalStudents > 18 ? '4px' : '6px',
+                width: '100%', height: '100%',
+                maxHeight: totalStudents > 18 ? '140px' : (totalStudents > 12 ? '185px' : '230px'),
                 cursor: 'pointer', position: 'relative', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                transform: isRevealed ? 'scale(1.04)' : 'scale(1)',
+                transform: isRevealed ? 'scale(1.03)' : 'scale(1)',
                 userSelect: 'none'
               }}
             >
-              {/* Individual Student Image Container with Pure White Card Background (Matching Video trochoihph.mp4) */}
+              {/* Individual Student Image Container */}
               <div 
                 style={{
-                  width: isFullscreen ? '210px' : '165px',
-                  height: isFullscreen ? '270px' : '215px',
+                  width: '100%',
+                  flex: 1,
+                  maxHeight: totalStudents > 18 ? '105px' : (totalStudents > 12 ? '145px' : '185px'),
                   position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-                  borderRadius: '20px',
-                  border: isRevealed ? '3px solid #10b981' : '3px solid #ffffff',
+                  background: 'linear-gradient(180deg, #ffffff 0%, #ffffff 100%)',
+                  borderRadius: '16px',
+                  border: isRevealed ? '3px solid #10b981' : '2.5px solid #cbd5e1',
                   boxShadow: isRevealed 
-                    ? '0 12px 30px rgba(16, 185, 129, 0.35), 0 0 0 2px #10b981' 
-                    : '0 12px 28px rgba(0,0,0,0.35), 0 0 20px rgba(255,255,255,0.7)',
-                  padding: '12px',
+                    ? '0 8px 20px rgba(16, 185, 129, 0.3)' 
+                    : '0 8px 20px rgba(0,0,0,0.08)',
+                  padding: totalStudents > 18 ? '4px' : '8px',
                   overflow: 'hidden',
                   transition: 'all 0.3s ease'
                 }}
               >
-                {/* Delete button (hoverable in teacher edit mode) */}
+                {/* Delete button */}
                 <button
                   onClick={(e) => handleDeleteStudent(student.id, e)}
                   title="Xóa hình học sinh này"
                   style={{
                     position: 'absolute', top: '2px', right: '2px', zIndex: 15,
                     background: 'rgba(239, 68, 68, 0.8)', color: '#ffffff',
-                    border: 'none', borderRadius: '50%', width: '22px', height: '22px',
+                    border: 'none', borderRadius: '50%', width: '20px', height: '20px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     cursor: 'pointer', opacity: 0.4, transition: 'opacity 0.2s'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                   onMouseLeave={(e) => e.currentTarget.style.opacity = '0.4'}
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={11} />
                 </button>
 
                 {/* THE SILHOUETTE BODY CUTOUT VS REVEALED REAL PHOTO DISPLAY */}
@@ -852,19 +856,16 @@ export function StudentSilhouetteGame({ currentUser }) {
                   style={{
                     maxWidth: '100%', maxHeight: '100%',
                     objectFit: 'contain',
-                    // Fallback brightness filter if silhouetteUrl is raw photo
                     filter: (!isRevealed && !student.silhouetteUrl) 
                       ? 'brightness(0) drop-shadow(0 4px 10px rgba(0,0,0,0.8))'
-                      : 'drop-shadow(0 6px 12px rgba(0,0,0,0.5))',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                    transform: isRevealed ? 'scale(1.05)' : 'scale(1)'
+                      : 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                 />
 
-                {/* Celebration Sparkles overlay when revealed */}
                 {isRevealed && (
-                  <div style={{ position: 'absolute', top: '10px', left: '10px', pointerEvents: 'none' }}>
-                    <Sparkles size={24} color="#fde047" className="animate-pulse" />
+                  <div style={{ position: 'absolute', top: '6px', left: '6px', pointerEvents: 'none' }}>
+                    <Sparkles size={20} color="#10b981" className="animate-pulse" />
                   </div>
                 )}
               </div>
@@ -875,20 +876,24 @@ export function StudentSilhouetteGame({ currentUser }) {
                   background: isRevealed ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : '#fde047',
                   color: isRevealed ? '#ffffff' : '#0f172a',
                   border: isRevealed ? '2px solid #34d399' : '2px solid #d97706',
-                  borderRadius: '10px',
-                  padding: isRevealed ? '4px 12px' : '4px 18px',
+                  borderRadius: '8px',
+                  padding: isRevealed 
+                    ? (totalStudents > 18 ? '2px 8px' : '4px 12px')
+                    : (totalStudents > 18 ? '2px 10px' : '4px 16px'),
                   fontWeight: 900,
-                  fontSize: isRevealed ? '0.88rem' : '1.35rem',
-                  boxShadow: isRevealed ? '0 0 15px rgba(16, 185, 129, 0.6)' : '0 4px 12px rgba(245, 158, 11, 0.5)',
+                  fontSize: isRevealed 
+                    ? (totalStudents > 18 ? '0.75rem' : '0.85rem')
+                    : (totalStudents > 18 ? '0.95rem' : '1.25rem'),
+                  boxShadow: isRevealed ? '0 0 10px rgba(16, 185, 129, 0.4)' : '0 3px 10px rgba(245, 158, 11, 0.4)',
                   textAlign: 'center',
-                  minWidth: '50px',
+                  minWidth: totalStudents > 18 ? '36px' : '48px',
                   transition: 'all 0.3s ease',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
                 }}
               >
                 {isRevealed ? (
                   <>
-                    <CheckCircle2 size={16} />
+                    <CheckCircle2 size={14} />
                     <span>{student.name}</span>
                   </>
                 ) : (
