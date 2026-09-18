@@ -2851,6 +2851,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
   const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
   const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
+  const [planetWaypoints, setPlanetWaypoints] = useState([]);
+  const [showDebugHud, setShowDebugHud] = useState(false);
+
   const [debugInfo, setDebugInfo] = useState({
     webcamStatus: 'ĐANG KHỞI TẠO...',
     handCount: 0,
@@ -2875,8 +2878,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const lastGestureTimeRef = useRef(0);
 
   const cameraRef = useRef(null);
-  // Flight vectors - start with cruising speed 4.0
-  const flightVectorRef = useRef({ yaw: 0, pitch: 0, speed: 4.0, posX: -25, posY: 140, posZ: 245 });
+  // Flight vectors - start centered facing Sun and revolving planets (posX: 0, posY: 35, posZ: 200)
+  const flightVectorRef = useRef({ yaw: 0, pitch: -0.15, speed: 4.0, posX: 0, posY: 35, posZ: 200 });
 
   useEffect(() => {
     if (experiment?.startInCockpit || experiment?.isCockpit) {
@@ -2886,10 +2889,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
   useEffect(() => {
     if (isGesturePilot) {
-      if (flightVectorRef.current.speed === 0) {
-        flightVectorRef.current.speed = 4.0;
-        setPilotSpeed(4.0);
-      }
+      flightVectorRef.current.posX = 0;
+      flightVectorRef.current.posY = 35;
+      flightVectorRef.current.posZ = 200;
+      flightVectorRef.current.yaw = 0;
+      flightVectorRef.current.pitch = -0.15;
+      flightVectorRef.current.speed = 4.0;
+      setPilotSpeed(4.0);
       lastManualInputTimeRef.current = Date.now();
     }
   }, [isGesturePilot]);
@@ -3688,7 +3694,12 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         );
         camera.lookAt(lookAtTarget);
 
-        // Dynamic 3D Cutaway Core visibility & Holographic Labels for ALL Celestial Bodies
+        // Compute Sci-Fi 3D Projected Waypoints & Off-Screen Compass Arrows
+        const containerW = container?.clientWidth || width;
+        const containerH = container?.clientHeight || height;
+        const margin = 50;
+        const wpts = [];
+
         planetKeys.concat(['sun']).forEach(pKey => {
           const pMesh = planetMeshes[pKey];
           const cGroup = planetCoreGroups[pKey];
@@ -3714,7 +3725,35 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
             cGroup.visible = false;
             pMesh.visible = true;
           }
+
+          // Project 3D position to 2D screen pixels
+          const proj = worldPos.clone().project(camera);
+          const isBehind = proj.z > 1;
+          const sx = (proj.x * 0.5 + 0.5) * containerW;
+          const sy = (-proj.y * 0.5 + 0.5) * containerH;
+
+          const isOnScreen = !isBehind && sx >= margin && sx <= containerW - margin && sy >= margin && sy <= containerH - margin;
+
+          let clampedX = Math.max(margin, Math.min(containerW - margin, sx));
+          let clampedY = Math.max(margin, Math.min(containerH - margin, sy));
+
+          if (isBehind) {
+            clampedX = sx > containerW / 2 ? margin : containerW - margin;
+            clampedY = sy > containerH / 2 ? margin : containerH - margin;
+          }
+
+          wpts.push({
+            key: pKey,
+            name: SOLAR_PLANETS_CONFIG[pKey]?.name || pKey.toUpperCase(),
+            color: SOLAR_PLANETS_CONFIG[pKey]?.color || '#38bdf8',
+            isOnScreen,
+            dist: Math.round(distToPlanet),
+            x: isOnScreen ? sx : clampedX,
+            y: isOnScreen ? sy : clampedY
+          });
         });
+
+        setPlanetWaypoints(wpts);
       } else {
         controls.enabled = true;
 
@@ -3727,107 +3766,28 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           if (selKey === 'sun') {
             targetWorldPos.set(0, 0, 0);
             radius = SOLAR_PLANETS_CONFIG.sun.radius;
-          } else if (planetGroups[selKey]) {
-            planetGroups[selKey].getWorldPosition(targetWorldPos);
-            radius = SOLAR_PLANETS_CONFIG[selKey].radius;
+          } else if (planetMeshesRef.current[selKey]) {
+            planetMeshesRef.current[selKey].getWorldPosition(targetWorldPos);
+            radius = SOLAR_PLANETS_CONFIG[selKey]?.radius || 10;
           }
 
-          const desiredCamPos = targetWorldPos.clone().add(new THREE.Vector3(radius * 3.5, radius * 1.8, radius * 3.5));
-          controls.target.lerp(targetWorldPos, 0.08);
-          camera.position.lerp(desiredCamPos, 0.08);
-
-          // Project Badge position to 2D Screen
-          const proj = targetWorldPos.clone().project(camera);
-          const sx = (proj.x * 0.5 + 0.5) * width;
-          const sy = (-proj.y * 0.5 + 0.5) * height;
-          if (proj.z < 1) {
-            setBadgePos({ x: sx, y: sy });
-          } else {
-            setBadgePos(null);
-          }
-        } else {
-          const defaultTarget = new THREE.Vector3(0, 0, 0);
-          const defaultCamPos = new THREE.Vector3(0, 130, 260);
-          controls.target.lerp(defaultTarget, 0.05);
-          camera.position.lerp(defaultCamPos, 0.05);
-          setBadgePos(null);
+          const targetCamPos = targetWorldPos.clone().add(new THREE.Vector3(0, radius * 0.8, radius * 3.5));
+          camera.position.lerp(targetCamPos, 0.05);
+          controls.target.lerp(targetWorldPos, 0.05);
         }
-
-        controls.update();
       }
 
+      controls.update();
       renderer.render(scene, camera);
+      animFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    animFrameId = requestAnimationFrame(animate);
 
-    // 10. Resize handler
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener('resize', handleResize);
-
-    // 11. Cleanup
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      domElement.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('resize', handleResize);
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-      renderer.dispose();
+      cancelAnimationFrame(animFrameId);
     };
-  }, []);
-
-  // Keyboard handler for Esc key reset
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setSelectedPlanetKey(null);
-        if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời (Esc).`);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onLog]);
-
-  const handleSelectCelestial = (key) => {
-    if (selectedPlanetKey === key) {
-      setSelectedPlanetKey(null);
-      if (onLog) onLog(`Quay về tổng quan góc nhìn Hệ Mặt Trời.`);
-    } else {
-      setSelectedPlanetKey(key);
-      setTargetPlanetKey(key);
-      const p = SOLAR_PLANETS_CONFIG[key];
-      setTargetPlanetName(p ? p.name.toUpperCase() : key.toUpperCase());
-
-      if (isGesturePilotRef.current) {
-        // Automatically engage forward warp speed to fly straight to target planet
-        const fv = flightVectorRef.current;
-        let targetPos = new THREE.Vector3();
-        if (key === 'sun') {
-          targetPos.set(0, 0, 0);
-        } else if (planetGroups[key]) {
-          planetGroups[key].getWorldPosition(targetPos);
-        }
-        const dx = targetPos.x - fv.posX;
-        const dy = targetPos.y - fv.posY;
-        const dz = targetPos.z - fv.posZ;
-        fv.yaw = Math.atan2(dx, dz);
-        fv.pitch = Math.atan2(dy, Math.hypot(dx, dz));
-        fv.speed = 5.5; // Engage auto warp thrust
-        setPilotSpeed(5.5);
-        setGestureStatus(`🚀 WARP TỰ ĐỘNG BAY TỚI ${p.name.toUpperCase()} (TỐC ĐỘ 5.5)`);
-      }
-
-      if (onLog) onLog(`Khám phá 3D ${p.name}: Khoảng cách ${p.dist}, Đường kính ${p.size}.`);
-    }
-  };
+  }, [isGesturePilot]);
 
   const activePlanet = selectedPlanetKey ? SOLAR_PLANETS_CONFIG[selectedPlanetKey] : null;
 
@@ -3838,63 +3798,52 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       <div 
         ref={mountRef} 
         style={{
-          flex: 1, minHeight: '460px', background: '#020617',
+          flex: 1, minHeight: '520px', background: '#020617',
           borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.35)',
           position: 'relative', overflow: 'hidden'
         }}
       >
-        {/* Top-Left Title HUD Header */}
-        <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-              THREE.JS · INTERACTIVE EXPERIENCE
+        {/* Standard Mode Top Header (only when NOT in cockpit mode) */}
+        {!isGesturePilot && (
+          <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+                THREE.JS · INTERACTIVE EXPERIENCE
+              </div>
+              <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
+                HỆ MẶT TRỜI
+              </h2>
             </div>
-            <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
-              HỆ MẶT TRỜI
-            </h2>
-            <div style={{ fontSize: '0.8rem', color: '#cbd5e1', marginTop: '3px' }}>
-              Mô hình 3D tương tác — tám hành tinh quanh một ngôi sao
-            </div>
+
+            <button
+              onClick={() => {
+                if (cameraRef.current) {
+                  flightVectorRef.current.posX = 0;
+                  flightVectorRef.current.posY = 35;
+                  flightVectorRef.current.posZ = 200;
+                  flightVectorRef.current.yaw = 0;
+                  flightVectorRef.current.pitch = -0.15;
+                  flightVectorRef.current.speed = 4.0;
+                }
+                setIsGesturePilot(true);
+                if (onLog) onLog('Bật Chế độ Lái Phi thuyền Vũ trụ 3D (Bàn phím WASD & Cử chỉ tay AI).');
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+                color: '#ffffff', border: '2px solid #fde047',
+                borderRadius: '14px', padding: '10px 18px',
+                fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer',
+                boxShadow: '0 0 20px rgba(245, 158, 11, 0.6)',
+                display: 'flex', alignItems: 'center', gap: '8px', pointerEvents: 'auto'
+              }}
+            >
+              🛸 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D
+            </button>
           </div>
+        )}
 
-          <button
-            onClick={() => {
-              const nextState = !isGesturePilot;
-              if (nextState && cameraRef.current) {
-                const cPos = cameraRef.current.position;
-                flightVectorRef.current.posX = cPos.x;
-                flightVectorRef.current.posY = cPos.y;
-                flightVectorRef.current.posZ = cPos.z;
-                flightVectorRef.current.speed = 0;
-              }
-              setIsGesturePilot(nextState);
-              if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Vũ trụ 3D (Bàn phím WASD & Cử chỉ tay AI).' : 'Tắt Chế độ Lái Phi thuyền.');
-            }}
-            style={{
-              background: isGesturePilot ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-              color: '#ffffff',
-              border: '2px solid #fde047',
-              borderRadius: '14px',
-              padding: '10px 18px',
-              fontWeight: 900,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              boxShadow: isGesturePilot ? '0 0 20px rgba(239, 68, 68, 0.8)' : '0 0 20px rgba(245, 158, 11, 0.6)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              pointerEvents: 'auto',
-              transition: 'all 0.25s ease'
-            }}
-          >
-            {isGesturePilot ? '🛸 THOÁT PHI THUYỀN LÁI' : '🛸 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D'}
-          </button>
-        </div>
-
-        {/* Floating 3D Planet Target Screen Badge */}
-
-        {/* Floating 3D Planet Target Screen Badge */}
-        {activePlanet && badgePos && (
+        {/* Floating Planet Screen Badge (Standard Orbit Mode) */}
+        {!isGesturePilot && activePlanet && badgePos && (
           <div style={{
             position: 'absolute', left: `${badgePos.x}px`, top: `${badgePos.y - 45}px`,
             transform: 'translate(-50%, -100%)', zIndex: 15, pointerEvents: 'none',
@@ -3908,8 +3857,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           </div>
         )}
 
-        {/* Docked Right-Side Celestial Glassmorphic Detail Card */}
-        {activePlanet && (
+        {/* Docked Right-Side Celestial Detail Card (Standard Orbit Mode) */}
+        {!isGesturePilot && activePlanet && (
           <div style={{
             position: 'absolute', top: '60px', right: '24px', maxWidth: '330px', width: 'calc(100% - 48px)',
             background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
@@ -3923,236 +3872,238 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
                   {activePlanet.name}
                 </h3>
-                <span style={{ fontSize: '0.65rem', fontWeight: 800, background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '2px 8px', borderRadius: '10px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
-                  {activePlanet.enName}
-                </span>
               </div>
-              <button 
-                onClick={() => setSelectedPlanetKey(null)}
-                style={{ background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1', borderRadius: '8px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 800 }}
-              >
+              <button onClick={() => setSelectedPlanetKey(null)} style={{ background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1', borderRadius: '8px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 800 }}>
                 ✕
               </button>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.78rem', color: '#cbd5e1' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
-                <span>Khoảng cách Mặt Trời:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Khoảng cách:</span>
                 <strong style={{ color: '#fff' }}>{activePlanet.dist}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
-                <span>Chu kỳ quỹ đạo:</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>Chu kỳ:</span>
                 <strong style={{ color: '#fff' }}>{activePlanet.period}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span>Đường kính:</span>
                 <strong style={{ color: '#fff' }}>{activePlanet.size}</strong>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
-                <span>Nhiệt độ:</span>
-                <strong style={{ color: '#fde047' }}>{activePlanet.temp}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '4px' }}>
-                <span>Số vệ tinh:</span>
-                <strong style={{ color: '#fff' }}>{activePlanet.moons}</strong>
-              </div>
-
-              <div style={{ marginTop: '6px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '10px 12px', borderRadius: '0 10px 10px 0', fontSize: '0.76rem', color: '#e2e8f0', lineHeight: 1.5 }}>
+              <div style={{ marginTop: '6px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '8px 10px', borderRadius: '0 8px 8px 0', fontSize: '0.75rem', color: '#e2e8f0' }}>
                 <b>📌 Đặc điểm:</b> {activePlanet.feature}
               </div>
             </div>
           </div>
         )}
 
-        {/* IMMERSIVE 1ST-PERSON 3D SPACESHIP COCKPIT INTERIOR OVERLAY WITH SEATED PILOT */}
+        {/* --- IMMERSIVE SPACESHIP COCKPIT OVERLAY --- */}
         {isGesturePilot && (
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 25,
             display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
             overflow: 'hidden'
           }}>
-            {/* 1. Curved Sci-Fi Glass Windshield Overlay & Canopy Struts */}
+            {/* Subtle Sci-Fi Glass Vignette Border */}
             <div style={{
               position: 'absolute', inset: 0,
-              background: 'radial-gradient(ellipse at center, transparent 55%, rgba(2, 6, 23, 0.5) 80%, rgba(2, 6, 23, 0.98) 100%)',
-              boxShadow: 'inset 0 0 100px rgba(56, 189, 248, 0.25)',
-              border: '2.5px solid rgba(56, 189, 248, 0.3)'
+              background: 'radial-gradient(ellipse at center, transparent 65%, rgba(2, 6, 23, 0.4) 85%, rgba(2, 6, 23, 0.95) 100%)',
+              border: '2px solid rgba(56, 189, 248, 0.3)', pointerEvents: 'none'
             }} />
 
-            {/* REAL-TIME DEBUGGING TELEMETRY HUD TEXT OVERLAY */}
+            {/* 1. Sleek Translucent Top HUD Header Bar */}
             <div style={{
-              position: 'absolute', top: '65px', left: '24px', zIndex: 35, pointerEvents: 'auto',
-              background: 'rgba(2, 6, 23, 0.92)', backdropFilter: 'blur(14px)',
-              border: '1.5px solid #38bdf8', borderRadius: '14px',
-              padding: '10px 14px', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.68rem',
-              boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)', maxWidth: '280px',
-              display: 'flex', flexDirection: 'column', gap: '4px'
+              position: 'absolute', top: '12px', left: '16px', right: '16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+              background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '16px',
+              padding: '8px 16px', pointerEvents: 'auto', zIndex: 35
             }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fde047', borderBottom: '1px dashed rgba(56, 189, 248, 0.4)', paddingBottom: '4px', marginBottom: '2px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span>📡 HUD GỠ LỖI PHI THUYỀN</span>
-                <span style={{ fontSize: '0.58rem', color: '#2dd4bf', background: 'rgba(45, 212, 191, 0.2)', padding: '1px 6px', borderRadius: '6px' }}>REALTIME</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🛸 BUỒNG LÁI 3D
+                </div>
+                {targetPlanetName && (
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fde047', background: 'rgba(253, 224, 71, 0.15)', padding: '3px 10px', borderRadius: '10px', border: '1px solid rgba(253, 224, 71, 0.3)' }}>
+                    🎯 HƯỚNG VỀ: {targetPlanetName}
+                  </span>
+                )}
               </div>
-              <div><b>📷 WEBCAM:</b> <span style={{ color: debugInfo.webcamStatus.includes('ACTIVE') ? '#4ade80' : '#f87171' }}>{debugInfo.webcamStatus}</span> ({debugInfo.handCount} BÀN TAY)</div>
-              <div><b>📍 TỌA ĐỘ TAY 1:</b> {debugInfo.hand1Coords}</div>
-              <div><b>📍 TỌA ĐỘ TAY 2:</b> {debugInfo.hand2Coords}</div>
-              <div><b>🛞 GÓC VÔ LĂNG:</b> <span style={{ color: '#f59e0b', fontWeight: 900 }}>{debugInfo.steerAngleDeg}°</span></div>
-              <div><b>📐 HƯỚNG YAW / PITCH:</b> Yaw: {debugInfo.yaw} | Pitch: {debugInfo.pitch}</div>
-              <div><b>🚀 TRẠNG THÁI BAY:</b> isMoving: <b style={{ color: debugInfo.isMoving ? '#4ade80' : '#ef4444' }}>{debugInfo.isMoving ? 'TRUE' : 'FALSE'}</b> | Speed: <b style={{ color: '#fde047' }}>{debugInfo.speed}</b></div>
-              <div style={{ marginTop: '2px', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 8px', borderRadius: '6px', borderLeft: '3px solid #f59e0b', color: '#ffffff', fontWeight: 900 }}>
-                🎮 LỆNH: {debugInfo.currentCommand}
+
+              {/* Quick Target Selector Pills */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto', maxWidth: '50%' }}>
+                {[
+                  { key: 'sun', label: '☀️ MẶT TRỜI' },
+                  { key: 'earth', label: '🌍 TRÁI ĐẤT' },
+                  { key: 'mars', label: '🔴 SAO HỎA' },
+                  { key: 'jupiter', label: '🪐 SAO MỘC' },
+                  { key: 'saturn', label: '🪐 SAO THỔ' },
+                  { key: 'uranus', label: '💎 SAO THIÊN VƯƠNG' },
+                  { key: 'neptune', label: '🔵 SAO HẢI VƯƠNG' }
+                ].map(item => (
+                  <button
+                    key={item.key}
+                    onClick={() => handleSelectCelestial(item.key)}
+                    style={{
+                      background: selectedPlanetKey === item.key ? 'rgba(56, 189, 248, 0.3)' : 'rgba(255,255,255,0.06)',
+                      color: selectedPlanetKey === item.key ? '#38bdf8' : '#cbd5e1',
+                      border: selectedPlanetKey === item.key ? '1px solid #38bdf8' : '1px solid transparent',
+                      borderRadius: '12px', padding: '3px 10px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => setIsXRayMode(!isXRayMode)}
+                  style={{
+                    background: isXRayMode ? '#f59e0b' : 'rgba(56, 189, 248, 0.2)',
+                    color: isXRayMode ? '#000' : '#38bdf8', border: '1px solid #38bdf8',
+                    borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                  }}
+                >
+                  {isXRayMode ? '✌️ TẮT LÕI X-RAY' : '✌️ XEM LÕI X-RAY'}
+                </button>
+
+                <button
+                  onClick={() => setShowDebugHud(!showDebugHud)}
+                  style={{
+                    background: showDebugHud ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.08)',
+                    color: showDebugHud ? '#fde047' : '#94a3b8', border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px', padding: '4px 8px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                  }}
+                  title="Bật/Tắt thông tin gỡ lỗi telemetry"
+                >
+                  🐞 Debug
+                </button>
+
+                {toggleFullscreen && (
+                  <button
+                    onClick={toggleFullscreen}
+                    style={{
+                      background: 'rgba(2, 132, 199, 0.3)', color: '#ffffff',
+                      border: '1px solid #38bdf8', borderRadius: '8px', padding: '4px 10px',
+                      fontWeight: 800, fontSize: '0.72rem', cursor: 'pointer'
+                    }}
+                  >
+                    🖥️ TOÀN MÀN HÌNH
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsGesturePilot(false)}
+                  style={{
+                    background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    color: '#ffffff', border: 'none', borderRadius: '8px', padding: '4px 12px',
+                    fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer', boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
+                  }}
+                >
+                  ✕ THOÁT LÁI
+                </button>
               </div>
             </div>
 
-            {/* Sci-Fi Cockpit Windshield Struts (Left & Right Metallic Pillars) */}
-            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-              {/* Left Canopy Pillar */}
-              <polygon points="0,0 80,0 200,600 0,600" fill="url(#pillarGrad)" opacity="0.85" />
-              {/* Right Canopy Pillar */}
-              <polygon points="1000,0 920,0 800,600 1000,600" fill="url(#pillarGrad)" opacity="0.85" />
-              <defs>
-                <linearGradient id="pillarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#0f172a" />
-                  <stop offset="50%" stopColor="#1e293b" />
-                  <stop offset="100%" stopColor="#020617" />
-                </linearGradient>
-              </defs>
-            </svg>
+            {/* Optional Telemetry Debug Box (Collapsible) */}
+            {showDebugHud && (
+              <div style={{
+                position: 'absolute', top: '60px', left: '20px', zIndex: 35, pointerEvents: 'auto',
+                background: 'rgba(2, 6, 23, 0.92)', backdropFilter: 'blur(14px)',
+                border: '1.5px solid #38bdf8', borderRadius: '12px',
+                padding: '8px 12px', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.65rem',
+                maxWidth: '240px', display: 'flex', flexDirection: 'column', gap: '3px'
+              }}>
+                <div><b>📷 WEBCAM:</b> {debugInfo.webcamStatus}</div>
+                <div><b>🛞 GÓC VÔ LĂNG:</b> {debugInfo.steerAngleDeg}°</div>
+                <div><b>🚀 VELOCITY:</b> Speed: {debugInfo.speed}</div>
+              </div>
+            )}
 
-            {/* 2. Cockpit Targeting Crosshair / Flight HUD Reticle */}
+            {/* 3D SCI-FI PLANET WAYPOINT MARKERS & OFF-SCREEN DIRECTION INDICATORS */}
+            {planetWaypoints.map(wp => (
+              <div
+                key={wp.key}
+                onClick={() => handleSelectCelestial(wp.key)}
+                title={`Bay tới ${wp.name}`}
+                style={{
+                  position: 'absolute',
+                  left: `${wp.x}px`,
+                  top: `${wp.y}px`,
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 28,
+                  pointerEvents: 'auto',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: wp.isOnScreen ? 'rgba(15, 23, 42, 0.88)' : 'rgba(217, 119, 6, 0.92)',
+                  border: `1.5px solid ${wp.color}`,
+                  borderRadius: '16px',
+                  padding: wp.isOnScreen ? '4px 10px' : '3px 8px',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: 900,
+                  boxShadow: `0 0 14px ${wp.color}`,
+                  whiteSpace: 'nowrap',
+                  opacity: wp.isOnScreen ? 0.95 : 0.85,
+                  transition: 'transform 0.08s ease-out'
+                }}
+              >
+                {!wp.isOnScreen && <span>🎯</span>}
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: wp.color, boxShadow: `0 0 8px ${wp.color}` }} />
+                <span>{wp.name}</span>
+                {wp.isOnScreen && <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>({wp.dist}m)</span>}
+              </div>
+            ))}
+
+            {/* Cockpit Targeting Crosshair / Flight Reticle */}
             <div style={{
-              position: 'absolute', top: '48%', left: '50%',
-              transform: `translate(-50%, -50%) translate(${steerPos.x * 60}px, ${steerPos.y * 45}px)`,
+              position: 'absolute', top: '50%', left: '50%',
+              transform: `translate(-50%, -50%) translate(${steerPos.x * 50}px, ${steerPos.y * 35}px)`,
               transition: 'transform 0.08s ease-out', pointerEvents: 'none',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
             }}>
-              {/* Sci-Fi Aiming Reticle Circle */}
               <div style={{
-                width: '70px', height: '70px', borderRadius: '50%',
-                border: '2px dashed #38bdf8', boxShadow: '0 0 20px rgba(56, 189, 248, 0.9)',
+                width: '60px', height: '60px', borderRadius: '50%',
+                border: '1.5px dashed rgba(56, 189, 248, 0.8)', boxShadow: '0 0 15px rgba(56, 189, 248, 0.6)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 12px #f59e0b' }} />
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }} />
               </div>
-
-              {/* Minimal Planet Target Badge */}
-              {targetPlanetName && (
-                <div style={{
-                  marginTop: '10px', background: 'rgba(15, 23, 42, 0.94)', backdropFilter: 'blur(12px)',
-                  border: '1.5px solid #38bdf8', borderRadius: '12px', padding: '6px 14px',
-                  boxShadow: '0 0 20px rgba(56, 189, 248, 0.6)', pointerEvents: 'auto',
-                  display: 'flex', alignItems: 'center', gap: '10px'
-                }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fde047' }}>
-                    🎯 TIẾP CẬN: {targetPlanetName}
-                  </span>
-                  <button
-                    onClick={() => setIsXRayMode(!isXRayMode)}
-                    style={{
-                      background: isXRayMode ? '#f59e0b' : 'rgba(56, 189, 248, 0.2)',
-                      color: isXRayMode ? '#000' : '#38bdf8', border: '1px solid #38bdf8',
-                      borderRadius: '8px', padding: '3px 9px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer'
-                    }}
-                  >
-                    {isXRayMode ? '✌️ TẮT LÕI X-RAY' : '✌️ XEM LÕI X-RAY'}
-                  </button>
-                </div>
-              )}
             </div>
 
-            {/* 3. Top Canopy Status Bar with FULLSCREEN Button */}
+            {/* Bottom Dashboard Controls */}
             <div style={{
-              position: 'relative', top: 0, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', alignItems: 'center', gap: '14px',
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 75%, transparent 100%)',
-              padding: '10px 24px', borderBottom: '1.5px solid rgba(56, 189, 248, 0.35)',
-              borderRadius: '0 0 20px 20px', pointerEvents: 'auto', zIndex: 30
-            }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🛸 BUỒNG LÁI PHI THUYỀN VŨ TRỤ 3D
-              </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', background: 'rgba(56, 189, 248, 0.15)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                {gestureStatus}
-              </div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#fde047' }}>
-                WARP: {pilotSpeed}
-              </div>
-
-              {/* Dedicated Fullscreen Toggle Button */}
-              {toggleFullscreen && (
-                <button
-                  onClick={toggleFullscreen}
-                  style={{
-                    background: isFullscreen ? 'rgba(13, 148, 136, 0.35)' : 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
-                    color: '#ffffff', border: '1px solid #38bdf8', borderRadius: '8px', padding: '4px 12px',
-                    fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', boxShadow: '0 0 10px rgba(56, 189, 248, 0.4)'
-                  }}
-                >
-                  {isFullscreen ? '↙️ THOÁT TOÀN MÀN HÌNH' : '🖥️ TOÀN MÀN HÌNH'}
-                </button>
-              )}
-
-              <button
-                onClick={() => setIsGesturePilot(false)}
-                style={{
-                  background: 'rgba(239, 68, 68, 0.25)', color: '#fca5a5',
-                  border: '1px solid #ef4444', borderRadius: '8px', padding: '4px 12px',
-                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer'
-                }}
-              >
-                ✕ THOÁT LÁI
-              </button>
-            </div>
-
-            {/* Bottom Dashboard Panel */}
-            <div style={{
-              position: 'relative', bottom: 0, left: 0, right: 0,
+              position: 'absolute', bottom: '12px', left: 0, right: 0,
               display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-              padding: '0 24px 10px 24px', pointerEvents: 'auto', zIndex: 30
+              padding: '0 20px', pointerEvents: 'auto', zIndex: 30
             }}>
-              
-              {/* Left Dashboard Panel: Seated Pilot Helmet & O2 Gauge */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              {/* Left Dashboard Panel: Astronaut Pilot Helmet */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
                 <div style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   transform: `rotate(${steerPos.x * 8}deg)`, transition: 'transform 0.1s ease-out'
                 }}>
-                  {/* Space Helmet Visor */}
                   <div style={{
-                    width: '44px', height: '36px', borderRadius: '20px 20px 10px 10px',
+                    width: '38px', height: '30px', borderRadius: '16px 16px 8px 8px',
                     background: 'linear-gradient(135deg, #09131d 0%, #1e293b 100%)',
-                    border: '2px solid #38bdf8', boxShadow: '0 0 16px rgba(56, 189, 248, 0.6)',
+                    border: '1.5px solid #38bdf8', boxShadow: '0 0 12px rgba(56, 189, 248, 0.5)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
                     <div style={{
-                      width: '32px', height: '16px', borderRadius: '10px',
-                      background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.9) 0%, rgba(56, 189, 248, 0.9) 100%)',
-                      boxShadow: '0 0 10px #f59e0b'
+                      width: '26px', height: '12px', borderRadius: '8px',
+                      background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.9) 0%, rgba(56, 189, 248, 0.9) 100%)'
                     }} />
                   </div>
-                  {/* Astronaut Suit Rig */}
-                  <div style={{
-                    width: '84px', height: '22px', borderRadius: '10px 10px 0 0',
-                    background: '#0f172a', border: '1.5px solid #38bdf8', borderBottom: 'none',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '0 4px'
-                  }}>
-                    <span style={{ fontSize: '0.55rem', color: '#2dd4bf', fontWeight: 900 }}>O2: 100%</span>
-                    <span style={{ fontSize: '0.55rem', color: '#fde047', fontWeight: 900 }}>PHI CÔNG</span>
-                  </div>
+                  <span style={{ fontSize: '0.55rem', color: '#2dd4bf', fontWeight: 900, marginTop: '2px' }}>O2: 100%</span>
                 </div>
               </div>
 
-              {/* CENTER HUB: PROMINENT SCI-FI VIRTUAL STEERING WHEEL (VÔ LĂNG ẢO) WITH TOUCH & MOUSE STEERING */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', margin: '0 auto' }}>
-                
-                {/* Steering Guidance Badge */}
-                <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>🛞 VÔ LĂNG ẢO SCI-FI</span>
-                  <span style={{ fontSize: '0.6rem', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '2px 6px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
-                    RÊ CHUỘT / CẢM ỨNG LÁI
-                  </span>
-                </div>
-
-                {/* THE VIRTUAL STEERING WHEEL (VÔ LĂNG ẢO) SVG GRAPHIC */}
+              {/* Center: Sleek Virtual Steering Wheel & Quick Flight Buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', margin: '0 auto' }}>
                 <div 
                   onPointerDown={(e) => {
                     if (e.currentTarget.setPointerCapture) {
@@ -4179,7 +4130,6 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                         flightVectorRef.current.speed = 4.5;
                         setPilotSpeed(4.5);
                       }
-                      setGestureStatus(`🛞 ĐANG XOAY VÔ LĂNG ẢO: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
                     };
 
                     const handlePointerUp = (upEvt) => {
@@ -4195,75 +4145,44 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                   }}
                   title="🛞 Xoay Vô Lăng Ảo để bẻ lái phi thuyền sang Trái/Phải & Lên/Xuống"
                   style={{
-                    width: '180px', height: '115px', position: 'relative', cursor: 'grab',
+                    width: '140px', height: '90px', position: 'relative', cursor: 'grab',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}
                 >
-                  {/* Glowing SVG Virtual Steering Wheel */}
                   <svg 
-                    width="170" height="110" viewBox="0 0 200 130"
+                    width="130" height="85" viewBox="0 0 200 130"
                     style={{
                       transform: `rotate(${steerPos.x * 45}deg) translateY(${steerPos.y * 6}px)`,
                       transition: 'transform 0.08s ease-out',
-                      filter: 'drop-shadow(0 0 12px rgba(56, 189, 248, 0.7))'
+                      filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.6))'
                     }}
                   >
-                    {/* Outer Sci-Fi Wheel Rim */}
-                    <path 
-                      d="M 20 65 A 80 80 0 0 1 180 65 A 80 80 0 0 1 20 65 Z" 
-                      fill="none" stroke="#38bdf8" strokeWidth="8" strokeDasharray="140 18 140 18"
-                    />
-                    <path 
-                      d="M 25 65 A 75 75 0 0 1 175 65 A 75 75 0 0 1 25 65 Z" 
-                      fill="none" stroke="#f59e0b" strokeWidth="2.5"
-                    />
-                    
-                    {/* Left & Right Ergonomic Leather Grip Handles */}
+                    <path d="M 20 65 A 80 80 0 0 1 180 65 A 80 80 0 0 1 20 65 Z" fill="none" stroke="#38bdf8" strokeWidth="8" strokeDasharray="140 18 140 18" />
                     <rect x="12" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
                     <rect x="172" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
-
-                    {/* Wheel Center Spokes */}
                     <line x1="28" y1="65" x2="70" y2="65" stroke="#38bdf8" strokeWidth="6" />
                     <line x1="172" y1="65" x2="130" y2="65" stroke="#38bdf8" strokeWidth="6" />
-                    <line x1="100" y1="125" x2="100" y2="85" stroke="#38bdf8" strokeWidth="6" />
-
-                    {/* Central Glowing Steering Hub */}
-                    <circle cx="100" cy="65" r="28" fill="#09131d" stroke="#f59e0b" strokeWidth="3.5" />
-                    <circle cx="100" cy="65" r="18" fill="url(#hubGrad)" />
+                    <circle cx="100" cy="65" r="24" fill="#09131d" stroke="#f59e0b" strokeWidth="3" />
                     <text x="100" y="69" fill="#ffffff" fontSize="10" fontWeight="900" textAnchor="middle">
                       {(steerPos.x * 45).toFixed(0)}°
                     </text>
-
-                    {/* Steering Direction Arrow Hints */}
-                    <path d="M 40 30 L 25 25 L 35 40 Z" fill="#fde047" />
-                    <path d="M 160 30 L 175 25 L 165 40 Z" fill="#fde047" />
-
-                    <defs>
-                      <linearGradient id="hubGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#0284c7" />
-                        <stop offset="100%" stopColor="#0f172a" />
-                      </linearGradient>
-                    </defs>
                   </svg>
                 </div>
 
-                {/* Dashboard Speed & Flight Quick Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button
                     onClick={() => {
                       lastManualInputTimeRef.current = Date.now();
                       flightVectorRef.current.speed = 5.0;
                       setPilotSpeed(5.0);
-                      setGestureStatus('🚀 BẬT WARP PHI THUYỀN TIẾN THẲNG VỀ PHÍA TRƯỚC (SPEED 5.0)');
                     }}
                     style={{
                       background: pilotSpeed > 0 ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #38bdf8', borderRadius: '8px',
-                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer',
-                      boxShadow: pilotSpeed > 0 ? '0 0 10px rgba(56, 189, 248, 0.6)' : 'none'
+                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
-                    🚀 TIẾN THẲNG
+                    🚀 TIẾN (5.0)
                   </button>
 
                   <button
@@ -4271,12 +4190,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                       lastManualInputTimeRef.current = Date.now();
                       flightVectorRef.current.speed = 0;
                       setPilotSpeed(0);
-                      setGestureStatus('🛑 PHANH HÃM — PHI THUYỀN DỪNG LẠI TỨC THÌ (SPEED 0)');
                     }}
                     style={{
                       background: pilotSpeed === 0 ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #ef4444', borderRadius: '8px',
-                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
                     🛑 DỪNG
@@ -4284,148 +4202,113 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
                   <button
                     onClick={() => {
+                      lastManualInputTimeRef.current = Date.now();
                       flightVectorRef.current.speed = -2.5;
                       setPilotSpeed(-2.5);
-                      setGestureStatus('◀️ BAY LÙI PHI THUYỀN (SPEED -2.5)');
                     }}
                     style={{
                       background: pilotSpeed < 0 ? 'linear-gradient(135deg, #d97706, #f59e0b)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #f59e0b', borderRadius: '8px',
-                      padding: '3px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
-                    ◀️ LÙI LẠI
+                    ◀️ BAY LÙI
                   </button>
                 </div>
               </div>
 
-              {/* Right Dashboard Panel: Embedded Interactive Webcam AI Monitor */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
+              {/* Right: Embedded Interactive Webcam Feed */}
+              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                 <div 
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const steerX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-                    const steerY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-                    setSteerPos({ x: steerX, y: steerY });
-                    flightVectorRef.current.yaw += steerX * 0.035;
-                    flightVectorRef.current.pitch += -steerY * 0.035;
-                    setGestureStatus(`🖐️ ĐANG LÁI THEO CỬ CHỈ: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
-                  }}
-                  onClick={() => {
-                    flightVectorRef.current.speed = flightVectorRef.current.speed > 0 ? 0 : 5.0;
-                    setPilotSpeed(Number(flightVectorRef.current.speed.toFixed(1)));
-                  }}
-                  title="📷 Webcam AI nhận diện cử chỉ tay (Rê chuột/Chạm để lái thủ công)"
                   style={{
-                    background: 'rgba(9, 19, 29, 0.95)', border: '1.5px solid #f59e0b',
-                    borderRadius: '10px', padding: '4px', boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
-                    cursor: 'crosshair'
+                    background: 'rgba(9, 19, 29, 0.95)', border: '1px solid #f59e0b',
+                    borderRadius: '8px', padding: '3px', boxShadow: '0 0 10px rgba(245, 158, 11, 0.3)'
                   }}
                 >
-                  <div style={{ fontSize: '0.58rem', fontWeight: 900, color: '#f59e0b', marginBottom: '2px', textAlign: 'center' }}>
-                    📷 WEBCAM BÀN TAY AI
+                  <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#f59e0b', marginBottom: '1px', textAlign: 'center' }}>
+                    📷 WEBCAM AI
                   </div>
                   <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
-                  <canvas ref={webcamCanvasRef} width={110} height={80} style={{ borderRadius: '6px', background: '#020617', display: 'block' }} />
+                  <canvas ref={webcamCanvasRef} width={90} height={65} style={{ borderRadius: '4px', background: '#020617', display: 'block' }} />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Bottom Pill Navigation Toolbar */}
-        <div style={{
-          position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10,
-          display: 'flex', alignItems: 'center', gap: '6px',
-          background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '30px',
-          padding: '6px 14px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
-          maxWidth: '92%', overflowX: 'auto'
-        }}>
-          {[
-            { key: 'sun', label: 'MẶT TRỜI' },
-            { key: 'mercury', label: 'SAO THỦY' },
-            { key: 'venus', label: 'SAO KIM' },
-            { key: 'earth', label: 'TRÁI ĐẤT' },
-            { key: 'mars', label: 'SAO HỎA' },
-            { key: 'jupiter', label: 'SAO MỘC' },
-            { key: 'saturn', label: 'SAO THỔ' },
-            { key: 'uranus', label: 'SAO THIÊN VƯƠNG' },
-            { key: 'neptune', label: 'SAO HẢI VƯƠNG' }
-          ].map(item => {
-            const p = SOLAR_PLANETS_CONFIG[item.key];
-            const isSel = selectedPlanetKey === item.key;
-            return (
+        {/* Bottom Pill Navigation Toolbar (ONLY in Orbit Mode) */}
+        {!isGesturePilot && (
+          <div style={{
+            position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 10,
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(56, 189, 248, 0.35)', borderRadius: '30px',
+            padding: '6px 14px', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+            maxWidth: '92%', overflowX: 'auto'
+          }}>
+            {[
+              { key: 'sun', label: 'MẶT TRỜI' },
+              { key: 'mercury', label: 'SAO THỦY' },
+              { key: 'venus', label: 'SAO KIM' },
+              { key: 'earth', label: 'TRÁI ĐẤT' },
+              { key: 'mars', label: 'SAO HỎA' },
+              { key: 'jupiter', label: 'SAO MỘC' },
+              { key: 'saturn', label: 'SAO THỔ' },
+              { key: 'uranus', label: 'SAO THIÊN VƯƠNG' },
+              { key: 'neptune', label: 'SAO HẢI VƯƠNG' }
+            ].map(item => {
+              const isSel = selectedPlanetKey === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => handleSelectCelestial(item.key)}
+                  style={{
+                    background: isSel ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
+                    color: isSel ? '#38bdf8' : '#94a3b8',
+                    border: isSel ? '1.5px solid #38bdf8' : '1px solid transparent',
+                    borderRadius: '20px', padding: '6px 14px',
+                    fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer',
+                    whiteSpace: 'nowrap', transition: 'all 0.2s ease',
+                    boxShadow: isSel ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none'
+                  }}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+
+            {selectedPlanetKey && (
               <button
-                key={item.key}
-                onClick={() => handleSelectCelestial(item.key)}
+                onClick={() => setSelectedPlanetKey(null)}
                 style={{
-                  background: isSel ? 'rgba(56, 189, 248, 0.25)' : 'transparent',
-                  color: isSel ? '#38bdf8' : '#94a3b8',
-                  border: isSel ? '1.5px solid #38bdf8' : '1px solid transparent',
-                  borderRadius: '20px', padding: '6px 14px',
-                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer',
-                  whiteSpace: 'nowrap', transition: 'all 0.2s ease',
-                  boxShadow: isSel ? '0 0 12px rgba(56, 189, 248, 0.4)' : 'none'
+                  background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5',
+                  border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '20px',
+                  padding: '6px 14px', fontWeight: 800, fontSize: '0.75rem',
+                  cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '6px'
                 }}
               >
-                {item.label}
+                ← QUAY VỀ TỔNG QUAN
               </button>
-            );
-          })}
+            )}
+          </div>
+        )}
+      </div>
 
-          {selectedPlanetKey && (
-            <button
-              onClick={() => setSelectedPlanetKey(null)}
-              style={{
-                background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5',
-                border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '20px',
-                padding: '6px 14px', fontWeight: 800, fontSize: '0.75rem',
-                cursor: 'pointer', whiteSpace: 'nowrap', marginLeft: '6px'
-              }}
-            >
-              ← QUAY VỀ TỔNG QUAN
+      {/* Control Bar (Speed, Play/Pause) - ONLY in Orbit Mode */}
+      {!isGesturePilot && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>🚀 DU HÀNH HỆ MẶT TRỜI 3D · THREE.JS WEBGL REALTIME</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>Tốc độ quỹ đạo: <b style={{ color: '#38bdf8' }}>{speed}x</b></span>
+            <input type="range" min="0.2" max="5.0" step="0.2" value={speed} onChange={e => setSpeed(Number(e.target.value))} style={{ width: '100px', accentColor: '#38bdf8', cursor: 'pointer' }} />
+            <button onClick={() => setIsPlaying(!isPlaying)} style={{ background: isPlaying ? '#eab308' : '#0d9488', color: isPlaying ? '#000' : '#fff', border: 'none', borderRadius: '10px', padding: '7px 14px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
+              {isPlaying ? '⏸️ Dừng' : '▶️ Chạy'}
             </button>
-          )}
+          </div>
         </div>
-      </div>
-
-      {/* Control Bar (Speed, Play/Pause, & AI Gesture Pilot Toggle) */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: 'rgba(15, 23, 42, 0.6)', padding: '8px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>🚀 DU HÀNH HỆ MẶT TRỜI 3D · THREE.JS WEBGL REALTIME</span>
-          <button
-            onClick={() => {
-              const nextState = !isGesturePilot;
-              if (nextState && cameraRef.current) {
-                const cPos = cameraRef.current.position;
-                flightVectorRef.current.posX = cPos.x;
-                flightVectorRef.current.posY = cPos.y;
-                flightVectorRef.current.posZ = cPos.z;
-                flightVectorRef.current.speed = 0;
-              }
-              setIsGesturePilot(nextState);
-              if (onLog) onLog(nextState ? 'Bật Chế độ Lái Phi thuyền Cử chỉ tay AI MediaPipe.' : 'Tắt Chế độ Lái Phi thuyền.');
-            }}
-            style={{
-              background: isGesturePilot ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #0284c7, #2563eb)',
-              color: '#fff', border: 'none', borderRadius: '10px',
-              padding: '6px 14px', fontWeight: 800, fontSize: '0.78rem', cursor: 'pointer',
-              boxShadow: isGesturePilot ? '0 0 16px rgba(239, 68, 68, 0.6)' : '0 0 16px rgba(56, 189, 248, 0.4)',
-              display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px'
-            }}
-          >
-            {isGesturePilot ? '🛸 TẮT PHI THUYỀN' : '🚀 LÁI PHI THUYỀN CỬ CHỈ TAY AI'}
-          </button>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 700 }}>Tốc độ quỹ đạo: <b style={{ color: '#38bdf8' }}>{speed}x</b></span>
-          <input type="range" min="0.2" max="5.0" step="0.2" value={speed} onChange={e => setSpeed(Number(e.target.value))} style={{ width: '100px', accentColor: '#38bdf8', cursor: 'pointer' }} />
-          <button onClick={() => setIsPlaying(!isPlaying)} style={{ background: isPlaying ? '#eab308' : '#0d9488', color: isPlaying ? '#000' : '#fff', border: 'none', borderRadius: '10px', padding: '7px 14px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
-            {isPlaying ? '⏸️ Dừng' : '▶️ Chạy'}
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
