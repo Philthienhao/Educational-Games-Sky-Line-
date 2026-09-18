@@ -210,6 +210,18 @@ export function Sidebar({
               </button>
 
               <button 
+                className={`sidebar-nav-btn ${activeTab === 'parent-meeting' ? 'active' : ''}`}
+                onClick={() => { setActiveTab('parent-meeting'); if (isMobileOpen) setIsMobileOpen(false); }}
+                style={{
+                  background: activeTab === 'parent-meeting' ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' : undefined,
+                  fontWeight: activeTab === 'parent-meeting' ? 900 : undefined
+                }}
+              >
+                <HeartHandshake size={18} color={activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6'} />
+                <span style={{ color: activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6', fontWeight: 800 }}>Hỗ Trợ Họp Phụ Huynh</span>
+              </button>
+
+              <button 
                 className={`sidebar-nav-btn ${activeTab === 'textbook-download' ? 'active' : ''}`}
                 onClick={() => { setActiveTab('textbook-download'); if (isMobileOpen) setIsMobileOpen(false); }}
               >
@@ -243,18 +255,6 @@ export function Sidebar({
               >
                 <Presentation size={18} />
                 <span>Slide Bài Giảng</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'parent-meeting' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('parent-meeting'); if (isMobileOpen) setIsMobileOpen(false); }}
-                style={{
-                  background: activeTab === 'parent-meeting' ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' : undefined,
-                  fontWeight: activeTab === 'parent-meeting' ? 900 : undefined
-                }}
-              >
-                <HeartHandshake size={18} color={activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6'} />
-                <span style={{ color: activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6', fontWeight: 800 }}>Hỗ Trợ Họp Phụ Huynh</span>
               </button>
             </div>
           </div>
