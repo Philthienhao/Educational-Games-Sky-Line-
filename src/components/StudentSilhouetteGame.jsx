@@ -18,18 +18,133 @@ import {
   HelpCircle,
   Camera,
   Star,
-  Download
+  Download,
+  Sliders,
+  RefreshCw,
+  Image as ImageIcon
 } from 'lucide-react';
 import { SoundFX } from '../utils/sound';
 import { StorageService } from '../services/storage';
 
-// Initial sample student poses for out-of-the-box play matching reference video trochoihph.MP4
+// Helper to generate SVG transparent silhouette pose cutouts for default sample students
+const createSamplePoseSvg = (poseType) => {
+  let innerElements = '';
+
+  if (poseType === 'salute') {
+    // Pose 1: Salute / Hand to head 🫡
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 85 78 L 115 78 L 132 180 L 68 180 Z" fill="#0f172a"/>
+      <!-- Left Arm down -->
+      <path d="M 68 85 L 50 145 L 62 148 L 78 95 Z" fill="#0f172a"/>
+      <!-- Right Arm Raised to Head (Salute) -->
+      <path d="M 132 85 L 158 115 L 140 120 L 122 68 L 118 58 L 105 58 L 118 72 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'heart') {
+    // Pose 2: Hand Heart / Bắn tim 🫶
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#0f172a"/>
+      <!-- Arms bent inward forming heart over chest -->
+      <path d="M 72 85 L 55 110 L 85 118 L 92 100 Z" fill="#0f172a"/>
+      <path d="M 128 85 L 145 110 L 115 118 L 108 100 Z" fill="#0f172a"/>
+      <!-- Heart shape formed by hands -->
+      <path d="M 100 102 C 92 90, 80 96, 92 108 L 100 116 L 108 108 C 120 96, 108 90, 100 102 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'peace') {
+    // Pose 3: Both Arms V Peace Sign ✌️✌️
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 130 180 L 70 180 Z" fill="#0f172a"/>
+      <!-- Left Arm Raised Peace -->
+      <path d="M 72 85 L 42 50 L 52 42 L 80 80 Z" fill="#0f172a"/>
+      <path d="M 38 42 L 32 20 L 40 20 L 44 38 Z" fill="#0f172a"/>
+      <path d="M 45 42 L 52 24 L 58 26 L 50 44 Z" fill="#0f172a"/>
+      <!-- Right Arm Raised Peace -->
+      <path d="M 128 85 L 158 50 L 148 42 L 120 80 Z" fill="#0f172a"/>
+      <path d="M 162 42 L 168 20 L 160 20 L 156 38 Z" fill="#0f172a"/>
+      <path d="M 155 42 L 148 24 L 142 26 L 150 44 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'artwork') {
+    // Pose 4: Holding Artwork Drawing Frame 🎨
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 132 180 L 68 180 Z" fill="#0f172a"/>
+      <!-- Rectangular Drawing Frame held in hands -->
+      <rect x="52" y="105" width="96" height="64" rx="4" fill="#0f172a" stroke="#0f172a" strokeWidth="2"/>
+      <!-- Left Arm & Hand holding frame -->
+      <path d="M 72 85 L 48 115 L 56 125 L 78 95 Z" fill="#0f172a"/>
+      <!-- Right Arm & Hand holding frame -->
+      <path d="M 128 85 L 152 115 L 144 125 L 122 95 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'cool') {
+    // Pose 5: Cool Pose Hands in Pockets 🕶️
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <!-- Left Arm to Pocket -->
+      <path d="M 72 85 L 54 130 L 78 135 Z" fill="#0f172a"/>
+      <!-- Right Arm to Pocket -->
+      <path d="M 128 85 L 146 130 L 122 135 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'victory') {
+    // Pose 6: Victory Y-Arms Raised High 🏆
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <!-- Left Arm Raised High Y -->
+      <path d="M 75 85 L 35 25 L 48 20 L 85 78 Z" fill="#0f172a"/>
+      <!-- Right Arm Raised High Y -->
+      <path d="M 125 85 L 165 25 L 152 20 L 115 78 Z" fill="#0f172a"/>
+    `;
+  } else if (poseType === 'tilt') {
+    // Pose 7: Tilt Head Girl Pose 👧
+    innerElements = `
+      <!-- Hair & Tilted Head -->
+      <circle cx="106" cy="52" r="26" fill="#0f172a"/>
+      <path d="M 76 45 C 70 85, 82 105, 84 115 C 95 105, 126 105, 134 45 Z" fill="#0f172a"/>
+      <!-- Torso -->
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <!-- Hands resting under chin -->
+      <path d="M 72 85 L 98 72 L 105 85 Z" fill="#0f172a"/>
+      <path d="M 128 85 L 102 72 L 95 85 Z" fill="#0f172a"/>
+    `;
+  } else {
+    // Pose 8: Crossed Arms Tự Tin 💪
+    innerElements = `
+      <!-- Head -->
+      <circle cx="100" cy="55" r="24" fill="#0f172a"/>
+      <!-- Neck & Torso -->
+      <path d="M 82 78 L 118 78 L 128 180 L 72 180 Z" fill="#0f172a"/>
+      <!-- Horizontal Crossed Arms -->
+      <rect x="58" y="95" width="84" height="28" rx="14" fill="#0f172a"/>
+    `;
+  }
+
+  const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">${innerElements}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+};
+
+// INITIAL SAMPLE STUDENTS WITH 100% PURE POSE CUTOUT SILHOUETTES
 const DEFAULT_SAMPLE_STUDENTS = [
   {
     id: 'sample_1',
     name: 'Nguyễn Minh An',
     poseLabel: 'Chào Đội Viên (Salute Pose)',
     photoUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('salute'),
     isRevealed: false
   },
   {
@@ -37,6 +152,7 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Trần Bảo Nam',
     poseLabel: 'Giơ Tay Bắn Tim (Heart Pose)',
     photoUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('heart'),
     isRevealed: false
   },
   {
@@ -44,6 +160,7 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Lê Hoàng Yến',
     poseLabel: 'Tạo Dáng V Thắng Lợi (Peace Sign)',
     photoUrl: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('peace'),
     isRevealed: false
   },
   {
@@ -51,13 +168,15 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Phạm Đức Anh',
     poseLabel: 'Khoe Tranh Vẽ (Holding Artwork)',
     photoUrl: 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('artwork'),
     isRevealed: false
   },
   {
     id: 'sample_5',
     name: 'Vũ Thảo Chi',
-    poseLabel: 'Suy Nghĩ Đúc Tay Túi (Cool Pose)',
+    poseLabel: 'Suy Nghĩ Đút Tay Túi (Cool Pose)',
     photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('cool'),
     isRevealed: false
   },
   {
@@ -65,6 +184,7 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Hoàng Nhật Minh',
     poseLabel: 'Giơ Hai Tay Thể Thao (Victory Arms)',
     photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('victory'),
     isRevealed: false
   },
   {
@@ -72,6 +192,7 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Đặng Mai Phương',
     poseLabel: 'Nghiêng Đầu Cười (Tilt Head)',
     photoUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('tilt'),
     isRevealed: false
   },
   {
@@ -79,9 +200,108 @@ const DEFAULT_SAMPLE_STUDENTS = [
     name: 'Bùi Gia Hưng',
     poseLabel: 'Khoanh Tay Tự Tin (Crossed Arms)',
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+    silhouetteUrl: createSamplePoseSvg('crossed'),
     isRevealed: false
   }
 ];
+
+// HIGH-PRECISION CANVAS BACKGROUND CUTOUT SILHOUETTE GENERATOR
+export function processCutoutSilhouette(imageSrc, options = {}) {
+  return new Promise((resolve) => {
+    if (!imageSrc) {
+      resolve('');
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = imageSrc;
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const width = canvas.width;
+        const height = canvas.height;
+
+        const tolerance = options.tolerance !== undefined ? options.tolerance : 48;
+        const mode = options.mode || 'auto'; // 'auto' | 'light' | 'none'
+
+        if (mode === 'none') {
+          resolve(imageSrc);
+          return;
+        }
+
+        // Sample background color from border pixels and corners
+        let bgR = 0, bgG = 0, bgB = 0, samples = 0;
+        
+        for (let x = 0; x < width; x += Math.max(1, Math.floor(width / 30))) {
+          const idxTop = (0 * width + x) * 4;
+          if (data[idxTop + 3] > 20) {
+            bgR += data[idxTop];
+            bgG += data[idxTop + 1];
+            bgB += data[idxTop + 2];
+            samples++;
+          }
+        }
+        for (let y = 0; y < height; y += Math.max(1, Math.floor(height / 30))) {
+          const idxLeft = (y * width + 0) * 4;
+          const idxRight = (y * width + width - 1) * 4;
+          if (data[idxLeft + 3] > 20) { bgR += data[idxLeft]; bgG += data[idxLeft+1]; bgB += data[idxLeft+2]; samples++; }
+          if (data[idxRight + 3] > 20) { bgR += data[idxRight]; bgG += data[idxRight+1]; bgB += data[idxRight+2]; samples++; }
+        }
+
+        if (samples > 0) {
+          bgR /= samples;
+          bgG /= samples;
+          bgB /= samples;
+        } else {
+          bgR = 240; bgG = 240; bgB = 240;
+        }
+
+        if (mode === 'light') { bgR = 245; bgG = 245; bgB = 245; }
+
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
+
+          // If pixel is already transparent (PNG)
+          if (a < 30) {
+            data[i + 3] = 0;
+            continue;
+          }
+
+          // Distance from sampled background color
+          const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+          if (dist < tolerance) {
+            // Cutout background: set transparent!
+            data[i + 3] = 0;
+          } else {
+            // Solid dark silhouette pose for student body
+            data[i] = 15;
+            data[i + 1] = 23;
+            data[i + 2] = 42;
+            data[i + 3] = 255;
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) {
+        console.warn('Silhouette cutout error:', err);
+        resolve(imageSrc);
+      }
+    };
+    img.onerror = () => resolve(imageSrc);
+  });
+}
 
 export function StudentSilhouetteGame({ currentUser }) {
   const [students, setStudents] = useState(() => {
@@ -97,11 +317,13 @@ export function StudentSilhouetteGame({ currentUser }) {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [silhouetteStyle, setSilhouetteStyle] = useState('solid'); // 'solid' | 'glow' | 'contrast'
   const [showAddModal, setShowAddModal] = useState(false);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentPhoto, setNewStudentPhoto] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [newSilhouettePhoto, setNewSilhouettePhoto] = useState('');
+  const [cutoutTolerance, setCutoutTolerance] = useState(48);
+  const [cutoutMode, setCutoutMode] = useState('auto'); // 'auto' | 'light' | 'none'
+  const [isProcessingCutout, setIsProcessingCutout] = useState(false);
 
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -113,6 +335,17 @@ export function StudentSilhouetteGame({ currentUser }) {
       JSON.stringify(students)
     );
   }, [students, currentUser]);
+
+  // Re-process uploaded photo cutout when tolerance or mode changes in modal
+  useEffect(() => {
+    if (!newStudentPhoto) return;
+    setIsProcessingCutout(true);
+    processCutoutSilhouette(newStudentPhoto, { tolerance: cutoutTolerance, mode: cutoutMode })
+      .then(res => {
+        setNewSilhouettePhoto(res);
+        setIsProcessingCutout(false);
+      });
+  }, [newStudentPhoto, cutoutTolerance, cutoutMode]);
 
   // Toggle reveal state for a specific card
   const handleToggleReveal = (id) => {
@@ -156,25 +389,35 @@ export function StudentSilhouetteGame({ currentUser }) {
   };
 
   // Import students & photos from Homeroom class list
-  const handleImportFromHomeroom = () => {
+  const handleImportFromHomeroom = async () => {
     try {
       const hrData = StorageService.getTeacherHomeroom(currentUser?.id);
       if (hrData && hrData.students && Array.isArray(hrData.students) && hrData.students.length > 0) {
-        const imported = hrData.students.map((st, idx) => ({
-          id: `hr_${st.id || idx}_${Date.now()}`,
-          name: st.name || `Học sinh ${idx + 1}`,
-          poseLabel: st.gender === 'Nữ' ? 'Tư thế học sinh nữ' : 'Tư thế học sinh nam',
-          photoUrl: st.avatar || DEFAULT_SAMPLE_STUDENTS[idx % DEFAULT_SAMPLE_STUDENTS.length].photoUrl,
-          isRevealed: false
-        }));
+        setIsProcessingCutout(true);
+        const importedPromises = hrData.students.map(async (st, idx) => {
+          const photoUrl = st.avatar || DEFAULT_SAMPLE_STUDENTS[idx % DEFAULT_SAMPLE_STUDENTS.length].photoUrl;
+          const silhouetteUrl = await processCutoutSilhouette(photoUrl, { tolerance: 48, mode: 'auto' });
+          return {
+            id: `hr_${st.id || idx}_${Date.now()}`,
+            name: st.name || `Học sinh ${idx + 1}`,
+            poseLabel: st.gender === 'Nữ' ? 'Tư thế học sinh nữ' : 'Tư thế học sinh nam',
+            photoUrl,
+            silhouetteUrl: silhouetteUrl || DEFAULT_SAMPLE_STUDENTS[idx % DEFAULT_SAMPLE_STUDENTS.length].silhouetteUrl,
+            isRevealed: false
+          };
+        });
+
+        const imported = await Promise.all(importedPromises);
         setStudents(imported);
+        setIsProcessingCutout(false);
         if (audioEnabled) SoundFX.correct();
-        alert(`🎉 Đã tải thành công ${imported.length} học sinh từ Lớp Chủ Nhiệm!`);
+        alert(`🎉 Đã tải thành công ${imported.length} học sinh từ Lớp Chủ Nhiệm và tự động tách nền lấy bóng dáng tư thế!`);
       } else {
-        alert('⚠️ Chưa tìm thấy dữ liệu học sinh trong Lớp Chủ Nhiệm. Thầy/Cô có thể tải ảnh lên thủ công hoặc thêm học sinh ở phần Lớp Chủ Nhiệm.');
+        alert('⚠️ Chưa tìm thấy dữ liệu học sinh trong Lớp Chủ Nhiệm. Thầy/Cô có thể tải ảnh lên thủ công.');
       }
     } catch (err) {
       console.warn('Homeroom import notice:', err);
+      setIsProcessingCutout(false);
     }
   };
 
@@ -206,12 +449,14 @@ export function StudentSilhouetteGame({ currentUser }) {
       name: newStudentName.trim() || `Học sinh ${students.length + 1}`,
       poseLabel: 'Tư thế tự chọn',
       photoUrl: newStudentPhoto,
+      silhouetteUrl: newSilhouettePhoto || newStudentPhoto,
       isRevealed: false
     };
 
     setStudents(prev => [...prev, newSt]);
     setNewStudentName('');
     setNewStudentPhoto('');
+    setNewSilhouettePhoto('');
     setShowAddModal(false);
     if (audioEnabled) SoundFX.correct();
   };
@@ -227,7 +472,7 @@ export function StudentSilhouetteGame({ currentUser }) {
 
   // Reset to default sample roster
   const handleResetToSample = () => {
-    if (confirm('Thầy/Cô có muốn khôi phục về bộ ảnh mẫu ban đầu không?')) {
+    if (confirm('Thầy/Cô có muốn khôi phục về bộ ảnh dáng tư thế mẫu ban đầu không?')) {
       setStudents(DEFAULT_SAMPLE_STUDENTS);
       if (audioEnabled) SoundFX.click();
     }
@@ -277,7 +522,7 @@ export function StudentSilhouetteGame({ currentUser }) {
               TRÒ CHƠI KHỞI ĐỘNG HỌP PHỤ HUYNH
             </div>
             <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#ffffff', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(236, 72, 153, 0.4)' }}>
-              🎭 ĐOÁN BÓNG TÌM CON
+              🎭 ĐOÁN BÓNG TÌM CON (TỰ ĐỘNG TÁCH NỀN LẤY DÁNG TƯ THẾ)
             </h2>
           </div>
         </div>
@@ -375,6 +620,7 @@ export function StudentSilhouetteGame({ currentUser }) {
           <button
             onClick={handleImportFromHomeroom}
             title="Lấy danh sách ảnh & tên học sinh từ Lớp Chủ Nhiệm"
+            disabled={isProcessingCutout}
             style={{
               background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8',
               border: '1px solid rgba(56, 189, 248, 0.4)', borderRadius: '10px',
@@ -383,7 +629,7 @@ export function StudentSilhouetteGame({ currentUser }) {
             }}
           >
             <Users size={16} />
-            <span>LẤY TỪ LỚP CHỦ NHIỆM</span>
+            <span>{isProcessingCutout ? 'ĐANG TÁCH NỀN BÓNG DÁNG...' : 'LẤY TỪ LỚP CHỦ NHIỆM'}</span>
           </button>
 
           <button
@@ -402,7 +648,7 @@ export function StudentSilhouetteGame({ currentUser }) {
 
           <button
             onClick={handleResetToSample}
-            title="Khôi phục về ảnh mẫu mặc định"
+            title="Khôi phục về bộ dáng tư thế mẫu mặc định"
             style={{
               background: 'rgba(255,255,255,0.08)', color: '#cbd5e1',
               border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px',
@@ -411,7 +657,7 @@ export function StudentSilhouetteGame({ currentUser }) {
             }}
           >
             <RotateCcw size={14} />
-            <span>MẪU</span>
+            <span>MẪU DÁNG</span>
           </button>
 
         </div>
@@ -429,7 +675,7 @@ export function StudentSilhouetteGame({ currentUser }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Sparkles size={20} color="#f59e0b" />
           <span style={{ fontSize: '0.9rem', color: '#fde047', fontWeight: 800 }}>
-            📌 Hướng Dẫn: Kính mời Phụ Huynh quan sát tư thế dáng hình bóng đen và đoán số tương ứng của con!
+            📌 Hướng Dẫn: Kính mời Phụ Huynh quan sát tư thế bóng dáng của học sinh (đã tách sạch khung nền) và đoán số tương ứng!
           </span>
         </div>
 
@@ -456,11 +702,16 @@ export function StudentSilhouetteGame({ currentUser }) {
           const numberBadge = index + 1;
           const isRevealed = student.isRevealed;
 
+          // Determine which image URL to render:
+          // Unrevealed mode -> render student.silhouetteUrl (transparent background cutout!)
+          // Revealed mode -> render student.photoUrl (full color original photo!)
+          const displayImage = isRevealed ? student.photoUrl : (student.silhouetteUrl || student.photoUrl);
+
           return (
             <div 
               key={student.id}
               onClick={() => handleToggleReveal(student.id)}
-              title={isRevealed ? `Bấm để ẩn lại bóng đen` : `Bấm vào đây để mở đáp án cho Phụ Huynh!`}
+              title={isRevealed ? `Bấm để ẩn lại bóng dáng tư thế` : `Bấm vào đây để mở đáp án ảnh thật cho Phụ Huynh!`}
               style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
                 cursor: 'pointer', position: 'relative', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -497,21 +748,17 @@ export function StudentSilhouetteGame({ currentUser }) {
                   <Trash2 size={12} />
                 </button>
 
-                {/* THE SILHOUETTE VS REVEALED REAL PHOTO DISPLAY */}
+                {/* THE SILHOUETTE BODY CUTOUT VS REVEALED REAL PHOTO DISPLAY */}
                 <img 
-                  src={student.photoUrl} 
+                  src={displayImage} 
                   alt={student.name}
                   style={{
                     maxWidth: '100%', maxHeight: '100%',
                     objectFit: 'contain',
-                    // SILHOUETTE SHADER EFFECT MATCHING trochoihph.MP4
-                    filter: isRevealed 
-                      ? 'none' 
-                      : silhouetteStyle === 'solid'
-                        ? 'brightness(0) drop-shadow(0 4px 10px rgba(0,0,0,0.8))'
-                        : silhouetteStyle === 'glow'
-                          ? 'brightness(0) drop-shadow(0 0 14px #f59e0b)'
-                          : 'brightness(0) contrast(200%)',
+                    // Fallback brightness filter if silhouetteUrl is raw photo
+                    filter: (!isRevealed && !student.silhouetteUrl) 
+                      ? 'brightness(0) drop-shadow(0 4px 10px rgba(0,0,0,0.8))'
+                      : 'drop-shadow(0 6px 12px rgba(0,0,0,0.5))',
                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                     transform: isRevealed ? 'scale(1.05)' : 'scale(1)'
                   }}
@@ -557,7 +804,7 @@ export function StudentSilhouetteGame({ currentUser }) {
         })}
       </div>
 
-      {/* Modal for Uploading Custom Student Photos */}
+      {/* Modal for Uploading & Auto-Tuning Cutout Student Photos */}
       {showAddModal && (
         <div 
           style={{
@@ -570,7 +817,7 @@ export function StudentSilhouetteGame({ currentUser }) {
           <div 
             style={{
               background: '#0f172a', borderRadius: '20px',
-              border: '1.5px solid #ec4899', width: '100%', maxWidth: '480px',
+              border: '1.5px solid #ec4899', width: '100%', maxWidth: '540px',
               padding: '28px', boxShadow: '0 25px 50px rgba(0,0,0,0.8)',
               display: 'flex', flexDirection: 'column', gap: '18px'
             }}
@@ -578,7 +825,7 @@ export function StudentSilhouetteGame({ currentUser }) {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f472b6', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Camera size={22} />
-                Tải Ảnh Học Sinh Mới
+                Tải Ảnh & Tự Động Tách Nền Bóng Dáng
               </h3>
               <button 
                 onClick={() => setShowAddModal(false)}
@@ -607,7 +854,7 @@ export function StudentSilhouetteGame({ currentUser }) {
 
               <div>
                 <label style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700, display: 'block', marginBottom: '6px' }}>
-                  Hình Ảnh Tư Thế Học Sinh (Tải tệp từ máy tính):
+                  Hình Ảnh Học Sinh (Tải tệp từ máy tính):
                 </label>
                 
                 <input 
@@ -622,24 +869,82 @@ export function StudentSilhouetteGame({ currentUser }) {
                   onClick={() => fileInputRef.current?.click()}
                   style={{
                     border: '2px dashed rgba(236, 72, 153, 0.5)', borderRadius: '14px',
-                    padding: '20px', textAlign: 'center', cursor: 'pointer',
+                    padding: '16px', textAlign: 'center', cursor: 'pointer',
                     background: 'rgba(236, 72, 153, 0.05)', transition: 'all 0.2s'
                   }}
                 >
                   {newStudentPhoto ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                      <img src={newStudentPhoto} alt="Preview" style={{ maxHeight: '140px', borderRadius: '10px', objectFit: 'contain' }} />
-                      <span style={{ fontSize: '0.78rem', color: '#f472b6', fontWeight: 800 }}>Bấm để chọn tệp khác</span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px' }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700, marginBottom: '4px' }}>Ảnh Gốc:</div>
+                        <img src={newStudentPhoto} alt="Original" style={{ maxHeight: '120px', borderRadius: '10px', objectFit: 'contain' }} />
+                      </div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#f472b6', fontWeight: 700, marginBottom: '4px' }}>Bóng Dáng Tách Nền:</div>
+                        <div style={{ background: '#020617', padding: '6px', borderRadius: '10px', display: 'inline-block' }}>
+                          <img src={newSilhouettePhoto || newStudentPhoto} alt="Silhouette Cutout" style={{ maxHeight: '110px', objectFit: 'contain' }} />
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', color: '#f472b6' }}>
                       <Upload size={28} />
-                      <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Bấm vào đây để chọn tệp ảnh học sinh</span>
-                      <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Hỗ trợ JPG, PNG, WEBP</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Bấm vào đây để chọn tệp ảnh chụp tư thế học sinh</span>
+                      <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Hệ thống tự động cắt bỏ nền tường và lấy riêng bóng đen tư thế học sinh!</span>
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Tách Nền Fine-Tuning Controls */}
+              {newStudentPhoto && (
+                <div style={{ background: 'rgba(15, 23, 42, 0.8)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#fde047', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Sliders size={14} /> Độ Nhạy Cắt Nền: {cutoutTolerance}
+                    </span>
+                    {isProcessingCutout && <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: 700 }}>Đang xử lý...</span>}
+                  </div>
+                  <input 
+                    type="range" min="15" max="110" step="3"
+                    value={cutoutTolerance}
+                    onChange={(e) => setCutoutTolerance(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#ec4899', cursor: 'pointer' }}
+                  />
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setCutoutMode('auto')}
+                      style={{
+                        flex: 1, background: cutoutMode === 'auto' ? '#ec4899' : 'rgba(255,255,255,0.08)',
+                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                      }}
+                    >
+                      Tự Động Tách
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCutoutMode('light')}
+                      style={{
+                        flex: 1, background: cutoutMode === 'light' ? '#ec4899' : 'rgba(255,255,255,0.08)',
+                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                      }}
+                    >
+                      Nền Tường Sáng
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCutoutMode('none')}
+                      style={{
+                        flex: 1, background: cutoutMode === 'none' ? '#ec4899' : 'rgba(255,255,255,0.08)',
+                        color: '#fff', border: 'none', borderRadius: '6px', padding: '4px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                      }}
+                    >
+                      Ảnh Đã Tách Nền Sẵn (PNG)
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button
@@ -654,13 +959,14 @@ export function StudentSilhouetteGame({ currentUser }) {
                 </button>
                 <button
                   type="submit"
+                  disabled={isProcessingCutout}
                   style={{
                     flex: 1, background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)', color: '#ffffff',
                     border: 'none', borderRadius: '10px', padding: '10px', fontWeight: 800, cursor: 'pointer',
                     boxShadow: '0 0 15px rgba(236, 72, 153, 0.5)'
                   }}
                 >
-                  + Tải Lên & Thêm Vào Game
+                  {isProcessingCutout ? 'ĐANG TÁCH NỀN...' : '+ TẢI LÊN & THÊM VÀO GAME'}
                 </button>
               </div>
             </form>
