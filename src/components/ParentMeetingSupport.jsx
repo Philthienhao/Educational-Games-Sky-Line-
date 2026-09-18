@@ -4,10 +4,9 @@ import {
   Users, 
   Sparkles,
   Calendar,
-  Clock,
-  PlusCircle,
-  MessageSquareQuote
+  Clock
 } from 'lucide-react';
+import { StudentSilhouetteGame } from './StudentSilhouetteGame';
 
 export function ParentMeetingSupport({ currentUser }) {
   const [meetingTitle, setMeetingTitle] = useState('Họp Phụ Huynh Học Sinh Đầu Năm Học 2025 - 2026');
@@ -98,7 +97,7 @@ export function ParentMeetingSupport({ currentUser }) {
           </div>
 
           <p style={{ color: '#cbd5e1', fontSize: '0.95rem', margin: 0, maxWidth: '850px', lineHeight: '1.6' }}>
-            Khu vực chuẩn bị và điều hành cuộc họp Phụ huynh học sinh. Thầy/Cô có thể yêu cầu tích hợp các công cụ phục vụ họp phụ huynh theo nhu cầu thực tế bất kỳ lúc nào.
+            Khu vực chuẩn bị và điều hành cuộc họp Phụ huynh học sinh. Tích hợp trò chơi khởi động <b>"Đoán Bóng Tìm Con"</b> giúp cuộc họp khởi đầu vui tươi, hào hứng và thắt chặt tình cảm gia đình - nhà trường.
           </p>
 
           {/* Quick Setup Bar */}
@@ -140,55 +139,8 @@ export function ParentMeetingSupport({ currentUser }) {
         </div>
       </div>
 
-      {/* Clean Workspace Card Ready for User Requirements */}
-      <div 
-        style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
-          borderRadius: '20px',
-          border: '1.5px dashed rgba(236, 72, 153, 0.35)',
-          padding: '48px 32px',
-          textAlign: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justify: 'center',
-          gap: '16px',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-        }}
-      >
-        <div 
-          style={{
-            width: '64px', height: '64px', borderRadius: '20px',
-            background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
-            border: '1px solid rgba(236, 72, 153, 0.4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#f472b6',
-            boxShadow: '0 0 25px rgba(236, 72, 153, 0.2)'
-          }}
-        >
-          <Sparkles size={32} />
-        </div>
-
-        <div style={{ maxWidth: '600px' }}>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffffff', margin: '0 0 8px 0' }}>
-            Không Gian Hỗ Trợ Họp Phụ Huynh Đã Sẵn Sàng!
-          </h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.92rem', lineHeight: '1.6', margin: 0 }}>
-            Tất cả các chức năng mẫu đã được dọn dẹp. Thầy/Cô hãy đưa ra các yêu cầu cụ thể (ví dụ: <i>Báo điểm học sinh, phiếu góp ý, vinh danh học sinh, thu chi quỹ lớp...</i>), hệ thống sẽ tích hợp chính xác theo mong muốn!
-          </p>
-        </div>
-
-        <div 
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(236, 72, 153, 0.12)', color: '#f472b6',
-            border: '1px solid rgba(236, 72, 153, 0.3)', borderRadius: '12px',
-            padding: '8px 18px', fontSize: '0.85rem', fontWeight: 800, marginTop: '8px'
-          }}
-        >
-          <PlusCircle size={16} /> Nhập yêu cầu tính năng tiếp theo để tiếp tục phát triển
-        </div>
-      </div>
+      {/* RENDER THE STUDENT SILHOUETTE ICEBREAKER GAME (TRÒ CHƠI ĐOÁN BÓNG TÌM CON) */}
+      <StudentSilhouetteGame currentUser={currentUser} />
 
     </div>
   );
