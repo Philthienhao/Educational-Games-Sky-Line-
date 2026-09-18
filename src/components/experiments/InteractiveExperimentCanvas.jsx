@@ -2824,59 +2824,6 @@ const CELESTIAL_CHEMICAL_DATA = {
       { name: 'Manti Silicat', chem: 'Olivin, Pyroxen', temp: '1.500°C', press: '40 GPa' },
       { name: 'Lõi Kim loại', chem: 'Fe, Ni, FeS (Sắt Sulfua)', temp: '1.800°C', press: '50 GPa' }
     ]
-  },
-  jupiter: {
-    name: 'SAO MỘC',
-    color: '#c9a97a',
-    layers: [
-      { name: 'Tầng mây Khí quyển', chem: '89% H₂, 10% He, NH₃', temp: '-110°C', press: '1 - 10 atm' },
-      { name: 'Hydro Kim loại Lỏng', chem: 'Liquid Metallic H⁺ + e⁻', temp: '10.000°C', press: '2.000 GPa (20M atm)' },
-      { name: 'Lõi Đá & Băng Khổng lồ', chem: 'Sắt, Silicat, Nước (H₂O), Băng', temp: '30.000°C', press: '4.000 GPa' }
-    ]
-  },
-  saturn: {
-    name: 'SAO THỔ',
-    color: '#eab308',
-    layers: [
-      { name: 'Tầng mây Khí quyển & Vành đai', chem: '96% H₂, 3% He, H₂O băng', temp: '-140°C', press: '1.4 atm' },
-      { name: 'Hydro Kim loại', chem: 'Metallic Hydrogen', temp: '8.000°C', press: '1.000 GPa' },
-      { name: 'Lõi Rắn Băng & Đá', chem: 'Silicat & Băng nước áp suất cao', temp: '11.700°C', press: '1.500 GPa' }
-    ]
-  },
-  uranus: {
-    name: 'SAO THIÊN VƯƠNG',
-    color: '#38bdf8',
-    layers: [
-      { name: 'Tầng mây Mêtan', chem: '83% H₂, 15% He, 2% CH₄', temp: '-195°C', press: '1.2 atm' },
-      { name: 'Manti Băng Nóng', chem: 'H₂O, NH₃, CH₄ (Manti Băng)', temp: '5.000°C', press: '800 GPa' },
-      { name: 'Lõi Đá', chem: 'Sắt - Niken & Silicat', temp: '7.000°C', press: '900 GPa' }
-    ]
-  },
-  neptune: {
-    name: 'SAO HẢI VƯƠNG',
-    color: '#2563eb',
-    layers: [
-      { name: 'Khí quyển Xanh Mêtan', chem: '80% H₂, 19% He, 1.5% CH₄', temp: '-200°C', press: '1.5 atm' },
-      { name: 'Manti Dung dịch Băng Nóng', chem: 'Dung dịch H₂O, NH₃, CH₄ Áp suất cao', temp: '5.100°C', press: '850 GPa' },
-      { name: 'Lõi Kim loại Đá', chem: 'Silicat Đá & Sắt', temp: '7.200°C', press: '1.000 GPa' }
-    ]
-  },
-  mercury: {
-    name: 'SAO THỦY',
-    color: '#94a3b8',
-    layers: [
-      { name: 'Vỏ Lục địa Khô', chem: 'Silicat Basalt', temp: '430°C / -180°C', press: '0 atm' },
-      { name: 'Lõi Sắt Khổng lồ (75% R)', chem: 'Sắt Kim loại Rắn & Lỏng', temp: '2.000°C', press: '40 GPa' }
-    ]
-  },
-  venus: {
-    name: 'SAO KIM',
-    color: '#f97316',
-    layers: [
-      { name: 'Khí quyển CO₂ Dày', chem: '96.5% CO₂, 3.5% N₂, H₂SO₄', temp: '465°C', press: '92 atm' },
-      { name: 'Manti Silicat', chem: 'Silicat Đá Nóng chảy', temp: '2.500°C', press: '100 GPa' },
-      { name: 'Lõi Sắt Bán Lỏng', chem: 'Sắt & Niken', temp: '3.500°C', press: '150 GPa' }
-    ]
   }
 };
 
@@ -2897,10 +2844,10 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     return !!(experiment?.startInCockpit || experiment?.isCockpit);
   });
   const [isAutopilot, setIsAutopilot] = useState(false);
-  const [gestureStatus, setGestureStatus] = useState('🖐️ Vẫy tay trước Camera AI | 🤌 Chụm tay: Tăng tốc | ✊ Nắm tay: Phanh | ✌️ 2 Ngón: Xem Lõi');
+  const [gestureStatus, setGestureStatus] = useState('🎮WASD/Mũi tên/Vô lăng ảo | 🖐️ Vẫy 2 tay trước Camera AI để bẻ lái');
   const [currentGesture, setCurrentGesture] = useState('NONE');
   const [isXRayMode, setIsXRayMode] = useState(false);
-  const [pilotSpeed, setPilotSpeed] = useState(0);
+  const [pilotSpeed, setPilotSpeed] = useState(4.0);
   const [targetPlanetKey, setTargetPlanetKey] = useState('earth');
   const [targetPlanetName, setTargetPlanetName] = useState('TRÁI ĐẤT');
   const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
@@ -2912,9 +2859,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     steerAngleDeg: '0.0',
     yaw: '0.00',
     pitch: '0.00',
-    isMoving: false,
-    speed: '0.0',
-    currentCommand: '🛑 Dừng lại / Lơ lửng'
+    isMoving: true,
+    speed: '4.0',
+    currentCommand: '🚀 Đang bay du hành 3D'
   });
 
   const speedRef = useRef(speed);
@@ -2924,9 +2871,28 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const isAutopilotRef = useRef(isAutopilot);
   const isXRayModeRef = useRef(isXRayMode);
 
+  const lastManualInputTimeRef = useRef(Date.now());
+  const lastGestureTimeRef = useRef(0);
+
   const cameraRef = useRef(null);
-  // Flight vectors
-  const flightVectorRef = useRef({ yaw: 0, pitch: 0, speed: 0, posX: -25, posY: 140, posZ: 245 });
+  // Flight vectors - start with cruising speed 4.0
+  const flightVectorRef = useRef({ yaw: 0, pitch: 0, speed: 4.0, posX: -25, posY: 140, posZ: 245 });
+
+  useEffect(() => {
+    if (experiment?.startInCockpit || experiment?.isCockpit) {
+      setIsGesturePilot(true);
+    }
+  }, [experiment?.startInCockpit, experiment?.isCockpit]);
+
+  useEffect(() => {
+    if (isGesturePilot) {
+      if (flightVectorRef.current.speed === 0) {
+        flightVectorRef.current.speed = 4.0;
+        setPilotSpeed(4.0);
+      }
+      lastManualInputTimeRef.current = Date.now();
+    }
+  }, [isGesturePilot]);
 
   useEffect(() => {
     speedRef.current = speed;
@@ -2942,6 +2908,103 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
   useEffect(() => {
     isGesturePilotRef.current = isGesturePilot;
+  }, [isGesturePilot]);
+
+  useEffect(() => {
+    isXRayModeRef.current = isXRayMode;
+  }, [isXRayMode]);
+
+  // Keyboard Piloting Engine (WASD, Arrows, Space, Shift, X)
+  useEffect(() => {
+    if (!isGesturePilot) return;
+
+    const pressedKeys = {};
+
+    const handleKeyDown = (e) => {
+      pressedKeys[e.code] = true;
+      pressedKeys[e.key?.toLowerCase()] = true;
+
+      if (e.key?.toLowerCase() === 'x') {
+        setIsXRayMode(prev => !prev);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      pressedKeys[e.code] = false;
+      pressedKeys[e.key?.toLowerCase()] = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    const keyLoop = setInterval(() => {
+      if (!isGesturePilotRef.current) return;
+      const fv = flightVectorRef.current;
+      let moved = false;
+      let steerX = 0;
+      let steerY = 0;
+
+      if (pressedKeys['KeyW'] || pressedKeys['ArrowUp'] || pressedKeys['w']) {
+        fv.pitch -= 0.035;
+        steerY = -0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyS'] || pressedKeys['ArrowDown'] || pressedKeys['s']) {
+        fv.pitch += 0.035;
+        steerY = 0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyA'] || pressedKeys['ArrowLeft'] || pressedKeys['a']) {
+        fv.yaw -= 0.04;
+        steerX = -0.7;
+        moved = true;
+      }
+      if (pressedKeys['KeyD'] || pressedKeys['ArrowRight'] || pressedKeys['d']) {
+        fv.yaw += 0.04;
+        steerX = 0.7;
+        moved = true;
+      }
+      if (pressedKeys['Space'] || pressedKeys[' ']) {
+        fv.speed = Math.min(fv.speed + 0.45, 9.0);
+        moved = true;
+      }
+      if (pressedKeys['ShiftLeft'] || pressedKeys['ShiftRight'] || pressedKeys['shift']) {
+        fv.speed = Math.max(fv.speed - 0.5, 0);
+        moved = true;
+      }
+
+      if (moved) {
+        lastManualInputTimeRef.current = Date.now();
+        // If steering keys are pressed and ship is stopped, auto-engage cruising speed
+        if (fv.speed === 0 && (steerX !== 0 || steerY !== 0)) {
+          fv.speed = 4.0;
+        }
+        // Clear selected planet target when manual keyboard steering happens
+        if (steerX !== 0 || steerY !== 0) {
+          setSelectedPlanetKey(null);
+        }
+
+        setSteerPos({ x: steerX, y: steerY });
+        setPilotSpeed(Number(fv.speed.toFixed(1)));
+        const cmd = steerX < 0 ? '◄ Rẽ trái' : steerX > 0 ? '► Rẽ phải' : fv.speed > 0 ? '🚀 Tiến về phía trước' : '🛑 Dừng lại / Lơ lửng';
+        setGestureStatus(`🎮 LÁI BÀN PHÍM (WASD): ${cmd} | Tốc độ: ${fv.speed.toFixed(1)}`);
+        setDebugInfo(prev => ({
+          ...prev,
+          steerAngleDeg: (steerX * 45).toFixed(1),
+          yaw: fv.yaw.toFixed(2),
+          pitch: fv.pitch.toFixed(2),
+          isMoving: fv.speed !== 0,
+          speed: fv.speed.toFixed(1),
+          currentCommand: `🎮 Bàn phím: ${cmd}`
+        }));
+      }
+    }, 30);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      clearInterval(keyLoop);
+    };
   }, [isGesturePilot]);
 
   useEffect(() => {
@@ -3134,14 +3197,20 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
             const fv = flightVectorRef.current;
 
-            // RULE 1: Hand Removal or Release (< 2 Hands) -> STOP / HOVER IN PLACE (Dừng hẳn hoặc lơ lửng tại chỗ)
+            // RULE 1: Hand Removal or Release (< 2 Hands)
             if (handCount < 2) {
-              fv.speed = 0;
-              setPilotSpeed(0);
-              setSteerPos({ x: 0, y: 0 });
-              setCurrentGesture('STOP_HOVER');
-              const cmd = handCount === 0 ? '🛑 Dừng lại / Lơ lửng (Buông 2 tay)' : '🛑 Dừng lại / Lơ lửng (Bỏ 1 tay)';
-              setGestureStatus(cmd);
+              const isManualActive = (Date.now() - lastManualInputTimeRef.current < 2500);
+              const wasGesturing = (Date.now() - lastGestureTimeRef.current < 1200);
+
+              // Only stop if user WAS using gesture steering and is NOT currently using manual controls
+              if (wasGesturing && !isManualActive) {
+                fv.speed = 0;
+                setPilotSpeed(0);
+                setSteerPos({ x: 0, y: 0 });
+                setCurrentGesture('STOP_HOVER');
+                const cmd = handCount === 0 ? '🛑 Dừng lại / Lơ lửng (Buông 2 tay)' : '🛑 Dừng lại / Lơ lửng (Bỏ 1 tay)';
+                setGestureStatus(cmd);
+              }
 
               const h1Pt = (handCount === 1 && results.multiHandLandmarks[0]?.[0])
                 ? `(${results.multiHandLandmarks[0][0].x.toFixed(2)}, ${results.multiHandLandmarks[0][0].y.toFixed(2)})`
@@ -3155,9 +3224,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 steerAngleDeg: '0.0',
                 yaw: fv.yaw.toFixed(2),
                 pitch: fv.pitch.toFixed(2),
-                isMoving: false,
-                speed: '0.0',
-                currentCommand: cmd
+                isMoving: fv.speed !== 0,
+                speed: fv.speed.toFixed(1),
+                currentCommand: isManualActive ? `🎮 Điều khiển thủ công (Speed: ${fv.speed.toFixed(1)})` : (handCount === 0 ? '🛑 Buông 2 tay (Lơ lửng)' : '🛑 Bỏ 1 tay (Lơ lửng)')
               }));
 
               // Draw single hand skeleton points on webcam canvas overlay if 1 hand present
@@ -3179,6 +3248,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
             // RULE 2: Both Hands Holding Steering Wheel (>= 2 Hands) -> CONTINUOUS FORWARD & DYNAMIC STEERING
             if (handCount >= 2) {
+              lastGestureTimeRef.current = Date.now();
               const hA = results.multiHandLandmarks[0];
               const hB = results.multiHandLandmarks[1];
 
@@ -3574,9 +3644,10 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
         const fv = flightVectorRef.current;
 
-        // Automatically orient ship heading towards selected target planet if set
+        // Automatically orient ship heading towards selected target planet if set (and manual steering is idle)
         const selPKey = selectedPlanetKeyRef.current;
-        if (selPKey) {
+        const isManualSteering = (Date.now() - lastManualInputTimeRef.current < 1500);
+        if (selPKey && !isManualSteering) {
           let targetWorldPos = new THREE.Vector3();
           if (selPKey === 'sun') {
             targetWorldPos.set(0, 0, 0);
@@ -4084,10 +4155,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 {/* THE VIRTUAL STEERING WHEEL (VÔ LĂNG ẢO) SVG GRAPHIC */}
                 <div 
                   onPointerDown={(e) => {
+                    if (e.currentTarget.setPointerCapture) {
+                      try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err) {}
+                    }
+                    lastManualInputTimeRef.current = Date.now();
+                    setSelectedPlanetKey(null);
+
                     const rect = e.currentTarget.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
                     const centerY = rect.top + rect.height / 2;
+
                     const handlePointerMove = (moveEvt) => {
+                      lastManualInputTimeRef.current = Date.now();
                       const dx = moveEvt.clientX - centerX;
                       const dy = moveEvt.clientY - centerY;
                       const steerX = Math.max(-1.0, Math.min(1.0, dx / (rect.width / 2)));
@@ -4102,10 +4181,15 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                       }
                       setGestureStatus(`🛞 ĐANG XOAY VÔ LĂNG ẢO: Yaw ${(steerX * 45).toFixed(0)}° | Pitch ${(-steerY * 45).toFixed(0)}°`);
                     };
-                    const handlePointerUp = () => {
+
+                    const handlePointerUp = (upEvt) => {
+                      if (upEvt.target?.releasePointerCapture) {
+                        try { upEvt.target.releasePointerCapture(upEvt.pointerId); } catch(err) {}
+                      }
                       window.removeEventListener('pointermove', handlePointerMove);
                       window.removeEventListener('pointerup', handlePointerUp);
                     };
+
                     window.addEventListener('pointermove', handlePointerMove);
                     window.addEventListener('pointerup', handlePointerUp);
                   }}
@@ -4167,6 +4251,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <button
                     onClick={() => {
+                      lastManualInputTimeRef.current = Date.now();
                       flightVectorRef.current.speed = 5.0;
                       setPilotSpeed(5.0);
                       setGestureStatus('🚀 BẬT WARP PHI THUYỀN TIẾN THẲNG VỀ PHÍA TRƯỚC (SPEED 5.0)');
@@ -4183,6 +4268,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
                   <button
                     onClick={() => {
+                      lastManualInputTimeRef.current = Date.now();
                       flightVectorRef.current.speed = 0;
                       setPilotSpeed(0);
                       setGestureStatus('🛑 PHANH HÃM — PHI THUYỀN DỪNG LẠI TỨC THÌ (SPEED 0)');
