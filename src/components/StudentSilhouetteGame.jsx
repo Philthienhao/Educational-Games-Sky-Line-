@@ -359,14 +359,24 @@ export function StudentSilhouetteGame({ currentUser }) {
   useEffect(() => {
     if (!students || students.length === 0) return;
 
-    // Offload to IndexedDB
+    // Offload full high-res data to IndexedDB (unlimited capacity)
     IDBStorageService.setItem(storageKey, students).catch(() => {});
 
-    // Try localStorage with QuotaExceededError protection
+    // Save to localStorage with QuotaExceededError protection & light fallback
     try {
       localStorage.setItem(storageKey, JSON.stringify(students));
     } catch (e) {
-      console.warn('LocalStorage quota reached, persisted in IndexedDB:', e);
+      console.warn('LocalStorage quota reached, storing light version in LocalStorage while full data is in IndexedDB:', e);
+      try {
+        const lightStudents = students.map(s => ({
+          ...s,
+          photoUrl: s.photoUrl && s.photoUrl.startsWith('data:image') && s.photoUrl.length > 3000 ? '' : s.photoUrl,
+          silhouetteUrl: s.silhouetteUrl && s.silhouetteUrl.startsWith('data:image') && s.silhouetteUrl.length > 3000 ? '' : s.silhouetteUrl
+        }));
+        localStorage.setItem(storageKey, JSON.stringify(lightStudents));
+      } catch (e2) {
+        try { localStorage.removeItem(storageKey); } catch (e3) {}
+      }
     }
   }, [students, storageKey]);
 

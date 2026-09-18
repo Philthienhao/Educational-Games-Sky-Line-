@@ -33,6 +33,13 @@ const performHardPurgeAndReload = async () => {
     localStorage.removeItem('gvd_base_games');
     localStorage.removeItem('gvd_saved_games');
     localStorage.removeItem('gvd_active_tab');
+    try {
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith('gvd_parent_meeting_silhouette')) {
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
   } catch (e) {
     console.warn("Purge caches error:", e);
   }
