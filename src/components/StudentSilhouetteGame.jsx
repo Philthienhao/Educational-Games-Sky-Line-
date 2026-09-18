@@ -214,10 +214,26 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
       resolve('');
       return;
     }
+
+    let isDone = false;
+    const safeResolve = (res) => {
+      if (!isDone) {
+        isDone = true;
+        resolve(res);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      safeResolve(imageSrc);
+    }, 2500);
+
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    if (typeof imageSrc === 'string' && !imageSrc.startsWith('data:') && !imageSrc.startsWith('blob:')) {
+      img.crossOrigin = 'anonymous';
+    }
     img.src = imageSrc;
     img.onload = () => {
+      clearTimeout(timer);
       try {
         const maxDim = 450;
         let w = img.width;
@@ -306,13 +322,16 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
         }
 
         ctx.putImageData(imgData, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
+        safeResolve(canvas.toDataURL('image/png'));
       } catch (err) {
         console.warn('Silhouette cutout error:', err);
-        resolve(imageSrc);
+        safeResolve(imageSrc);
       }
     };
-    img.onerror = () => resolve(imageSrc);
+    img.onerror = () => {
+      clearTimeout(timer);
+      safeResolve(imageSrc);
+    };
   });
 }
 
@@ -384,11 +403,25 @@ export function StudentSilhouetteGame({ currentUser }) {
   useEffect(() => {
     if (!newStudentPhoto) return;
     setIsProcessingCutout(true);
+    let isMounted = true;
     processCutoutSilhouette(newStudentPhoto, { tolerance: cutoutTolerance, mode: cutoutMode })
       .then(res => {
-        setNewSilhouettePhoto(res);
-        setIsProcessingCutout(false);
+        if (isMounted) {
+          setNewSilhouettePhoto(res);
+        }
+      })
+      .catch(err => {
+        console.warn('Cutout processing notice:', err);
+        if (isMounted) {
+          setNewSilhouettePhoto(newStudentPhoto);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsProcessingCutout(false);
+        }
       });
+    return () => { isMounted = false; };
   }, [newStudentPhoto, cutoutTolerance, cutoutMode]);
 
   // Toggle reveal state for a specific card
@@ -478,11 +511,22 @@ export function StudentSilhouetteGame({ currentUser }) {
     try {
       // Compress photo to max 500px under 40KB
       const compressedBase64 = await compressImage(file, 500, 500, 0.82);
-      setNewStudentPhoto(String(compressedBase64));
+      if (compressedBase64) {
+        setNewStudentPhoto(String(compressedBase64));
+      } else {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setNewStudentPhoto(String(ev.target?.result || ''));
+        };
+        reader.readAsDataURL(file);
+      }
     } catch (err) {
       console.warn('Image compression fallback:', err);
-    } finally {
-      setIsProcessingCutout(false);
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setNewStudentPhoto(String(ev.target?.result || ''));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
