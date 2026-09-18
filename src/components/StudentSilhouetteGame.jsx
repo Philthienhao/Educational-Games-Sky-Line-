@@ -21,10 +21,12 @@ import {
   Download,
   Sliders,
   RefreshCw,
-  Image as ImageIcon
+  ImageIcon
 } from 'lucide-react';
 import { SoundFX } from '../utils/sound';
 import { StorageService } from '../services/storage';
+import { compressImage } from '../utils/imageCompressor';
+import { IDBStorageService } from '../services/idbStorage';
 
 // Helper to generate SVG transparent silhouette pose cutouts for default sample students
 const createSamplePoseSvg = (poseType) => {
@@ -205,7 +207,7 @@ const DEFAULT_SAMPLE_STUDENTS = [
   }
 ];
 
-// HIGH-PRECISION CANVAS BACKGROUND CUTOUT SILHOUETTE GENERATOR
+// HIGH-PRECISION CANVAS BACKGROUND CUTOUT SILHOUETTE GENERATOR (Downscaled & Offloaded)
 export function processCutoutSilhouette(imageSrc, options = {}) {
   return new Promise((resolve) => {
     if (!imageSrc) {
@@ -217,16 +219,27 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
     img.src = imageSrc;
     img.onload = () => {
       try {
+        const maxDim = 450;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
 
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const imgData = ctx.getImageData(0, 0, w, h);
         const data = imgData.data;
-        const width = canvas.width;
-        const height = canvas.height;
 
         const tolerance = options.tolerance !== undefined ? options.tolerance : 48;
         const mode = options.mode || 'auto'; // 'auto' | 'light' | 'none'
@@ -239,8 +252,8 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
         // Sample background color from border pixels and corners
         let bgR = 0, bgG = 0, bgB = 0, samples = 0;
         
-        for (let x = 0; x < width; x += Math.max(1, Math.floor(width / 30))) {
-          const idxTop = (0 * width + x) * 4;
+        for (let x = 0; x < w; x += Math.max(1, Math.floor(w / 30))) {
+          const idxTop = (0 * w + x) * 4;
           if (data[idxTop + 3] > 20) {
             bgR += data[idxTop];
             bgG += data[idxTop + 1];
@@ -248,9 +261,9 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
             samples++;
           }
         }
-        for (let y = 0; y < height; y += Math.max(1, Math.floor(height / 30))) {
-          const idxLeft = (y * width + 0) * 4;
-          const idxRight = (y * width + width - 1) * 4;
+        for (let y = 0; y < h; y += Math.max(1, Math.floor(h / 30))) {
+          const idxLeft = (y * w + 0) * 4;
+          const idxRight = (y * w + w - 1) * 4;
           if (data[idxLeft + 3] > 20) { bgR += data[idxLeft]; bgG += data[idxLeft+1]; bgB += data[idxLeft+2]; samples++; }
           if (data[idxRight + 3] > 20) { bgR += data[idxRight]; bgG += data[idxRight+1]; bgB += data[idxRight+2]; samples++; }
         }
@@ -304,17 +317,7 @@ export function processCutoutSilhouette(imageSrc, options = {}) {
 }
 
 export function StudentSilhouetteGame({ currentUser }) {
-  const [students, setStudents] = useState(() => {
-    const saved = localStorage.getItem(`gvd_parent_meeting_silhouette_${currentUser?.id || 'default'}`);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      } catch (e) {}
-    }
-    return DEFAULT_SAMPLE_STUDENTS;
-  });
-
+  const [students, setStudents] = useState(DEFAULT_SAMPLE_STUDENTS);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -328,13 +331,44 @@ export function StudentSilhouetteGame({ currentUser }) {
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Save changes to localStorage
+  const storageKey = `gvd_parent_meeting_silhouette_${currentUser?.id || 'default'}`;
+
+  // Hydrate initial data safely from IndexedDB & LocalStorage on mount
   useEffect(() => {
-    localStorage.setItem(
-      `gvd_parent_meeting_silhouette_${currentUser?.id || 'default'}`,
-      JSON.stringify(students)
-    );
-  }, [students, currentUser]);
+    let isCancelled = false;
+    IDBStorageService.getItem(storageKey).then(idbData => {
+      if (isCancelled) return;
+      if (Array.isArray(idbData) && idbData.length > 0) {
+        setStudents(idbData);
+      } else {
+        const local = localStorage.getItem(storageKey);
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setStudents(parsed);
+            }
+          } catch (e) {}
+        }
+      }
+    });
+    return () => { isCancelled = true; };
+  }, [currentUser, storageKey]);
+
+  // Save changes safely to IndexedDB (unlimited quota) with localStorage try/catch safety
+  useEffect(() => {
+    if (!students || students.length === 0) return;
+
+    // Offload to IndexedDB
+    IDBStorageService.setItem(storageKey, students).catch(() => {});
+
+    // Try localStorage with QuotaExceededError protection
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(students));
+    } catch (e) {
+      console.warn('LocalStorage quota reached, persisted in IndexedDB:', e);
+    }
+  }, [students, storageKey]);
 
   // Re-process uploaded photo cutout when tolerance or mode changes in modal
   useEffect(() => {
@@ -395,7 +429,11 @@ export function StudentSilhouetteGame({ currentUser }) {
       if (hrData && hrData.students && Array.isArray(hrData.students) && hrData.students.length > 0) {
         setIsProcessingCutout(true);
         const importedPromises = hrData.students.map(async (st, idx) => {
-          const photoUrl = st.avatar || DEFAULT_SAMPLE_STUDENTS[idx % DEFAULT_SAMPLE_STUDENTS.length].photoUrl;
+          let photoUrl = st.avatar || DEFAULT_SAMPLE_STUDENTS[idx % DEFAULT_SAMPLE_STUDENTS.length].photoUrl;
+          // Compress avatar photo first if base64
+          if (photoUrl && photoUrl.startsWith('data:image')) {
+            photoUrl = await compressImage(photoUrl, 450, 450, 0.85);
+          }
           const silhouetteUrl = await processCutoutSilhouette(photoUrl, { tolerance: 48, mode: 'auto' });
           return {
             id: `hr_${st.id || idx}_${Date.now()}`,
@@ -421,19 +459,21 @@ export function StudentSilhouetteGame({ currentUser }) {
     }
   };
 
-  // Handle single photo upload
-  const handleFileUpload = (e) => {
+  // Handle single photo upload with automatic image compression to prevent QuotaExceededError
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result;
-      if (base64) {
-        setNewStudentPhoto(String(base64));
-      }
-    };
-    reader.readAsDataURL(file);
+    setIsProcessingCutout(true);
+    try {
+      // Compress photo to max 500px under 40KB
+      const compressedBase64 = await compressImage(file, 500, 500, 0.82);
+      setNewStudentPhoto(String(compressedBase64));
+    } catch (err) {
+      console.warn('Image compression fallback:', err);
+    } finally {
+      setIsProcessingCutout(false);
+    }
   };
 
   // Add new student photo
