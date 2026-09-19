@@ -23,41 +23,41 @@ export function GameCard({
 
   return (
     <div 
-      className="glass-panel"
+      className="card-3d-glow"
       style={{
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        borderRadius: '20px',
+        borderRadius: '22px',
         overflow: 'hidden',
-        transition: 'all 0.3s ease',
-        position: 'relative',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
+        position: 'relative'
       }}
     >
       {/* Header Banner Gradient */}
       <div 
         style={{
-          background: game.gradient || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+          background: game.gradient || 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
           padding: '24px 20px',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <div style={{
             fontSize: '2.4rem',
-            background: 'rgba(255, 255, 255, 0.25)',
-            width: '60px',
-            height: '60px',
-            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.28)',
+            width: '62px',
+            height: '62px',
+            borderRadius: '18px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-            backdropFilter: 'blur(8px)'
+            boxShadow: '0 10px 22px rgba(0,0,0,0.18)',
+            backdropFilter: 'blur(10px)',
+            transform: 'translateY(-2px)'
           }}>
             {game.icon || '🎮'}
           </div>

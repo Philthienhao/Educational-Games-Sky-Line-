@@ -86,6 +86,7 @@ export function App() {
   const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
   const [isAdminCreateGameOpen, setIsAdminCreateGameOpen] = useState(false);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
 
@@ -352,6 +353,68 @@ export function App() {
         {activeTab === 'catalog' && (
           <div style={{ width: '100%' }}>
             
+            {/* Ultra-Modern Hero AI Hub Banner (Option 2) */}
+            <div className="hero-ai-hub">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+                <div>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#ffffff', fontWeight: 800, fontSize: '0.78rem', marginBottom: '12px', boxShadow: '0 4px 14px rgba(13, 148, 136, 0.25)' }}>
+                    <Sparkles size={16} color="#fbbf24" /> SKY-LINE AI EDUCATIONAL WORKSPACE
+                  </div>
+                  <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.25 }}>
+                    Chào mừng <span style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{currentUser?.name || 'Thầy/Cô'}</span> trở lại! 👋
+                  </h1>
+                  <p style={{ fontSize: '0.95rem', color: '#475569', marginTop: '6px', maxWidth: '640px', fontWeight: 600 }}>
+                    Hệ thống cung cấp kho game giáo dục 3D tương tác, tự động hóa tạo bài tập/bài giảng kết hợp công nghệ AI đỉnh cao.
+                  </p>
+                </div>
+
+                {/* AI Quick Hub Action Cards */}
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  <button 
+                    onClick={() => setActiveTab('my-games')}
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '12px 20px',
+                      borderRadius: '16px',
+                      fontWeight: 800,
+                      fontSize: '0.88rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 18px rgba(16, 185, 129, 0.3)',
+                      transition: 'all 0.25s ease'
+                    }}
+                  >
+                    <BookmarkCheck size={18} /> Kho Game Của Tôi ({savedGames.length})
+                  </button>
+
+                  <button 
+                    onClick={() => setIsAdminCreateGameOpen(true)}
+                    style={{
+                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '12px 20px',
+                      borderRadius: '16px',
+                      fontWeight: 800,
+                      fontSize: '0.88rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      boxShadow: '0 6px 18px rgba(2, 132, 199, 0.3)',
+                      transition: 'all 0.25s ease'
+                    }}
+                  >
+                    <Sparkles size={18} color="#fde047" /> AI Tạo Bài Tập Mới
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Search Bar & Category Filter Bar */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
@@ -790,6 +853,65 @@ export function App() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Floating AI Co-Pilot Assistant Widget */}
+      <div 
+        className="floating-ai-widget"
+        onClick={() => setIsAiWidgetOpen(true)}
+      >
+        <Sparkles size={20} color="#fbbf24" />
+        <span>Trợ Lý Sky-Line AI 24/7</span>
+      </div>
+
+      {/* Interactive AI Assistant Modal */}
+      {isAiWidgetOpen && (
+        <div 
+          onClick={() => setIsAiWidgetOpen(false)} 
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="glass-modal" 
+            style={{ width: '100%', maxWidth: '540px', padding: '28px', position: 'relative' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', borderBottom: '1px solid rgba(13, 148, 136, 0.2)', paddingBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', width: '42px', height: '42px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(13, 148, 136, 0.3)' }}>
+                  <Sparkles size={22} color="#ffffff" />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Sky-Line AI Teaching Assistant</h3>
+                  <span style={{ fontSize: '0.78rem', color: '#0d9488', fontWeight: 700 }}>Trợ lý hỗ trợ dạy & học thông minh</span>
+                </div>
+              </div>
+              <button onClick={() => setIsAiWidgetOpen(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '1.2rem', fontWeight: 800 }}>
+                ✕
+              </button>
+            </div>
+
+            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid rgba(13, 148, 136, 0.15)', marginBottom: '18px' }}>
+              <p style={{ fontSize: '0.92rem', color: '#334155', lineHeight: 1.5, fontWeight: 600, margin: 0 }}>
+                🤖 Xin chào <strong>{currentUser?.name || 'Thầy/Cô'}</strong>! Em là trợ lý AI của Sky-Line. Em có thể hỗ trợ Thầy/Cô tự động sinh câu hỏi trắc nghiệm, tạo ý tưởng game giáo dục, hay chuẩn bị nội dung họp phụ huynh chỉ trong vài giây.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button 
+                onClick={() => { setIsAiWidgetOpen(false); setIsAdminCreateGameOpen(true); }}
+                style={{ padding: '12px 16px', borderRadius: '12px', background: '#ffffff', border: '1.5px solid #0d9488', color: '#0d9488', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px' }}
+              >
+                ✨ AI Tạo Bộ Câu Hỏi & Game Trắc Nghiệm Mới
+              </button>
+              <button 
+                onClick={() => { setIsAiWidgetOpen(false); setActiveTab('homeroom'); }}
+                style={{ padding: '12px 16px', borderRadius: '12px', background: '#ffffff', border: '1.5px solid #0284c7', color: '#0284c7', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px' }}
+              >
+                👥 Quản Lý & Nhận Nhận Xét Học Sinh Lớp Chủ Nhiệm
+              </button>
+            </div>
           </div>
         </div>
       )}
