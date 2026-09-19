@@ -1,20 +1,20 @@
-/* Sky-Line Teal Brand CSS Design System */
+/* Sky-Line Teal & AI Ocean Light Modern Design System */
 :root {
-  --primary-teal: #00a896;
-  --primary-glow: linear-gradient(135deg, #00a896 0%, #0d9488 50%, #0284c7 100%);
-  --secondary-glow: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  --primary-teal: #0d9488;
+  --primary-glow: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #0284c7 100%);
+  --secondary-glow: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
   --accent-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
   --success-glow: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --danger-glow: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 
-  --bg-dark: #071521;
-  --bg-card: rgba(13, 35, 51, 0.75);
-  --bg-card-hover: rgba(20, 50, 72, 0.85);
-  --border-card: rgba(0, 168, 150, 0.25);
+  --bg-dark: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.90);
+  --bg-card-hover: #ffffff;
+  --border-card: rgba(13, 148, 136, 0.20);
   
-  --text-main: #f0fdfa;
-  --text-muted: #94a3b8;
-  --text-bright: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-bright: #0f172a;
 
   --font-heading: 'Montserrat', sans-serif;
   --font-body: 'Montserrat', sans-serif;
@@ -24,13 +24,13 @@
   --radius-sm: 10px;
 
   /* Sidebar Design Tokens */
-  --sidebar-width: 260px;
+  --sidebar-width: 270px;
   --sidebar-bg: #ffffff;
   --sidebar-header-bg: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-  --sidebar-active-pill: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
-  --sidebar-text: #334155;
+  --sidebar-active-pill: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  --sidebar-text: #1e293b;
   --sidebar-text-muted: #64748b;
-  --main-bg: linear-gradient(135deg, #6ee7b7 0%, #a7f3d0 50%, #5eead4 100%);
+  --main-bg: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #f3e8ff 100%);
 }
 
 * {
@@ -41,7 +41,8 @@
 
 body {
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--bg-dark);
+  background: var(--main-bg);
+  background-attachment: fixed;
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.6;
@@ -62,20 +63,27 @@ h1, h2, h3, h4, h5, h6 {
 /* Glassmorphism Classes */
 .glass-panel {
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.09);
+  border-color: rgba(13, 148, 136, 0.35);
 }
 
 .glass-modal {
-  background: rgba(7, 21, 33, 0.96);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(0, 168, 150, 0.35);
+  border: 1.5px solid rgba(13, 148, 136, 0.3);
   border-radius: 24px;
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85);
+  color: #0f172a;
+  box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.18);
 }
 
 /* Buttons */
@@ -226,21 +234,21 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
 }
 
 .badge-admin {
-  background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1.5px solid rgba(239, 68, 68, 0.3);
 }
 
 .badge-teacher {
-  background: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(2, 132, 199, 0.12);
+  color: #0284c7;
+  border: 1.5px solid rgba(2, 132, 199, 0.3);
 }
 
 .badge-custom {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(13, 148, 136, 0.12);
+  color: #0d9488;
+  border: 1.5px solid rgba(13, 148, 136, 0.3);
 }
 
 /* Animations */
@@ -283,14 +291,15 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
-  background: var(--bg-dark);
+  background: var(--main-bg);
+  background-attachment: fixed;
 }
 
 /* SIDEBAR CONTAINER - PERMANENTLY FIXED TO LEFT SCREEN */
 .sidebar-container {
   width: 270px;
   min-width: 270px;
-  background: linear-gradient(180deg, #071521 0%, #0c2333 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   height: 100vh;
   position: fixed;
   top: 0;
@@ -298,8 +307,8 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
   bottom: 0;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(0, 168, 150, 0.25);
-  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.4);
+  border-right: 1px solid rgba(13, 148, 136, 0.18);
+  box-shadow: 4px 0 25px rgba(15, 23, 42, 0.05);
   z-index: 999;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

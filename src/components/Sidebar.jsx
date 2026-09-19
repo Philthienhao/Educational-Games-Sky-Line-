@@ -125,14 +125,15 @@ export function Sidebar({
 
           {/* Inspirational Quote Box */}
           <div style={{
-            background: 'rgba(13, 35, 51, 0.85)',
-            border: '1px solid rgba(253, 224, 71, 0.3)',
+            background: 'linear-gradient(135deg, #fef3c7 0%, #ecfdf5 100%)',
+            border: '1.5px solid rgba(245, 158, 11, 0.3)',
             borderRadius: '12px',
-            padding: '10px 12px'
+            padding: '10px 12px',
+            boxShadow: '0 2px 10px rgba(245, 158, 11, 0.08)'
           }}>
             <p style={{
               fontSize: '0.72rem',
-              color: '#fde047',
+              color: '#92400e',
               fontWeight: 700,
               fontStyle: 'italic',
               lineHeight: 1.4,
@@ -140,7 +141,7 @@ export function Sidebar({
             }}>
               ✨ "Không phải tất cả chúng ta đều làm được những điều vĩ đại, nhưng chúng ta có thể làm những điều nhỏ nhặt với tình yêu vĩ đại"
             </p>
-            <span style={{ fontSize: '0.66rem', color: '#94a3b8', display: 'block', marginTop: '4px', textAlign: 'right', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.66rem', color: '#0d9488', display: 'block', marginTop: '4px', textAlign: 'right', fontWeight: 700 }}>
               Mẹ Têrêsa Calcutta
             </span>
           </div>

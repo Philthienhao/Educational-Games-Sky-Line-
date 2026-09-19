@@ -97,8 +97,8 @@ export function GameCard({
 
           {/* Editable Lesson / Topic Title Field in Saved Games */}
           {isSavedGame && (
-            <div style={{ marginBottom: '14px', background: 'rgba(13, 148, 136, 0.12)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(94, 234, 212, 0.3)' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#5eead4', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
+            <div style={{ marginBottom: '14px', background: 'rgba(13, 148, 136, 0.08)', padding: '10px 12px', borderRadius: '12px', border: '1.5px solid rgba(13, 148, 136, 0.3)' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0d9488', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
                 📖 Tên Bài Học / Chủ Đề:
               </label>
               <input 
@@ -110,9 +110,9 @@ export function GameCard({
                   width: '100%',
                   padding: '6px 10px',
                   borderRadius: '8px',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  border: '1px solid rgba(94, 234, 212, 0.4)',
-                  color: '#ffffff',
+                  background: '#ffffff',
+                  border: '1.5px solid #0d9488',
+                  color: '#0f172a',
                   fontSize: '0.85rem',
                   fontWeight: 700,
                   outline: 'none'
