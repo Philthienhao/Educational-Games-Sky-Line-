@@ -225,7 +225,12 @@ export function Sidebar({
             </div>
           )}
 
-          {/* 3. AUTHOR PROFILE CARD */}
+        </div>
+
+        {/* 3 & 4. FIXED BOTTOM FOOTER: AUTHOR PROFILE & USER ACCOUNT FOOTER */}
+        <div className="sidebar-bottom-fixed-footer">
+          
+          {/* AUTHOR PROFILE CARD - FIXED AT BOTTOM ABOVE ACCOUNT FOOTER */}
           <div className="sidebar-author-box">
             <label className="author-avatar-wrapper" title={isAdmin ? "Đổi ảnh đại diện tác giả" : ""}>
               {authorPhoto ? (
@@ -263,55 +268,55 @@ export function Sidebar({
             </div>
           </div>
 
-        </div>
+          {/* USER PROFILE & LOGOUT FOOTER - FIXED AT VERY BOTTOM */}
+          <div className="sidebar-user-footer">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+              <div 
+                onClick={onOpenRoleSwitcher}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.95rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 10px rgba(13, 148, 136, 0.3)'
+                }}
+              >
+                {currentUser?.name?.charAt(0) || '👤'}
+              </div>
 
-        {/* 4. USER PROFILE & LOGOUT FOOTER */}
-        <div className="sidebar-user-footer">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-            <div 
-              onClick={onOpenRoleSwitcher}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '0.95rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                cursor: 'pointer',
-                boxShadow: '0 4px 10px rgba(13, 148, 136, 0.3)'
-              }}
-            >
-              {currentUser?.name?.charAt(0) || '👤'}
+              <div 
+                onClick={onOpenRoleSwitcher}
+                style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+              >
+                <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {currentUser?.name || 'Giáo Viên'}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
+                    {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div 
-              onClick={onOpenRoleSwitcher}
-              style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+            <button 
+              onClick={onLogout}
+              className="sidebar-logout-icon-btn"
+              title="Đăng xuất khỏi hệ thống"
             >
-              <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {currentUser?.name || 'Giáo Viên'}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
-                  {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
-                </span>
-              </div>
-            </div>
+              <LogOut size={16} />
+              <span>Đăng xuất</span>
+            </button>
           </div>
 
-          <button 
-            onClick={onLogout}
-            className="sidebar-logout-icon-btn"
-            title="Đăng xuất khỏi hệ thống"
-          >
-            <LogOut size={16} />
-            <span>Đăng xuất</span>
-          </button>
         </div>
 
       </aside>
