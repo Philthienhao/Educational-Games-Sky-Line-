@@ -4,27 +4,27 @@ import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { isOptionValidForQuestion } from '../../utils/universalParser';
 
-// Import all 20 dinosaur monster images with real filenames
-import imgAllosaur from '/public/quaivat/Allosaur.png?url';
-import imgAnkylo from '/public/quaivat/Ankylo.png?url';
-import imgBaryonyx from '/public/quaivat/Baryonyx.png?url';
-import imgBrachio from '/public/quaivat/Brachio.png?url';
-import imgCarnotaur from '/public/quaivat/Carnotaur.png?url';
-import imgDilopho from '/public/quaivat/Dilopho.png?url';
-import imgDimorph from '/public/quaivat/Dimorph.png?url';
-import imgGiga from '/public/quaivat/Giga.png?url';
-import imgIndominus from '/public/quaivat/Indominus.png?url';
-import imgIndoraptor from '/public/quaivat/Indoraptor.png?url';
-import imgMosa from '/public/quaivat/Mosa.png?url';
-import imgPachy from '/public/quaivat/Pachy.png?url';
-import imgParasaur from '/public/quaivat/Parasaur.png?url';
-import imgPlesiosaur from '/public/quaivat/Plesiosaur.png?url';
-import imgPteranodon from '/public/quaivat/Pteranodon.png?url';
-import imgRaptor from '/public/quaivat/Raptor.png?url';
-import imgSpino from '/public/quaivat/Spino.png?url';
-import imgStegosaur from '/public/quaivat/Stegosaur.png?url';
-import imgTRex from '/public/quaivat/T-Rex.png?url';
-import imgTriceratops from '/public/quaivat/Triceratops.png?url';
+// Dinosaur monster image public URLs
+const imgAllosaur = '/quaivat/Allosaur.png';
+const imgAnkylo = '/quaivat/Ankylo.png';
+const imgBaryonyx = '/quaivat/Baryonyx.png';
+const imgBrachio = '/quaivat/Brachio.png';
+const imgCarnotaur = '/quaivat/Carnotaur.png';
+const imgDilopho = '/quaivat/Dilopho.png';
+const imgDimorph = '/quaivat/Dimorph.png';
+const imgGiga = '/quaivat/Giga.png';
+const imgIndominus = '/quaivat/Indominus.png';
+const imgIndoraptor = '/quaivat/Indoraptor.png';
+const imgMosa = '/quaivat/Mosa.png';
+const imgPachy = '/quaivat/Pachy.png';
+const imgParasaur = '/quaivat/Parasaur.png';
+const imgPlesiosaur = '/quaivat/Plesiosaur.png';
+const imgPteranodon = '/quaivat/Pteranodon.png';
+const imgRaptor = '/quaivat/Raptor.png';
+const imgSpino = '/quaivat/Spino.png';
+const imgStegosaur = '/quaivat/Stegosaur.png';
+const imgTRex = '/quaivat/T-Rex.png';
+const imgTriceratops = '/quaivat/Triceratops.png';
 
 const DINOSAURS = [
   { name: 'Allosaurus', full: 'Khủng Long Allosaurus', img: imgAllosaur },
