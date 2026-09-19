@@ -579,8 +579,8 @@ export function App() {
         )}
 
         {/* Footer */}
-        <footer style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.88rem', borderTop: '1px solid rgba(0,168,150,0.15)', marginTop: '40px' }}>
-          <p>© 2026 <strong>HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC</strong> • Tác giả: <strong style={{ color: '#5eead4' }}>Thầy Hảo Địa Lý</strong> | 📱 Zalo hỗ trợ: <a href="https://zalo.me/0387806954" target="_blank" rel="noopener noreferrer" style={{ color: '#fde047', textDecoration: 'underline', fontWeight: 800 }}>0387806954</a></p>
+        <footer style={{ padding: '24px', textAlign: 'center', color: '#334155', fontSize: '0.92rem', fontWeight: 600, borderTop: '1.5px solid rgba(13, 148, 136, 0.2)', marginTop: '40px', background: 'rgba(255, 255, 255, 0.8)', borderRadius: '16px' }}>
+          <p style={{ margin: 0 }}>© 2026 <strong style={{ color: '#0f172a' }}>HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC</strong> • Tác giả: <strong style={{ color: '#0d9488', fontWeight: 900 }}>Thầy Hảo Địa Lý</strong> | 📱 Zalo hỗ trợ: <a href="https://zalo.me/0387806954" target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline', fontWeight: 900 }}>0387806954</a></p>
         </footer>
 
       </main>

@@ -112,8 +112,8 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
       
       {/* Header Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.25) 0%, rgba(14, 116, 144, 0.25) 100%)',
-        border: '1px solid rgba(20, 184, 166, 0.4)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.95) 50%, rgba(224, 242, 254, 0.95) 100%)',
+        border: '1.5px solid rgba(13, 148, 136, 0.35)',
         borderRadius: '24px',
         padding: '28px 32px',
         display: 'flex',
@@ -122,7 +122,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
         flexWrap: 'wrap',
         gap: '20px',
         backdropFilter: 'blur(12px)',
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)'
+        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{
@@ -134,20 +134,20 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
             alignItems: 'center',
             justifyContent: 'center',
             color: '#ffffff',
-            boxShadow: '0 8px 20px rgba(13, 148, 136, 0.4)'
+            boxShadow: '0 8px 20px rgba(13, 148, 136, 0.35)'
           }}>
             <UserCheck size={36} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#f8fafc', margin: 0 }}>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
                 Gọi Tên Học Sinh
               </h2>
               <span className="badge" style={{ background: '#0d9488', color: '#ffffff', fontWeight: 800, padding: '4px 12px', borderRadius: '12px', fontSize: '0.78rem' }}>
                 Chức Năng Độc Lập
               </span>
             </div>
-            <p style={{ color: '#94a3b8', margin: '6px 0 0 0', fontSize: '0.98rem' }}>
+            <p style={{ color: '#334155', margin: '6px 0 0 0', fontSize: '0.98rem', fontWeight: 600 }}>
               Chọn học sinh ngẫu nhiên kịch tính và công bằng cho tiết học thông qua cuộc đua vui nhộn!
             </p>
           </div>

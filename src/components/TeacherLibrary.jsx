@@ -161,26 +161,27 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
 
       {/* Quick Domain Data Transfer Note */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.95) 50%, rgba(224, 242, 254, 0.95) 100%)',
         border: '1.5px solid rgba(13, 148, 136, 0.35)',
         borderRadius: '16px',
-        padding: '14px 20px',
+        padding: '16px 20px',
         marginBottom: '24px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '12px'
+        gap: '12px',
+        boxShadow: '0 4px 14px rgba(13, 148, 136, 0.08)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '1.6rem' }}>📦</span>
           <div>
-            <div style={{ fontWeight: 900, color: '#2dd4bf', fontSize: '0.95rem' }}>
+            <div style={{ fontWeight: 900, color: '#0d9488', fontSize: '0.98rem' }}>
               CHUYỂN TOÀN BỘ GAME SANG TÊN MIỀN MỚI (EDUVTH.VERCEL.APP):
             </div>
-            <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '2px', lineHeight: 1.5 }}>
-              • <strong>Bước 1:</strong> Mở tên miền cũ và bấm nút xanh dương <strong>"📥 Xuất File Sao Lưu (.json)"</strong> ở góc phải trên. <br />
-              • <strong>Bước 2:</strong> Mở tên miền mới <strong>eduvth.vercel.app</strong> và bấm nút xanh lá <strong>"📤 Nhập File Sao Lưu (.json)"</strong> để nạp toàn bộ game sang!
+            <div style={{ fontSize: '0.88rem', color: '#1e293b', marginTop: '3px', lineHeight: 1.5, fontWeight: 600 }}>
+              • <strong style={{ color: '#0f172a' }}>Bước 1:</strong> Mở tên miền cũ và bấm nút xanh dương <strong style={{ color: '#0284c7' }}>"📥 Xuất File Sao Lưu (.json)"</strong> ở góc phải trên. <br />
+              • <strong style={{ color: '#0f172a' }}>Bước 2:</strong> Mở tên miền mới <strong style={{ color: '#0d9488' }}>eduvth.vercel.app</strong> và bấm nút xanh lá <strong style={{ color: '#059669' }}>"📤 Nhập File Sao Lưu (.json)"</strong> để nạp toàn bộ game sang!
             </div>
           </div>
         </div>
@@ -207,8 +208,8 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
           />
         </div>
 
-        <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Hiển thị: <strong style={{ color: '#fff' }}>{filteredGames.length} game cá nhân</strong>
+        <div style={{ color: '#334155', fontSize: '0.92rem', fontWeight: 700 }}>
+          Hiển thị: <strong style={{ color: '#0d9488', fontWeight: 900 }}>{filteredGames.length} game cá nhân</strong>
         </div>
       </div>
 

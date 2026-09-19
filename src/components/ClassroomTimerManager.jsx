@@ -142,8 +142,8 @@ export default function ClassroomTimerManager() {
       
       {/* Header Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.25) 0%, rgba(99, 102, 241, 0.25) 100%)',
-        border: '1px solid rgba(20, 184, 166, 0.4)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.95) 50%, rgba(224, 242, 254, 0.95) 100%)',
+        border: '1.5px solid rgba(13, 148, 136, 0.3)',
         borderRadius: '24px',
         padding: '24px 32px',
         display: 'flex',
@@ -152,27 +152,27 @@ export default function ClassroomTimerManager() {
         flexWrap: 'wrap',
         gap: '16px',
         backdropFilter: 'blur(12px)',
-        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.25)'
+        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
             width: '56px',
             height: '56px',
             borderRadius: '18px',
-            background: 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)',
+            background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#ffffff',
-            boxShadow: '0 8px 20px rgba(13, 148, 136, 0.4)'
+            boxShadow: '0 8px 20px rgba(13, 148, 136, 0.35)'
           }}>
             <Clock size={32} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#f8fafc', margin: 0 }}>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
               Đồng Hồ Bấm Giờ Lớp Học
             </h2>
-            <p style={{ color: '#94a3b8', margin: '4px 0 0 0', fontSize: '0.95rem' }}>
+            <p style={{ color: '#334155', margin: '4px 0 0 0', fontSize: '0.95rem', fontWeight: 600 }}>
               Công cụ bấm giờ dạy học linh hoạt, âm thanh nhắc nhở dồn dập khi gần hết thời gian!
             </p>
           </div>
