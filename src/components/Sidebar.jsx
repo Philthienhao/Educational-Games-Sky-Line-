@@ -16,9 +16,11 @@ import {
   GraduationCap, 
   Clock,
   HeartHandshake,
-  X
+  Menu,
+  X,
+  Sparkles,
+  User
 } from 'lucide-react';
-import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
 import thayHaoAvatar from '../assets/thayhaodiali.jpg';
@@ -53,214 +55,258 @@ export function Sidebar({
     StorageService.updateUser('user_admin', { avatar: compressedDataUrl });
   };
 
+  const navItems = [
+    { id: 'catalog', label: 'Kho Game Giáo Dục', icon: Gamepad2 },
+    { id: 'my-games', label: 'Game Của Tôi', icon: BookmarkCheck, count: myGamesCount },
+    { id: 'call-student', label: 'Gọi Tên Học Sinh', icon: UserCheck },
+    { id: 'timer', label: 'Đồng Hồ', icon: Clock },
+    { id: 'homeroom', label: 'Lớp Chủ Nhiệm', icon: Users },
+    { id: 'parent-meeting', label: 'Họp Phụ Huynh', icon: HeartHandshake, color: '#ec4899' },
+    { id: 'textbook-download', label: 'Tải SGK', icon: BookOpen },
+    { id: 'virtual-lab', label: 'Thí Nghiệm KHTN', icon: FlaskConical },
+    { id: 'geo-experiments', label: '3D Địa Lí', icon: Globe, color: '#f59e0b' },
+    { id: 'lecture-slides', label: 'Slide Bài Giảng', icon: Presentation }
+  ];
+
   return (
     <>
-      {/* Mobile Backdrop Overlay */}
+      {/* 1. TOP HORIZONTAL FLOATING HEADER NAVBAR (MATCHING MOCKUP) */}
+      <header className="app-top-header">
+        
+        {/* Brand Logo & Title */}
+        <div 
+          onClick={() => setActiveTab('catalog')} 
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+        >
+          <div style={{
+            background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+            width: '42px',
+            height: '42px',
+            borderRadius: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)',
+            border: '1.5px solid rgba(255, 255, 255, 0.4)',
+            flexShrink: 0
+          }}>
+            <GraduationCap size={24} color="#ffffff" />
+          </div>
+
+          <div>
+            <h2 style={{
+              fontSize: '1.15rem',
+              fontWeight: 900,
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              lineHeight: 1.25,
+              margin: 0,
+              whiteSpace: 'nowrap'
+            }}>
+              Sky-Line AI
+            </h2>
+            <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700, display: 'block' }}>
+              Hệ Thống Dạy & Học Thông Minh
+            </span>
+          </div>
+        </div>
+
+        {/* Center Desktop Navigation Tabs */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto', padding: '4px 0' }} className="desktop-header-tabs">
+          {navItems.map(item => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '7px',
+                  padding: '8px 14px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '0.85rem',
+                  fontWeight: isActive ? 800 : 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease',
+                  background: isActive 
+                    ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' 
+                    : 'transparent',
+                  color: isActive ? '#ffffff' : '#334155',
+                  boxShadow: isActive ? '0 4px 14px rgba(13, 148, 136, 0.3)' : 'none'
+                }}
+              >
+                <Icon size={16} color={isActive ? '#ffffff' : (item.color || '#0d9488')} />
+                <span>{item.label}</span>
+                {item.count > 0 && (
+                  <span style={{
+                    fontSize: '0.7rem',
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    background: isActive ? 'rgba(255,255,255,0.25)' : 'rgba(13, 148, 136, 0.15)',
+                    color: isActive ? '#ffffff' : '#0d9488',
+                    fontWeight: 800
+                  }}>
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Right Action Bar & User Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          
+          {/* AI Assistant Pill Badge */}
+          <div 
+            onClick={() => setActiveTab('catalog')}
+            className="ai-badge"
+            style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+          >
+            <Sparkles size={16} color="#fbbf24" />
+            <span>✨ AI Assistant</span>
+          </div>
+
+          {/* User Profile Pill */}
+          <div 
+            onClick={onOpenRoleSwitcher}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              background: 'rgba(13, 148, 136, 0.1)',
+              border: '1px solid rgba(13, 148, 136, 0.25)',
+              cursor: 'pointer'
+            }}
+          >
+            <div style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              fontWeight: 900,
+              fontSize: '0.8rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {currentUser?.name?.charAt(0) || '👤'}
+            </div>
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
+              {currentUser?.name || 'Tài Khoản'}
+            </span>
+          </div>
+
+          {/* Mobile Drawer Menu Toggle */}
+          <button 
+            onClick={() => setIsMobileOpen(true)}
+            style={{
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '8px 12px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)'
+            }}
+          >
+            <Menu size={18} />
+            <span>MENU</span>
+          </button>
+        </div>
+
+      </header>
+
+      {/* 2. MOBILE BACKDROP & SLIDING DRAWER MENU */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)} 
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(6px)',
-            zIndex: 998
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9998
           }}
         />
       )}
 
-      {/* Main Vertical Sidebar Container - Original Dark Glassmorphism */}
       <aside className={`sidebar-container ${isMobileOpen ? 'mobile-open' : ''}`}>
         
-        {/* Sidebar Header: Brand & Quote */}
+        {/* Drawer Header */}
         <div style={{
-          padding: '22px 18px 16px 18px',
-          borderBottom: '1px solid rgba(0, 168, 150, 0.25)',
+          padding: '20px 18px 16px 18px',
+          borderBottom: '1px solid rgba(13, 148, 136, 0.2)',
           display: 'flex',
-          flexDirection: 'column',
-          gap: '14px'
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}>
-          <div 
-            onClick={() => { setActiveTab('catalog'); if (isMobileOpen) setIsMobileOpen(false); }} 
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-          >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
-              width: '44px',
-              height: '44px',
-              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 18px rgba(13, 148, 136, 0.45)',
-              border: '1.5px solid rgba(255, 255, 255, 0.4)',
-              flexShrink: 0
+              color: '#ffffff'
             }}>
-              <GraduationCap size={26} color="#ffffff" />
+              <GraduationCap size={22} />
             </div>
-
-            <div style={{ flex: 1 }}>
-              <h2 style={{
-                fontSize: '1.1rem',
-                fontWeight: 900,
-                background: 'linear-gradient(135deg, #00a896 0%, #2dd4bf 50%, #38bdf8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                lineHeight: 1.25,
-                margin: 0
-              }}>
-                Hệ Thống Hỗ Trợ Dạy Và Học
-              </h2>
-            </div>
-
-            {/* Mobile close button */}
-            <button 
-              className="sidebar-mobile-close"
-              onClick={() => setIsMobileOpen(false)}
-              style={{ display: 'none', background: 'transparent', border: 'none', color: '#fff', cursor: 'pointer' }}
-            >
-              <X size={20} />
-            </button>
+            <span style={{ fontWeight: 900, fontSize: '1.05rem', color: '#0f172a' }}>Menu Quản Lý</span>
           </div>
-
-          {/* Inspirational Quote Box */}
-          <div style={{
-            background: 'linear-gradient(135deg, #fef3c7 0%, #ecfdf5 100%)',
-            border: '1.5px solid rgba(245, 158, 11, 0.3)',
-            borderRadius: '12px',
-            padding: '10px 12px',
-            boxShadow: '0 2px 10px rgba(245, 158, 11, 0.08)'
-          }}>
-            <p style={{
-              fontSize: '0.72rem',
-              color: '#92400e',
-              fontWeight: 700,
-              fontStyle: 'italic',
-              lineHeight: 1.4,
-              margin: 0
-            }}>
-              ✨ "Không phải tất cả chúng ta đều làm được những điều vĩ đại, nhưng chúng ta có thể làm những điều nhỏ nhặt với tình yêu vĩ đại"
-            </p>
-            <span style={{ fontSize: '0.66rem', color: '#0d9488', display: 'block', marginTop: '4px', textAlign: 'right', fontWeight: 700 }}>
-              Mẹ Têrêsa Calcutta
-            </span>
-          </div>
+          <button 
+            onClick={() => setIsMobileOpen(false)}
+            style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
+          >
+            <X size={22} />
+          </button>
         </div>
 
-        {/* Scrollable Navigation Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Drawer Scrollable Content */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
           
-          {/* Main Category */}
           <div>
             <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#0d9488', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
-              DANH MỤC CHÍNH
+              DANH MỤC TRANG
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'catalog' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('catalog'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <Gamepad2 size={18} />
-                <span>Kho Game Giáo Dục</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'my-games' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('my-games'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <BookmarkCheck size={18} />
-                <span style={{ flex: 1 }}>Game Của Tôi</span>
-                {myGamesCount > 0 && (
-                  <span className="badge badge-custom" style={{ fontSize: '0.7rem' }}>
-                    {myGamesCount}
-                  </span>
-                )}
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'call-student' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('call-student'); if (isMobileOpen) setIsMobileOpen(false); }}
-                style={{
-                  background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined,
-                  fontWeight: activeTab === 'call-student' ? 800 : undefined
-                }}
-              >
-                <UserCheck size={18} />
-                <span>Gọi Tên Học Sinh</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'timer' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('timer'); if (isMobileOpen) setIsMobileOpen(false); }}
-                style={{
-                  background: activeTab === 'timer' ? 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)' : undefined,
-                  fontWeight: activeTab === 'timer' ? 800 : undefined
-                }}
-              >
-                <Clock size={18} />
-                <span>Đồng Hồ Bấm Giờ</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'homeroom' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('homeroom'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <Users size={18} />
-                <span>Lớp Chủ Nhiệm</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'parent-meeting' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('parent-meeting'); if (isMobileOpen) setIsMobileOpen(false); }}
-                style={{
-                  background: activeTab === 'parent-meeting' ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' : undefined,
-                  fontWeight: activeTab === 'parent-meeting' ? 900 : undefined
-                }}
-              >
-                <HeartHandshake size={18} color={activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6'} />
-                <span style={{ color: activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6', fontWeight: 800 }}>Hỗ Trợ Họp Phụ Huynh</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'textbook-download' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('textbook-download'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <BookOpen size={18} />
-                <span>Tải File SGK</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'virtual-lab' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('virtual-lab'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <FlaskConical size={18} />
-                <span>Mô phỏng thí nghiệm KHTN</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'geo-experiments' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('geo-experiments'); if (isMobileOpen) setIsMobileOpen(false); }}
-                style={{
-                  background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : undefined,
-                  fontWeight: activeTab === 'geo-experiments' ? 900 : undefined
-                }}
-              >
-                <Globe size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#f59e0b'} />
-                <span style={{ color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', fontWeight: 800 }}>Mô hình 3D Địa Lí</span>
-              </button>
-
-              <button 
-                className={`sidebar-nav-btn ${activeTab === 'lecture-slides' ? 'active' : ''}`}
-                onClick={() => { setActiveTab('lecture-slides'); if (isMobileOpen) setIsMobileOpen(false); }}
-              >
-                <Presentation size={18} />
-                <span>Slide Bài Giảng</span>
-              </button>
+              {navItems.map(item => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id); setIsMobileOpen(false); }}
+                    className={`sidebar-menu-item ${isActive ? 'active' : ''}`}
+                  >
+                    <Icon size={18} className="sidebar-menu-icon" />
+                    <span className="sidebar-menu-text">{item.label}</span>
+                    {item.count > 0 && (
+                      <span className="sidebar-badge">{item.count}</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Admin Category */}
+          {/* Admin Management Section */}
           {isAdmin && (
             <div>
               <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
@@ -269,25 +315,24 @@ export function Sidebar({
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <button 
-                  className={`sidebar-nav-btn ${activeTab === 'admin' ? 'active' : ''}`}
-                  onClick={() => { setActiveTab('admin'); if (isMobileOpen) setIsMobileOpen(false); }}
+                  className={`sidebar-menu-item ${activeTab === 'admin' ? 'active' : ''}`}
+                  onClick={() => { setActiveTab('admin'); setIsMobileOpen(false); }}
                 >
-                  <Shield size={18} />
-                  <span>Quản Trị Admin</span>
+                  <Shield size={18} className="sidebar-menu-icon" />
+                  <span className="sidebar-menu-text">Quản Trị Admin</span>
                 </button>
 
                 <button 
-                  className="sidebar-nav-btn"
-                  onClick={() => { onOpenUserManagement(); if (isMobileOpen) setIsMobileOpen(false); }}
-                  style={{ color: '#818cf8' }}
+                  className="sidebar-menu-item"
+                  onClick={() => { onOpenUserManagement(); setIsMobileOpen(false); }}
                 >
-                  <UserCheck size={18} />
-                  <span>Quản Lý Giáo Viên</span>
+                  <UserCheck size={18} className="sidebar-menu-icon" />
+                  <span className="sidebar-menu-text">Quản Lý Giáo Viên</span>
                 </button>
 
                 <button 
                   className="sidebar-nav-btn accent"
-                  onClick={() => { onOpenAdminCreateGame(); if (isMobileOpen) setIsMobileOpen(false); }}
+                  onClick={() => { onOpenAdminCreateGame(); setIsMobileOpen(false); }}
                 >
                   <PlusCircle size={18} />
                   <span>Tạo Game Mới</span>
@@ -296,134 +341,36 @@ export function Sidebar({
             </div>
           )}
 
-          {/* Utilities Category */}
-          <div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
-              TIỆN ÍCH HỖ TRỢ
+          {/* Author Card */}
+          <div className="sidebar-author-card">
+            <label className="sidebar-author-avatar-label" title={isAdmin ? "Đổi ảnh đại diện tác giả" : ""}>
+              {authorPhoto ? (
+                <img src={authorPhoto} alt="Thầy Hảo" className="sidebar-author-img" />
+              ) : (
+                <div className="sidebar-author-placeholder">👨‍🏫</div>
+              )}
+              {isAdmin && (
+                <div className="sidebar-author-cam-icon">
+                  <Camera size={10} color="#fbbf24" />
+                </div>
+              )}
+              {isAdmin && (
+                <input type="file" accept="image/*" onChange={handleAuthorPhotoUpload} style={{ display: 'none' }} />
+              )}
+            </label>
+            <div>
+              <span className="sidebar-author-tag">TÁC GIẢ WEBSITE</span>
+              <div className="sidebar-author-name">by Thầy Hảo Địa Lý</div>
             </div>
-
-            <button 
-              className="sidebar-nav-btn utility"
-              onClick={() => downloadExcelTemplate('Mau_Cau_Hoi_Chuan')}
-              title="Tải về file Excel mẫu chuẩn cho tất cả các loại game"
-            >
-              <FileSpreadsheet size={18} color="#34d399" />
-              <span style={{ color: '#6ee7b7' }}>Tải Mẫu Excel</span>
-            </button>
           </div>
 
         </div>
 
-        {/* Sidebar Footer: Author & User Cards */}
-        <div style={{
-          padding: '14px',
-          borderTop: '1px solid rgba(0, 168, 150, 0.25)',
-          background: 'rgba(7, 21, 33, 0.95)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}>
-
-          {/* Author Badge */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '8px 12px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(15, 23, 42, 0.9) 100%)',
-            border: '1px solid rgba(245, 158, 11, 0.4)'
-          }}>
-            <label 
-              htmlFor={isAdmin ? "sidebar-author-file-input" : undefined} 
-              style={{ cursor: isAdmin ? 'pointer' : 'default', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              title={isAdmin ? "Bấm vào để đổi ảnh Thầy Hảo" : "Tác giả Website: Thầy Hảo Địa Lí"}
-            >
-              <img 
-                src={authorPhoto || thayHaoAvatar} 
-                alt="Thầy Hảo Địa Lí" 
-                onError={(e) => { e.target.src = thayHaoAvatar; }} 
-                style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #fbbf24', boxShadow: '0 2px 8px rgba(245, 158, 11, 0.45)', flexShrink: 0 }} 
-              />
-              {isAdmin && (
-                <input type="file" id="sidebar-author-file-input" accept="image/*" onChange={handleAuthorPhotoUpload} style={{ display: 'none' }} />
-              )}
-            </label>
-
-            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
-              <span className="badge" style={{ background: '#f59e0b', color: '#0f172a', fontWeight: 900, fontSize: '0.6rem', padding: '1px 6px', borderRadius: '4px' }}>
-                🏆 TÁC GIẢ WEBSITE
-              </span>
-              <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#fde047', marginTop: '1px' }}>
-                by Thầy Hảo Địa Lí
-              </div>
-            </div>
-          </div>
-
-          {/* User Info Card (No Role Switcher Trigger for Teachers) */}
-          <div 
-            onClick={isAdmin ? onOpenRoleSwitcher : undefined}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '8px 12px',
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              cursor: isAdmin ? 'pointer' : 'default'
-            }}
-            title={isAdmin ? "Bấm để đổi tài khoản" : "Tài khoản cá nhân"}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                background: isAdmin ? 'var(--danger-glow)' : 'var(--secondary-glow)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 900,
-                color: '#fff',
-                fontSize: '0.85rem'
-              }}>
-                {currentUser?.name?.charAt(0) || 'U'}
-              </div>
-              <div>
-                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fff' }}>
-                  {currentUser?.name}
-                </div>
-                <span className={isAdmin ? 'badge badge-admin' : 'badge badge-teacher'} style={{ fontSize: '0.62rem' }}>
-                  {isAdmin ? 'ADMIN' : 'Giáo viên'}
-                </span>
-              </div>
-            </div>
-
-            <button
-              onClick={(e) => { e.stopPropagation(); onLogout(); }}
-              title="Đăng xuất khỏi hệ thống"
-              style={{
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: '#ffffff',
-                border: 'none',
-                padding: '6px 10px',
-                borderRadius: '8px',
-                fontWeight: 800,
-                fontSize: '0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.35)',
-                flexShrink: 0
-              }}
-            >
-              <LogOut size={14} />
-              <span>Đăng xuất</span>
-            </button>
-          </div>
-
+        {/* Drawer Footer */}
+        <div className="sidebar-footer">
+          <button className="sidebar-logout-btn" onClick={onLogout}>
+            <LogOut size={16} /> Đăng Xuất Hệ Thống
+          </button>
         </div>
 
       </aside>

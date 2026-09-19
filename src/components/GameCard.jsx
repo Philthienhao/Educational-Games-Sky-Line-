@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Upload, FileSpreadsheet, Eye, Trash2, Edit3, Sparkles, Download } from 'lucide-react';
+import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
@@ -30,68 +30,73 @@ export function GameCard({
         justifyContent: 'space-between',
         borderRadius: '22px',
         overflow: 'hidden',
-        position: 'relative'
+        position: 'relative',
+        background: '#ffffff'
       }}
     >
-      {/* Header Banner Gradient */}
+      {/* 3D Rounded Header Illustration Box (Matching Proposed Mockup) */}
       <div 
         style={{
           background: game.gradient || 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-          padding: '24px 20px',
+          margin: '12px 12px 0 12px',
+          height: '140px',
+          borderRadius: '18px',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.2)'
+          justifyContent: 'center',
+          boxShadow: '0 8px 24px -6px rgba(13, 148, 136, 0.35)',
+          overflow: 'hidden'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{
-            fontSize: '2.4rem',
-            background: 'rgba(255, 255, 255, 0.28)',
-            width: '62px',
-            height: '62px',
-            borderRadius: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 10px 22px rgba(0,0,0,0.18)',
-            backdropFilter: 'blur(10px)',
-            transform: 'translateY(-2px)'
-          }}>
-            {game.icon || '🎮'}
-          </div>
-          <div>
-            <span style={{ 
-              fontSize: '0.7rem', 
-              fontWeight: 800, 
-              textTransform: 'uppercase', 
-              color: 'rgba(255, 255, 255, 0.85)',
-              letterSpacing: '0.05em' 
-            }}>
-              {game.category || 'Game Giáo Dục'}
-            </span>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2, marginTop: '2px' }}>
-              {game.title}
-            </h3>
-          </div>
-        </div>
+        {/* Category Badge Floating Top Left */}
+        <span style={{ 
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          fontSize: '0.68rem', 
+          fontWeight: 800, 
+          textTransform: 'uppercase', 
+          color: '#ffffff',
+          background: 'rgba(255, 255, 255, 0.28)',
+          backdropFilter: 'blur(8px)',
+          padding: '4px 10px',
+          borderRadius: '12px',
+          letterSpacing: '0.05em' 
+        }}>
+          {game.category || 'Game Giáo Dục'}
+        </span>
 
+        {/* Saved / Play Count Badge Floating Top Right */}
         {isSavedGame ? (
-          <span className="badge badge-custom" style={{ background: '#ffffff', color: '#059669', fontWeight: 800 }}>
+          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#ffffff', color: '#0d9488', fontWeight: 900 }}>
             ĐÃ LƯU
           </span>
         ) : (
-          <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.85)', fontWeight: 600, background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '12px' }}>
+          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 700, background: 'rgba(0,0,0,0.25)', padding: '4px 10px', borderRadius: '12px', backdropFilter: 'blur(6px)' }}>
             {typeof game.playsCount === 'number' ? game.playsCount : 0} Lượt chơi
           </span>
         )}
+
+        {/* 3D Large Centered Icon */}
+        <div style={{
+          fontSize: '3.4rem',
+          filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.25))',
+          transform: 'translateY(2px)',
+          transition: 'transform 0.3s ease'
+        }}>
+          {game.icon || '🎮'}
+        </div>
       </div>
 
       {/* Body Content */}
-      <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ padding: '16px 20px 20px 20px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '12px', lineHeight: 1.5 }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.3, marginBottom: '6px' }}>
+            {game.title}
+          </h3>
+
+          <p style={{ fontSize: '0.88rem', color: '#475569', marginBottom: '14px', lineHeight: 1.5, fontWeight: 500 }}>
             {game.description || 'Trò chơi tương tác giúp học sinh tiếp thu bài giảng hào hứng.'}
           </p>
 
@@ -121,10 +126,10 @@ export function GameCard({
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '16px' }}>
-            <span>Số câu hỏi: <strong style={{ color: 'var(--text-bright)' }}>{(game.questions || game.defaultQuestions || []).length} câu</strong></span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b', marginBottom: '16px', fontWeight: 600 }}>
+            <span>Số câu hỏi: <strong style={{ color: '#0d9488', fontWeight: 800 }}>{(game.questions || game.defaultQuestions || []).length} câu</strong></span>
             {isSavedGame && game.updatedAt && (
-              <span>Cập nhật: <strong style={{ color: 'var(--text-bright)' }}>{game.updatedAt}</strong></span>
+              <span>Cập nhật: <strong style={{ color: '#0f172a' }}>{game.updatedAt}</strong></span>
             )}
           </div>
         </div>
@@ -132,17 +137,26 @@ export function GameCard({
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           
-          {/* Main Play Button */}
+          {/* Main Play Pill Button */}
           <button 
             className="btn btn-primary btn-lg"
-            style={{ width: '100%', borderRadius: '14px', fontWeight: 700 }}
+            style={{ 
+              width: '100%', 
+              borderRadius: '16px', 
+              fontWeight: 800, 
+              fontSize: '0.95rem',
+              padding: '12px 20px',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              boxShadow: '0 6px 18px rgba(13, 148, 136, 0.35)'
+            }}
             onClick={() => {
               try { SoundFX.click(); } catch(e) {}
               if (handlePlay) handlePlay(game);
             }}
           >
-            <Play size={20} fill="#fff" />
-            {isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Thử Ngay'}
+            <Play size={18} fill="#fff" />
+            <span>{isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay'}</span>
+            <ArrowRight size={16} />
           </button>
 
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -150,17 +164,17 @@ export function GameCard({
             {/* Upload & Customize Button */}
             <button 
               className="btn btn-secondary"
-              style={{ flex: 1, borderRadius: '12px', fontSize: '0.85rem' }}
+              style={{ flex: 1, borderRadius: '12px', fontSize: '0.82rem', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#0f172a', fontWeight: 700 }}
               onClick={() => {
                 try { SoundFX.click(); } catch(e) {}
                 if (handleCustomize) handleCustomize(game);
               }}
             >
-              {isSavedGame ? <Edit3 size={16} /> : <Upload size={16} />}
-              {isSavedGame ? 'Sửa Câu Hỏi' : '⚡ Soạn / Tải File (Excel, Word, PDF)'}
+              {isSavedGame ? <Edit3 size={16} color="#0d9488" /> : <Upload size={16} color="#0d9488" />}
+              <span>{isSavedGame ? 'Sửa Câu Hỏi' : '⚡ Soạn / Tải File (Excel, Word)'}</span>
             </button>
 
-            {/* Download Offline Game Package (.html) - ONLY FOR TEACHER'S SAVED GAMES IN "GAME CỦA TÔI" */}
+            {/* Download Offline Game Package (.html) */}
             {isSavedGame && (
               <button 
                 className="btn btn-secondary btn-sm"
@@ -168,14 +182,14 @@ export function GameCard({
                   try { SoundFX.click(); } catch(e) {}
                   exportGameToOfflineHtml(game);
                 }}
-                title="📥 Tải file game về máy để chơi 100% Offline (Không cần mạng Internet)"
-                style={{ padding: '0 12px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 800 }}
+                title="📥 Tải file game về máy để chơi 100% Offline"
+                style={{ padding: '0 12px', background: 'rgba(245, 158, 11, 0.12)', color: '#d97706', border: '1.5px solid rgba(245, 158, 11, 0.3)', fontWeight: 800 }}
               >
                 <Download size={16} /> Offline
               </button>
             )}
 
-            {/* Excel Download Template Button (For catalog games) */}
+            {/* Excel Download Template Button */}
             {!isSavedGame && (
               <button 
                 className="btn btn-secondary btn-sm"
@@ -184,7 +198,7 @@ export function GameCard({
                   downloadExcelTemplate(game.title);
                 }}
                 title="Tải tệp mẫu Excel về máy"
-                style={{ padding: '0 12px', background: 'rgba(16, 185, 129, 0.1)', color: '#6ee7b7', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                style={{ padding: '0 12px', background: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', border: '1.5px solid rgba(13, 148, 136, 0.3)' }}
               >
                 <FileSpreadsheet size={16} />
               </button>
@@ -199,7 +213,7 @@ export function GameCard({
                   handleDelete(game);
                 }}
                 title="Xóa trò chơi khỏi hệ thống"
-                style={{ padding: '0 12px', background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid #ef4444' }}
+                style={{ padding: '0 12px', background: 'rgba(239, 68, 68, 0.12)', color: '#dc2626', border: '1.5px solid rgba(239, 68, 68, 0.3)' }}
               >
                 <Trash2 size={16} />
               </button>
