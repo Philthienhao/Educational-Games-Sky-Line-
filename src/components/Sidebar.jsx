@@ -88,16 +88,6 @@ export function Sidebar({
 
       {/* DESKTOP & MOBILE SIDEBAR CONTAINER */}
       <aside className={`app-sidebar-panel ${isMobileOpen ? 'mobile-open' : ''}`}>
-        
-        {/* Mobile Close Button */}
-        <div className="mobile-only-header" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'flex-end' }}>
-          <button 
-            onClick={() => setIsMobileOpen(false)}
-            style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
-          >
-            <X size={24} />
-          </button>
-        </div>
 
         {/* 1. TOP HEADER BRAND & QUOTE CARD */}
         <div className="sidebar-brand-card">

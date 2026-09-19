@@ -563,17 +563,17 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
   color: #ffffff;
 }
 
-/* MAIN CONTENT AREA - FULL REMAINING WIDTH MAX 1440PX */
+/* MAIN CONTENT AREA - SPANS REMAINING SCREEN WITH MARGIN-LEFT OFFSET */
 .app-main-content {
   flex: 1;
   min-width: 0;
-  width: 100%;
-  max-width: 1440px;
+  width: calc(100% - 290px);
+  margin-left: 290px;
   padding: 24px 32px 60px 32px;
   box-sizing: border-box;
 }
 
-/* MOBILE TOP NAVBAR */
+/* MOBILE TOP NAVBAR & RESPONSIVE BREAKPOINT */
 .mobile-top-header {
   display: none;
 }
@@ -609,11 +609,9 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
     transform: translateX(0) !important;
   }
 
-  .mobile-only-header {
-    display: flex;
-  }
-
   .app-main-content {
+    width: 100%;
+    margin-left: 0;
     padding: 16px 16px 80px 16px;
   }
 }
