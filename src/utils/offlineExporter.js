@@ -74,7 +74,7 @@ export function exportGameToOfflineHtml(game) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${game.title || 'Game Giáo Dục'} - Bản Chơi Offline Đầy Đủ Sky-Line</title>
+  <title>${game.title || 'Game Giáo Dục'} - Bản Chơi Offline Đầy Đủ</title>
   <style>
     :root {
       --bg-dark: #0b0f19;
@@ -435,7 +435,7 @@ export function exportGameToOfflineHtml(game) {
           <span class="badge-offline">⚡ 100% OFFLINE (GIAO DIỆN CHUẨN ONLINE)</span>
         </div>
         <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
-          Môn: ${game.subject || 'Tổng hợp'} • Tác giả: ${game.author || 'Hệ thống Sky-Line'}
+          Môn: ${game.subject || 'Tổng hợp'} • Tác giả: ${game.author || 'Thầy Hảo Địa Lý'}
         </div>
       </div>
     </div>

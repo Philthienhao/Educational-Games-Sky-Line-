@@ -71,7 +71,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
       name: cleanName,
       subject: newSubject.trim() || 'Giáo Dục',
       role: newRole || 'teacher',
-      school: 'Hệ thống Giáo Dục Sky-Line'
+      school: 'Hệ Thống Hỗ Trợ Dạy Và Học'
     });
 
     setSuccessMsg(`✅ Đã tạo và cấp tài khoản thành công cho: ${created.name} (Tên đăng nhập: "${created.username}" | Mật khẩu: "${created.password}")`);

@@ -46,7 +46,7 @@ export function ParentMeetingSupport({ currentUser }) {
 
               <div>
                 <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#db2777', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-                  SKY-LINE EDUCATIONAL SUITE · HỆ THỐNG HỖ TRỢ GIÁO VIÊN
+                  SMART EDUCATIONAL SUITE · HỆ THỐNG HỖ TRỢ GIÁO VIÊN
                 </div>
                 <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#0f172a', margin: '2px 0 0 0' }}>
                   Hỗ Trợ Họp Phụ Huynh

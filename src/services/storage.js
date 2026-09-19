@@ -19,7 +19,7 @@ const INITIAL_USERS = [
     name: 'Thầy Hảo Địa Lí',
     role: 'admin',
     subject: 'Địa Lí & Quản Trị Hệ Thống',
-    school: 'Hệ thống Giáo Dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-01-01',
     avatar: '/assets/thayhaodiali.jpg'
   },
@@ -30,7 +30,7 @@ const INITIAL_USERS = [
     name: 'Phạm Thị Thắm',
     role: 'teacher',
     subject: 'Địa Lí',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-01-20'
   },
   {
@@ -50,7 +50,7 @@ const INITIAL_USERS = [
     name: 'Nguyễn Thị Thanh Lài',
     role: 'teacher',
     subject: 'Ngữ Văn',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-01-15'
   },
   {
@@ -70,7 +70,7 @@ const INITIAL_USERS = [
     name: 'Nguyễn Thị Hằng',
     role: 'teacher',
     subject: 'Ngữ Văn',
-    school: 'Hệ thống Giáo Dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -80,7 +80,7 @@ const INITIAL_USERS = [
     name: 'Lê Như Hoa',
     role: 'teacher',
     subject: 'Sinh học',
-    school: 'Hệ thống Giáo Dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -90,7 +90,7 @@ const INITIAL_USERS = [
     name: 'Đinh Lê Thảo Duyên',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -100,7 +100,7 @@ const INITIAL_USERS = [
     name: 'Văn Quốc Hoàng',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -110,7 +110,7 @@ const INITIAL_USERS = [
     name: 'Nguyễn Thị Vân',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -120,7 +120,7 @@ const INITIAL_USERS = [
     name: 'Nguyễn Thị Mai Giang',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-03'
   },
   {
@@ -130,7 +130,7 @@ const INITIAL_USERS = [
     name: 'Huỳnh Thảo Nguyên',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-04'
   },
   {
@@ -140,7 +140,7 @@ const INITIAL_USERS = [
     name: 'Ni Na',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-04'
   },
   {
@@ -150,7 +150,7 @@ const INITIAL_USERS = [
     name: 'Hoàng Trí Toàn',
     role: 'teacher',
     subject: 'Toán',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-15'
   },
   {
@@ -170,7 +170,7 @@ const INITIAL_USERS = [
     name: 'Huỳnh Tiểu Ngọc',
     role: 'teacher',
     subject: 'Giáo viên',
-    school: 'Hệ thống giáo dục Sky-Line',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
     createdAt: '2026-09-16'
   },
   {
@@ -825,7 +825,7 @@ const INITIAL_ADMIN_FOLDERS = [
     grade: 'Khối 10',
     title: 'Thư mục Kho Học Liệu & Giáo Án Địa Lý Khối 10 (Thầy Hảo)',
     folderUrl: 'https://drive.google.com',
-    description: 'Tổng hợp giáo án, đề thi trắc nghiệm và slide bài giảng Địa 10 Sky-Line',
+    description: 'Tổng hợp giáo án, đề thi trắc nghiệm và slide bài giảng Địa 10',
     updatedAt: '2026-02-15'
   },
   {
@@ -2089,7 +2089,7 @@ export const StorageService = {
   exportFullBackup: () => {
     StorageService.init();
     const backupObj = {
-      systemName: "HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC SKY-LINE",
+      systemName: "HỆ THỐNG HỖ TRỢ DẠY VÀ HỌC",
       version: '2.0.0',
       exportDate: new Date().toISOString(),
       allSystemKeys: {}

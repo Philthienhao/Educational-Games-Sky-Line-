@@ -19,7 +19,8 @@ import {
   Menu,
   X,
   Sparkles,
-  User
+  User,
+  Award
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -59,7 +60,7 @@ export function Sidebar({
     { id: 'catalog', label: 'Kho Game Giáo Dục', icon: Gamepad2 },
     { id: 'my-games', label: 'Game Của Tôi', icon: BookmarkCheck, count: myGamesCount },
     { id: 'call-student', label: 'Gọi Tên Học Sinh', icon: UserCheck },
-    { id: 'timer', label: 'Đồng Hồ', icon: Clock },
+    { id: 'timer', label: 'Đồng Hồ Bấm Giờ', icon: Clock },
     { id: 'homeroom', label: 'Lớp Chủ Nhiệm', icon: Users },
     { id: 'parent-meeting', label: 'Họp Phụ Huynh', icon: HeartHandshake, color: '#ec4899' },
     { id: 'textbook-download', label: 'Tải SGK', icon: BookOpen },
@@ -70,170 +71,11 @@ export function Sidebar({
 
   return (
     <>
-      {/* 1. TOP HORIZONTAL FLOATING HEADER NAVBAR (MATCHING MOCKUP) */}
-      <header className="app-top-header">
-        
-        {/* Brand Logo & Title */}
-        <div 
-          onClick={() => setActiveTab('catalog')} 
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-        >
-          <div style={{
-            background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-            width: '42px',
-            height: '42px',
-            borderRadius: '14px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(13, 148, 136, 0.35)',
-            border: '1.5px solid rgba(255, 255, 255, 0.4)',
-            flexShrink: 0
-          }}>
-            <GraduationCap size={24} color="#ffffff" />
-          </div>
-
-          <div>
-            <h2 style={{
-              fontSize: '1.15rem',
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              lineHeight: 1.25,
-              margin: 0,
-              whiteSpace: 'nowrap'
-            }}>
-              Sky-Line AI
-            </h2>
-            <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 700, display: 'block' }}>
-              Hệ Thống Dạy & Học Thông Minh
-            </span>
-          </div>
-        </div>
-
-        {/* Center Desktop Navigation Tabs */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', overflowX: 'auto', padding: '4px 0' }} className="desktop-header-tabs">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '7px',
-                  padding: '8px 14px',
-                  borderRadius: '16px',
-                  border: 'none',
-                  fontSize: '0.85rem',
-                  fontWeight: isActive ? 800 : 700,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s ease',
-                  background: isActive 
-                    ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' 
-                    : 'transparent',
-                  color: isActive ? '#ffffff' : '#334155',
-                  boxShadow: isActive ? '0 4px 14px rgba(13, 148, 136, 0.3)' : 'none'
-                }}
-              >
-                <Icon size={16} color={isActive ? '#ffffff' : (item.color || '#0d9488')} />
-                <span>{item.label}</span>
-                {item.count > 0 && (
-                  <span style={{
-                    fontSize: '0.7rem',
-                    padding: '2px 6px',
-                    borderRadius: '10px',
-                    background: isActive ? 'rgba(255,255,255,0.25)' : 'rgba(13, 148, 136, 0.15)',
-                    color: isActive ? '#ffffff' : '#0d9488',
-                    fontWeight: 800
-                  }}>
-                    {item.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Right Action Bar & User Profile */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          
-          {/* AI Assistant Pill Badge */}
-          <div 
-            onClick={() => setActiveTab('catalog')}
-            className="ai-badge"
-            style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-          >
-            <Sparkles size={16} color="#fbbf24" />
-            <span>✨ AI Assistant</span>
-          </div>
-
-          {/* User Profile Pill */}
-          <div 
-            onClick={onOpenRoleSwitcher}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 12px',
-              borderRadius: '20px',
-              background: 'rgba(13, 148, 136, 0.1)',
-              border: '1px solid rgba(13, 148, 136, 0.25)',
-              cursor: 'pointer'
-            }}
-          >
-            <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              color: '#ffffff',
-              fontWeight: 900,
-              fontSize: '0.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {currentUser?.name?.charAt(0) || '👤'}
-            </div>
-            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
-              {currentUser?.name || 'Tài Khoản'}
-            </span>
-          </div>
-
-          {/* Mobile Drawer Menu Toggle */}
-          <button 
-            onClick={() => setIsMobileOpen(true)}
-            style={{
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '8px 12px',
-              fontWeight: 800,
-              fontSize: '0.82rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)'
-            }}
-          >
-            <Menu size={18} />
-            <span>MENU</span>
-          </button>
-        </div>
-
-      </header>
-
-      {/* 2. MOBILE BACKDROP & SLIDING DRAWER MENU */}
+      {/* MOBILE OVERLAY BACKDROP */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)} 
+          className="mobile-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -244,113 +86,165 @@ export function Sidebar({
         />
       )}
 
-      <aside className={`sidebar-container ${isMobileOpen ? 'mobile-open' : ''}`}>
+      {/* DESKTOP & MOBILE SIDEBAR CONTAINER */}
+      <aside className={`app-sidebar-panel ${isMobileOpen ? 'mobile-open' : ''}`}>
         
-        {/* Drawer Header */}
-        <div style={{
-          padding: '20px 18px 16px 18px',
-          borderBottom: '1px solid rgba(13, 148, 136, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              width: '36px',
-              height: '36px',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff'
-            }}>
-              <GraduationCap size={22} />
-            </div>
-            <span style={{ fontWeight: 900, fontSize: '1.05rem', color: '#0f172a' }}>Menu Quản Lý</span>
-          </div>
+        {/* Mobile Close Button */}
+        <div className="mobile-only-header" style={{ padding: '12px 16px', display: 'flex', justifyContent: 'flex-end' }}>
           <button 
             onClick={() => setIsMobileOpen(false)}
             style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
           >
-            <X size={22} />
+            <X size={24} />
           </button>
         </div>
 
-        {/* Drawer Scrollable Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          
-          <div>
-            <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#0d9488', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
-              DANH MỤC TRANG
+        {/* 1. TOP HEADER BRAND & QUOTE CARD */}
+        <div className="sidebar-brand-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              width: '46px',
+              height: '46px',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 6px 18px rgba(13, 148, 136, 0.35)',
+              border: '2px solid rgba(255, 255, 255, 0.6)',
+              flexShrink: 0
+            }}>
+              <GraduationCap size={26} color="#ffffff" />
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {navItems.map(item => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => { setActiveTab(item.id); setIsMobileOpen(false); }}
-                    className={`sidebar-menu-item ${isActive ? 'active' : ''}`}
-                  >
-                    <Icon size={18} className="sidebar-menu-icon" />
-                    <span className="sidebar-menu-text">{item.label}</span>
-                    {item.count > 0 && (
-                      <span className="sidebar-badge">{item.count}</span>
-                    )}
-                  </button>
-                );
-              })}
+
+            <div>
+              <h1 style={{
+                fontSize: '1.08rem',
+                fontWeight: 900,
+                color: '#0d9488',
+                lineHeight: 1.25,
+                margin: 0
+              }}>
+                Hệ Thống Hỗ Trợ Dạy Và Học
+              </h1>
             </div>
           </div>
 
-          {/* Admin Management Section */}
+          {/* QUOTE BOX (EXACTLY MATCHING USER SCREENSHOT) */}
+          <div className="quote-container-box">
+            <p style={{
+              fontSize: '0.8rem',
+              color: '#854d0e',
+              fontWeight: 700,
+              fontStyle: 'italic',
+              lineHeight: 1.45,
+              margin: 0
+            }}>
+              ✨ "Không phải tất cả chúng ta đều làm được những điều vĩ đại, nhưng chúng ta có thể làm những điều nhỏ nhặt với tình yêu vĩ đại"
+            </p>
+            <div style={{
+              textAlign: 'right',
+              fontSize: '0.74rem',
+              color: '#a16207',
+              fontWeight: 800,
+              marginTop: '8px'
+            }}>
+              Mẹ Têrêsa Calcutta
+            </div>
+          </div>
+        </div>
+
+        {/* 2. MAIN MENU SECTION (DANH MỤC CHÍNH) - FULL VERTICAL LIST NO SCROLL */}
+        <div className="sidebar-scrollable-body">
+          
+          <div style={{
+            fontSize: '0.72rem',
+            fontWeight: 900,
+            color: '#0d9488',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            marginBottom: '10px',
+            paddingLeft: '6px'
+          }}>
+            DANH MỤC CHÍNH
+          </div>
+
+          <nav className="sidebar-vertical-nav">
+            {navItems.map(item => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setIsMobileOpen(false);
+                  }}
+                  className={`sidebar-menu-btn ${isActive ? 'active' : ''}`}
+                >
+                  <Icon size={19} className="menu-icon" color={isActive ? '#ffffff' : (item.color || '#0d9488')} />
+                  <span className="menu-label">{item.label}</span>
+                  {item.count > 0 && (
+                    <span className="menu-count-badge">{item.count}</span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* ADMIN MANAGEMENT SECTION */}
           {isAdmin && (
-            <div>
-              <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#f59e0b', letterSpacing: '0.08em', marginBottom: '10px', paddingLeft: '8px' }}>
+            <div style={{ marginTop: '18px' }}>
+              <div style={{
+                fontSize: '0.72rem',
+                fontWeight: 900,
+                color: '#d97706',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                marginBottom: '10px',
+                paddingLeft: '6px'
+              }}>
                 QUẢN TRỊ VIÊN
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div className="sidebar-vertical-nav">
                 <button 
-                  className={`sidebar-menu-item ${activeTab === 'admin' ? 'active' : ''}`}
+                  className={`sidebar-menu-btn ${activeTab === 'admin' ? 'active' : ''}`}
                   onClick={() => { setActiveTab('admin'); setIsMobileOpen(false); }}
                 >
-                  <Shield size={18} className="sidebar-menu-icon" />
-                  <span className="sidebar-menu-text">Quản Trị Admin</span>
+                  <Shield size={19} className="menu-icon" color={activeTab === 'admin' ? '#ffffff' : '#d97706'} />
+                  <span className="menu-label">Quản Trị Admin</span>
                 </button>
 
                 <button 
-                  className="sidebar-menu-item"
+                  className="sidebar-menu-btn"
                   onClick={() => { onOpenUserManagement(); setIsMobileOpen(false); }}
                 >
-                  <UserCheck size={18} className="sidebar-menu-icon" />
-                  <span className="sidebar-menu-text">Quản Lý Giáo Viên</span>
+                  <UserCheck size={19} className="menu-icon" color="#0284c7" />
+                  <span className="menu-label">Quản Lý Giáo Viên</span>
                 </button>
 
                 <button 
-                  className="sidebar-nav-btn accent"
+                  className="sidebar-menu-btn accent-btn"
                   onClick={() => { onOpenAdminCreateGame(); setIsMobileOpen(false); }}
                 >
-                  <PlusCircle size={18} />
+                  <PlusCircle size={19} />
                   <span>Tạo Game Mới</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Author Card */}
-          <div className="sidebar-author-card">
-            <label className="sidebar-author-avatar-label" title={isAdmin ? "Đổi ảnh đại diện tác giả" : ""}>
+          {/* 3. AUTHOR PROFILE CARD */}
+          <div className="sidebar-author-box">
+            <label className="author-avatar-wrapper" title={isAdmin ? "Đổi ảnh đại diện tác giả" : ""}>
               {authorPhoto ? (
-                <img src={authorPhoto} alt="Thầy Hảo" className="sidebar-author-img" />
+                <img src={authorPhoto} alt="Thầy Hảo Địa Lý" className="author-img" />
               ) : (
-                <div className="sidebar-author-placeholder">👨‍🏫</div>
+                <div className="author-placeholder">👨‍🏫</div>
               )}
               {isAdmin && (
-                <div className="sidebar-author-cam-icon">
+                <div className="author-cam-overlay">
                   <Camera size={10} color="#fbbf24" />
                 </div>
               )}
@@ -359,17 +253,74 @@ export function Sidebar({
               )}
             </label>
             <div>
-              <span className="sidebar-author-tag">TÁC GIẢ WEBSITE</span>
-              <div className="sidebar-author-name">by Thầy Hảo Địa Lý</div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontSize: '0.65rem',
+                fontWeight: 900,
+                color: '#d97706',
+                background: 'rgba(245, 158, 11, 0.15)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                marginBottom: '2px'
+              }}>
+                <Award size={11} color="#d97706" /> TÁC GIẢ WEBSITE
+              </div>
+              <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#0f172a' }}>
+                by Thầy Hảo Địa Lý
+              </div>
             </div>
           </div>
 
         </div>
 
-        {/* Drawer Footer */}
-        <div className="sidebar-footer">
-          <button className="sidebar-logout-btn" onClick={onLogout}>
-            <LogOut size={16} /> Đăng Xuất Hệ Thống
+        {/* 4. USER PROFILE & LOGOUT FOOTER */}
+        <div className="sidebar-user-footer">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+            <div 
+              onClick={onOpenRoleSwitcher}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                cursor: 'pointer',
+                boxShadow: '0 4px 10px rgba(13, 148, 136, 0.3)'
+              }}
+            >
+              {currentUser?.name?.charAt(0) || '👤'}
+            </div>
+
+            <div 
+              onClick={onOpenRoleSwitcher}
+              style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+            >
+              <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentUser?.name || 'Giáo Viên'}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
+                  {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={onLogout}
+            className="sidebar-logout-icon-btn"
+            title="Đăng xuất khỏi hệ thống"
+          >
+            <LogOut size={16} />
+            <span>Đăng xuất</span>
           </button>
         </div>
 

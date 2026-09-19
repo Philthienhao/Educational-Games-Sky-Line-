@@ -358,7 +358,7 @@ export function App() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
                 <div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '20px', background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#ffffff', fontWeight: 800, fontSize: '0.78rem', marginBottom: '12px', boxShadow: '0 4px 14px rgba(13, 148, 136, 0.25)' }}>
-                    <Sparkles size={16} color="#fbbf24" /> SKY-LINE AI EDUCATIONAL WORKSPACE
+                    <Sparkles size={16} color="#fbbf24" /> AI EDUCATIONAL WORKSPACE
                   </div>
                   <h1 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.25 }}>
                     Chào mừng <span style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{currentUser?.name || 'Thầy/Cô'}</span> trở lại! 👋
@@ -775,7 +775,7 @@ export function App() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: '#94a3b8' }}>Trường học:</span>
-                <span style={{ fontWeight: 800, color: '#fde047' }}>{currentUser?.school || 'Hệ thống Sky-Line'}</span>
+                <span style={{ fontWeight: 800, color: '#fde047' }}>{currentUser?.school || 'Hệ Thống Hỗ Trợ Dạy Và Học'}</span>
               </div>
             </div>
 
@@ -863,7 +863,7 @@ export function App() {
         onClick={() => setIsAiWidgetOpen(true)}
       >
         <Sparkles size={20} color="#fbbf24" />
-        <span>Trợ Lý Sky-Line AI 24/7</span>
+        <span>Trợ lí Thầy Hảo 24/7</span>
       </div>
 
       {/* Interactive AI Assistant Modal */}
@@ -883,7 +883,7 @@ export function App() {
                   <Sparkles size={22} color="#ffffff" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Sky-Line AI Teaching Assistant</h3>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Trợ lí Thầy Hảo 24/7</h3>
                   <span style={{ fontSize: '0.78rem', color: '#0d9488', fontWeight: 700 }}>Trợ lý hỗ trợ dạy & học thông minh</span>
                 </div>
               </div>
@@ -894,7 +894,7 @@ export function App() {
 
             <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid rgba(13, 148, 136, 0.15)', marginBottom: '18px' }}>
               <p style={{ fontSize: '0.92rem', color: '#334155', lineHeight: 1.5, fontWeight: 600, margin: 0 }}>
-                🤖 Xin chào <strong>{currentUser?.name || 'Thầy/Cô'}</strong>! Em là trợ lý AI của Sky-Line. Em có thể hỗ trợ Thầy/Cô tự động sinh câu hỏi trắc nghiệm, tạo ý tưởng game giáo dục, hay chuẩn bị nội dung họp phụ huynh chỉ trong vài giây.
+                🤖 Xin chào <strong>{currentUser?.name || 'Thầy/Cô'}</strong>! Em là trợ lý AI của Thầy Hảo. Em có thể hỗ trợ Thầy/Cô tự động sinh câu hỏi trắc nghiệm, tạo ý tưởng game giáo dục, hay chuẩn bị nội dung họp phụ huynh chỉ trong vài giây.
               </p>
             </div>
 

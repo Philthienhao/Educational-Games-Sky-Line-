@@ -137,7 +137,7 @@ export const CloudStorageService = {
       name: userData.name || userData.username,
       role: userData.role || 'teacher',
       subject: userData.subject || 'Giáo viên',
-      school: userData.school || 'Hệ thống Giáo Dục Sky-Line',
+      school: userData.school || 'Hệ Thống Hỗ Trợ Dạy Và Học',
       createdAt: userData.createdAt || new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString()
     };
