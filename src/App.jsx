@@ -256,7 +256,7 @@ export function App() {
   }
 
   return (
-    <div className="app-layout-wrapper" style={{ display: 'flex', minHeight: '100vh', width: '100%', background: 'var(--bg-dark)' }}>
+    <div className="app-layout-wrapper">
       
       {/* Sleek Vertical Glassmorphism Sidebar Navigation */}
       <Sidebar 
