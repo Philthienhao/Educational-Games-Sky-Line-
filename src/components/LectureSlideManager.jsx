@@ -485,20 +485,20 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
       {/* SECTION 1: TEACHER-CREATED GRADE LEVEL DRIVE FOLDERS                      */}
       {/* ========================================================================= */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%)',
+        background: '#ffffff',
         borderRadius: '26px',
         padding: '26px',
         marginBottom: '32px',
-        border: '1.5px solid rgba(16, 185, 129, 0.3)',
-        boxShadow: '0 12px 35px rgba(0,0,0,0.25)'
+        border: '1.5px solid rgba(16, 185, 129, 0.35)',
+        boxShadow: '0 8px 30px rgba(15, 23, 42, 0.06)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#6ee7b7', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <FolderOpen size={22} color="#34d399" />
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <FolderOpen size={22} color="#059669" />
               THƯ MỤC GOOGLE DRIVE KHỐI LỚP CỦA TÔI ({gradeFoldersList.length} Khối Lớp)
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.86rem', margin: '4px 0 0 0' }}>
+            <p style={{ color: '#475569', fontSize: '0.88rem', margin: '4px 0 0 0', fontWeight: 600 }}>
               Thầy/Cô dạy bao nhiêu khối lớp thì tự tạo ra bấy nhiêu thư mục khối lớp tương ứng để lưu trữ và quản lý chủ động.
             </p>
           </div>
@@ -528,19 +528,18 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
         {/* IF NO GRADE FOLDERS CREATED YET */}
         {gradeFoldersList.length === 0 ? (
           <div style={{
-            background: 'rgba(15, 23, 42, 0.6)',
-            borderRadius: '22px',
-            padding: '48px 24px',
+            background: '#f8fafc',
+            borderRadius: '20px',
+            padding: '36px 20px',
             textAlign: 'center',
-            border: '2px dashed rgba(16, 185, 129, 0.3)',
-            marginTop: '12px'
+            border: '2px dashed #cbd5e1'
           }}>
-            <FolderPlus size={52} color="#34d399" style={{ marginBottom: '14px', filter: 'drop-shadow(0 4px 10px rgba(52,211,153,0.3))' }} />
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#f8fafc', marginBottom: '8px' }}>
-              Thầy/Cô Chưa Cài Đặt Thư Mục Khối Lớp Nào
+            <FolderPlus size={44} color="#059669" style={{ marginBottom: '12px' }} />
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
+              Chưa Có Thư Mục Khối Lớp Nào Được Tạo
             </h3>
-            <p style={{ color: '#94a3b8', maxWidth: '520px', margin: '0 auto 20px auto', fontSize: '0.9rem', lineHeight: 1.5 }}>
-              Thầy/Cô giảng dạy những khối lớp nào (VD: Lớp 10, Lớp 11, Lớp 12...)? Hãy bấm nút dưới đây để tạo thư mục Google Drive cho các khối lớp đó!
+            <p style={{ color: '#475569', maxWidth: '480px', margin: '0 auto 16px auto', fontSize: '0.88rem', fontWeight: 600 }}>
+              Bấm "+ Thêm Thư Mục Khối Lớp Mới" để tạo và lưu liên kết Google Drive khối lớp bạn giảng dạy.
             </p>
             <button
               onClick={handleOpenAddFolderModal}
@@ -548,54 +547,49 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 color: '#ffffff',
                 border: 'none',
-                padding: '12px 24px',
-                borderRadius: '16px',
-                fontWeight: 900,
-                fontSize: '0.92rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 6px 20px rgba(16, 185, 129, 0.4)'
+                padding: '10px 20px',
+                borderRadius: '14px',
+                fontWeight: 800,
+                fontSize: '0.86rem',
+                cursor: 'pointer'
               }}
             >
-              <FolderPlus size={18} />
-              + Tạo Thư Mục Khối Lớp Đầu Tiên
+              + Tạo Thư Mục Ngay
             </button>
           </div>
         ) : (
           /* DYNAMIC GRID OF TEACHER-CREATED GRADE FOLDERS */
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '20px',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '16px',
             marginTop: '16px'
           }}>
             {gradeFoldersList.map(folder => (
               <div
                 key={folder.id}
                 style={{
-                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.95) 100%)',
-                  borderRadius: '22px',
+                  background: '#ffffff',
+                  borderRadius: '20px',
+                  border: '1.5px solid rgba(16, 185, 129, 0.3)',
                   padding: '20px',
-                  border: '1.5px solid rgba(16, 185, 129, 0.4)',
-                  boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                  boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '14px'
+                  gap: '16px',
+                  transition: 'all 0.25s ease'
                 }}
               >
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                     <span style={{
                       background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                       color: '#ffffff',
                       fontWeight: 900,
-                      fontSize: '0.85rem',
-                      padding: '4px 14px',
-                      borderRadius: '12px',
-                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+                      fontSize: '0.8rem',
+                      padding: '4px 12px',
+                      borderRadius: '10px'
                     }}>
                       🎓 {folder.grade}
                     </span>
@@ -605,11 +599,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                         onClick={() => handleOpenEditFolderModal(folder)}
                         title="Chỉnh sửa thư mục này"
                         style={{
-                          background: 'rgba(255,255,255,0.08)',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          color: '#38bdf8',
-                          padding: '6px 10px',
-                          borderRadius: '10px',
+                          background: '#f1f5f9',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          padding: '6px',
+                          color: '#0284c7',
                           cursor: 'pointer'
                         }}
                       >
@@ -620,11 +614,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                         onClick={() => handleDeleteGradeFolder(folder.id, folder.grade)}
                         title="Xóa thư mục khối lớp này"
                         style={{
-                          background: 'rgba(239, 68, 68, 0.15)',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          background: '#fef2f2',
+                          border: '1px solid #fca5a5',
+                          borderRadius: '8px',
+                          padding: '6px',
                           color: '#ef4444',
-                          padding: '6px 10px',
-                          borderRadius: '10px',
                           cursor: 'pointer'
                         }}
                       >
@@ -633,34 +627,34 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                     </div>
                   </div>
 
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc', margin: '0 0 6px 0', lineHeight: 1.35 }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1.35 }}>
                     {folder.title || `Thư mục Slide ${folder.grade}`}
                   </h3>
 
-                  <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                  <div style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 500 }}>
                     Ngày cài đặt: {folder.createdAt || 'Mới khởi tạo'}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
                   <a
                     href={folder.driveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
                       flex: 1,
-                      background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                      background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                       color: '#ffffff',
                       padding: '10px 14px',
                       borderRadius: '14px',
-                      fontWeight: 800,
-                      fontSize: '0.85rem',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
                       textDecoration: 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '6px',
-                      boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
+                      boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
                     }}
                   >
                     <HardDrive size={16} />
@@ -672,11 +666,13 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                     onClick={() => handleCopyLink(folder.driveUrl, `Thư mục Drive ${folder.grade}`)}
                     title="Sao chép link Google Drive"
                     style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.15)',
-                      color: '#cbd5e1',
-                      padding: '10px 12px',
+                      background: '#f1f5f9',
+                      color: '#334155',
+                      border: '1px solid #cbd5e1',
                       borderRadius: '14px',
+                      padding: '10px 14px',
+                      fontWeight: 800,
+                      fontSize: '0.84rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center'
@@ -696,26 +692,26 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
       {/* SECTION 2: INDIVIDUAL LECTURE SLIDES SEARCH & LIST                        */}
       {/* ========================================================================= */}
       <div style={{
-        background: 'rgba(30, 41, 59, 0.9)',
+        background: '#ffffff',
         borderRadius: '26px',
         padding: '24px',
         marginBottom: '28px',
-        border: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+        border: '1.5px solid rgba(13, 148, 136, 0.25)',
+        boxShadow: '0 8px 30px rgba(15, 23, 42, 0.06)',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={20} color="#818cf8" />
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileText size={20} color="#0d9488" />
             TÌM KIẾM SLIDE BÀI GIẢNG CHI TIẾT TỰ NHẬP ({filteredSlides.length})
           </h3>
         </div>
 
         {/* SEARCH INPUT */}
         <div style={{ position: 'relative', width: '100%' }}>
-          <Search size={20} color="#94a3b8" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={20} color="#0d9488" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             type="text"
             placeholder="🔍 Nhập từ khóa bài học, môn học (VD: Bài 1, Địa Lý 10, Trái Đất)..."
@@ -725,13 +721,12 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
               width: '100%',
               padding: '14px 44px 14px 48px',
               borderRadius: '18px',
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '1.5px solid rgba(99, 102, 241, 0.4)',
-              color: '#ffffff',
-              fontSize: '0.98rem',
-              fontWeight: 600,
-              outline: 'none',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.15)'
+              background: '#ffffff',
+              border: '1.5px solid #0d9488',
+              color: '#0f172a',
+              fontWeight: 800,
+              fontSize: '0.95rem',
+              outline: 'none'
             }}
           />
           {localSearch && (
@@ -744,7 +739,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 transform: 'translateY(-50%)',
                 background: 'transparent',
                 border: 'none',
-                color: '#94a3b8',
+                color: '#64748b',
                 cursor: 'pointer'
               }}
             >
@@ -757,7 +752,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px', alignItems: 'center' }}>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#a5b4fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0d9488', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Filter size={14} />
               Lọc Khối Lớp:
             </label>
@@ -768,9 +763,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 width: '100%',
                 padding: '12px 16px',
                 borderRadius: '14px',
-                background: '#0f172a',
-                border: '1.5px solid rgba(129, 140, 248, 0.4)',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                color: '#0f172a',
                 fontWeight: 800,
                 fontSize: '0.92rem',
                 cursor: 'pointer',
@@ -784,7 +779,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#a5b4fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0d9488', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <BookOpen size={14} />
               Lọc Môn Học:
             </label>
@@ -795,9 +790,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 width: '100%',
                 padding: '12px 16px',
                 borderRadius: '14px',
-                background: '#0f172a',
-                border: '1.5px solid rgba(129, 140, 248, 0.4)',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                color: '#0f172a',
                 fontWeight: 800,
                 fontSize: '0.92rem',
                 cursor: 'pointer',
@@ -811,7 +806,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#a5b4fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0d9488', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <FileText size={14} />
               Lọc Bài Học / Chương:
             </label>
@@ -822,9 +817,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 width: '100%',
                 padding: '12px 16px',
                 borderRadius: '14px',
-                background: '#0f172a',
-                border: '1.5px solid rgba(129, 140, 248, 0.4)',
-                color: '#ffffff',
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                color: '#0f172a',
                 fontWeight: 800,
                 fontSize: '0.92rem',
                 cursor: 'pointer',
@@ -849,9 +844,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 width: '100%',
                 padding: '12px 16px',
                 borderRadius: '14px',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: '#cbd5e1',
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
+                color: '#334155',
                 fontWeight: 800,
                 fontSize: '0.88rem',
                 cursor: 'pointer',
@@ -872,23 +867,23 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
       {/* INDIVIDUAL SLIDES CARDS GRID */}
       {slidesList.length === 0 ? (
         <div style={{
-          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%)',
+          background: '#ffffff',
           borderRadius: '26px',
           padding: '48px 24px',
           textAlign: 'center',
-          border: '2px dashed rgba(99, 102, 241, 0.3)'
+          border: '2px dashed rgba(13, 148, 136, 0.35)'
         }}>
-          <Presentation size={56} color="#818cf8" style={{ marginBottom: '16px' }} />
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc', marginBottom: '8px' }}>
+          <Presentation size={56} color="#0d9488" style={{ marginBottom: '16px' }} />
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>
             Chưa Có Tệp Slide Bài Giảng Chi Tiết Nào
           </h3>
-          <p style={{ color: '#94a3b8', maxWidth: '520px', margin: '0 auto 20px auto', fontSize: '0.92rem' }}>
+          <p style={{ color: '#475569', maxWidth: '520px', margin: '0 auto 20px auto', fontSize: '0.92rem', fontWeight: 600 }}>
             Thầy/Cô có thể thêm các đường dẫn tệp Slide bài giảng riêng lẻ cho từng bài học cụ thể bằng cách bấm nút dưới đây.
           </p>
           <button
             onClick={handleOpenAddSlideModal}
             style={{
-              background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
               color: '#ffffff',
               border: 'none',
               padding: '12px 24px',
@@ -907,14 +902,14 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
         </div>
       ) : filteredSlides.length === 0 ? (
         <div style={{
-          background: 'rgba(30, 41, 59, 0.6)',
+          background: '#ffffff',
           borderRadius: '24px',
           padding: '40px 20px',
           textAlign: 'center',
-          border: '1px dashed rgba(255,255,255,0.2)'
+          border: '1.5px dashed #cbd5e1'
         }}>
-          <Presentation size={40} color="#64748b" style={{ marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', marginBottom: '6px' }}>Không tìm thấy Slide theo bộ lọc hiện tại</h3>
+          <Presentation size={40} color="#0d9488" style={{ marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>Không tìm thấy Slide theo bộ lọc hiện tại</h3>
           <button
             onClick={() => {
               setSelectedGradeFilter('Tất cả');
@@ -923,7 +918,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
               setLocalSearch('');
             }}
             style={{
-              background: '#4f46e5',
+              background: '#0d9488',
               color: '#fff',
               border: 'none',
               padding: '8px 18px',
@@ -946,11 +941,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
             <div
               key={slide.id}
               style={{
-                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+                background: '#ffffff',
                 borderRadius: '24px',
                 padding: '24px',
-                border: '1.5px solid rgba(99, 102, 241, 0.25)',
-                boxShadow: '0 8px 25px rgba(0,0,0,0.2)',
+                border: '1.5px solid rgba(13, 148, 136, 0.25)',
+                boxShadow: '0 8px 25px rgba(15, 23, 42, 0.05)',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between'
@@ -960,7 +955,7 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     <span style={{
-                      background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                      background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
                       color: '#ffffff',
                       fontWeight: 900,
                       fontSize: '0.78rem',
@@ -971,9 +966,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                     </span>
 
                     <span style={{
-                      background: 'rgba(56, 189, 248, 0.15)',
-                      color: '#38bdf8',
-                      border: '1px solid rgba(56, 189, 248, 0.4)',
+                      background: 'rgba(2, 132, 199, 0.12)',
+                      color: '#0284c7',
+                      border: '1px solid rgba(2, 132, 199, 0.3)',
                       fontWeight: 800,
                       fontSize: '0.78rem',
                       padding: '4px 10px',
@@ -984,9 +979,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
 
                     {slide.bookSeries && (
                       <span style={{
-                        background: 'rgba(245, 158, 11, 0.15)',
-                        color: '#fbbf24',
-                        border: '1px solid rgba(245, 158, 11, 0.4)',
+                        background: 'rgba(245, 158, 11, 0.12)',
+                        color: '#b45309',
+                        border: '1px solid rgba(245, 158, 11, 0.3)',
                         fontWeight: 800,
                         fontSize: '0.75rem',
                         padding: '4px 10px',
@@ -1002,11 +997,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                       onClick={() => handleOpenEditSlideModal(slide)}
                       title="Chỉnh sửa"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        background: '#f1f5f9',
+                        border: '1px solid #cbd5e1',
                         borderRadius: '8px',
                         padding: '6px',
-                        color: '#38bdf8',
+                        color: '#0284c7',
                         cursor: 'pointer'
                       }}
                     >
@@ -1017,8 +1012,8 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                       onClick={() => handleDeleteSlide(slide.id, slide.title)}
                       title="Xóa"
                       style={{
-                        background: 'rgba(239, 68, 68, 0.15)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        background: '#fef2f2',
+                        border: '1px solid #fca5a5',
                         borderRadius: '8px',
                         padding: '6px',
                         color: '#ef4444',

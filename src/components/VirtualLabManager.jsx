@@ -122,23 +122,23 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
   });
 
   const getSubjectBadgeColor = (subject) => {
-    if (subject === 'Hóa học') return { bg: 'rgba(239, 68, 68, 0.15)', color: '#fca5a5', border: 'rgba(239, 68, 68, 0.3)' };
-    if (subject === 'Vật lí') return { bg: 'rgba(14, 116, 144, 0.2)', color: '#38bdf8', border: 'rgba(14, 116, 144, 0.4)' };
-    if (subject === 'Sinh học') return { bg: 'rgba(34, 197, 94, 0.15)', color: '#86efac', border: 'rgba(34, 197, 94, 0.3)' };
-    if (subject === 'Địa lí') return { bg: 'rgba(245, 158, 11, 0.2)', color: '#fde047', border: 'rgba(245, 158, 11, 0.4)' };
-    return { bg: 'rgba(13, 148, 136, 0.15)', color: '#2dd4bf', border: 'rgba(13, 148, 136, 0.3)' };
+    if (subject === 'Hóa học') return { bg: 'rgba(239, 68, 68, 0.12)', color: '#dc2626', border: 'rgba(239, 68, 68, 0.3)' };
+    if (subject === 'Vật lí') return { bg: 'rgba(2, 132, 199, 0.12)', color: '#0284c7', border: 'rgba(2, 132, 199, 0.3)' };
+    if (subject === 'Sinh học') return { bg: 'rgba(16, 185, 129, 0.12)', color: '#059669', border: 'rgba(16, 185, 129, 0.3)' };
+    if (subject === 'Địa lí') return { bg: 'rgba(245, 158, 11, 0.12)', color: '#b45309', border: 'rgba(245, 158, 11, 0.3)' };
+    return { bg: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', border: 'rgba(13, 148, 136, 0.3)' };
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', color: '#f8fafc' }}>
+    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', color: '#0f172a' }}>
       
       {/* Top Banner Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #091a28 0%, #0d2b3a 50%, #0f172a 100%)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 253, 244, 0.95) 50%, rgba(224, 242, 254, 0.95) 100%)',
         borderRadius: '24px',
         padding: '28px 32px',
         border: '1.5px solid rgba(13, 148, 136, 0.35)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+        boxShadow: '0 8px 32px rgba(15, 23, 42, 0.06)',
         marginBottom: '28px',
         position: 'relative',
         overflow: 'hidden'
@@ -154,22 +154,20 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 18px rgba(13, 148, 136, 0.45)'
+                boxShadow: '0 4px 18px rgba(13, 148, 136, 0.35)'
               }}>
                 <FlaskConical size={26} color="#ffffff" />
               </div>
               <h1 style={{
                 fontSize: '1.65rem',
                 fontWeight: 900,
-                background: 'linear-gradient(135deg, #2dd4bf 0%, #38bdf8 50%, #818cf8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#0f172a',
                 margin: 0
               }}>
                 Mô phỏng thí nghiệm KHTN
               </h1>
             </div>
-            <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: 0, fontWeight: 500, maxWidth: '700px' }}>
+            <p style={{ fontSize: '0.9rem', color: '#334155', margin: 0, fontWeight: 600, maxWidth: '700px' }}>
               Thư viện mô phỏng thí nghiệm thực hành & biểu diễn trực quan chuẩn bộ SGK GDPT 2018 (Khoa học tự nhiên 6-9, Hóa học - Vật lí - Sinh học 10-12).
             </p>
           </div>
@@ -188,7 +186,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
               style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
                 color: '#ffffff',
-                border: '1.5px solid #fde047',
+                border: 'none',
                 borderRadius: '12px',
                 padding: '12px 20px',
                 fontWeight: 900,
@@ -197,7 +195,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 18px rgba(217, 119, 6, 0.45)'
+                boxShadow: '0 4px 18px rgba(217, 119, 6, 0.35)'
               }}
             >
               <Sparkles size={18} color="#ffffff" /> 🌍 Mô hình 3D Địa Lí
@@ -232,7 +230,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                 interactiveType: 'chemistry_sandbox'
               })}
               style={{
-                background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: '12px',
@@ -243,7 +241,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 18px rgba(2, 132, 199, 0.45)'
+                boxShadow: '0 4px 18px rgba(2, 132, 199, 0.35)'
               }}
             >
               <Sparkles size={18} color="#ffffff" /> 🧪 Phòng Thí Nghiệm Mở (Sandbox Nguyên Tố)
@@ -274,7 +272,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
       {/* Featured 3D NOBOOK Whiteboard Experiment Hero Card */}
       <div style={{
-        background: 'linear-gradient(135deg, #1e1b4b 0%, #064e3b 50%, #0f172a 100%)',
+        background: 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #0d9488 100%)',
         borderRadius: '20px',
         padding: '22px 28px',
         border: '2px solid rgba(245, 158, 11, 0.6)',
@@ -295,10 +293,10 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
               Bảng Tương Tác Cảm Ứng
             </span>
           </div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f8fafc', margin: '0 0 6px 0' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: '0 0 6px 0' }}>
             🧪 Thí Nghiệm 3D: Khử Sắt(III) Oxit (Fe₂O₃) Bằng Khí CO
           </h2>
-          <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4 }}>
+          <p style={{ fontSize: '0.85rem', color: '#e2e8f0', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
             Mô phỏng 3D trực quan như trong video: Thìa Spatula đong bột, quẹt diêm đốt đèn cồn, điều chỉnh giá nâng lò xo Scissor Jack, bình khí CO, kính hiển vi phân tử & bảng thông số real-time.
           </p>
         </div>
@@ -354,34 +352,35 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
       {/* Filter and Search Control Bar */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: '#ffffff',
         borderRadius: '18px',
         padding: '16px 20px',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        border: '1.5px solid rgba(13, 148, 136, 0.25)',
         marginBottom: '28px',
         display: 'flex',
         flexWrap: 'wrap',
         gap: '16px',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)'
       }}>
         {/* Left Filter Dropdowns */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
           
           {/* Grade Selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 700 }}>Khối lớp:</span>
+            <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 800 }}>Khối lớp:</span>
             <select 
               value={selectedGrade} 
               onChange={(e) => setSelectedGrade(e.target.value)}
               style={{
-                background: '#1e293b',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                color: '#0f172a',
+                border: '1.5px solid #0d9488',
                 borderRadius: '10px',
                 padding: '8px 14px',
                 fontSize: '0.85rem',
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: 'pointer'
               }}
             >
@@ -398,18 +397,18 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
           {/* Subject Selector */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 700 }}>Phân môn:</span>
+            <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 800 }}>Phân môn:</span>
             <select 
               value={selectedSubject} 
               onChange={(e) => setSelectedSubject(e.target.value)}
               style={{
-                background: '#1e293b',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                color: '#0f172a',
+                border: '1.5px solid #0d9488',
                 borderRadius: '10px',
                 padding: '8px 14px',
                 fontSize: '0.85rem',
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: 'pointer'
               }}
             >
@@ -425,7 +424,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
         {/* Right Search Input */}
         <div style={{ position: 'relative', minWidth: '280px' }}>
-          <Search size={18} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={18} color="#0d9488" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text"
             placeholder="Tìm theo tên bài, phương trình, dụng cụ..."
@@ -433,11 +432,12 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              background: '#0f172a',
-              border: '1px solid #334155',
+              background: '#ffffff',
+              border: '1.5px solid #0d9488',
               borderRadius: '10px',
               padding: '8px 14px 8px 38px',
-              color: '#f8fafc',
+              color: '#0f172a',
+              fontWeight: 800,
               fontSize: '0.85rem'
             }}
           />
@@ -446,10 +446,10 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
       {/* Experiments Grid Display */}
       {filteredExperiments.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px 20px', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '20px', border: '1px dashed #334155' }}>
-          <FlaskConical size={48} color="#64748b" style={{ marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '1.1rem', color: '#cbd5e1', fontWeight: 700 }}>Không tìm thấy bài thí nghiệm nào phù hợp</h3>
-          <p style={{ fontSize: '0.85rem', color: '#64748b' }}>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm của bạn.</p>
+        <div style={{ textAlign: 'center', padding: '60px 20px', background: '#ffffff', borderRadius: '20px', border: '1.5px dashed #cbd5e1' }}>
+          <FlaskConical size={48} color="#0d9488" style={{ marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '1.1rem', color: '#0f172a', fontWeight: 800 }}>Không tìm thấy bài thí nghiệm nào phù hợp</h3>
+          <p style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm của bạn.</p>
         </div>
       ) : (
         <div style={{
@@ -464,26 +464,27 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                 key={exp.id}
                 onClick={() => setActiveExperiment(exp)}
                 style={{
-                  background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%)',
+                  background: '#ffffff',
                   borderRadius: '18px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: '1.5px solid rgba(13, 148, 136, 0.25)',
                   padding: '20px',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '14px',
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
-                  position: 'relative'
+                  position: 'relative',
+                  boxShadow: '0 6px 20px rgba(15, 23, 42, 0.05)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';
                   e.currentTarget.style.borderColor = 'rgba(13, 148, 136, 0.6)';
-                  e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.4)';
+                  e.currentTarget.style.boxShadow = '0 12px 28px rgba(13, 148, 136, 0.15)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.borderColor = 'rgba(13, 148, 136, 0.25)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(15, 23, 42, 0.05)';
                 }}
               >
                 {/* Header Badge */}
@@ -492,7 +493,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                     <span style={{ background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800 }}>
                       {exp.subject}
                     </span>
-                    <span style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <span style={{ background: 'rgba(2, 132, 199, 0.12)', color: '#0284c7', border: '1px solid rgba(2, 132, 199, 0.3)', padding: '4px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800 }}>
                       Khối {exp.grade}
                     </span>
                   </div>
@@ -511,28 +512,28 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
                 {/* Title & Chapter */}
                 <div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', margin: '0 0 6px 0', lineHeight: 1.35 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1.35 }}>
                     {exp.title}
                   </h3>
-                  <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 500 }}>
+                  <div style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 600 }}>
                     {exp.chapter}
                   </div>
                 </div>
 
                 {/* Objective */}
-                <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: 0, lineHeight: 1.4, flex: 1 }}>
+                <p style={{ fontSize: '0.82rem', color: '#334155', margin: 0, lineHeight: 1.45, flex: 1, fontWeight: 500 }}>
                   {exp.objective}
                 </p>
 
                 {/* Footer Action */}
                 <div style={{
                   paddingTop: '12px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderTop: '1px solid #f1f5f9',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between'
                 }}>
-                  <span style={{ fontSize: '0.75rem', color: '#2dd4bf', fontWeight: 700 }}>
+                  <span style={{ fontSize: '0.78rem', color: '#0d9488', fontWeight: 800 }}>
                     {exp.equipment?.length || 0} Dụng cụ & Hóa chất
                   </span>
                   <button 

@@ -191,7 +191,7 @@ export default function ClassroomTimerManager() {
 
       {/* Main Giant Clock Display Card */}
       <div style={{
-        background: isFinished ? 'rgba(239, 68, 68, 0.15)' : 'rgba(30, 41, 59, 0.85)',
+        background: isFinished ? 'rgba(239, 68, 68, 0.15)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         border: `3px solid ${statusColor}`,
         borderRadius: '32px',
         padding: '40px 24px',
@@ -202,7 +202,7 @@ export default function ClassroomTimerManager() {
         gap: '32px',
         boxShadow: isFinished 
           ? '0 0 50px rgba(239, 68, 68, 0.5), 0 20px 40px rgba(0,0,0,0.5)' 
-          : (timeLeft <= 10 && isRunning ? '0 0 40px rgba(239, 68, 68, 0.4)' : '0 20px 40px rgba(0,0,0,0.4)'),
+          : (timeLeft <= 10 && isRunning ? '0 0 40px rgba(239, 68, 68, 0.4)' : '0 20px 40px rgba(0,0,0,0.15)'),
         transition: 'all 0.3s ease',
         position: 'relative',
         overflow: 'hidden'
@@ -238,7 +238,7 @@ export default function ClassroomTimerManager() {
               cy="100"
               r="90"
               fill="none"
-              stroke="rgba(255, 255, 255, 0.08)"
+              stroke="rgba(255, 255, 255, 0.12)"
               strokeWidth="12"
             />
             {/* Animated Progress Ring */}
@@ -270,7 +270,7 @@ export default function ClassroomTimerManager() {
               {formatTimeMinutes(timeLeft)}:<span style={{ color: '#ffffff' }}>{formatTimeSeconds(timeLeft)}</span>
             </div>
             
-            <span style={{ marginTop: '8px', color: '#94a3b8', fontSize: '0.95rem', fontWeight: 800 }}>
+            <span style={{ marginTop: '8px', color: '#cbd5e1', fontSize: '0.95rem', fontWeight: 800 }}>
               {isRunning ? '⏱️ Đang chạy đếm ngược...' : (isFinished ? '🚨 Thời gian đã kết thúc' : '⏸️ Đang tạm dừng')}
             </span>
           </div>
@@ -354,16 +354,17 @@ export default function ClassroomTimerManager() {
         
         {/* Preset Selector Grid */}
         <div style={{
-          background: 'rgba(30, 41, 59, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#ffffff',
+          border: '1.5px solid rgba(13, 148, 136, 0.25)',
           borderRadius: '24px',
           padding: '24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '16px',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)'
         }}>
-          <h4 style={{ margin: 0, color: '#f8fafc', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sparkles size={18} color="#38bdf8" />
+          <h4 style={{ margin: 0, color: '#0f172a', fontWeight: 900, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={18} color="#0d9488" />
             Chọn Thời Gian Nhanh Mẫu
           </h4>
 
@@ -399,22 +400,23 @@ export default function ClassroomTimerManager() {
 
         {/* Custom Exact Input Form */}
         <div style={{
-          background: 'rgba(30, 41, 59, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#ffffff',
+          border: '1.5px solid rgba(13, 148, 136, 0.25)',
           borderRadius: '24px',
           padding: '24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '16px',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)'
         }}>
-          <h4 style={{ margin: 0, color: '#f8fafc', fontWeight: 800, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Clock size={18} color="#f59e0b" />
+          <h4 style={{ margin: 0, color: '#0f172a', fontWeight: 900, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Clock size={18} color="#d97706" />
             Tự Nhập Thời Gian Tùy Ý
           </h4>
 
           <form onSubmit={handleApplyCustomTime} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', color: '#475569', fontWeight: 800, marginBottom: '6px' }}>
                 Số Phút
               </label>
               <input
@@ -424,12 +426,12 @@ export default function ClassroomTimerManager() {
                 value={customMin}
                 onChange={(e) => setCustomMin(e.target.value)}
                 className="input-field"
-                style={{ width: '100%', height: '48px', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center' }}
+                style={{ width: '100%', height: '48px', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center', color: '#0f172a', background: '#f8fafc' }}
               />
             </div>
 
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '0.78rem', color: '#94a3b8', fontWeight: 700, marginBottom: '6px' }}>
+              <label style={{ display: 'block', fontSize: '0.78rem', color: '#475569', fontWeight: 800, marginBottom: '6px' }}>
                 Số Giây
               </label>
               <input
@@ -439,7 +441,7 @@ export default function ClassroomTimerManager() {
                 value={customSec}
                 onChange={(e) => setCustomSec(e.target.value)}
                 className="input-field"
-                style={{ width: '100%', height: '48px', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center' }}
+                style={{ width: '100%', height: '48px', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center', color: '#0f172a', background: '#f8fafc' }}
               />
             </div>
 

@@ -54,15 +54,15 @@ export function GeoExperimentsView({ currentUser }) {
   };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', color: '#f8fafc' }}>
+    <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto', color: '#0f172a' }}>
       
       {/* Top Banner Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #091a28 0%, #1e1b4b 50%, #064e3b 100%)',
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(254, 243, 199, 0.95) 50%, rgba(224, 242, 254, 0.95) 100%)',
         borderRadius: '24px',
         padding: '30px 36px',
         border: '2px solid rgba(245, 158, 11, 0.5)',
-        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+        boxShadow: '0 10px 40px rgba(15, 23, 42, 0.08)',
         marginBottom: '28px',
         position: 'relative',
         overflow: 'hidden'
@@ -78,28 +78,26 @@ export function GeoExperimentsView({ currentUser }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 4px 20px rgba(245, 158, 11, 0.5)',
-                border: '1.5px solid rgba(255, 255, 255, 0.4)'
+                boxShadow: '0 4px 20px rgba(245, 158, 11, 0.35)',
+                border: '1.5px solid rgba(255, 255, 255, 0.6)'
               }}>
                 <Globe size={28} color="#ffffff" />
               </div>
               <div>
-                <span style={{ background: '#f59e0b', color: '#000', fontSize: '0.72rem', fontWeight: 900, padding: '3px 10px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ background: '#d97706', color: '#ffffff', fontSize: '0.72rem', fontWeight: 900, padding: '4px 10px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   CHUYÊN MỤC ĐỊA LÍ KHỐI 6 - GDPT 2018
                 </span>
                 <h1 style={{
                   fontSize: '1.8rem',
                   fontWeight: 900,
-                  background: 'linear-gradient(135deg, #fde047 0%, #f97316 50%, #38bdf8 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  color: '#0f172a',
                   margin: '4px 0 0 0'
                 }}>
                   Mô Hình 3D Địa Lí
                 </h1>
               </div>
             </div>
-            <p style={{ fontSize: '0.92rem', color: '#cbd5e1', margin: 0, fontWeight: 500, maxWidth: '750px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.92rem', color: '#334155', margin: 0, fontWeight: 600, maxWidth: '750px', lineHeight: 1.5 }}>
               Tập hợp đầy đủ 7 mô hình tương tác 3D/SVG trực quan chuyên sâu môn Địa lý 6: Vũ trụ, Trái Đất, Núi lửa, Động đất, Vòng tuần hoàn nước & Sông suối băng tan.
             </p>
           </div>
@@ -113,7 +111,7 @@ export function GeoExperimentsView({ currentUser }) {
               style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
                 color: '#ffffff',
-                border: '2px solid #fde047',
+                border: 'none',
                 borderRadius: '16px',
                 padding: '12px 20px',
                 fontWeight: 900,
@@ -122,18 +120,18 @@ export function GeoExperimentsView({ currentUser }) {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 6px 24px rgba(245, 158, 11, 0.5)'
+                boxShadow: '0 6px 24px rgba(245, 158, 11, 0.35)'
               }}
             >
               <Sparkles size={18} color="#ffffff" /> 🚀 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D NGAY
             </button>
 
-            <div style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(10px)', border: '1px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ background: '#ffffff', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>TÁC GIẢ BỘ MÔ NÂNG CAO</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#fde047' }}>Thầy Hảo Địa Lý</div>
+                <div style={{ fontSize: '0.72rem', color: '#475569', fontWeight: 800 }}>TÁC GIẢ BỘ MÔ NÂNG CAO</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#d97706' }}>Thầy Hảo Địa Lý</div>
               </div>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '1.1rem', boxShadow: '0 0 12px rgba(245, 158, 11, 0.6)' }}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '1.1rem', boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
                 🌐
               </div>
             </div>
@@ -153,9 +151,9 @@ export function GeoExperimentsView({ currentUser }) {
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             style={{
-              background: activeCategory === cat.id ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(15, 23, 42, 0.8)',
-              color: activeCategory === cat.id ? '#ffffff' : '#cbd5e1',
-              border: activeCategory === cat.id ? '1.5px solid #fde047' : '1px solid rgba(255, 255, 255, 0.1)',
+              background: activeCategory === cat.id ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : '#ffffff',
+              color: activeCategory === cat.id ? '#ffffff' : '#334155',
+              border: activeCategory === cat.id ? '1.5px solid #d97706' : '1.5px solid rgba(13, 148, 136, 0.25)',
               borderRadius: '14px',
               padding: '12px 20px',
               fontWeight: 800,
@@ -164,7 +162,7 @@ export function GeoExperimentsView({ currentUser }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              boxShadow: activeCategory === cat.id ? '0 4px 18px rgba(245, 158, 11, 0.35)' : 'none',
+              boxShadow: activeCategory === cat.id ? '0 4px 18px rgba(245, 158, 11, 0.35)' : '0 2px 8px rgba(15, 23, 42, 0.04)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -184,7 +182,7 @@ export function GeoExperimentsView({ currentUser }) {
             key={exp.id}
             onClick={() => setActiveExperiment(exp)}
             style={{
-              background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%)',
+              background: '#ffffff',
               borderRadius: '20px',
               border: '1.5px solid rgba(245, 158, 11, 0.35)',
               padding: '24px',
@@ -194,17 +192,17 @@ export function GeoExperimentsView({ currentUser }) {
               cursor: 'pointer',
               transition: 'all 0.25s ease',
               position: 'relative',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)'
+              boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-6px)';
-              e.currentTarget.style.borderColor = '#f59e0b';
-              e.currentTarget.style.boxShadow = '0 16px 36px rgba(245, 158, 11, 0.25)';
+              e.currentTarget.style.borderColor = '#d97706';
+              e.currentTarget.style.boxShadow = '0 16px 36px rgba(245, 158, 11, 0.2)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.35)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.3)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.06)';
             }}
           >
             {/* Header Icon & Badges */}
@@ -223,41 +221,41 @@ export function GeoExperimentsView({ currentUser }) {
                   {getExpIcon(exp.interactiveType)}
                 </div>
                 <div>
-                  <span style={{ background: 'rgba(245, 158, 11, 0.2)', color: '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 800 }}>
+                  <span style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#b45309', border: '1px solid rgba(245, 158, 11, 0.35)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800 }}>
                     Địa lí 6
                   </span>
                 </div>
               </div>
 
-              <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.75rem', color: '#475569', fontWeight: 800 }}>
                 Mô Hình #{idx + 1}
               </span>
             </div>
 
             {/* Title & Chapter */}
             <div>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f8fafc', margin: '0 0 6px 0', lineHeight: 1.35 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', margin: '0 0 6px 0', lineHeight: 1.35 }}>
                 {exp.title}
               </h3>
-              <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.78rem', color: '#0284c7', fontWeight: 700 }}>
                 {exp.chapter}
               </div>
             </div>
 
             {/* Objective */}
-            <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.5, flex: 1 }}>
+            <p style={{ fontSize: '0.82rem', color: '#334155', margin: 0, lineHeight: 1.5, flex: 1, fontWeight: 500 }}>
               {exp.objective}
             </p>
 
             {/* Equipment list preview */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {exp.equipment?.slice(0, 3).map((item, i) => (
-                <span key={i} style={{ background: '#0f172a', border: '1px solid #334155', color: '#94a3b8', fontSize: '0.7rem', padding: '3px 8px', borderRadius: '6px' }}>
+                <span key={i} style={{ background: '#f8fafc', border: '1px solid #cbd5e1', color: '#475569', fontSize: '0.72rem', padding: '3px 8px', borderRadius: '6px', fontWeight: 600 }}>
                   {item}
                 </span>
               ))}
               {exp.equipment?.length > 3 && (
-                <span style={{ color: '#f59e0b', fontSize: '0.7rem', fontWeight: 700, padding: '3px 4px' }}>
+                <span style={{ color: '#d97706', fontSize: '0.72rem', fontWeight: 800, padding: '3px 4px' }}>
                   +{exp.equipment.length - 3} thiết bị
                 </span>
               )}
@@ -284,7 +282,7 @@ export function GeoExperimentsView({ currentUser }) {
                   justifyContent: 'center',
                   gap: '6px',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 16px rgba(217, 119, 6, 0.4)'
+                  boxShadow: '0 4px 16px rgba(217, 119, 6, 0.35)'
                 }}
               >
                 <Play size={14} fill="#ffffff" /> ▶️ Trình Chiếu 3D
@@ -297,9 +295,9 @@ export function GeoExperimentsView({ currentUser }) {
                     setActiveExperiment({ ...exp, startInCockpit: true });
                   }}
                   style={{
-                    background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                     color: '#ffffff',
-                    border: '1.5px solid #fde047',
+                    border: 'none',
                     borderRadius: '12px',
                     padding: '10px 14px',
                     fontSize: '0.82rem',
@@ -309,7 +307,7 @@ export function GeoExperimentsView({ currentUser }) {
                     justifyContent: 'center',
                     gap: '6px',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(2, 132, 199, 0.4)'
+                    boxShadow: '0 4px 16px rgba(2, 132, 199, 0.35)'
                   }}
                 >
                   🛸 Lái Phi Thuyền 3D

@@ -695,14 +695,14 @@ export function App() {
           padding: '16px'
         }}>
           <div style={{
-            background: '#0f172a',
-            border: '1px solid rgba(20, 184, 166, 0.4)',
+            background: '#ffffff',
+            border: '1.5px solid rgba(13, 148, 136, 0.35)',
             borderRadius: '24px',
             width: '100%',
             maxWidth: '400px',
             padding: '24px',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.9)',
-            color: '#ffffff',
+            boxShadow: '0 20px 50px rgba(15, 23, 42, 0.2)',
+            color: '#0f172a',
             position: 'relative'
           }}>
             {/* Close Button */}
@@ -712,9 +712,9 @@ export function App() {
                 position: 'absolute',
                 top: '16px',
                 right: '16px',
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: '#f1f5f9',
                 border: 'none',
-                color: '#94a3b8',
+                color: '#475569',
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
@@ -722,7 +722,8 @@ export function App() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                fontSize: '1.1rem'
+                fontSize: '1.1rem',
+                fontWeight: 800
               }}
             >
               ✕
@@ -741,12 +742,12 @@ export function App() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 12px auto',
-                boxShadow: '0 8px 24px rgba(13, 148, 136, 0.4)',
+                boxShadow: '0 8px 24px rgba(13, 148, 136, 0.35)',
                 border: '3px solid #00a896'
               }}>
                 {currentUser?.name?.charAt(0) || '👤'}
               </div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
                 {currentUser?.name || 'Giáo Viên'}
               </h3>
               <span className={currentUser?.role === 'admin' ? 'badge badge-admin' : 'badge badge-teacher'} style={{ fontSize: '0.75rem', marginTop: '6px', display: 'inline-block' }}>
@@ -756,7 +757,8 @@ export function App() {
 
             {/* Account Information Details */}
             <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
               borderRadius: '16px',
               padding: '14px',
               marginBottom: '20px',
@@ -765,24 +767,24 @@ export function App() {
               gap: '8px',
               fontSize: '0.88rem'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
-                <span style={{ color: '#94a3b8' }}>Tên đăng nhập:</span>
-                <span style={{ fontWeight: 800, color: '#22d3ee' }}>{currentUser?.username}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+                <span style={{ color: '#475569', fontWeight: 700 }}>Tên đăng nhập:</span>
+                <span style={{ fontWeight: 800, color: '#0284c7' }}>{currentUser?.username}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
-                <span style={{ color: '#94a3b8' }}>Môn giảng dạy:</span>
-                <span style={{ fontWeight: 800, color: '#ffffff' }}>{currentUser?.subject || 'Giáo dục'}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+                <span style={{ color: '#475569', fontWeight: 700 }}>Môn giảng dạy:</span>
+                <span style={{ fontWeight: 800, color: '#0f172a' }}>{currentUser?.subject || 'Giáo dục'}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#94a3b8' }}>Trường học:</span>
-                <span style={{ fontWeight: 800, color: '#fde047' }}>{currentUser?.school || 'Hệ Thống Hỗ Trợ Dạy Và Học'}</span>
+                <span style={{ color: '#475569', fontWeight: 700 }}>Trường học:</span>
+                <span style={{ fontWeight: 800, color: '#d97706' }}>{currentUser?.school || 'Hệ Thống Hỗ Trợ Dạy Và Học'}</span>
               </div>
             </div>
 
             {/* Author Profile Card */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.06) 100%)',
+              border: '1.5px solid rgba(245, 158, 11, 0.4)',
               borderRadius: '16px',
               padding: '12px 14px',
               marginBottom: '20px',
@@ -793,11 +795,11 @@ export function App() {
               <img 
                 src="/assets/thayhaodiali.jpg" 
                 alt="Thầy Hảo Địa Lí"
-                style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #fbbf24', objectFit: 'cover' }} 
+                style={{ width: '42px', height: '42px', borderRadius: '50%', border: '2px solid #d97706', objectFit: 'cover' }} 
               />
               <div>
-                <div style={{ fontSize: '0.72rem', color: '#fbbf24', fontWeight: 800 }}>TÁC GIẢ WEBSITE</div>
-                <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff' }}>Thầy Hảo Địa Lí</div>
+                <div style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 800 }}>TÁC GIẢ WEBSITE</div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#0f172a' }}>Thầy Hảo Địa Lí</div>
               </div>
             </div>
 
