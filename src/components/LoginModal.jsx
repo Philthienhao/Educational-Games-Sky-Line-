@@ -223,34 +223,6 @@ export function LoginModal({ onLoginSuccess }) {
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              const defaultUser = StorageService.authenticateUser('philthienhao', '3009');
-              if (defaultUser) {
-                StorageService.setCurrentUser({ ...defaultUser, isLoggedIn: true });
-                if (onLoginSuccess) onLoginSuccess(defaultUser);
-              }
-            }}
-            style={{
-              padding: '12px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-              color: '#ffffff',
-              fontWeight: 900,
-              fontSize: '0.92rem',
-              border: '1.5px solid #fde047',
-              cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
-          >
-            <Sparkles size={18} color="#ffffff" />
-            <span>🚀 VÀO TRẢI NGHIỆM HỆ THỐNG & 3D ĐỊA LÝ NGAY</span>
-          </button>
         </form>
 
         {/* Footer info & Contact Zalo */}
