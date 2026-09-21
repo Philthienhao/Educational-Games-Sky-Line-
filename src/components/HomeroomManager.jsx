@@ -7,6 +7,7 @@ import { StudentDetailModal } from './StudentDetailModal';
 import { SoundFX } from '../utils/sound';
 import { compressImage, normalizeImageUrl, optimizeHomeroomClassData } from '../utils/imageCompressor';
 import { AvatarStorageService } from '../services/avatarStorage';
+import { ParentMeetingManager } from './ParentMeetingManager';
 
 // Helper function to calculate conduct points for a student
 export function calculateStudentConductScore(student, pointRules) {
@@ -1006,6 +1007,25 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
           >
             🎂 Sinh Nhật T{currentMonthNum} ({birthdayStudents.length})
           </button>
+
+          <button 
+            className="btn"
+            onClick={() => setSelectedTab('parent_meeting')}
+            style={{
+              borderRadius: '16px',
+              padding: '10px 18px',
+              fontWeight: 900,
+              fontSize: '0.95rem',
+              transition: 'all 0.2s ease',
+              background: selectedTab === 'parent_meeting' ? 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)' : '#ffffff',
+              color: selectedTab === 'parent_meeting' ? '#ffffff' : '#5b21b6',
+              border: selectedTab === 'parent_meeting' ? 'none' : '1.5px solid #c4b5fd',
+              boxShadow: selectedTab === 'parent_meeting' ? '0 6px 20px rgba(139, 92, 246, 0.45)' : '0 2px 8px rgba(0,0,0,0.08)',
+              transform: selectedTab === 'parent_meeting' ? 'scale(1.03)' : 'scale(1)'
+            }}
+          >
+            👨‍👩‍👧‍👦 Họp Phụ Huynh & Bảng Tên Để Bàn
+          </button>
         </div>
 
         {/* Search Input */}
@@ -1021,7 +1041,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
               padding: '9px 14px 9px 40px',
               borderRadius: '14px',
               background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
+              border: '1.5px solid rgba(255, 255, 255, 0.15)',
               color: '#fff',
               outline: 'none',
               fontSize: '0.88rem'
@@ -1029,6 +1049,11 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
           />
         </div>
       </div>
+
+      {/* TAB 0: PARENT MEETING & DESK NAME CARDS */}
+      {selectedTab === 'parent_meeting' && (
+        <ParentMeetingManager currentUser={currentUser} classData={classData} />
+      )}
 
       {/* TAB 1: Roster Table */}
       {selectedTab === 'roster' && (
