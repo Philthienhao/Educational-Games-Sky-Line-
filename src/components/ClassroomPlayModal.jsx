@@ -226,9 +226,18 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       <GameErrorBoundary key={engineType}>
         <div style={{
           position: 'fixed',
-          inset: 0,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          maxWidth: '100vw',
+          maxHeight: '100vh',
+          margin: 0,
+          padding: 0,
           background: '#0f172a',
-          zIndex: 100000,
+          zIndex: 999999,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden'
@@ -260,10 +269,19 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      margin: 0,
+      padding: 0,
       background: '#0b0f19',
       backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-      zIndex: 100000,
+      zIndex: 999999,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden'

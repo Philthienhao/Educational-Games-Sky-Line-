@@ -597,6 +597,34 @@ body.is-game-playing .app-sidebar-panel {
   box-sizing: border-box;
 }
 
+/* FULLSCREEN & GAME PLAYING MODE WRAPPER OVERRIDES */
+body.is-game-playing,
+body.is-fullscreen {
+  overflow: hidden !important;
+}
+
+body.is-game-playing .app-layout-wrapper,
+body.is-fullscreen .app-layout-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  overflow: hidden !important;
+}
+
+body.is-game-playing .app-main-content,
+body.is-fullscreen .app-main-content,
+:fullscreen .app-main-content,
+:-webkit-full-screen .app-main-content,
+:root:has(:fullscreen) .app-main-content {
+  margin-left: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  min-width: 100vw !important;
+  padding: 0 !important;
+}
+
 /* MOBILE TOP NAVBAR & RESPONSIVE BREAKPOINT */
 .mobile-top-header {
   display: none;
