@@ -4,13 +4,121 @@ import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { isOptionValidForQuestion } from '../../utils/universalParser';
 
+// Eagerly import all 20 pose images from src/assets/batchuocnhanhcohoilon for 100% reliable bundling
+const poseImageModules = import.meta.glob('/src/assets/batchuocnhanhcohoilon/*.png', { eager: true, import: 'default' });
+
+const getPoseImgUrl = (num) => {
+  const assetKey = `/src/assets/batchuocnhanhcohoilon/${num}.png`;
+  if (poseImageModules[assetKey]) {
+    return poseImageModules[assetKey];
+  }
+  const base = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) ? import.meta.env.BASE_URL.replace(/\/$/, '') : '';
+  return `${base}/batchuocnhanhcohoilon/${num}.png`;
+};
+
+export function getStickmanPoseSVG(num, color = '#3b82f6') {
+  const c = color;
+  let bodyLines = '';
+
+  switch (num % 20) {
+    case 1:
+      bodyLines = `<path d="M 50 45 L 25 20 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 2:
+      bodyLines = `<path d="M 50 45 L 25 60 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 3:
+      bodyLines = `<path d="M 50 45 L 25 20 M 50 45 L 75 60" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 4:
+      bodyLines = `<path d="M 50 45 L 15 45 M 50 45 L 85 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 5:
+      bodyLines = `<path d="M 50 45 L 30 55 L 45 65 M 50 45 L 70 55 L 55 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 6:
+      bodyLines = `<path d="M 50 45 L 25 45 L 25 25 M 50 45 L 75 45 L 75 25" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 7:
+      bodyLines = `<path d="M 50 45 L 30 55 L 65 55 M 50 45 L 70 55 L 35 55" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 8:
+      bodyLines = `<path d="M 50 45 L 30 30 L 42 18 M 50 45 L 70 30 L 58 18" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 9:
+      bodyLines = `<path d="M 50 45 L 20 30 M 50 45 L 80 30" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 50 95 M 50 65 L 35 80 L 50 80" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 10:
+      bodyLines = `<path d="M 50 45 L 15 25 M 50 45 L 75 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 25 95 M 50 65 L 55 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 11:
+      bodyLines = `<path d="M 50 45 L 25 65 M 50 45 L 85 25" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 45 95 M 50 65 L 75 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 12:
+      bodyLines = `<path d="M 50 45 L 15 20 M 50 45 L 85 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 20 95 M 50 65 L 80 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 13:
+      bodyLines = `<path d="M 50 45 L 25 50 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 14:
+      bodyLines = `<path d="M 50 45 L 25 45 L 25 25 M 50 45 L 70 55 L 55 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 15:
+      bodyLines = `<path d="M 50 45 L 35 20 L 50 12 M 50 45 L 65 20 L 50 12" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 16:
+      bodyLines = `<path d="M 50 45 L 15 40 M 50 45 L 75 40 L 65 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 17:
+      bodyLines = `<path d="M 50 45 L 30 35 L 45 30 M 50 45 L 70 35 L 55 30" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 18:
+      bodyLines = `<path d="M 50 45 L 25 35 M 50 45 L 75 35" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 35 95 M 50 65 L 85 55" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    case 19:
+      bodyLines = `<path d="M 50 45 L 20 45 M 50 45 L 80 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 30 75 L 30 95 M 50 65 L 70 75 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+    default:
+      bodyLines = `<path d="M 50 45 L 20 15 M 50 45 L 80 15" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
+                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
+      break;
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110">
+    <circle cx="50" cy="22" r="12" fill="${c}" />
+    <path d="M 50 34 L 50 65" stroke="${c}" stroke-width="7" stroke-linecap="round" />
+    ${bodyLines}
+  </svg>`;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 // 20 Pose Imitation Presets mapped directly to /batchuocnhanhcohoilon/1.png - 20.png
 const POSE_PRESETS_20 = Array.from({ length: 20 }, (_, i) => {
   const num = i + 1;
   return {
     id: num,
     name: `Động tác ${num}`,
-    image: `/batchuocnhanhcohoilon/${num}.png`,
+    image: getPoseImgUrl(num),
     color: [
       '#00a8ff', '#ff5252', '#10b981', '#8b5cf6', '#f59e0b',
       '#ec4899', '#06b6d4', '#84cc16', '#3b82f6', '#d97706',
@@ -667,6 +775,10 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
                     <img 
                       src={poseInfo.image} 
                       alt={poseInfo.name} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = getStickmanPoseSVG(poseInfo.id, poseInfo.color);
+                      }}
                       style={{ 
                         height: '115px', 
                         maxWidth: '118px', 
@@ -725,6 +837,10 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
                     <img 
                       src={poseInfo.image} 
                       alt={poseInfo.name} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = getStickmanPoseSVG(poseInfo.id, poseInfo.color);
+                      }}
                       style={{ 
                         height: '115px', 
                         maxWidth: '118px', 
