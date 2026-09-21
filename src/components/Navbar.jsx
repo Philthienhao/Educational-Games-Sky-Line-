@@ -83,7 +83,7 @@ export function Navbar({
               margin: 0,
               whiteSpace: 'nowrap'
             }}>
-              Hệ Thống Hỗ Trợ Dạy Và Học
+              ĐỒ NGHỀ DẠY HỌC
             </h1>
           </div>
         </div>

@@ -116,7 +116,7 @@ class GlobalErrorBoundary extends React.Component {
         }}>
           <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>🎓</div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '12px', color: '#f59e0b' }}>
-            Hệ Thống Hỗ Trợ Dạy Và Học
+            ĐỒ NGHỀ DẠY HỌC
           </h2>
           <p style={{ fontSize: '0.92rem', color: '#cbd5e1', maxWidth: '480px', marginBottom: '24px', lineHeight: 1.6 }}>
             Đã có phiên bản cập nhật mới trên hệ thống. Vui lòng bấm vào nút bên dưới để xóa cache và tải bản mới nhất!

@@ -115,7 +115,7 @@ export function Sidebar({
                 lineHeight: 1.25,
                 margin: 0
               }}>
-                Hệ Thống Hỗ Trợ Dạy Và Học
+                ĐỒ NGHỀ DẠY HỌC
               </h1>
             </div>
           </div>

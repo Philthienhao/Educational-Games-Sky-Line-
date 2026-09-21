@@ -327,7 +327,7 @@ export function App() {
             </div>
             <div>
               <div style={{ fontSize: '0.9rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.2 }}>
-                Hệ Thống Trò Chơi
+                ĐỒ NGHỀ DẠY HỌC
               </div>
               <div style={{ fontSize: '0.68rem', color: '#fde047', fontWeight: 800 }}>
                 by Thầy Hảo Địa Lí
