@@ -3,6 +3,20 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
+const CURRENT_APP_BUILD_VERSION = 'v1.0.9_fullscreen_contrast';
+try {
+  const savedVer = localStorage.getItem('gvd_app_build_version');
+  if (savedVer !== CURRENT_APP_BUILD_VERSION) {
+    localStorage.setItem('gvd_app_build_version', CURRENT_APP_BUILD_VERSION);
+    if ('caches' in window) {
+      caches.keys().then(names => names.forEach(n => caches.delete(n))).catch(() => {});
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+    }
+  }
+} catch (e) {}
+
 // Force unregister all stale Service Workers on mobile browsers to prevent stale chunk lockouts
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
