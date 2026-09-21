@@ -344,16 +344,20 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
               const isSelected = selectedOption === optLabel;
               const isCorrect = String(currentQ.correct || 'A').toUpperCase() === optLabel;
 
-              let bg = 'rgba(255,255,255,0.08)';
-              let border = '2px solid rgba(255,255,255,0.2)';
+              let bg = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+              let border = '2px solid #334155';
+              let textColor = '#ffffff';
+              let badgeBg = '#2563eb';
 
               if (answerState) {
                 if (isCorrect) {
-                  bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                  bg = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
                   border = '2px solid #6ee7b7';
+                  badgeBg = '#047857';
                 } else if (isSelected && !isCorrect) {
-                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                  bg = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
                   border = '2px solid #fca5a5';
+                  badgeBg = '#991b1b';
                 }
               }
 
@@ -367,7 +371,7 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
                     borderRadius: '20px',
                     background: bg,
                     border: border,
-                    color: '#ffffff',
+                    color: textColor,
                     textAlign: 'left',
                     fontWeight: 800,
                     fontSize: '1.3rem',
@@ -376,7 +380,7 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
                     display: 'flex',
                     alignItems: 'center',
                     gap: '14px',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -385,7 +389,7 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
                     height: '38px',
                     minWidth: '38px',
                     borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.22)',
+                    background: badgeBg,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -396,7 +400,7 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
                   }}>
                     {optLabel}
                   </span>
-                  <span style={{ flex: 1 }}>{optText}</span>
+                  <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
                 </button>
               );
             })}

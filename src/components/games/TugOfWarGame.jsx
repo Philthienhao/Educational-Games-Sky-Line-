@@ -282,16 +282,20 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
               const isSelected = selectedOption === optLabel;
               const isCorrect = currentQ.correct === optLabel;
 
-              let bg = 'rgba(255,255,255,0.06)';
-              let border = '1px solid rgba(255,255,255,0.12)';
+              let bg = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+              let border = '2px solid #334155';
+              let textColor = '#ffffff';
+              let badgeBg = '#2563eb';
 
               if (answerState) {
                 if (isCorrect) {
-                  bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                  border = '1px solid #6ee7b7';
+                  bg = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+                  border = '2px solid #6ee7b7';
+                  badgeBg = '#047857';
                 } else if (isSelected && !isCorrect) {
-                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                  border = '1px solid #fca5a5';
+                  bg = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+                  border = '2px solid #fca5a5';
+                  badgeBg = '#991b1b';
                 }
               }
 
@@ -305,19 +309,19 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
                     borderRadius: '14px',
                     background: bg,
                     border: border,
-                    color: '#fff',
+                    color: textColor,
                     textAlign: 'left',
-                    fontWeight: 700,
+                    fontWeight: 800,
                     cursor: answerState ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px'
                   }}
                 >
-                  <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>
+                  <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: badgeBg, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, flexShrink: 0 }}>
                     {optLabel}
                   </span>
-                  {optText}
+                  <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
                 </button>
               );
             })}

@@ -400,16 +400,20 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
               const isSelected = selectedOption === optLabel;
               const isCorrect = currentQ.correct === optLabel;
 
-              let bg = 'rgba(255,255,255,0.07)';
-              let border = '1.5px solid rgba(255,255,255,0.15)';
+              let bg = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+              let border = '2px solid #334155';
+              let textColor = '#ffffff';
+              let badgeBg = '#2563eb';
 
               if (answerState) {
                 if (isCorrect) {
-                  bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                  bg = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
                   border = '2px solid #6ee7b7';
+                  badgeBg = '#047857';
                 } else if (isSelected && !isCorrect) {
-                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                  bg = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
                   border = '2px solid #fca5a5';
+                  badgeBg = '#991b1b';
                 }
               }
 
@@ -423,7 +427,7 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
                     borderRadius: '18px',
                     background: bg,
                     border: border,
-                    color: '#ffffff',
+                    color: textColor,
                     textAlign: 'left',
                     fontWeight: 800,
                     fontSize: '1.25rem',
@@ -431,7 +435,7 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
                     display: 'flex',
                     alignItems: 'center',
                     gap: '14px',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.25)',
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.3)',
                     transition: 'all 0.2s ease'
                   }}
                 >
@@ -439,17 +443,18 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
                     width: '38px', 
                     height: '38px', 
                     borderRadius: '12px', 
-                    background: 'rgba(255,255,255,0.2)', 
+                    background: badgeBg, 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
                     fontWeight: 900, 
                     fontSize: '1.15rem',
+                    color: '#ffffff',
                     flexShrink: 0 
                   }}>
                     {optLabel}
                   </span>
-                  <span style={{ lineHeight: 1.35 }}>{optText}</span>
+                  <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
                 </button>
               );
             })}

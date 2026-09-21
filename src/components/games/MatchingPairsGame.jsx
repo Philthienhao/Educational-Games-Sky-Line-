@@ -108,14 +108,14 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                   padding: '18px 20px',
                   borderRadius: '16px',
                   background: isMatched 
-                    ? 'rgba(16, 185, 129, 0.18)' 
-                    : (isSelected ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255, 255, 255, 0.05)'),
+                    ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+                    : (isSelected ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'),
                   border: isMatched 
-                    ? '2px solid #10b981' 
-                    : (isSelected ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.15)'),
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
+                    ? '2px solid #6ee7b7' 
+                    : (isSelected ? '2px solid #fbbf24' : '2px solid #334155'),
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.98rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -123,8 +123,8 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                   justifyContent: 'space-between'
                 }}
               >
-                <span>{p.term}</span>
-                {isMatched ? <span className="badge badge-custom">✓ ĐÃ NỐI</span> : (isSelected ? '👉 ĐANG CHỌN' : '+')}
+                <span style={{ color: '#ffffff', fontWeight: 800 }}>{p.term}</span>
+                {isMatched ? <span className="badge badge-custom" style={{ background: '#047857', color: '#fff' }}>✓ ĐÃ NỐI</span> : (isSelected ? '👉 ĐANG CHỌN' : '+')}
               </div>
             );
           })}
@@ -145,11 +145,13 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                 style={{
                   padding: '18px 20px',
                   borderRadius: '16px',
-                  background: isMatched ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255, 255, 255, 0.05)',
-                  border: isMatched ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.15)',
-                  color: '#fff',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
+                  background: isMatched 
+                    ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
+                    : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                  border: isMatched ? '2px solid #6ee7b7' : '2px solid #334155',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.98rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -157,7 +159,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                   justifyContent: 'space-between'
                 }}
               >
-                <span>{dObj.def}</span>
+                <span style={{ color: '#ffffff', fontWeight: 800 }}>{dObj.def}</span>
                 {isMatched ? <span className="badge badge-custom">✓ ĐÃ NỐI</span> : '+ Nối vào'}
               </div>
             );
