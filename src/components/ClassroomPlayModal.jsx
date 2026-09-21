@@ -74,6 +74,13 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTeamManager, setShowTeamManager] = useState(false);
 
+  useEffect(() => {
+    document.body.classList.add('is-modal-open', 'is-game-playing');
+    return () => {
+      document.body.classList.remove('is-modal-open', 'is-game-playing');
+    };
+  }, []);
+
   // Active turn team index state
   const [activeTeamIndex, setActiveTeamIndex] = useState(0);
 

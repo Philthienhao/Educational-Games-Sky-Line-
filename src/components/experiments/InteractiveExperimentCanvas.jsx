@@ -7430,11 +7430,15 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   }, [experiment?.id]);
 
   useEffect(() => {
+    document.body.classList.add('is-modal-open', 'is-game-playing');
     const handleFSChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
     document.addEventListener('fullscreenchange', handleFSChange);
-    return () => document.removeEventListener('fullscreenchange', handleFSChange);
+    return () => {
+      document.body.classList.remove('is-modal-open', 'is-game-playing');
+      document.removeEventListener('fullscreenchange', handleFSChange);
+    };
   }, []);
 
   const toggleFullscreen = () => {
@@ -7606,9 +7610,10 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0,
-      background: 'rgba(2, 6, 23, 0.96)', backdropFilter: 'blur(12px)',
-      zIndex: 1100, display: 'flex', flexDirection: 'column',
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      width: '100vw', height: '100vh',
+      background: 'rgba(2, 6, 23, 0.98)', backdropFilter: 'blur(12px)',
+      zIndex: 999999, display: 'flex', flexDirection: 'column',
       color: '#f8fafc', fontFamily: 'Inter, system-ui, sans-serif'
     }}>
       {/* Header Bar */}
