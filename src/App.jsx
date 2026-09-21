@@ -40,6 +40,7 @@ import { UserManagementModal } from './components/UserManagementModal';
 import StudentPickerManager from './components/StudentPickerManager';
 import ClassroomTimerManager from './components/ClassroomTimerManager';
 import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
+import { FloatingAiAssistantWidget } from './components/FloatingAiAssistantWidget';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -889,15 +890,10 @@ export function App() {
         </div>
       )}
 
-      {/* Floating AI System Assistant & Search Widget */}
-      <div 
-        className="floating-ai-widget"
-        onClick={() => setIsAiWidgetOpen(true)}
-        title="Bấm để mở Trợ lý Tìm kiếm & Hướng dẫn Hệ thống 24/7"
-      >
-        <Sparkles size={20} color="#fbbf24" />
-        <span>Trợ Lý Tìm Kiếm & Hướng Dẫn 24/7</span>
-      </div>
+      {/* Floating AI System Assistant & Contact Widget */}
+      <FloatingAiAssistantWidget 
+        onOpenSearchModal={() => setIsAiWidgetOpen(true)}
+      />
 
       {/* Interactive AI System Assistant & FAQ Search Modal */}
       <AiSystemAssistantModal 
