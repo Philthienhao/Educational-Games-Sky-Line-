@@ -2877,6 +2877,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const lastManualInputTimeRef = useRef(Date.now());
   const lastGestureTimeRef = useRef(0);
 
+  const activeButtonSteerRef = useRef({ yawDir: 0, pitchDir: 0 });
+  const activeWheelRef = useRef({ active: false, steerX: 0, steerY: 0 });
+  const isScreenDraggingRef = useRef(false);
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+
   const cameraRef = useRef(null);
   // Flight vectors - start centered facing Sun and revolving planets (posX: 0, posY: 35, posZ: 200)
   const flightVectorRef = useRef({ yaw: 0, pitch: -0.15, speed: 4.0, posX: 0, posY: 35, posZ: 200 });
@@ -2920,7 +2925,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     isXRayModeRef.current = isXRayMode;
   }, [isXRayMode]);
 
-  // Keyboard Piloting Engine (WASD, Arrows, Space, Shift, X)
+  // Universal Piloting Control Engine (WASD, Arrow Keys, On-Screen D-Pad, Virtual Steering Wheel)
   useEffect(() => {
     if (!isGesturePilot) return;
 
@@ -2950,6 +2955,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       let steerX = 0;
       let steerY = 0;
 
+      // 1. Keyboard Controls (WASD / Arrow Keys)
       if (pressedKeys['KeyW'] || pressedKeys['ArrowUp'] || pressedKeys['w']) {
         fv.pitch -= 0.035;
         steerY = -0.7;
@@ -2970,6 +2976,27 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         steerX = 0.7;
         moved = true;
       }
+
+      // 2. On-Screen D-Pad Button Steering
+      const btnSteer = activeButtonSteerRef.current;
+      if (btnSteer.yawDir !== 0 || btnSteer.pitchDir !== 0) {
+        fv.yaw += btnSteer.yawDir * 0.04;
+        fv.pitch += btnSteer.pitchDir * 0.035;
+        steerX = btnSteer.yawDir * 0.7;
+        steerY = btnSteer.pitchDir * 0.7;
+        moved = true;
+      }
+
+      // 3. Virtual Steering Wheel Drag Steering
+      const wheelSteer = activeWheelRef.current;
+      if (wheelSteer.active) {
+        fv.yaw += wheelSteer.steerX * 0.045;
+        fv.pitch += -wheelSteer.steerY * 0.035;
+        steerX = wheelSteer.steerX;
+        steerY = wheelSteer.steerY;
+        moved = true;
+      }
+
       if (pressedKeys['Space'] || pressedKeys[' ']) {
         fv.speed = Math.min(fv.speed + 0.45, 9.0);
         moved = true;
@@ -2981,19 +3008,17 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
       if (moved) {
         lastManualInputTimeRef.current = Date.now();
-        // If steering keys are pressed and ship is stopped, auto-engage cruising speed
         if (fv.speed === 0 && (steerX !== 0 || steerY !== 0)) {
           fv.speed = 4.0;
         }
-        // Clear selected planet target when manual keyboard steering happens
         if (steerX !== 0 || steerY !== 0) {
           setSelectedPlanetKey(null);
         }
 
         setSteerPos({ x: steerX, y: steerY });
         setPilotSpeed(Number(fv.speed.toFixed(1)));
-        const cmd = steerX < 0 ? '◄ Rẽ trái' : steerX > 0 ? '► Rẽ phải' : fv.speed > 0 ? '🚀 Tiến về phía trước' : '🛑 Dừng lại / Lơ lửng';
-        setGestureStatus(`🎮 LÁI BÀN PHÍM (WASD): ${cmd} | Tốc độ: ${fv.speed.toFixed(1)}`);
+        const cmd = steerX < 0 ? '◄ Rẽ trái' : steerX > 0 ? '► Rẽ phải' : fv.speed > 0 ? '🚀 Tiến về phía trước' : '🛑 Dừng lại';
+        setGestureStatus(`🎮 ĐANG LÁI PHI THUYỀN: ${cmd} | Tốc độ: ${fv.speed.toFixed(1)}`);
         setDebugInfo(prev => ({
           ...prev,
           steerAngleDeg: (steerX * 45).toFixed(1),
@@ -3001,95 +3026,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           pitch: fv.pitch.toFixed(2),
           isMoving: fv.speed !== 0,
           speed: fv.speed.toFixed(1),
-          currentCommand: `🎮 Bàn phím: ${cmd}`
+          currentCommand: `🎮 Bàn phím / Vô lăng: ${cmd}`
         }));
-      }
-    }, 30);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-      clearInterval(keyLoop);
-    };
-  }, [isGesturePilot]);
-
-  useEffect(() => {
-    isXRayModeRef.current = isXRayMode;
-  }, [isXRayMode]);
-
-  // Keyboard Piloting Engine (WASD, Arrows, Space, Shift, X)
-  useEffect(() => {
-    if (!isGesturePilot) return;
-
-    const pressedKeys = {};
-
-    const handleKeyDown = (e) => {
-      pressedKeys[e.code] = true;
-      pressedKeys[e.key?.toLowerCase()] = true;
-
-      if (e.key?.toLowerCase() === 'x') {
-        setIsXRayMode(prev => !prev);
-      }
-    };
-
-    const handleKeyUp = (e) => {
-      pressedKeys[e.code] = false;
-      pressedKeys[e.key?.toLowerCase()] = false;
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    const keyLoop = setInterval(() => {
-      if (!isGesturePilotRef.current) return;
-      const fv = flightVectorRef.current;
-      let moved = false;
-      let steerX = 0;
-      let steerY = 0;
-
-      if (pressedKeys['KeyW'] || pressedKeys['ArrowUp'] || pressedKeys['w']) {
-        fv.pitch -= 0.035;
-        steerY = -0.7;
-        moved = true;
-      }
-      if (pressedKeys['KeyS'] || pressedKeys['ArrowDown'] || pressedKeys['s']) {
-        fv.pitch += 0.035;
-        steerY = 0.7;
-        moved = true;
-      }
-      if (pressedKeys['KeyA'] || pressedKeys['ArrowLeft'] || pressedKeys['a']) {
-        fv.yaw -= 0.04;
-        steerX = -0.7;
-        moved = true;
-      }
-      if (pressedKeys['KeyD'] || pressedKeys['ArrowRight'] || pressedKeys['d']) {
-        fv.yaw += 0.04;
-        steerX = 0.7;
-        moved = true;
-      }
-      if (pressedKeys['Space'] || pressedKeys[' ']) {
-        fv.speed = Math.min(fv.speed + 0.45, 9.0);
-        moved = true;
-      }
-      if (pressedKeys['ShiftLeft'] || pressedKeys['ShiftRight'] || pressedKeys['shift']) {
-        fv.speed = Math.max(fv.speed - 0.5, 0);
-        moved = true;
-      }
-
-      if (moved) {
-        setSteerPos({ x: steerX, y: steerY });
-        setPilotSpeed(Number(fv.speed.toFixed(1)));
-        const cmd = steerX < 0 ? '◄ Rẽ trái' : steerX > 0 ? '► Rẽ phải' : fv.speed > 0 ? '🚀 Tiến về phía trước' : '🛑 Dừng lại / Lơ lửng';
-        setGestureStatus(`🎮 ĐANG LÁI BÀN PHÍM (WASD/Mũi tên): ${cmd} | Speed: ${fv.speed.toFixed(1)}`);
-        setDebugInfo(prev => ({
-          ...prev,
-          steerAngleDeg: (steerX * 45).toFixed(1),
-          yaw: fv.yaw.toFixed(2),
-          pitch: fv.pitch.toFixed(2),
-          isMoving: fv.speed !== 0,
-          speed: fv.speed.toFixed(1),
-          currentCommand: `🎮 Bàn phím: ${cmd}`
-        }));
+      } else {
+        setSteerPos(prev => {
+          if (Math.abs(prev.x) < 0.01 && Math.abs(prev.y) < 0.01) return prev;
+          return { x: prev.x * 0.7, y: prev.y * 0.7 };
+        });
       }
     }, 30);
 
@@ -3797,10 +3740,40 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       {/* 3D WebGL Scene Canvas Container */}
       <div 
         ref={mountRef} 
+        onPointerDown={(e) => {
+          if (!isGesturePilotRef.current) return;
+          isScreenDraggingRef.current = true;
+          dragStartPosRef.current = { x: e.clientX, y: e.clientY };
+          lastManualInputTimeRef.current = Date.now();
+          setSelectedPlanetKey(null);
+        }}
+        onPointerMove={(e) => {
+          if (!isGesturePilotRef.current || !isScreenDraggingRef.current) return;
+          lastManualInputTimeRef.current = Date.now();
+          const dx = e.clientX - dragStartPosRef.current.x;
+          const dy = e.clientY - dragStartPosRef.current.y;
+          dragStartPosRef.current = { x: e.clientX, y: e.clientY };
+
+          const fv = flightVectorRef.current;
+          fv.yaw += dx * 0.005;
+          fv.pitch += -dy * 0.005;
+
+          const steerX = Math.max(-1, Math.min(1, dx * 0.08));
+          const steerY = Math.max(-1, Math.min(1, dy * 0.08));
+          setSteerPos({ x: steerX, y: steerY });
+        }}
+        onPointerUp={() => {
+          isScreenDraggingRef.current = false;
+        }}
+        onPointerCancel={() => {
+          isScreenDraggingRef.current = false;
+        }}
         style={{
           flex: 1, minHeight: '520px', background: '#020617',
           borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.35)',
-          position: 'relative', overflow: 'hidden'
+          position: 'relative', overflow: 'hidden',
+          touchAction: isGesturePilot ? 'none' : 'auto',
+          cursor: isGesturePilot ? 'crosshair' : 'grab'
         }}
       >
         {/* Standard Mode Top Header (only when NOT in cockpit mode) */}
@@ -3817,14 +3790,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
             <button
               onClick={() => {
-                if (cameraRef.current) {
-                  flightVectorRef.current.posX = 0;
-                  flightVectorRef.current.posY = 35;
-                  flightVectorRef.current.posZ = 200;
-                  flightVectorRef.current.yaw = 0;
-                  flightVectorRef.current.pitch = -0.15;
-                  flightVectorRef.current.speed = 4.0;
-                }
+                flightVectorRef.current.posX = 0;
+                flightVectorRef.current.posY = 35;
+                flightVectorRef.current.posZ = 200;
+                flightVectorRef.current.yaw = 0;
+                flightVectorRef.current.pitch = -0.15;
+                flightVectorRef.current.speed = 4.0;
+                setSelectedPlanetKey(null);
                 setIsGesturePilot(true);
                 if (onLog) onLog('Bật Chế độ Lái Phi thuyền Vũ trụ 3D (Bàn phím WASD & Cử chỉ tay AI).');
               }}
@@ -4102,73 +4074,135 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 </div>
               </div>
 
-              {/* Center: Sleek Virtual Steering Wheel & Quick Flight Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', margin: '0 auto' }}>
-                <div 
-                  onPointerDown={(e) => {
-                    if (e.currentTarget.setPointerCapture) {
-                      try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err) {}
-                    }
-                    lastManualInputTimeRef.current = Date.now();
-                    setSelectedPlanetKey(null);
-
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-
-                    const handlePointerMove = (moveEvt) => {
+              {/* Center: Sleek Virtual Steering Wheel, 4-Directional D-Pad & Flight Speed Controls */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  
+                  {/* Virtual Steering Wheel SVG */}
+                  <div 
+                    onPointerDown={(e) => {
+                      if (e.currentTarget.setPointerCapture) {
+                        try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err) {}
+                      }
                       lastManualInputTimeRef.current = Date.now();
-                      const dx = moveEvt.clientX - centerX;
-                      const dy = moveEvt.clientY - centerY;
-                      const steerX = Math.max(-1.0, Math.min(1.0, dx / (rect.width / 2)));
-                      const steerY = Math.max(-1.0, Math.min(1.0, dy / (rect.height / 2)));
-                      
-                      setSteerPos({ x: steerX, y: steerY });
-                      flightVectorRef.current.yaw += steerX * 0.045;
-                      flightVectorRef.current.pitch += -steerY * 0.035;
-                      if (flightVectorRef.current.speed === 0) {
-                        flightVectorRef.current.speed = 4.5;
-                        setPilotSpeed(4.5);
+                      setSelectedPlanetKey(null);
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const centerX = rect.left + rect.width / 2;
+                      const centerY = rect.top + rect.height / 2;
+                      const dx = e.clientX - centerX;
+                      const dy = e.clientY - centerY;
+                      const sx = Math.max(-1.0, Math.min(1.0, dx / (rect.width / 2)));
+                      const sy = Math.max(-1.0, Math.min(1.0, dy / (rect.height / 2)));
+                      activeWheelRef.current = { active: true, steerX: sx, steerY: sy, centerX, centerY, rectWidth: rect.width / 2, rectHeight: rect.height / 2 };
+                    }}
+                    onPointerMove={(e) => {
+                      if (!activeWheelRef.current.active) return;
+                      lastManualInputTimeRef.current = Date.now();
+                      const dx = e.clientX - activeWheelRef.current.centerX;
+                      const dy = e.clientY - activeWheelRef.current.centerY;
+                      const sx = Math.max(-1.0, Math.min(1.0, dx / activeWheelRef.current.rectWidth));
+                      const sy = Math.max(-1.0, Math.min(1.0, dy / activeWheelRef.current.rectHeight));
+                      activeWheelRef.current.steerX = sx;
+                      activeWheelRef.current.steerY = sy;
+                    }}
+                    onPointerUp={(e) => {
+                      if (e.target?.releasePointerCapture) {
+                        try { e.target.releasePointerCapture(e.pointerId); } catch(err) {}
                       }
-                    };
-
-                    const handlePointerUp = (upEvt) => {
-                      if (upEvt.target?.releasePointerCapture) {
-                        try { upEvt.target.releasePointerCapture(upEvt.pointerId); } catch(err) {}
-                      }
-                      window.removeEventListener('pointermove', handlePointerMove);
-                      window.removeEventListener('pointerup', handlePointerUp);
-                    };
-
-                    window.addEventListener('pointermove', handlePointerMove);
-                    window.addEventListener('pointerup', handlePointerUp);
-                  }}
-                  title="🛞 Xoay Vô Lăng Ảo để bẻ lái phi thuyền sang Trái/Phải & Lên/Xuống"
-                  style={{
-                    width: '140px', height: '90px', position: 'relative', cursor: 'grab',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}
-                >
-                  <svg 
-                    width="130" height="85" viewBox="0 0 200 130"
+                      activeWheelRef.current.active = false;
+                      setSteerPos({ x: 0, y: 0 });
+                    }}
+                    onPointerCancel={() => {
+                      activeWheelRef.current.active = false;
+                      setSteerPos({ x: 0, y: 0 });
+                    }}
+                    title="🛞 Giữ và xoay Vô Lăng Ảo để bẻ lái phi thuyền 360°"
                     style={{
-                      transform: `rotate(${steerPos.x * 45}deg) translateY(${steerPos.y * 6}px)`,
-                      transition: 'transform 0.08s ease-out',
-                      filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.6))'
+                      width: '110px', height: '75px', position: 'relative', cursor: 'grab',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      touchAction: 'none'
                     }}
                   >
-                    <path d="M 20 65 A 80 80 0 0 1 180 65 A 80 80 0 0 1 20 65 Z" fill="none" stroke="#38bdf8" strokeWidth="8" strokeDasharray="140 18 140 18" />
-                    <rect x="12" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
-                    <rect x="172" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
-                    <line x1="28" y1="65" x2="70" y2="65" stroke="#38bdf8" strokeWidth="6" />
-                    <line x1="172" y1="65" x2="130" y2="65" stroke="#38bdf8" strokeWidth="6" />
-                    <circle cx="100" cy="65" r="24" fill="#09131d" stroke="#f59e0b" strokeWidth="3" />
-                    <text x="100" y="69" fill="#ffffff" fontSize="10" fontWeight="900" textAnchor="middle">
-                      {(steerPos.x * 45).toFixed(0)}°
-                    </text>
-                  </svg>
+                    <svg 
+                      width="105" height="70" viewBox="0 0 200 130"
+                      style={{
+                        transform: `rotate(${steerPos.x * 45}deg) translateY(${steerPos.y * 6}px)`,
+                        transition: 'transform 0.08s ease-out',
+                        filter: 'drop-shadow(0 0 10px rgba(56, 189, 248, 0.7))'
+                      }}
+                    >
+                      <path d="M 20 65 A 80 80 0 0 1 180 65 A 80 80 0 0 1 20 65 Z" fill="none" stroke="#38bdf8" strokeWidth="9" strokeDasharray="140 18 140 18" />
+                      <rect x="12" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+                      <rect x="172" y="45" width="16" height="40" rx="8" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+                      <line x1="28" y1="65" x2="70" y2="65" stroke="#38bdf8" strokeWidth="6" />
+                      <line x1="172" y1="65" x2="130" y2="65" stroke="#38bdf8" strokeWidth="6" />
+                      <circle cx="100" cy="65" r="24" fill="#09131d" stroke="#f59e0b" strokeWidth="3" />
+                      <text x="100" y="69" fill="#ffffff" fontSize="10" fontWeight="900" textAnchor="middle">
+                        {(steerPos.x * 45).toFixed(0)}°
+                      </text>
+                    </svg>
+                  </div>
+
+                  {/* Touch/Click 4-Directional D-Pad Cross */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 34px)', gridTemplateRows: 'repeat(2, 30px)', gap: '4px', alignItems: 'center' }}>
+                    <div />
+                    <button
+                      onPointerDown={() => { activeButtonSteerRef.current.pitchDir = -1; lastManualInputTimeRef.current = Date.now(); setSelectedPlanetKey(null); }}
+                      onPointerUp={() => { activeButtonSteerRef.current.pitchDir = 0; }}
+                      onPointerLeave={() => { activeButtonSteerRef.current.pitchDir = 0; }}
+                      style={{
+                        background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
+                        border: '1px solid #38bdf8', borderRadius: '8px', fontWeight: 900, fontSize: '0.75rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'
+                      }}
+                      title="Bay lên trên (Phím W / Mũi tên lên)"
+                    >
+                      ▲
+                    </button>
+                    <div />
+                    <button
+                      onPointerDown={() => { activeButtonSteerRef.current.yawDir = -1; lastManualInputTimeRef.current = Date.now(); setSelectedPlanetKey(null); }}
+                      onPointerUp={() => { activeButtonSteerRef.current.yawDir = 0; }}
+                      onPointerLeave={() => { activeButtonSteerRef.current.yawDir = 0; }}
+                      style={{
+                        background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
+                        border: '1px solid #38bdf8', borderRadius: '8px', fontWeight: 900, fontSize: '0.75rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'
+                      }}
+                      title="Rẽ trái (Phím A / Mũi tên trái)"
+                    >
+                      ◄
+                    </button>
+                    <button
+                      onPointerDown={() => { activeButtonSteerRef.current.pitchDir = 1; lastManualInputTimeRef.current = Date.now(); setSelectedPlanetKey(null); }}
+                      onPointerUp={() => { activeButtonSteerRef.current.pitchDir = 0; }}
+                      onPointerLeave={() => { activeButtonSteerRef.current.pitchDir = 0; }}
+                      style={{
+                        background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
+                        border: '1px solid #38bdf8', borderRadius: '8px', fontWeight: 900, fontSize: '0.75rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'
+                      }}
+                      title="Bay xuống dưới (Phím S / Mũi tên xuống)"
+                    >
+                      ▼
+                    </button>
+                    <button
+                      onPointerDown={() => { activeButtonSteerRef.current.yawDir = 1; lastManualInputTimeRef.current = Date.now(); setSelectedPlanetKey(null); }}
+                      onPointerUp={() => { activeButtonSteerRef.current.yawDir = 0; }}
+                      onPointerLeave={() => { activeButtonSteerRef.current.yawDir = 0; }}
+                      style={{
+                        background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff',
+                        border: '1px solid #38bdf8', borderRadius: '8px', fontWeight: 900, fontSize: '0.75rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'
+                      }}
+                      title="Rẽ phải (Phím D / Mũi tên phải)"
+                    >
+                      ►
+                    </button>
+                  </div>
                 </div>
 
+                {/* Speed Controls (Tiến, Dừng, Lùi) */}
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                   <button
                     onClick={() => {
@@ -4179,7 +4213,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                     style={{
                       background: pilotSpeed > 0 ? 'linear-gradient(135deg, #0284c7, #2563eb)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #38bdf8', borderRadius: '8px',
-                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                      padding: '4px 12px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
                     🚀 TIẾN (5.0)
@@ -4194,7 +4228,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                     style={{
                       background: pilotSpeed === 0 ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #ef4444', borderRadius: '8px',
-                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                      padding: '4px 12px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
                     🛑 DỪNG
@@ -4209,7 +4243,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                     style={{
                       background: pilotSpeed < 0 ? 'linear-gradient(135deg, #d97706, #f59e0b)' : 'rgba(15, 23, 42, 0.8)',
                       color: '#ffffff', border: '1px solid #f59e0b', borderRadius: '8px',
-                      padding: '4px 10px', fontSize: '0.68rem', fontWeight: 900, cursor: 'pointer'
+                      padding: '4px 12px', fontSize: '0.7rem', fontWeight: 900, cursor: 'pointer'
                     }}
                   >
                     ◀️ BAY LÙI
