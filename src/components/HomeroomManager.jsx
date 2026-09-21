@@ -1022,16 +1022,21 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
         <div className="glass-panel" style={{ padding: '0', borderRadius: '20px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
-              <tr style={{ background: 'rgba(0, 168, 150, 0.25)', borderBottom: '1px solid rgba(0, 168, 150, 0.4)', color: '#5eead4' }}>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>STT</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>Mã HS</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>Ảnh</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>Họ Và Tên (Bấm Để Xem)</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>Điểm Nề Nếp</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800 }}>Phụ Huynh & SĐT</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800, textAlign: 'center' }}>Vi Phạm</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800, textAlign: 'center' }}>Khen Thưởng</th>
-                <th style={{ padding: '14px 16px', fontWeight: 800, textAlign: 'right' }}>Thao Tác</th>
+              <tr style={{ 
+                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', 
+                borderBottom: '2px solid #14b8a6', 
+                color: '#ffffff',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }}>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>STT</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Mã HS</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Ảnh</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Họ Và Tên (Bấm Để Xem)</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Điểm Nề Nếp</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Phụ Huynh & SĐT</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'center' }}>Vi Phạm</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'center' }}>Khen Thưởng</th>
+                <th style={{ padding: '16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'right' }}>Thao Tác</th>
               </tr>
             </thead>
             <tbody>
@@ -1067,7 +1072,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                       }}
                     >
                       <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>{idx + 1}</td>
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#5eead4' }}>{st.studentId}</td>
+                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#38bdf8' }}>{st.studentId}</td>
                       <td style={{ padding: '14px 16px' }}>
                         {st.avatar ? (
                           <img src={st.avatar} alt={st.name} style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #00a896' }} />
