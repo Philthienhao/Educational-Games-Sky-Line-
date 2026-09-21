@@ -3280,6 +3280,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
+    container.innerHTML = '';
 
     const width = container.clientWidth || 800;
     const height = container.clientHeight || 500;
@@ -3680,12 +3681,29 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       animFrameId = requestAnimationFrame(animate);
     };
 
+    const handleResize = () => {
+      if (!container) return;
+      const w = container.clientWidth || 800;
+      const h = container.clientHeight || 500;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
     animFrameId = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animFrameId);
+      window.removeEventListener('resize', handleResize);
+      domElement.removeEventListener('pointerdown', handlePointerDown);
+      controls.dispose();
+      renderer.dispose();
+      if (container) {
+        container.innerHTML = '';
+      }
     };
-  }, [isGesturePilot]);
+  }, []);
 
   const activePlanet = selectedPlanetKey ? SOLAR_PLANETS_CONFIG[selectedPlanetKey] : null;
 
