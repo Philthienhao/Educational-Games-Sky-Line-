@@ -1,5 +1,5 @@
 // Safe Service Worker for iOS Safari & Android Compatibility
-const CACHE_NAME = 'gvd-skyline-v2';
+const CACHE_NAME = 'gvd-skyline-v3-ai-search';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
