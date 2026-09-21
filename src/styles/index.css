@@ -372,11 +372,12 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
   overflow: hidden !important;
 }
 
-/* AUTOMATICALLY HIDE SIDEBAR IN FULLSCREEN OR GAME PLAYING MODE */
+/* AUTOMATICALLY HIDE SIDEBAR IN FULLSCREEN, GAME PLAYING, OR MODAL OPEN MODE */
 :fullscreen .app-sidebar-panel,
 :-webkit-full-screen .app-sidebar-panel,
 :root:has(:fullscreen) .app-sidebar-panel,
 body.is-fullscreen .app-sidebar-panel,
+body.is-modal-open .app-sidebar-panel,
 body.is-game-playing .app-sidebar-panel {
   display: none !important;
   visibility: hidden !important;

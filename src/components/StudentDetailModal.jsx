@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Upload, AlertTriangle, Award, CheckCircle2, User, Phone, MapPin, Calendar, Heart, ShieldAlert, Plus, Trash2, Link } from 'lucide-react';
 import { SoundFX } from '../utils/sound';
 import { compressImage } from '../utils/imageCompressor';
@@ -6,6 +6,23 @@ import { AvatarStorageService } from '../services/avatarStorage';
 
 export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete }) {
   if (!isOpen || !student) return null;
+
+  // Auto trigger fullscreen & hide sidebar when opening student detail modal
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('is-modal-open');
+      document.body.classList.add('is-fullscreen');
+      try {
+        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      } catch (e) {}
+    }
+    return () => {
+      document.body.classList.remove('is-modal-open');
+      document.body.classList.remove('is-fullscreen');
+    };
+  }, [isOpen]);
 
   const [formData, setFormData] = useState({
     ...student,
@@ -94,15 +111,27 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: 'rgba(0, 0, 0, 0.85)',
-      backdropFilter: 'blur(10px)',
-      zIndex: 1100,
+      background: 'rgba(7, 15, 26, 0.88)',
+      backdropFilter: 'blur(12px)',
+      zIndex: 99999,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px'
     }}>
-      <div className="glass-modal" style={{ width: '100%', maxWidth: '850px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden' }}>
+      <div className="glass-modal" style={{ 
+        width: '100%', 
+        maxWidth: '880px', 
+        maxHeight: '92vh', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        padding: '0', 
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #071521 0%, #0f172a 100%)',
+        border: '2px solid #00a896',
+        borderRadius: '24px',
+        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85)'
+      }}>
         
         {/* Header */}
         <div style={{
@@ -280,73 +309,73 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
               {/* Basic Info Fields */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Mã Học Sinh:</label>
+                  <label style={labelStyle}>Mã Học Sinh:</label>
                   <input type="text" value={formData.studentId} onChange={(e) => setFormData({ ...formData, studentId: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Họ Và Tên Học Sinh:</label>
+                  <label style={labelStyle}>Họ Và Tên Học Sinh:</label>
                   <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Ngày Sinh (YYYY-MM-DD):</label>
+                  <label style={labelStyle}>Ngày Sinh (YYYY-MM-DD):</label>
                   <input type="text" value={formData.dob} onChange={(e) => setFormData({ ...formData, dob: e.target.value })} style={inputStyle} />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Giới Tính:</label>
+                  <label style={labelStyle}>Giới Tính:</label>
                   <select value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })} style={inputStyle}>
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
+                    <option value="Nam" style={{ background: '#0b1e2d', color: '#fff' }}>Nam</option>
+                    <option value="Nữ" style={{ background: '#0b1e2d', color: '#fff' }}>Nữ</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Họ Tên Bố:</label>
+                  <label style={labelStyle}>Họ Tên Bố:</label>
                   <input type="text" value={formData.fatherName} onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Họ Tên Mẹ:</label>
+                  <label style={labelStyle}>Họ Tên Mẹ:</label>
                   <input type="text" value={formData.motherName} onChange={(e) => setFormData({ ...formData, motherName: e.target.value })} style={inputStyle} />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Số Điện Thoại Phụ Huynh:</label>
+                  <label style={labelStyle}>Số Điện Thoại Phụ Huynh:</label>
                   <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '6px' }}>Địa Chỉ Thường Trú:</label>
+                  <label style={labelStyle}>Địa Chỉ Thường Trú:</label>
                   <input type="text" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} style={inputStyle} />
                 </div>
               </div>
 
               {/* Teacher Custom Notes & Academic Progress */}
-              <div style={{ background: 'rgba(0, 168, 150, 0.1)', border: '1px solid rgba(0, 168, 150, 0.3)', padding: '18px', borderRadius: '16px' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#5eead4', marginBottom: '12px' }}>
+              <div style={{ background: 'rgba(13, 148, 136, 0.12)', border: '1.5px solid #0d9488', padding: '18px', borderRadius: '16px' }}>
+                <h4 style={{ fontSize: '0.98rem', fontWeight: 900, color: '#2dd4bf', marginBottom: '12px' }}>
                   📝 Đánh Giá Tình Hình Học Tập & Ghi Chú Riêng Của Giáo Viên
                 </h4>
 
                 <div style={{ marginBottom: '14px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '6px' }}>
+                  <label style={labelStyle}>
                     Tình Hình Học Tập (Tiến bộ / Sa sút / Đạt...):
                   </label>
                   <select 
                     value={formData.academicProgress}
                     onChange={(e) => setFormData({ ...formData, academicProgress: e.target.value })}
-                    style={{ ...inputStyle, background: '#071521' }}
+                    style={inputStyle}
                   >
-                    <option value="Tiến bộ xuất sắc">🌟 Tiến bộ xuất sắc</option>
-                    <option value="Khá - Giỏi">👍 Khá - Giỏi</option>
-                    <option value="Đạt chuẩn">👌 Đạt chuẩn kiến thức</option>
-                    <option value="Cần cố gắng thêm">⚠️ Cần cố gắng thêm</option>
-                    <option value="Có dấu hiệu sa sút">🚨 Có dấu hiệu sa sút học tập</option>
+                    <option value="Tiến bộ xuất sắc" style={{ background: '#0b1e2d', color: '#fff' }}>🌟 Tiến bộ xuất sắc</option>
+                    <option value="Khá - Giỏi" style={{ background: '#0b1e2d', color: '#fff' }}>👍 Khá - Giỏi</option>
+                    <option value="Đạt chuẩn" style={{ background: '#0b1e2d', color: '#fff' }}>👌 Đạt chuẩn kiến thức</option>
+                    <option value="Cần cố gắng thêm" style={{ background: '#0b1e2d', color: '#fff' }}>⚠️ Cần cố gắng thêm</option>
+                    <option value="Có dấu hiệu sa sút" style={{ background: '#0b1e2d', color: '#fff' }}>🚨 Có dấu hiệu sa sút học tập</option>
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff', display: 'block', marginBottom: '6px' }}>
+                  <label style={labelStyle}>
                     Ghi Chú Đặc Điểm Nhận Xét Của Giáo Viên Chủ Nhiệm:
                   </label>
                   <textarea 
@@ -498,14 +527,24 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
   );
 }
 
+const labelStyle = {
+  fontSize: '0.82rem',
+  fontWeight: 800,
+  color: '#2dd4bf',
+  display: 'block',
+  marginBottom: '6px'
+};
+
 const inputStyle = {
   width: '100%',
-  padding: '10px 14px',
-  borderRadius: '10px',
-  background: 'rgba(255, 255, 255, 0.06)',
-  border: '1px solid rgba(255, 255, 255, 0.15)',
-  color: '#fff',
-  fontSize: '0.88rem',
+  padding: '11px 16px',
+  borderRadius: '12px',
+  background: '#0b1e2d',
+  border: '1.5px solid #00a896',
+  color: '#ffffff',
+  fontWeight: '800',
+  fontSize: '0.95rem',
   outline: 'none',
-  fontFamily: 'inherit'
+  fontFamily: 'inherit',
+  boxSizing: 'border-box'
 };
