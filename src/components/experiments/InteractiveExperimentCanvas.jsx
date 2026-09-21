@@ -2867,6 +2867,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     currentCommand: '🚀 Đang bay du hành 3D'
   });
 
+  const [isWebcamAiActive, setIsWebcamAiActive] = useState(false);
+  const lastWaypointTimeRef = useRef(0);
+
   const speedRef = useRef(speed);
   const isPlayingRef = useRef(isPlaying);
   const selectedPlanetKeyRef = useRef(selectedPlanetKey);
@@ -3043,9 +3046,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     };
   }, [isGesturePilot]);
 
-  // Guaranteed Active Webcam Stream & MediaPipe AI Dual-Hand Steering Wheel Engine
+  // Optional Webcam AI Dual-Hand Steering Wheel Engine (Opt-in only)
   useEffect(() => {
-    if (!isGesturePilot) return;
+    if (!isGesturePilot || !isWebcamAiActive) return;
 
     let isCancelled = false;
     let cameraStream = null;
@@ -3160,38 +3163,6 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 const cmd = handCount === 0 ? '🛑 Dừng lại / Lơ lửng (Buông 2 tay)' : '🛑 Dừng lại / Lơ lửng (Bỏ 1 tay)';
                 setGestureStatus(cmd);
               }
-
-              const h1Pt = (handCount === 1 && results.multiHandLandmarks[0]?.[0])
-                ? `(${results.multiHandLandmarks[0][0].x.toFixed(2)}, ${results.multiHandLandmarks[0][0].y.toFixed(2)})`
-                : 'Chưa phát hiện';
-
-              setDebugInfo(prev => ({
-                ...prev,
-                handCount,
-                hand1Coords: h1Pt,
-                hand2Coords: 'Chưa phát hiện',
-                steerAngleDeg: '0.0',
-                yaw: fv.yaw.toFixed(2),
-                pitch: fv.pitch.toFixed(2),
-                isMoving: fv.speed !== 0,
-                speed: fv.speed.toFixed(1),
-                currentCommand: isManualActive ? `🎮 Điều khiển thủ công (Speed: ${fv.speed.toFixed(1)})` : (handCount === 0 ? '🛑 Buông 2 tay (Lơ lửng)' : '🛑 Bỏ 1 tay (Lơ lửng)')
-              }));
-
-              // Draw single hand skeleton points on webcam canvas overlay if 1 hand present
-              if (canvasCtx && webcamCanvasRef.current && handCount === 1) {
-                const landmarks = results.multiHandLandmarks[0];
-                canvasCtx.fillStyle = '#f59e0b';
-                canvasCtx.strokeStyle = '#ffffff';
-                canvasCtx.lineWidth = 1.5;
-                landmarks.forEach((pt) => {
-                  const x = (1 - pt.x) * webcamCanvasRef.current.width;
-                  const y = pt.y * webcamCanvasRef.current.height;
-                  canvasCtx.beginPath();
-                  canvasCtx.arc(x, y, 2.5, 0, Math.PI * 2);
-                  canvasCtx.fill();
-                });
-              }
               return;
             }
 
@@ -3202,14 +3173,14 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               const hB = results.multiHandLandmarks[1];
 
               // Sort hands horizontally (Left Hand vs Right Hand)
-              const leftHand = hA[0].x < hB[0].x ? hB : hA; // Mirrored coordinate: lower x in video = screen right
+              const leftHand = hA[0].x < hB[0].x ? hB : hA;
               const rightHand = hA[0].x < hB[0].x ? hA : hB;
 
               // Calculate Steering Wheel Line Angle (in degrees)
-              const xLeft = (1 - leftHand[0].x) * webcamCanvasRef.current.width;
-              const yLeft = leftHand[0].y * webcamCanvasRef.current.height;
-              const xRight = (1 - rightHand[0].x) * webcamCanvasRef.current.width;
-              const yRight = rightHand[0].y * webcamCanvasRef.current.height;
+              const xLeft = (1 - leftHand[0].x) * (webcamCanvasRef.current?.width || 90);
+              const yLeft = leftHand[0].y * (webcamCanvasRef.current?.height || 65);
+              const xRight = (1 - rightHand[0].x) * (webcamCanvasRef.current?.width || 90);
+              const yRight = rightHand[0].y * (webcamCanvasRef.current?.height || 65);
 
               const dx = xRight - xLeft;
               const dy = yRight - yLeft;
@@ -3236,70 +3207,37 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 canvasCtx.moveTo(xLeft, yLeft);
                 canvasCtx.lineTo(xRight, yRight);
                 canvasCtx.stroke();
-
-                // Draw Steering Wheel Center Hub Indicator
-                const midX = (xLeft + xRight) / 2;
-                const midY = (yLeft + yRight) / 2;
-                canvasCtx.fillStyle = '#38bdf8';
-                canvasCtx.beginPath();
-                canvasCtx.arc(midX, midY, 6, 0, Math.PI * 2);
-                canvasCtx.fill();
               }
 
               // Both Hands on Wheel -> Continuous Forward Movement Speed
               fv.speed = 5.0;
-              setPilotSpeed(5.0);
 
-              let cmd = '🚀 Tiến về phía trước';
-
-              // Steering Wheel Rotation Mapping:
-              // angleDeg > 10° -> Turning Left (Xoay Vô Lăng Trái -> Rẽ Trái)
-              // angleDeg < -10° -> Turning Right (Xoay Vô Lăng Phải -> Rẽ Phải)
               if (angleDeg > 10) {
                 const steerX = -Math.min(1.0, (angleDeg - 10) / 30);
                 fv.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
-                setCurrentGesture('STEER_LEFT');
-                cmd = '◄ Rẽ trái (Tàu vũ trụ nghiêng sang trái)';
-                setGestureStatus('◄ RẼ TRÁI — TÀU VŨ TRỤ NGHIÊNG SANG TRÁI (TIẾN VỀ PHÍA TRƯỚC)');
               } else if (angleDeg < -10) {
                 const steerX = Math.min(1.0, (-10 - angleDeg) / 30);
                 fv.yaw += steerX * 0.045;
                 setSteerPos({ x: steerX, y: 0 });
-                setCurrentGesture('STEER_RIGHT');
-                cmd = '► Rẽ phải (Tàu vũ trụ nghiêng sang phải)';
-                setGestureStatus('► RẼ PHẢI — TÀU VŨ TRỤ NGHIÊNG SANG PHẢI (TIẾN VỀ PHÍA TRƯỚC)');
               } else {
                 setSteerPos({ x: 0, y: 0 });
-                setCurrentGesture('FORWARD');
-                cmd = '🚀 Tiến về phía trước';
-                setGestureStatus('🚀 TIẾN VỀ PHÍA TRƯỚC — ĐANG LÁI VÔ LĂNG THẲNG');
               }
-
-              setDebugInfo(prev => ({
-                ...prev,
-                handCount: 2,
-                hand1Coords: `(${leftHand[0].x.toFixed(2)}, ${leftHand[0].y.toFixed(2)})`,
-                hand2Coords: `(${rightHand[0].x.toFixed(2)}, ${rightHand[0].y.toFixed(2)})`,
-                steerAngleDeg: angleDeg.toFixed(1),
-                yaw: fv.yaw.toFixed(2),
-                pitch: fv.pitch.toFixed(2),
-                isMoving: true,
-                speed: '5.0',
-                currentCommand: cmd
-              }));
             }
           });
 
-          // Non-blocking frame processing loop using re-entrancy lock
+          // Throttled 12fps AI frame processing loop
           let isProcessingFrame = false;
+          let lastAiFrameTime = 0;
           const processFrame = async () => {
-            if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2 && !isProcessingFrame) {
+            const now = Date.now();
+            if (!isCancelled && videoRef.current && videoRef.current.readyState >= 2 && !isProcessingFrame && (now - lastAiFrameTime > 80)) {
+              lastAiFrameTime = now;
               isProcessingFrame = true;
               try {
                 await hands.send({ image: videoRef.current });
               } catch (err) {
-                // skip frame if busy
+                // skip frame
               } finally {
                 isProcessingFrame = false;
               }
@@ -3323,7 +3261,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         cameraStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, [isGesturePilot]);
+  }, [isGesturePilot, isWebcamAiActive]);
 
   useEffect(() => {
     const container = mountRef.current;
@@ -3696,7 +3634,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           });
         });
 
-        setPlanetWaypoints(wpts);
+        const nowWp = Date.now();
+        if (nowWp - lastWaypointTimeRef.current > 150) {
+          lastWaypointTimeRef.current = nowWp;
+          setPlanetWaypoints(wpts);
+        }
       } else {
         controls.enabled = true;
 
@@ -3930,6 +3872,17 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => setIsWebcamAiActive(prev => !prev)}
+                  style={{
+                    background: isWebcamAiActive ? 'linear-gradient(135deg, #059669, #10b981)' : 'rgba(56, 189, 248, 0.15)',
+                    color: isWebcamAiActive ? '#ffffff' : '#38bdf8', border: '1px solid #38bdf8',
+                    borderRadius: '8px', padding: '4px 10px', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer'
+                  }}
+                >
+                  {isWebcamAiActive ? '📷 TẮT CAMERA AI' : '📷 BẬT CAMERA AI'}
+                </button>
+
                 <button
                   onClick={() => setIsXRayMode(!isXRayMode)}
                   style={{
@@ -4251,21 +4204,23 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 </div>
               </div>
 
-              {/* Right: Embedded Interactive Webcam Feed */}
-              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                <div 
-                  style={{
-                    background: 'rgba(9, 19, 29, 0.95)', border: '1px solid #f59e0b',
-                    borderRadius: '8px', padding: '3px', boxShadow: '0 0 10px rgba(245, 158, 11, 0.3)'
-                  }}
-                >
-                  <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#f59e0b', marginBottom: '1px', textAlign: 'center' }}>
-                    📷 WEBCAM AI
+              {/* Right: Embedded Interactive Webcam Feed (ONLY when Webcam AI is Active) */}
+              {isWebcamAiActive && (
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <div 
+                    style={{
+                      background: 'rgba(9, 19, 29, 0.95)', border: '1px solid #f59e0b',
+                      borderRadius: '8px', padding: '3px', boxShadow: '0 0 10px rgba(245, 158, 11, 0.3)'
+                    }}
+                  >
+                    <div style={{ fontSize: '0.55rem', fontWeight: 900, color: '#f59e0b', marginBottom: '1px', textAlign: 'center' }}>
+                      📷 WEBCAM AI
+                    </div>
+                    <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
+                    <canvas ref={webcamCanvasRef} width={90} height={65} style={{ borderRadius: '4px', background: '#020617', display: 'block' }} />
                   </div>
-                  <video ref={videoRef} style={{ display: 'none' }} playsInline muted />
-                  <canvas ref={webcamCanvasRef} width={90} height={65} style={{ borderRadius: '4px', background: '#020617', display: 'block' }} />
                 </div>
-              </div>
+              )}
             </div>
           </div>
         )}
