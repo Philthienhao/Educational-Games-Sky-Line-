@@ -44,7 +44,45 @@ export function Sidebar({
     return thayHaoAvatar;
   });
 
+  const [isOverlayActive, setIsOverlayActive] = useState(() => {
+    if (typeof document === 'undefined') return false;
+    return document.body.classList.contains('is-experiment-active') ||
+           document.body.classList.contains('is-game-playing') ||
+           document.body.classList.contains('is-fullscreen') ||
+           document.body.classList.contains('is-modal-open') ||
+           !!document.fullscreenElement;
+  });
+
+  useEffect(() => {
+    const checkActive = () => {
+      const active = document.body.classList.contains('is-experiment-active') ||
+                     document.body.classList.contains('is-game-playing') ||
+                     document.body.classList.contains('is-fullscreen') ||
+                     document.body.classList.contains('is-modal-open') ||
+                     !!document.fullscreenElement;
+      setIsOverlayActive(active);
+    };
+
+    checkActive();
+
+    const observer = new MutationObserver(checkActive);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    document.addEventListener('fullscreenchange', checkActive);
+    document.addEventListener('webkitfullscreenchange', checkActive);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('fullscreenchange', checkActive);
+      document.removeEventListener('webkitfullscreenchange', checkActive);
+    };
+  }, []);
+
   const isAdmin = currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin';
+
+  if (isOverlayActive) {
+    return null;
+  }
 
   const handleAuthorPhotoUpload = async (e) => {
     if (!isAdmin) return;

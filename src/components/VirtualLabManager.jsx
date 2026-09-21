@@ -28,6 +28,22 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
   // Interactive Lab Modal State
   const [activeExperiment, setActiveExperiment] = useState(null);
 
+  const handleLaunchExperiment = (exp, extraProps = {}) => {
+    try {
+      if (!document.fullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen().catch(() => {});
+        }
+      }
+    } catch (e) {}
+
+    document.body.classList.add('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
+    setActiveExperiment({ ...exp, ...extraProps });
+  };
+
   // Create Custom Experiment Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newExp, setNewExp] = useState({
@@ -206,7 +222,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
 
 
             <button 
-              onClick={() => setActiveExperiment({
+              onClick={() => handleLaunchExperiment({
                 id: 'exp_chem_sandbox_00',
                 title: '🧪 Phòng Thí Nghiệm Mở (Sandbox Nguyên Tố & Hóa Chất Tự Chọn)',
                 subject: 'Hóa học',
@@ -305,7 +321,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
         </div>
 
         <button 
-          onClick={() => setActiveExperiment({
+          onClick={() => handleLaunchExperiment({
             id: 'exp_chem9_fe2o3_co',
             title: '🔥 Thí Nghiệm 3D: Khử Sắt(III) Oxit (Fe₂O₃) Bằng Khí Carbon Monoxide (CO)',
             subject: 'Hóa học',
@@ -465,7 +481,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
             return (
               <div 
                 key={exp.id}
-                onClick={() => setActiveExperiment(exp)}
+                onClick={() => handleLaunchExperiment(exp)}
                 style={{
                   background: '#ffffff',
                   borderRadius: '18px',
@@ -542,7 +558,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      setActiveExperiment(exp);
+                      handleLaunchExperiment(exp);
                     }}
                     style={{
                       background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',

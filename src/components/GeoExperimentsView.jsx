@@ -22,6 +22,22 @@ export function GeoExperimentsView({ currentUser }) {
   const [activeExperiment, setActiveExperiment] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
+  const handleLaunchExperiment = (exp, extraProps = {}) => {
+    try {
+      if (!document.fullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen().catch(() => {});
+        }
+      }
+    } catch (e) {}
+
+    document.body.classList.add('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
+    setActiveExperiment({ ...exp, ...extraProps });
+  };
+
   // Filter 7 Geography 6 experiments from catalog
   const geoExperiments = defaultExperiments.filter(exp => 
     exp.subject === 'Địa lí' || exp.subject === 'Địa lý' || exp.interactiveType?.startsWith('geo_')
@@ -106,7 +122,7 @@ export function GeoExperimentsView({ currentUser }) {
             <button 
               onClick={() => {
                 const solarExp = geoExperiments.find(e => e.interactiveType === 'geo_solar_system') || geoExperiments[0];
-                setActiveExperiment({ ...solarExp, startInCockpit: true });
+                handleLaunchExperiment(solarExp, { startInCockpit: true });
               }}
               style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
@@ -180,7 +196,7 @@ export function GeoExperimentsView({ currentUser }) {
         {filteredExps.map((exp, idx) => (
           <div 
             key={exp.id}
-            onClick={() => setActiveExperiment(exp)}
+            onClick={() => handleLaunchExperiment(exp)}
             style={{
               background: '#ffffff',
               borderRadius: '20px',
@@ -266,7 +282,7 @@ export function GeoExperimentsView({ currentUser }) {
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  setActiveExperiment(exp);
+                  handleLaunchExperiment(exp);
                 }}
                 style={{
                   flex: 1,
@@ -292,7 +308,7 @@ export function GeoExperimentsView({ currentUser }) {
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    setActiveExperiment({ ...exp, startInCockpit: true });
+                    handleLaunchExperiment(exp, { startInCockpit: true });
                   }}
                   style={{
                     background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
