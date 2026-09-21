@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
@@ -7430,14 +7431,27 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   }, [experiment?.id]);
 
   useEffect(() => {
-    document.body.classList.add('is-modal-open', 'is-game-playing');
+    document.body.classList.add('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
+    
+    // Automatically trigger native browser full screen when entering experiment mode
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    setIsFullscreen(true);
+
     const handleFSChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
     document.addEventListener('fullscreenchange', handleFSChange);
+    document.addEventListener('webkitfullscreenchange', handleFSChange);
+
     return () => {
-      document.body.classList.remove('is-modal-open', 'is-game-playing');
+      document.body.classList.remove('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
       document.removeEventListener('fullscreenchange', handleFSChange);
+      document.removeEventListener('webkitfullscreenchange', handleFSChange);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
     };
   }, []);
 
@@ -7608,7 +7622,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
     }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
       width: '100vw', height: '100vh',
@@ -7867,6 +7881,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap } from 'lucide-react';
 import { WheelOfFortuneGame } from './games/WheelOfFortuneGame';
 import { TugOfWarGame } from './games/TugOfWarGame';
@@ -75,9 +76,25 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   const [showTeamManager, setShowTeamManager] = useState(false);
 
   useEffect(() => {
-    document.body.classList.add('is-modal-open', 'is-game-playing');
+    document.body.classList.add('is-modal-open', 'is-game-playing', 'is-fullscreen');
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+    setIsFullscreen(true);
+
+    const handleFSChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFSChange);
+    document.addEventListener('webkitfullscreenchange', handleFSChange);
+
     return () => {
-      document.body.classList.remove('is-modal-open', 'is-game-playing');
+      document.body.classList.remove('is-modal-open', 'is-game-playing', 'is-fullscreen');
+      document.removeEventListener('fullscreenchange', handleFSChange);
+      document.removeEventListener('webkitfullscreenchange', handleFSChange);
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
     };
   }, []);
 
@@ -229,7 +246,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   };
 
   if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race') {
-    return (
+    return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
           position: 'fixed',
@@ -269,11 +286,12 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
             <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
           )}
         </div>
-      </GameErrorBoundary>
+      </GameErrorBoundary>,
+      document.body
     );
   }
 
-  return (
+  return ReactDOM.createPortal(
     <div style={{
       position: 'fixed',
       top: 0,
@@ -600,6 +618,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }

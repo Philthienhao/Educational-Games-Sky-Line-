@@ -389,17 +389,19 @@ div[style*="background: linear-gradient(135deg, #f8fafc"] input {
   overflow: hidden !important;
 }
 
-/* AUTOMATICALLY HIDE SIDEBAR IN FULLSCREEN, GAME PLAYING, OR MODAL OPEN MODE */
+/* AUTOMATICALLY HIDE SIDEBAR IN FULLSCREEN, GAME PLAYING, EXPERIMENT, OR MODAL OPEN MODE */
 :fullscreen .app-sidebar-panel,
 :-webkit-full-screen .app-sidebar-panel,
 :root:has(:fullscreen) .app-sidebar-panel,
 body.is-fullscreen .app-sidebar-panel,
 body.is-modal-open .app-sidebar-panel,
-body.is-game-playing .app-sidebar-panel {
+body.is-game-playing .app-sidebar-panel,
+body.is-experiment-active .app-sidebar-panel {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  transform: translateX(-100%) !important;
 }
 
 .mobile-only-header {
@@ -615,14 +617,18 @@ body.is-game-playing .app-sidebar-panel {
   box-sizing: border-box;
 }
 
-/* FULLSCREEN & GAME PLAYING MODE WRAPPER OVERRIDES */
+/* FULLSCREEN, EXPERIMENT & GAME PLAYING MODE WRAPPER OVERRIDES */
 body.is-game-playing,
-body.is-fullscreen {
+body.is-fullscreen,
+body.is-experiment-active,
+body.is-modal-open {
   overflow: hidden !important;
 }
 
 body.is-game-playing .app-layout-wrapper,
-body.is-fullscreen .app-layout-wrapper {
+body.is-fullscreen .app-layout-wrapper,
+body.is-experiment-active .app-layout-wrapper,
+body.is-modal-open .app-layout-wrapper {
   padding: 0 !important;
   margin: 0 !important;
   width: 100vw !important;
@@ -633,6 +639,8 @@ body.is-fullscreen .app-layout-wrapper {
 
 body.is-game-playing .app-main-content,
 body.is-fullscreen .app-main-content,
+body.is-experiment-active .app-main-content,
+body.is-modal-open .app-main-content,
 :fullscreen .app-main-content,
 :-webkit-full-screen .app-main-content,
 :root:has(:fullscreen) .app-main-content {
