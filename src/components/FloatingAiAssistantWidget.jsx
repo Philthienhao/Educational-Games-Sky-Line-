@@ -1,19 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Sparkles, X, MessageSquare } from 'lucide-react';
 
 export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
-  const [isOpen, setIsOpen] = useState(true); // Default open/expanded for immediate visibility
+  const [isOpen, setIsOpen] = useState(false); // Hidden by default, pops up on clicking chatbot avatar
+  const containerRef = useRef(null);
+
+  // Auto-close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleOpenZalo = () => {
+    setIsOpen(false);
     window.open('https://zalo.me/0387806954', '_blank', 'noopener,noreferrer');
   };
 
   const handleOpenFacebook = () => {
+    setIsOpen(false);
     window.open('https://www.facebook.com/phil.thienhao', '_blank', 'noopener,noreferrer');
+  };
+
+  const handleTriggerSearch = () => {
+    setIsOpen(false);
+    if (onOpenSearchModal) {
+      onOpenSearchModal();
+    }
   };
 
   return (
     <div 
+      ref={containerRef}
       style={{
         position: 'fixed',
         bottom: '24px',
@@ -38,12 +62,12 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
           100% { box-shadow: 0 0 0 0 rgba(13, 148, 136, 0), 0 8px 25px rgba(0,0,0,0.25); }
         }
         @keyframes actionPopIn {
-          from { opacity: 0; transform: translateY(12px) scale(0.85); }
+          from { opacity: 0; transform: translateY(14px) scale(0.8); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
 
-      {/* STACKED 3 ACTION ITEMS (POPPED UP ABOVE AVATAR) */}
+      {/* STACKED 3 ACTION ITEMS (HIDDEN BY DEFAULT - ONLY VISIBLE WHEN ISOPEN IS TRUE) */}
       {isOpen && (
         <div 
           style={{
@@ -62,20 +86,19 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
               alignItems: 'center',
               gap: '10px',
               cursor: 'pointer',
-              animation: 'actionPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              animation: 'actionPopIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
-            className="group"
           >
-            {/* Hover Tooltip Label */}
+            {/* Tooltip Label */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.92)',
+              background: 'rgba(15, 23, 42, 0.94)',
               color: '#ffffff',
-              padding: '6px 14px',
+              padding: '7px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 800,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-              border: '1px solid rgba(59, 130, 246, 0.4)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              border: '1.5px solid rgba(59, 130, 246, 0.5)',
               whiteSpace: 'nowrap',
               backdropFilter: 'blur(8px)'
             }}>
@@ -109,19 +132,19 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
               alignItems: 'center',
               gap: '10px',
               cursor: 'pointer',
-              animation: 'actionPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              animation: 'actionPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
           >
-            {/* Hover Tooltip Label */}
+            {/* Tooltip Label */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.92)',
+              background: 'rgba(15, 23, 42, 0.94)',
               color: '#ffffff',
-              padding: '6px 14px',
+              padding: '7px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 800,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-              border: '1px solid rgba(2, 132, 199, 0.4)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              border: '1.5px solid rgba(2, 132, 199, 0.5)',
               whiteSpace: 'nowrap',
               backdropFilter: 'blur(8px)'
             }}>
@@ -146,25 +169,25 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
 
           {/* MỤC 1: TÌM KIẾM MỌI THÔNG TIN HỆ THỐNG */}
           <div 
-            onClick={onOpenSearchModal}
+            onClick={handleTriggerSearch}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               cursor: 'pointer',
-              animation: 'actionPopIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              animation: 'actionPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
           >
-            {/* Hover Tooltip Label */}
+            {/* Tooltip Label */}
             <div style={{
-              background: 'rgba(15, 23, 42, 0.92)',
+              background: 'rgba(15, 23, 42, 0.94)',
               color: '#fde047',
-              padding: '6px 14px',
+              padding: '7px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 900,
-              boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
-              border: '1px solid rgba(245, 158, 11, 0.5)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+              border: '1.5px solid rgba(245, 158, 11, 0.6)',
               whiteSpace: 'nowrap',
               backdropFilter: 'blur(8px)'
             }}>
@@ -189,10 +212,10 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
         </div>
       )}
 
-      {/* MAIN FLOATING CHATBOT AVATAR BUTTON (NO TEXT LABEL) */}
+      {/* MAIN FLOATING CHATBOT AVATAR BUTTON (NO TEXT LABEL, HIDDEN ITEMS UNTIL CLICKED) */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        title="Bấm để mở/đóng Trợ Lý Chatbot & Liên Hệ"
+        title={isOpen ? 'Bấm để ẩn 3 mục chức năng' : 'Bấm vào Chatbot để mở 3 mục trợ lý & liên hệ'}
         style={{
           position: 'relative',
           width: '68px',
