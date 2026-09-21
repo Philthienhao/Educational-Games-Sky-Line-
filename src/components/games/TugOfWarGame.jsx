@@ -246,7 +246,7 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
         />
       ) : (
         /* Question Card */
-        <div className="glass-panel" style={{ width: '100%', padding: '28px' }}>
+        <div style={{ width: '100%', padding: '28px', background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)', borderRadius: '24px', border: '2px solid #00a896', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <span className="badge badge-teacher">
               CÂU HỎI {currentQIndex + 1} / {questions.length}

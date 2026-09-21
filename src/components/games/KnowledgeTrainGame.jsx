@@ -288,7 +288,8 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
           onStart={() => setIsGameStarted(true)}
         />
       ) : !winnerTeam && (
-        <div className="glass-panel" style={{
+        <div style={{
+          background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
           width: '100%',
           padding: '28px',
           borderRadius: '24px',

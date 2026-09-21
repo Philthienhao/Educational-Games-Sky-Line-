@@ -187,11 +187,11 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
       </div>
 
       {/* TARGET SENTENCE CONSTRUCTION LINE */}
-      <div className="glass-panel" style={{
+      <div style={{
         width: '100%',
         padding: '24px',
         borderRadius: '24px',
-        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%)',
+        background: 'linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%)',
         border: '2px solid #8b5cf6',
         minHeight: '110px',
         display: 'flex',

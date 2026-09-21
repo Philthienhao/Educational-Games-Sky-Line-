@@ -127,7 +127,7 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       
       {/* Left Main Quiz Arena */}
-      <div className="glass-panel" style={{ padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)', borderRadius: '24px', border: '2px solid #00a896', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
         
         {!isGameStarted ? (
           <StartGameOverlay
@@ -195,8 +195,8 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
         <div style={{
           padding: '28px 32px',
           borderRadius: '24px',
-          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
-          border: '2px solid rgba(139, 92, 246, 0.5)',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '2px solid #6366f1',
           marginBottom: '28px',
           textAlign: 'center',
           boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
