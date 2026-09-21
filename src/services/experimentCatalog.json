@@ -1511,5 +1511,54 @@
     "simulationConfig": {
       "temp": 25
     }
+  },
+  {
+    "id": "exp_chem_water_oxygen_01",
+    "title": "⚡ Thí Nghiệm 3D: Tách Oxi Ra Khỏi Nước (Điện Phân Nước 12V & Thử Que Đốm O₂)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Chương 4: Oxy - Khí Oxi & Sự Phân Hủy Nước (KHTN / Hóa 8)",
+    "objective": "Mô phỏng điện phân phân hủy nước bằng dòng điện một chiều 12V thu khí Oxi (O₂) ở cực dương và khí Hidro (H₂) ở cực âm; thử độ tinh khiết của khí Oxi bằng que đốm tàn đỏ bùng cháy sáng chói.",
+    "equipment": [
+      "Bình điện phân Hoffman U-Tube",
+      "Dung dịch nước cất H2O + H2SO4 loãng",
+      "Nguồn điện 12V DC",
+      "Đèn cồn đun nóng",
+      "Ống nghiệm thu khí Oxi (O2) & Hidro (H2)",
+      "Que đốm gỗ tàn đỏ"
+    ],
+    "steps": [
+      "1. Đổ nước cất hòa chút H2SO4 loãng vào bình điện phân U-tube Hoffman.",
+      "2. Bật nguồn điện 12V DC: Dòng điện chạy qua làm sủi bọt khí O2 ở Cực Dương (+) và bọt khí H2 ở Cực Âm (-).",
+      "3. Bật Đèn Cồn đun nóng dung dịch lên 100°C để gia tăng tốc độ bọt khí thoát ra.",
+      "4. Đưa que đốm tàn đỏ vào miệng ống thu khí Oxi (O2) -> Que đốm BÙNG CHÁY SÁNG CHÓI! (Xác nhận khí Oxi duy trì sự cháy)."
+    ],
+    "phenomenon": "Khí sủi mạnh ở 2 cực, thể tích khí H2 gấp 2 lần thể tích khí O2. Que đốm tàn đỏ bùng cháy sáng chói khi gặp khí Oxi.",
+    "explanation": "Dưới tác dụng của dòng điện một chiều, nước phân hủy thành khí H2 và O2: 2H2O -> 2H2 + O2. Khí Oxi duy trì sự cháy làm que đốm bùng cháy.",
+    "interactiveType": "chem_water_oxygen_separation"
+  },
+  {
+    "id": "exp_khtn_6_oxygen_separation",
+    "title": "💧 Thí Nghiệm: Tách Oxi Ra Khỏi Nước (KHTN 6 - GDPT 2018)",
+    "subject": "Khoa học tự nhiên",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Chương 4: Tách chất ra khỏi hỗn hợp - Khí hòa tan trong nước (KHTN 6)",
+    "objective": "Tách khí Oxi hòa tan ra khỏi nước bằng phương pháp gia nhiệt đun sôi hoặc điện phân phân hủy nước.",
+    "equipment": [
+      "Ống nghiệm chứa nước",
+      "Đèn cồn đun nóng",
+      "Ống dẫn khí Oxi",
+      "Que đốm tàn đỏ"
+    ],
+    "steps": [
+      "1. Đun nóng ống nghiệm chứa nước bằng đèn cồn.",
+      "2. Bọt khí Oxi thoát ra khỏi lòng nước bay lên.",
+      "3. Thử khí Oxi bằng que đốm tàn đỏ bùng cháy."
+    ],
+    "phenomenon": "Các bọt khí Oxi bé li ti bám trên thành ống nghiệm thoát ra và bay lên khi nhiệt độ tăng.",
+    "explanation": "Độ tan của khí Oxi giảm khi nhiệt độ tăng, khiến Oxi thoát ra khỏi nước.",
+    "interactiveType": "chem_water_oxygen_separation"
   }
 ]

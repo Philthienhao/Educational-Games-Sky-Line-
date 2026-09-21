@@ -6943,6 +6943,456 @@ export const isGeoExperiment = (exp) => {
   return keywords.some(kw => searchStr.includes(kw));
 };
 
+export const detectExperimentInteractiveType = (exp) => {
+  if (!exp) return 'khtn_dynamic_lab';
+  const rawType = String(exp.interactiveType || '').toLowerCase();
+  
+  if (rawType && rawType !== 'chemistry_acid_base' && rawType !== 'default' && rawType !== 'custom') {
+    return exp.interactiveType;
+  }
+
+  const title = String(exp.title || '').toLowerCase();
+  const obj = String(exp.objective || '').toLowerCase();
+  const eq = Array.isArray(exp.equipment) ? exp.equipment.join(' ').toLowerCase() : String(exp.equipment || '').toLowerCase();
+  const expText = String(exp.explanation || '').toLowerCase();
+  const fullText = `${title} ${obj} ${eq} ${expText}`;
+
+  if (fullText.includes('tách oxi') || fullText.includes('tách oxygen') || fullText.includes('điện phân nước') || 
+      fullText.includes('thu khí oxi') || fullText.includes('chế tạo oxi') || fullText.includes('khí oxi ra khỏi nước') || 
+      fullText.includes('oxi ra khỏi nước') || fullText.includes('khoi nuoc') || fullText.includes('điện phân') ||
+      (fullText.includes('nước') && fullText.includes('oxi'))) {
+    return 'chem_water_oxygen_separation';
+  }
+
+  if (fullText.includes('đốt cháy') || fullText.includes('cháy trong oxi') || fullText.includes('cồn') || fullText.includes('butane')) {
+    return 'chem9_alcohol_combustion';
+  }
+
+  if (fullText.includes('quỳ tím') || fullText.includes('phenolphthalein') || fullText.includes('axit') || fullText.includes('base') || fullText.includes('bazo')) {
+    return 'chemistry_acid_base';
+  }
+
+  if (fullText.includes('fe2o3') || fullText.includes('khử sắt')) {
+    return 'chem9_fe2o3_co';
+  }
+
+  if (fullText.includes('mạch điện') || fullText.includes('dòng điện') || fullText.includes('vôn kế')) {
+    return 'physics_circuit';
+  }
+
+  if (fullText.includes('kính hiển vi') || fullText.includes('tế bào')) {
+    return 'biology_microscope';
+  }
+
+  return 'khtn_dynamic_lab';
+};
+
+function ChemWaterOxygenSeparationSim({ experiment, onLog, onSensorUpdate }) {
+  const [isPowerOn, setIsPowerOn] = useState(false);
+  const [isHeatOn, setIsHeatOn] = useState(false);
+  const [gasO2, setGasO2] = useState(0);
+  const [gasH2, setGasH2] = useState(0);
+  const [temp, setTemp] = useState(25.0);
+  const [splintTested, setSplintTested] = useState(false);
+  const [splintFlames, setSplintFlames] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (isPowerOn) {
+      timer = setInterval(() => {
+        setGasO2(prev => Math.min(25.0, Number((prev + 0.5).toFixed(1))));
+        setGasH2(prev => Math.min(50.0, Number((prev + 1.0).toFixed(1))));
+        if (onSensorUpdate) {
+          onSensorUpdate({
+            temp: temp,
+            ph: 7.0,
+            mass: Number((180.0 - gasO2 * 0.1).toFixed(2))
+          });
+        }
+      }, 500);
+    }
+    return () => clearInterval(timer);
+  }, [isPowerOn, gasO2, temp]);
+
+  useEffect(() => {
+    let timer;
+    if (isHeatOn) {
+      timer = setInterval(() => {
+        setTemp(prev => Math.min(100.0, Number((prev + 2.5).toFixed(1))));
+      }, 400);
+    } else {
+      timer = setInterval(() => {
+        setTemp(prev => Math.max(25.0, Number((prev - 1.5).toFixed(1))));
+      }, 600);
+    }
+    return () => clearInterval(timer);
+  }, [isHeatOn]);
+
+  const handleTogglePower = () => {
+    const nextState = !isPowerOn;
+    setIsPowerOn(nextState);
+    playLabSFX('bubble');
+    if (nextState) {
+      onLog("⚡ [Điện Phân Nước] Đã mở nguồn điện 12V DC. Dòng điện chạy qua dung dịch làm nước phân hủy: Bọt khí O₂ sủi mạnh ở Cực Dương (+) và bọt khí H₂ sủi ở Cực Âm (-). (2H₂O ➔ 2H₂↑ + O₂↑)");
+    } else {
+      onLog("⏸️ Đã ngắt nguồn điện phân.");
+    }
+  };
+
+  const handleToggleHeat = () => {
+    const nextState = !isHeatOn;
+    setIsHeatOn(nextState);
+    playLabSFX('flame');
+    if (nextState) {
+      onLog("🔥 Đã bật ngọn lửa Đèn Cồn. Nhiệt độ bình phản ứng tăng dần lên 100°C, gia tăng tốc độ thoát khí Oxi!");
+    } else {
+      onLog("🛑 Đã tắt Đèn Cồn.");
+    }
+  };
+
+  const handleTestSplint = () => {
+    if (gasO2 < 1.5) {
+      onLog("⚠️ Lượng khí Oxi thu được chưa đủ (cần > 1.5ml). Vui lòng bật Nguồn Điện Phân để tích lũy thêm khí O₂!");
+      return;
+    }
+    setSplintTested(true);
+    playLabSFX('correct');
+    setTimeout(() => {
+      setSplintFlames(true);
+      playLabSFX('win');
+      onLog("🔥 [THÍ NGHIỆM THÀNH CÔNG] Đưa que đốm tàn đỏ vào miệng ống thu khí Oxi (O₂) ➔ Que đốm BÙNG CHÁY SÁNG CHÓI! Khẳng định khí Oxi duy trì và bùng cháy mãnh liệt.");
+    }, 500);
+  };
+
+  const handleReset = () => {
+    setIsPowerOn(false);
+    setIsHeatOn(false);
+    setGasO2(0);
+    setGasH2(0);
+    setTemp(25.0);
+    setSplintTested(false);
+    setSplintFlames(false);
+    playLabSFX('drop');
+    onLog("🔄 Đã làm mới mô hình Thí nghiệm Tách Oxi ra khỏi nước. Sẵn sàng thực hiện lại.");
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '14px', color: '#f8fafc' }}>
+      <div style={{
+        flex: 1, background: '#020617', borderRadius: '20px',
+        border: '1.5px solid rgba(13, 148, 136, 0.4)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', overflow: 'hidden'
+      }}>
+        <svg width="100%" height="100%" viewBox="0 0 600 360">
+          <defs>
+            <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.7" />
+            </linearGradient>
+            <linearGradient id="o2GasGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#2dd4bf" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#0d9488" stopOpacity="0.3" />
+            </linearGradient>
+            <linearGradient id="h2GasGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#0369a1" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+
+          <pattern id="gridPattern" width="30" height="30" patternUnits="userSpaceOnUse">
+            <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(148, 163, 184, 0.05)" strokeWidth="1" />
+          </pattern>
+          <rect width="600" height="360" fill="url(#gridPattern)" />
+
+          <text x="300" y="32" fill="#2dd4bf" fontSize="15" fontWeight="900" textAnchor="middle" letterSpacing="0.5">
+            ⚡ SƠ ĐỒ ĐIỆN PHÂN NƯỚC TÁCH KHÍ OXI (O₂) VÀ HIDRO (H₂)
+          </text>
+
+          <rect x="50" y="300" width="500" height="12" fill="#1e293b" rx="4" />
+
+          {/* Hoffman U-Tube */}
+          <path d="M 220 120 L 220 240 Q 220 280 300 280 Q 380 280 380 240 L 380 120" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="4" />
+          <path d="M 245 120 L 245 230 Q 245 255 300 255 Q 355 255 355 230 L 355 120" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+          
+          <path d={`M 222 ${160 - gasH2*1.5} L 222 240 Q 222 278 300 278 Q 378 278 378 240 L 378 ${160 - gasO2*1.5} L 353 ${160 - gasO2*1.5} L 353 230 Q 353 253 300 253 Q 247 253 247 230 L 247 ${160 - gasH2*1.5} Z`} fill="url(#waterGrad)" />
+
+          <rect x="223" y="100" width="22" height={Math.max(0, 60 - gasH2 * 1.5)} fill="url(#h2GasGrad)" rx="3" />
+          <text x="210" y="85" fill="#38bdf8" fontSize="11" fontWeight="900">⚡ Cực Âm (-): H₂ ({gasH2} ml)</text>
+
+          <rect x="355" y="100" width="23" height={Math.max(0, 60 - gasO2 * 1.5)} fill="url(#o2GasGrad)" rx="3" />
+          <text x="390" y="85" fill="#2dd4bf" fontSize="11" fontWeight="900">🔋 Cực Dương (+): O₂ ({gasO2} ml)</text>
+
+          <rect x="230" y="200" width="8" height="60" fill="#94a3b8" rx="2" stroke="#cbd5e1" strokeWidth="1" />
+          <rect x="362" y="200" width="8" height="60" fill="#f59e0b" rx="2" stroke="#fde047" strokeWidth="1" />
+
+          <path d="M 234 260 L 234 315 L 140 315 L 140 260" fill="none" stroke="#ef4444" strokeWidth="3" strokeDasharray={isPowerOn ? "6 3" : "none"} />
+          <path d="M 366 260 L 366 315 L 460 315 L 460 260" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray={isPowerOn ? "6 3" : "none"} />
+
+          <rect x="100" y="210" width="70" height="50" fill="#0f172a" stroke="#ef4444" strokeWidth="2" rx="8" />
+          <text x="135" y="235" fill="#ef4444" fontSize="12" fontWeight="900" textAnchor="middle">12V DC</text>
+          <text x="135" y="250" fill={isPowerOn ? "#22c55e" : "#94a3b8"} fontSize="10" fontWeight="bold" textAnchor="middle">
+            {isPowerOn ? "ON ●" : "OFF ○"}
+          </text>
+
+          {isHeatOn && (
+            <g transform="translate(285, 280)">
+              <polygon points="15,0 0,25 30,25" fill="#f97316" opacity="0.8" />
+              <polygon points="15,3 5,22 25,22" fill="#fde047" opacity="0.9" />
+              <circle cx="15" cy="12" r="6" fill="#fff" opacity="0.7" />
+              <text x="15" y="42" fill="#f97316" fontSize="10" fontWeight="bold" textAnchor="middle">🔥 100°C</text>
+            </g>
+          )}
+
+          {isPowerOn && (
+            <g>
+              <circle cx="234" cy="220" r="3" fill="#fff" opacity="0.8" />
+              <circle cx="230" cy="190" r="2.5" fill="#fff" opacity="0.9" />
+              <circle cx="238" cy="160" r="4" fill="#fff" opacity="0.7" />
+
+              <circle cx="366" cy="220" r="2.5" fill="#2dd4bf" opacity="0.9" />
+              <circle cx="362" cy="190" r="3.5" fill="#2dd4bf" opacity="0.8" />
+              <circle cx="370" cy="160" r="3" fill="#2dd4bf" opacity="0.85" />
+            </g>
+          )}
+
+          {splintTested && (
+            <g transform="translate(366, 75)">
+              <line x1="0" y1="-30" x2="0" y2="15" stroke="#78350f" strokeWidth="4" strokeLinecap="round" />
+              {!splintFlames ? (
+                <circle cx="0" cy="15" r="4" fill="#ef4444" opacity="0.9">
+                  <animate attributeName="opacity" values="0.4;1;0.4" dur="0.6s" repeatCount="indefinite" />
+                </circle>
+              ) : (
+                <g>
+                  <polygon points="0,15 -10,-10 0,-25 10,-10" fill="#f59e0b" />
+                  <polygon points="0,15 -6,-5 0,-18 6,-5" fill="#fef08a" />
+                  <circle cx="0" cy="-5" r="4" fill="#fff" />
+                  <text x="25" y="-10" fill="#fde047" fontSize="13" fontWeight="900">💥 BÙNG CHÁY SÁNG!</text>
+                </g>
+              )}
+            </g>
+          )}
+        </svg>
+
+        <div style={{ position: 'absolute', top: '16px', left: '16px', display: 'flex', gap: '8px' }}>
+          <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid #0d9488', color: '#2dd4bf', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800 }}>
+            🌡️ Nhiệt độ: {temp.toFixed(1)} °C
+          </span>
+          <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid #0284c7', color: '#38bdf8', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800 }}>
+            💧 Dung dịch: Nước cất H₂O + H₂SO₄ loãng
+          </span>
+        </div>
+      </div>
+
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.95)',
+        padding: '16px 20px', borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexWrap: 'wrap', gap: '12px'
+      }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={handleTogglePower}
+            style={{
+              background: isPowerOn ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff', border: 'none', borderRadius: '12px',
+              padding: '10px 18px', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              boxShadow: isPowerOn ? '0 0 16px rgba(239, 68, 68, 0.5)' : '0 4px 14px rgba(13, 148, 136, 0.3)'
+            }}
+          >
+            {isPowerOn ? '⏸️ TẮT NGUỒN ĐIỆN PHÂN' : '⚡ BẬT NGUỒN ĐIỆN PHÂN 12V'}
+          </button>
+
+          <button
+            onClick={handleToggleHeat}
+            style={{
+              background: isHeatOn ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'rgba(255, 255, 255, 0.08)',
+              color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
+              padding: '10px 18px', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            {isHeatOn ? '🔥 TẮT ĐÈN CỒN' : '🔥 BẬT ĐÈN CỒN ĐUN NÓNG'}
+          </button>
+
+          <button
+            onClick={handleTestSplint}
+            style={{
+              background: splintFlames ? 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)' : 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+              color: '#ffffff', border: 'none', borderRadius: '12px',
+              padding: '10px 18px', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            🪵 THỬ QUE ĐỐM TÀN ĐỎ KHÍ O₂
+          </button>
+        </div>
+
+        <button
+          onClick={handleReset}
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)', color: '#94a3b8',
+            border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '10px',
+            padding: '8px 16px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer'
+          }}
+        >
+          🔄 Làm Mới
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function KHTNDynamicLabSim({ experiment, onLog, onSensorUpdate }) {
+  const [step, setStep] = useState(1);
+  const [isReacting, setIsReacting] = useState(false);
+  const [temp, setTemp] = useState(25.0);
+  const [gasVolume, setGasVolume] = useState(0);
+
+  const title = experiment?.title || 'Thí Nghiệm Thực Hành KHTN';
+  const equipmentList = Array.isArray(experiment?.equipment) 
+    ? experiment.equipment 
+    : (experiment?.equipment ? String(experiment.equipment).split(',') : ['Cốc thủy tinh chia độ', 'Đèn cồn', 'Nước cất']);
+
+  const stepsList = Array.isArray(experiment?.steps)
+    ? experiment.steps
+    : (experiment?.steps ? String(experiment.steps).split('\n') : ['Bước 1: Rót hóa chất', 'Bước 2: Tiến hành phản ứng']);
+
+  const handleStepClick = (idx) => {
+    setStep(idx + 1);
+    setIsReacting(true);
+    playLabSFX('bubble');
+    setTemp(prev => Math.min(90.0, prev + 15.0));
+    setGasVolume(prev => Math.min(40.0, prev + 10.0));
+    
+    if (onSensorUpdate) {
+      onSensorUpdate({
+        temp: 25.0 + (idx + 1) * 12.0,
+        ph: 7.0,
+        mass: 150.0 - (idx + 1) * 2.5
+      });
+    }
+
+    const stepText = stepsList[idx] || `Thực hiện bước ${idx + 1}`;
+    onLog(`🧪 [KHTN Step ${idx + 1}] ${stepText}`);
+  };
+
+  const handleReset = () => {
+    setStep(1);
+    setIsReacting(false);
+    setTemp(25.0);
+    setGasVolume(0);
+    playLabSFX('drop');
+    onLog(`🔄 Đã làm mới phòng thí nghiệm KHTN: "${title}".`);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '14px', color: '#f8fafc' }}>
+      <div style={{
+        flex: 1, background: '#020617', borderRadius: '20px',
+        border: '1.5px solid rgba(13, 148, 136, 0.4)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+        display: 'flex', flexDirection: 'column',
+        position: 'relative', overflow: 'hidden', padding: '20px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <div>
+            <span style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#fff', fontSize: '0.72rem', fontWeight: 900, padding: '3px 10px', borderRadius: '6px' }}>
+              🔬 PHÒNG THÍ NGHIỆM KHTN TƯƠNG TÁC THÔNG MINH
+            </span>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#2dd4bf', margin: '4px 0 0 0' }}>
+              {title}
+            </h3>
+          </div>
+
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid #0d9488', color: '#2dd4bf', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800 }}>
+              🌡️ {temp.toFixed(1)} °C
+            </span>
+            <span style={{ background: 'rgba(15, 23, 42, 0.85)', border: '1px solid #0284c7', color: '#38bdf8', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 800 }}>
+              🫧 Thể tích khí: {gasVolume.toFixed(1)} mL
+            </span>
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(15, 23, 42, 0.8)', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#f59e0b' }}>🧰 Dụng Cụ Thực Hành:</span>
+          {equipmentList.map((eq, i) => (
+            <span key={i} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1', padding: '3px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700 }}>
+              🧪 {eq.trim()}
+            </span>
+          ))}
+        </div>
+
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="100%" height="240" viewBox="0 0 500 240">
+            <rect width="500" height="240" fill="#020617" rx="12" />
+            <line x1="50" y1="210" x2="450" y2="210" stroke="#334155" strokeWidth="6" strokeLinecap="round" />
+
+            <rect x="200" y="70" width="100" height="130" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.5)" strokeWidth="3" rx="8" />
+            <rect x="203" y={130 - (step * 8)} width="94" height={68 + (step * 8)} fill={step > 1 ? "rgba(13, 148, 136, 0.4)" : "rgba(56, 189, 248, 0.3)"} rx="6" />
+
+            {[90, 110, 130, 150, 170].map((y, idx) => (
+              <line key={idx} x1="200" y1={y} x2="215" y2={y} stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+            ))}
+
+            {isReacting && (
+              <g>
+                <circle cx="230" cy="140" r="4" fill="#2dd4bf" opacity="0.8" />
+                <circle cx="260" cy="110" r="5" fill="#38bdf8" opacity="0.9" />
+                <circle cx="245" cy="85" r="6" fill="#fff" opacity="0.85" />
+                <circle cx="270" cy="60" r="4" fill="#2dd4bf" opacity="0.75" />
+                <text x="250" y="45" fill="#2dd4bf" fontSize="11" fontWeight="900" textAnchor="middle">✨ Đang diễn ra phản ứng!</text>
+              </g>
+            )}
+
+            <rect x="275" y="40" width="6" height="130" fill="#cbd5e1" rx="3" />
+            <rect x="276" y={170 - (temp * 0.8)} width="4" height={temp * 0.8} fill="#ef4444" rx="2" />
+            <circle cx="278" cy="170" r="6" fill="#ef4444" />
+          </svg>
+        </div>
+      </div>
+
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.95)',
+        padding: '14px 18px', borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        display: 'flex', flexDirection: 'column', gap: '10px'
+      }}>
+        <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>📋 CÁC BƯỚC TIẾN HÀNH THÍ NGHIỆM:</span>
+          <button onClick={handleReset} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.78rem', cursor: 'pointer' }}>
+            🔄 Reset
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {stepsList.map((stText, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleStepClick(idx)}
+              style={{
+                flex: 1, minWidth: '160px',
+                background: step === idx + 1 ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(255, 255, 255, 0.06)',
+                border: step === idx + 1 ? 'none' : '1px solid rgba(255, 255, 255, 0.15)',
+                color: '#ffffff', borderRadius: '10px', padding: '10px 14px',
+                fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              {stText}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function InteractiveExperimentCanvas({ experiment, onClose }) {
   if (!experiment) return null;
 
@@ -6993,6 +7443,10 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
     }
 
     switch (experiment?.interactiveType) {
+      case 'chem_water_oxygen_separation':
+        return <ChemWaterOxygenSeparationSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+      case 'khtn_dynamic_lab':
+        return <KHTNDynamicLabSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       case 'chemistry_acid_base':
         return <ChemistryAcidBaseSim config={experiment.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       case 'chemistry_sandbox':
@@ -7091,6 +7545,13 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'geo_glacial_river':
         return <GeoGlacialRiverSim onLog={addLog} />;
       default: {
+        const detectedType = detectExperimentInteractiveType(experiment);
+        if (detectedType === 'chem_water_oxygen_separation') {
+          return <ChemWaterOxygenSeparationSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+        }
+        if (detectedType === 'khtn_dynamic_lab') {
+          return <KHTNDynamicLabSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+        }
         const title = (experiment?.title || '').toLowerCase();
         const isGeo = isGeoExperiment(experiment);
 
@@ -7118,7 +7579,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           }
           return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
-        return <ChemistryAcidBaseSim config={experiment?.simulationConfig} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
+        return <KHTNDynamicLabSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       }
     }
   };

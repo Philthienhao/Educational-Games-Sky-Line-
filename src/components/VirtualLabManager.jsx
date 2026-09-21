@@ -17,7 +17,7 @@ import {
   FileSpreadsheet
 } from 'lucide-react';
 import { ExperimentService } from '../services/experimentService';
-import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
+import { InteractiveExperimentCanvas, detectExperimentInteractiveType } from './experiments/InteractiveExperimentCanvas';
 
 export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
   const [experiments, setExperiments] = useState([]);
@@ -40,7 +40,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
     steps: '',
     phenomenon: '',
     explanation: '',
-    interactiveType: 'chemistry_acid_base'
+    interactiveType: 'khtn_dynamic_lab'
   });
 
   useEffect(() => {
@@ -75,6 +75,9 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
       steps: typeof newExp.steps === 'string' ? newExp.steps.split('\n').map(s => s.trim()).filter(Boolean) : []
     };
 
+    // Smart AI Auto-Detection for Experiment Type & Simulation Engine
+    formatted.interactiveType = detectExperimentInteractiveType(formatted);
+
     await ExperimentService.saveExperiment(currentUser?.id, formatted);
     setIsCreateModalOpen(false);
     setNewExp({
@@ -87,7 +90,7 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
       steps: '',
       phenomenon: '',
       explanation: '',
-      interactiveType: 'chemistry_acid_base'
+      interactiveType: 'khtn_dynamic_lab'
     });
     loadExperiments();
   };
