@@ -3664,8 +3664,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           if (selKey === 'sun') {
             targetWorldPos.set(0, 0, 0);
             radius = SOLAR_PLANETS_CONFIG.sun.radius;
-          } else if (planetMeshesRef.current[selKey]) {
-            planetMeshesRef.current[selKey].getWorldPosition(targetWorldPos);
+          } else if (planetMeshes[selKey]) {
+            planetMeshes[selKey].getWorldPosition(targetWorldPos);
             radius = SOLAR_PLANETS_CONFIG[selKey]?.radius || 10;
           }
 
