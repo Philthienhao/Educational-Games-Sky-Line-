@@ -1062,19 +1062,19 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                 const correctOpt = activeQuestion.correct || activeQuestion.answer;
                 const isThisCorrect = optionKey.toUpperCase() === String(correctOpt).toUpperCase();
 
-                let btnBg = '#f8fafc';
+                let btnBg = '#ffffff';
                 let btnBorder = '#cbd5e1';
-                let btnColor = '#1e293b';
+                let btnColor = '#0f172a';
 
                 if (isAnswerSubmitted) {
                   if (isThisCorrect) {
                     btnBg = '#dcfce7';
-                    btnBorder = '#22c55e';
-                    btnColor = '#15803d';
+                    btnBorder = '#16a34a';
+                    btnColor = '#14532d';
                   } else if (isSelected) {
                     btnBg = '#fee2e2';
-                    btnBorder = '#ef4444';
-                    btnColor = '#b91c1c';
+                    btnBorder = '#dc2626';
+                    btnColor = '#7f1d1d';
                   }
                 }
 
@@ -1085,18 +1085,18 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                     disabled={isAnswerSubmitted}
                     style={{
                       background: btnBg,
-                      border: `2px solid ${btnBorder}`,
+                      border: `2.5px solid ${btnBorder}`,
                       color: btnColor,
                       padding: '14px 18px',
                       borderRadius: '16px',
                       fontSize: '1rem',
-                      fontWeight: 700,
+                      fontWeight: 900,
                       textAlign: 'left',
                       cursor: isAnswerSubmitted ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
+                      boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
                       transition: 'all 0.2s ease'
                     }}
                   >
@@ -1104,8 +1104,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                       width: '28px',
                       height: '28px',
                       borderRadius: '8px',
-                      background: isAnswerSubmitted && isThisCorrect ? '#22c55e' : '#e2e8f0',
-                      color: isAnswerSubmitted && isThisCorrect ? '#fff' : '#475569',
+                      background: isAnswerSubmitted && isThisCorrect ? '#16a34a' : '#2563eb',
+                      color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1114,7 +1114,7 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                     }}>
                       {optionKey}
                     </span>
-                    <span style={{ flex: 1 }}>{opt}</span>
+                    <span style={{ flex: 1, color: btnColor, fontWeight: 900 }}>{opt}</span>
                   </button>
                 );
               })}

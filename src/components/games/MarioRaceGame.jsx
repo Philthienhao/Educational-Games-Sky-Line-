@@ -1232,7 +1232,7 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
                       padding: '22px 28px',
                       borderRadius: '24px',
                       fontSize: '1.65rem',
-                      fontWeight: 800,
+                      fontWeight: 900,
                       textAlign: 'left',
                       cursor: isAnswerSubmitted ? 'default' : 'pointer',
                       display: 'flex',
@@ -1261,7 +1261,7 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
                     }}>
                       {optionKey}
                     </span>
-                    <span style={{ flex: 1, wordBreak: 'break-word' }}>{opt}</span>
+                    <span style={{ flex: 1, color: btnColor, fontWeight: 900, wordBreak: 'break-word' }}>{opt}</span>
                   </button>
                 );
               })}

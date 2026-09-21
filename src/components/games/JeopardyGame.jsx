@@ -270,19 +270,22 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                 const isThisSelected = selectedOpt === letter;
                 const isThisCorrect = letter === tile.correct;
 
-                let btnBg = 'rgba(30, 41, 59, 0.9)';
-                let btnBorder = 'rgba(255,255,255,0.2)';
-                let textColor = '#ffffff';
+                let btnBg = '#ffffff';
+                let btnBorder = '#cbd5e1';
+                let textColor = '#0f172a';
+                let badgeBg = '#2563eb';
 
                 if (showAnswerResult) {
                   if (isThisCorrect) {
-                    btnBg = 'rgba(16, 185, 129, 0.25)';
-                    btnBorder = '#10b981';
-                    textColor = '#6ee7b7';
+                    btnBg = '#dcfce7';
+                    btnBorder = '#16a34a';
+                    textColor = '#14532d';
+                    badgeBg = '#16a34a';
                   } else if (isThisSelected && !isCorrect) {
-                    btnBg = 'rgba(239, 68, 68, 0.25)';
-                    btnBorder = '#ef4444';
-                    textColor = '#fca5a5';
+                    btnBg = '#fee2e2';
+                    btnBorder = '#dc2626';
+                    textColor = '#7f1d1d';
+                    badgeBg = '#dc2626';
                   }
                 }
 
@@ -295,17 +298,17 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                       padding: '20px 24px',
                       borderRadius: '20px',
                       background: btnBg,
-                      border: `2px solid ${btnBorder}`,
+                      border: `2.5px solid ${btnBorder}`,
                       color: textColor,
                       textAlign: 'left',
                       fontSize: '1.3rem',
-                      fontWeight: 800,
+                      fontWeight: 900,
                       lineHeight: 1.4,
                       cursor: showAnswerResult ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '14px',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
                       transition: 'all 0.2s ease'
                     }}
                   >
@@ -314,7 +317,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                       height: '38px',
                       minWidth: '38px',
                       borderRadius: '12px',
-                      background: isThisCorrect && showAnswerResult ? '#10b981' : isThisSelected && !isCorrect ? '#ef4444' : 'rgba(255,255,255,0.22)',
+                      background: badgeBg,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -325,7 +328,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                     }}>
                       {letter}
                     </span>
-                    <span style={{ flex: 1 }}>{optText}</span>
+                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
                   </button>
                 );
               })}

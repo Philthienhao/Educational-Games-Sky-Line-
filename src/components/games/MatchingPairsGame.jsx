@@ -108,23 +108,24 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                   padding: '18px 20px',
                   borderRadius: '16px',
                   background: isMatched 
-                    ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
-                    : (isSelected ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'),
+                    ? '#dcfce7' 
+                    : (isSelected ? '#fef3c7' : '#ffffff'),
                   border: isMatched 
-                    ? '2px solid #6ee7b7' 
-                    : (isSelected ? '2px solid #fbbf24' : '2px solid #334155'),
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.98rem',
+                    ? '2.5px solid #16a34a' 
+                    : (isSelected ? '2.5px solid #d97706' : '2.5px solid #cbd5e1'),
+                  color: isMatched ? '#14532d' : (isSelected ? '#92400e' : '#0f172a'),
+                  fontWeight: 900,
+                  fontSize: '1.05rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                 }}
               >
-                <span style={{ color: '#ffffff', fontWeight: 800 }}>{p.term}</span>
-                {isMatched ? <span className="badge badge-custom" style={{ background: '#047857', color: '#fff' }}>✓ ĐÃ NỐI</span> : (isSelected ? '👉 ĐANG CHỌN' : '+')}
+                <span style={{ color: 'inherit', fontWeight: 900 }}>{p.term}</span>
+                {isMatched ? <span className="badge badge-custom" style={{ background: '#16a34a', color: '#fff', fontWeight: 900 }}>✓ ĐÃ NỐI</span> : (isSelected ? '👉 ĐANG CHỌN' : '+')}
               </div>
             );
           })}
@@ -132,7 +133,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
 
         {/* Column B (Definitions / Answers) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#60a5fa', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 900, color: '#0284c7', textAlign: 'center' }}>
             💡 CỘT B (GIẢI THÍCH / ĐÁP ÁN)
           </h3>
           {shuffledDefs.map((dObj) => {
@@ -146,21 +147,22 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                   padding: '18px 20px',
                   borderRadius: '16px',
                   background: isMatched 
-                    ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' 
-                    : 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                  border: isMatched ? '2px solid #6ee7b7' : '2px solid #334155',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.98rem',
+                    ? '#dcfce7' 
+                    : '#ffffff',
+                  border: isMatched ? '2.5px solid #16a34a' : '2.5px solid #cbd5e1',
+                  color: isMatched ? '#14532d' : '#0f172a',
+                  fontWeight: 900,
+                  fontSize: '1.05rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                 }}
               >
-                <span style={{ color: '#ffffff', fontWeight: 800 }}>{dObj.def}</span>
-                {isMatched ? <span className="badge badge-custom">✓ ĐÃ NỐI</span> : '+ Nối vào'}
+                <span style={{ color: 'inherit', fontWeight: 900 }}>{dObj.def}</span>
+                {isMatched ? <span className="badge badge-custom" style={{ background: '#16a34a', color: '#fff', fontWeight: 900 }}>✓ ĐÃ NỐI</span> : '+ Nối vào'}
               </div>
             );
           })}
