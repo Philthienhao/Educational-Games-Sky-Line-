@@ -432,7 +432,20 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
       rewards: []
     };
     setEditingStudent(newSt);
+    openStudentDetail(newSt);
+  };
+
+  const openStudentDetail = (st) => {
+    if (!st) return;
+    setEditingStudent(st);
     setIsModalOpen(true);
+    document.body.classList.add('is-modal-open');
+    document.body.classList.add('is-fullscreen');
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } catch (e) {}
   };
 
   // Save Single Student Edit
@@ -1060,10 +1073,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                   return (
                     <tr 
                       key={st.id}
-                      onClick={() => {
-                        setEditingStudent(st);
-                        setIsModalOpen(true);
-                      }}
+                      onClick={() => openStudentDetail(st)}
                       style={{ 
                         borderBottom: '1px solid rgba(255,255,255,0.05)',
                         background: isHighAlert ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
@@ -1121,10 +1131,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                           <button 
                             className="btn btn-secondary btn-sm"
-                            onClick={() => {
-                              setEditingStudent(st);
-                              setIsModalOpen(true);
-                            }}
+                            onClick={() => openStudentDetail(st)}
                           >
                             <Edit3 size={14} /> Chi tiết
                           </button>
@@ -1236,7 +1243,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
             {/* RANK 2 */}
             {honorsTopStudents[1] && (
               <div 
-                onClick={() => { setEditingStudent(honorsTopStudents[1]); setIsModalOpen(true); }}
+                onClick={() => openStudentDetail(honorsTopStudents[1])}
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px', cursor: 'pointer' }}
               >
                 <div style={{ position: 'relative', marginBottom: '12px' }}>
@@ -1280,7 +1287,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
             {/* RANK 1 */}
             {honorsTopStudents[0] && (
               <div 
-                onClick={() => { setEditingStudent(honorsTopStudents[0]); setIsModalOpen(true); }}
+                onClick={() => openStudentDetail(honorsTopStudents[0])}
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '230px', cursor: 'pointer' }}
               >
                 <div style={{ position: 'relative', marginBottom: '14px' }}>
@@ -1324,7 +1331,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
             {/* RANK 3 */}
             {honorsTopStudents[2] && (
               <div 
-                onClick={() => { setEditingStudent(honorsTopStudents[2]); setIsModalOpen(true); }}
+                onClick={() => openStudentDetail(honorsTopStudents[2])}
                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '200px', cursor: 'pointer' }}
               >
                 <div style={{ position: 'relative', marginBottom: '12px' }}>
@@ -1378,7 +1385,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                 return (
                   <div
                     key={st.id}
-                    onClick={() => { setEditingStudent(st); setIsModalOpen(true); }}
+                    onClick={() => openStudentDetail(st)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1472,7 +1479,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                       </div>
                     </div>
 
-                    <button className="btn btn-secondary btn-sm" onClick={() => { setEditingStudent(st); setIsModalOpen(true); }}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openStudentDetail(st)}>
                       <Edit3 size={14} /> Quản lý
                     </button>
                   </div>
@@ -1606,7 +1613,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                     <span className="badge" style={{ background: '#dc2626', color: '#fff', fontWeight: 900, padding: '6px 14px', fontSize: '0.85rem' }}>
                       CẢNH BÁO: {st.violations.length} LẦN VI PHẠM
                     </span>
-                    <button className="btn btn-danger btn-sm" onClick={() => { setEditingStudent(st); setIsModalOpen(true); }}>
+                    <button className="btn btn-danger btn-sm" onClick={() => openStudentDetail(st)}>
                       <Edit3 size={15} /> Xử Lý Chi Tiết
                     </button>
                   </div>
