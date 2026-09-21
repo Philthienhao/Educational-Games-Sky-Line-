@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v1.1.1_high_contrast_game_options';
+const CURRENT_APP_BUILD_VERSION = 'v1.1.2_high_contrast_all_elements';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {

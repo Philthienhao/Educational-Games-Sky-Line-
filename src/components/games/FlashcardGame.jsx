@@ -83,18 +83,18 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
-            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)',
-            border: '2px solid rgba(139, 92, 246, 0.4)'
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)',
+            border: '2px solid #6366f1'
           }}>
             <span className="badge badge-teacher" style={{ position: 'absolute', top: '20px', left: '24px' }}>
               MẶT TRƯỚC: CÂU HỎI {currentIndex + 1}
             </span>
 
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', lineHeight: 1.4, margin: '20px 0' }}>
+            <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, margin: '20px 0', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h3>
 
-            <div style={{ position: 'absolute', bottom: '20px', color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ position: 'absolute', bottom: '20px', color: '#c7d2fe', fontSize: '0.88rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
               <RotateCw size={16} /> Bấm để lật xem đáp án
             </div>
           </div>
@@ -111,14 +111,14 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
             alignItems: 'center',
             justifyContent: 'center',
             textAlign: 'center',
-            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%)',
-            border: '2px solid rgba(16, 185, 129, 0.4)'
+            background: 'linear-gradient(135deg, #064e3b 0%, #047857 100%)',
+            border: '2px solid #10b981'
           }}>
             <span className="badge badge-custom" style={{ position: 'absolute', top: '20px', left: '24px' }}>
               MẶT SAU: ĐÁP ÁN ĐÚNG
             </span>
 
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#6ee7b7', marginBottom: '12px' }}>
+            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fef08a', marginBottom: '12px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               ĐÁP ÁN: ({currentQ.correct}) - {currentQ.options[['A','B','C','D'].indexOf(currentQ.correct)]}
             </div>
 

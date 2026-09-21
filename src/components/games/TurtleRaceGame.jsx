@@ -563,15 +563,18 @@ export function TurtleRaceGame({ questions, teams, onAddPoints, onClose }) {
               <div
                 className="rank-badge-text"
                 style={{
+                  background: 'rgba(15, 23, 42, 0.88)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.4)',
                   color: '#ffffff',
                   fontWeight: 900,
                   fontSize: '0.88rem',
                   whiteSpace: 'nowrap',
-                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.8)',
+                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.9)',
                   letterSpacing: '0.02em',
                   marginTop: '2px',
-                  padding: '2px 6px',
-                  borderRadius: '8px'
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
                 }}
               >
                 {turtle.name} {turtle.rank && `(#${turtle.rank})`}
