@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v1.1.6_hide_chatbot_sub_items_by_default';
+const CURRENT_APP_BUILD_VERSION = 'v1.1.7_chatbot_toggle_auto_hide';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {

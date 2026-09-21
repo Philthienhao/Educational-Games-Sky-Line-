@@ -5,30 +5,42 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
   const [isOpen, setIsOpen] = useState(false); // Hidden by default, pops up on clicking chatbot avatar
   const containerRef = useRef(null);
 
-  // Auto-close popup when clicking outside
+  // Auto-close popup when clicking outside or after 6s of inactivity
   useEffect(() => {
+    let timer = null;
+    if (isOpen) {
+      timer = setTimeout(() => {
+        setIsOpen(false);
+      }, 6000);
+    }
+
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
+      if (timer) clearTimeout(timer);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
-  const handleOpenZalo = () => {
+  const handleOpenZalo = (e) => {
+    e.stopPropagation();
     setIsOpen(false);
     window.open('https://zalo.me/0387806954', '_blank', 'noopener,noreferrer');
   };
 
-  const handleOpenFacebook = () => {
+  const handleOpenFacebook = (e) => {
+    e.stopPropagation();
     setIsOpen(false);
     window.open('https://www.facebook.com/phil.thienhao', '_blank', 'noopener,noreferrer');
   };
 
-  const handleTriggerSearch = () => {
+  const handleTriggerSearch = (e) => {
+    e.stopPropagation();
     setIsOpen(false);
     if (onOpenSearchModal) {
       onOpenSearchModal();
@@ -214,8 +226,8 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
 
       {/* MAIN FLOATING CHATBOT AVATAR BUTTON (NO TEXT LABEL, HIDDEN ITEMS UNTIL CLICKED) */}
       <div
-        onClick={() => setIsOpen(!isOpen)}
-        title={isOpen ? 'Bấm để ẩn 3 mục chức năng' : 'Bấm vào Chatbot để mở 3 mục trợ lý & liên hệ'}
+        onClick={() => setIsOpen((prev) => !prev)}
+        title={isOpen ? 'Bấm để ẩn 3 mục trợ lý' : 'Bấm vào Chatbot để mở 3 mục trợ lý & liên hệ'}
         style={{
           position: 'relative',
           width: '68px',
