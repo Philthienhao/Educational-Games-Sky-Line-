@@ -39,6 +39,7 @@ import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import StudentPickerManager from './components/StudentPickerManager';
 import ClassroomTimerManager from './components/ClassroomTimerManager';
+import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -888,64 +889,27 @@ export function App() {
         </div>
       )}
 
-      {/* Floating AI Co-Pilot Assistant Widget */}
+      {/* Floating AI System Assistant & Search Widget */}
       <div 
         className="floating-ai-widget"
         onClick={() => setIsAiWidgetOpen(true)}
+        title="Bấm để mở Trợ lý Tìm kiếm & Hướng dẫn Hệ thống 24/7"
       >
         <Sparkles size={20} color="#fbbf24" />
-        <span>Trợ lí Thầy Hảo 24/7</span>
+        <span>Trợ Lý Tìm Kiếm & Hướng Dẫn 24/7</span>
       </div>
 
-      {/* Interactive AI Assistant Modal */}
-      {isAiWidgetOpen && (
-        <div 
-          onClick={() => setIsAiWidgetOpen(false)} 
-          style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)', zIndex: 9998, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()} 
-            className="glass-modal" 
-            style={{ width: '100%', maxWidth: '540px', padding: '28px', position: 'relative' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', borderBottom: '1px solid rgba(13, 148, 136, 0.2)', paddingBottom: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', width: '42px', height: '42px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(13, 148, 136, 0.3)' }}>
-                  <Sparkles size={22} color="#ffffff" />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>Trợ lí Thầy Hảo 24/7</h3>
-                  <span style={{ fontSize: '0.78rem', color: '#0d9488', fontWeight: 700 }}>Trợ lý hỗ trợ dạy & học thông minh</span>
-                </div>
-              </div>
-              <button onClick={() => setIsAiWidgetOpen(false)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '1.2rem', fontWeight: 800 }}>
-                ✕
-              </button>
-            </div>
-
-            <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid rgba(13, 148, 136, 0.15)', marginBottom: '18px' }}>
-              <p style={{ fontSize: '0.92rem', color: '#334155', lineHeight: 1.5, fontWeight: 600, margin: 0 }}>
-                🤖 Xin chào <strong>{currentUser?.name || 'Thầy/Cô'}</strong>! Em là trợ lý AI của Thầy Hảo. Em có thể hỗ trợ Thầy/Cô tự động sinh câu hỏi trắc nghiệm, tạo ý tưởng game giáo dục, hay chuẩn bị nội dung họp phụ huynh chỉ trong vài giây.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button 
-                onClick={() => { setIsAiWidgetOpen(false); setIsAdminCreateGameOpen(true); }}
-                style={{ padding: '12px 16px', borderRadius: '12px', background: '#ffffff', border: '1.5px solid #0d9488', color: '#0d9488', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px' }}
-              >
-                ✨ AI Tạo Bộ Câu Hỏi & Game Trắc Nghiệm Mới
-              </button>
-              <button 
-                onClick={() => { setIsAiWidgetOpen(false); setActiveTab('homeroom'); }}
-                style={{ padding: '12px 16px', borderRadius: '12px', background: '#ffffff', border: '1.5px solid #0284c7', color: '#0284c7', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px' }}
-              >
-                👥 Quản Lý & Nhận Nhận Xét Học Sinh Lớp Chủ Nhiệm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Interactive AI System Assistant & FAQ Search Modal */}
+      <AiSystemAssistantModal 
+        isOpen={isAiWidgetOpen}
+        onClose={() => setIsAiWidgetOpen(false)}
+        currentUser={currentUser}
+        onSelectTab={(tabId) => setActiveTab(tabId)}
+        onPlayGame={(gameObj) => setPlayingGame(gameObj)}
+        onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
+        onOpenUserManagement={() => setIsUserManagementOpen(true)}
+        savedGames={savedGames}
+      />
 
     </div>
   );
