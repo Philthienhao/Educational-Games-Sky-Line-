@@ -228,7 +228,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
           position: 'fixed',
           inset: 0,
           background: '#0f172a',
-          zIndex: 3000,
+          zIndex: 100000,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden'
@@ -263,7 +263,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       inset: 0,
       background: '#0b0f19',
       backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-      zIndex: 3000,
+      zIndex: 100000,
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden'

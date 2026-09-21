@@ -90,6 +90,35 @@ export function App() {
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
 
+  // Sync body class for playing game view
+  useEffect(() => {
+    if (playingGame) {
+      document.body.classList.add('is-game-playing');
+    } else {
+      document.body.classList.remove('is-game-playing');
+    }
+    return () => {
+      document.body.classList.remove('is-game-playing');
+    };
+  }, [playingGame]);
+
+  // Sync body class for browser native fullscreen mode
+  useEffect(() => {
+    const handleFSChange = () => {
+      if (document.fullscreenElement) {
+        document.body.classList.add('is-fullscreen');
+      } else {
+        document.body.classList.remove('is-fullscreen');
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFSChange);
+    document.addEventListener('webkitfullscreenchange', handleFSChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFSChange);
+      document.removeEventListener('webkitfullscreenchange', handleFSChange);
+    };
+  }, []);
+
   // Initial Load & URL Hash Sync
   useEffect(() => {
     StorageService.init();
