@@ -166,38 +166,44 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '12px 16px' }}>Họ và Tên Giáo Viên</th>
-                <th style={{ padding: '12px 16px' }}>Tên Đăng Nhập</th>
-                <th style={{ padding: '12px 16px' }}>Mật Khẩu</th>
-                <th style={{ padding: '12px 16px' }}>Môn Học</th>
-                <th style={{ padding: '12px 16px' }}>Trường / Đơn Vị</th>
-                <th style={{ padding: '12px 16px' }}>Vai Trò</th>
-                <th style={{ padding: '12px 16px', textAlign: 'right' }}>Thao Tác</th>
+              <tr style={{ 
+                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', 
+                borderBottom: '2px solid #14b8a6', 
+                color: '#ffffff',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              }}>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Họ và Tên Giáo Viên</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Tên Đăng Nhập</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Mật Khẩu</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Môn Học</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Trường / Đơn Vị</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Vai Trò</th>
+                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'right' }}>Thao Tác</th>
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {users.map((u, idx) => (
                 <tr 
                   key={u.id}
                   style={{ 
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    background: u.role === 'admin' ? 'rgba(239, 68, 68, 0.05)' : 'transparent'
+                    borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+                    background: u.role === 'admin' ? 'rgba(239, 68, 68, 0.08)' : (idx % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : '#ffffff'),
+                    transition: 'background 0.2s'
                   }}
                 >
-                  <td style={{ padding: '14px 16px', fontWeight: 700, color: '#fff' }}>
+                  <td style={{ padding: '14px 16px', fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
                     {u.name}
                   </td>
-                  <td style={{ padding: '14px 16px', color: '#93c5fd' }}>
+                  <td style={{ padding: '14px 16px', color: '#0284c7', fontWeight: 800 }}>
                     <code>{u.username}</code>
                   </td>
-                  <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>
+                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
                     <code>{u.password}</code>
                   </td>
-                  <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>
+                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
                     {u.subject}
                   </td>
-                  <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>
+                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
                     {u.school || 'THPT'}
                   </td>
                   <td style={{ padding: '14px 16px' }}>
