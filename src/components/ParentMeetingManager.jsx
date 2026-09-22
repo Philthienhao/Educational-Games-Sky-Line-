@@ -118,53 +118,57 @@ export function ParentMeetingManager({ currentUser, classData }) {
         </button>
       </div>
 
-      {/* 3. SUB-TAB CONTENT DISPLAY */}
-
       {/* FEATURE 1: DESK NAME CARD GENERATOR FEATURE BANNER */}
       {activeSubTab === 'desk_name_cards' && (
-        <div className="glass-panel" style={{ padding: '32px', borderRadius: '24px' }}>
+        <div style={{
+          padding: '32px',
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f3e8ff 100%)',
+          border: '2px solid #8b5cf6',
+          boxShadow: '0 10px 30px rgba(139, 92, 246, 0.18)'
+        }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px', alignItems: 'center' }}>
             <div>
-              <span className="badge" style={{ background: '#8b5cf6', color: '#fff', marginBottom: '10px' }}>
+              <span className="badge" style={{ background: '#7c3aed', color: '#ffffff', fontWeight: 900, fontSize: '0.8rem', padding: '6px 14px', borderRadius: '10px', marginBottom: '12px', display: 'inline-block' }}>
                 MẪU CHUẨN ẢNH 1 & ẢNH 2
               </span>
-              <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#1e1b4b', marginBottom: '14px', lineHeight: 1.25 }}>
                 Tự Động In Bảng Tên Để Bàn Chuẩn Khổ A4 Gấp 4
               </h3>
-              <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '20px' }}>
+              <p style={{ color: '#1e293b', fontSize: '1rem', lineHeight: 1.65, marginBottom: '22px', fontWeight: 500 }}>
                 Hệ thống tự động phân chia trang giấy A4 thành 4 phần bằng nhau.
-                Mặt trước in <b>TÊN HỌC SINH (Lật 180°)</b> để khi gấp dạng lều tam giác dựng trên bàn, dòng tên hiển thị đứng xuôi chiều hướng ra toàn lớp.
-                Mặt đối diện in thông điệp tri ân <b>"Cảm ơn Quý phụ huynh đã đến tham dự buổi họp"</b>.
+                Mặt trước in <b style={{ color: '#6d28d9', fontWeight: 900 }}>TÊN HỌC SINH (Lật 180°)</b> để khi gấp dạng lều tam giác dựng trên bàn, dòng tên hiển thị đứng xuôi chiều hướng ra toàn lớp.
+                Mặt đối diện in thông điệp tri ân <b style={{ color: '#6d28d9', fontWeight: 900 }}>"Cảm ơn Quý phụ huynh đã đến tham dự buổi họp"</b>.
               </p>
 
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => setShowDeskNameCardModal(true)}
                   style={{
-                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
                     color: '#ffffff', border: 'none', borderRadius: '14px',
-                    padding: '12px 24px', fontWeight: 900, fontSize: '0.92rem',
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                    boxShadow: '0 6px 20px rgba(139, 92, 246, 0.45)'
+                    padding: '14px 26px', fontWeight: 900, fontSize: '0.98rem',
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px',
+                    boxShadow: '0 6px 20px rgba(124, 58, 237, 0.45)'
                   }}
                 >
-                  <Building size={20} /> Mở Trình Thiết Kế Bảng Tên Để Bàn (A4)
+                  <Building size={22} /> Mở Trình Thiết Kế Bảng Tên Để Bàn (A4)
                 </button>
               </div>
             </div>
 
             {/* Feature Illustration Box */}
             <div style={{
-              background: '#090d16', borderRadius: '20px',
-              border: '2px dashed rgba(139, 92, 246, 0.5)', padding: '24px',
+              background: '#1e1b4b', borderRadius: '20px',
+              border: '2px solid #7c3aed', padding: '26px',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              textAlign: 'center'
+              textAlign: 'center', boxShadow: '0 8px 24px rgba(30, 27, 75, 0.3)'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🏷️ A4 📐</div>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#c4b5fd', margin: '0 0 6px 0' }}>
+              <div style={{ fontSize: '3.2rem', marginBottom: '10px' }}>🏷️ A4 📐</div>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#f3e8ff', margin: '0 0 8px 0' }}>
                 Khổ A4 Gấp 4 Tạo Bảng Tên Lều 3D
               </h4>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
+              <p style={{ fontSize: '0.88rem', color: '#c4b5fd', margin: 0, fontWeight: 600, lineHeight: 1.5 }}>
                 • 25% Đáy Sau • 25% Tên Học Sinh (180°) • 25% Lời Cảm Ơn Phụ Huynh • 25% Đáy Trước
               </p>
             </div>
@@ -181,19 +185,25 @@ export function ParentMeetingManager({ currentUser, classData }) {
 
       {/* FEATURE 3: PARENT MEETING HONORS SHOWCASE */}
       {activeSubTab === 'honors_showcase' && (
-        <div className="glass-panel" style={{ padding: '32px', borderRadius: '24px' }}>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f59e0b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Award size={24} /> Bảng Vinh Danh & Tổng Kết Lớp Chủ Nhiệm Phục Vụ Họp Phụ Huynh
+        <div style={{
+          padding: '32px',
+          borderRadius: '24px',
+          background: 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)',
+          border: '2px solid #f59e0b',
+          boxShadow: '0 10px 30px rgba(245, 158, 11, 0.15)'
+        }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#92400e', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Award size={26} color="#d97706" /> Bảng Vinh Danh & Tổng Kết Lớp Chủ Nhiệm Phục Vụ Họp Phụ Huynh
           </h3>
-          <p style={{ color: '#cbd5e1', fontSize: '0.92rem', marginBottom: '24px' }}>
+          <p style={{ color: '#334155', fontSize: '0.96rem', marginBottom: '24px', fontWeight: 600 }}>
             Tổng hợp danh sách tuyên dương top học sinh xuất sắc, rèn luyện nề nếp và thông tin cần trao đổi với cha mẹ học sinh.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
             {students.slice(0, 10).map((st, idx) => (
-              <div key={st.id || idx} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '16px', padding: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ fontWeight: 900, color: '#ffffff', fontSize: '1rem' }}>{st.name}</div>
-                <div style={{ fontSize: '0.82rem', color: '#5eead4', marginTop: '4px' }}>💯 Điểm nề nếp: {st.score || 100} điểm</div>
-                <div style={{ fontSize: '0.78rem', color: '#cbd5e1', marginTop: '4px' }}>Phụ huynh: {st.fatherName || st.motherName || 'Đã cập nhật'}</div>
+              <div key={st.id || idx} style={{ background: '#ffffff', borderRadius: '16px', padding: '16px', border: '1.5px solid #cbd5e1', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontWeight: 900, color: '#0f172a', fontSize: '1.05rem' }}>{st.name}</div>
+                <div style={{ fontSize: '0.86rem', color: '#0d9488', marginTop: '4px', fontWeight: 800 }}>💯 Điểm nề nếp: {st.score || 100} điểm</div>
+                <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: '4px', fontWeight: 600 }}>Phụ huynh: {st.fatherName || st.motherName || 'Đã cập nhật'}</div>
               </div>
             ))}
           </div>
