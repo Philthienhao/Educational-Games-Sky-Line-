@@ -41,6 +41,9 @@ import StudentPickerManager from './components/StudentPickerManager';
 import ClassroomTimerManager from './components/ClassroomTimerManager';
 import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
 import { FloatingAiAssistantWidget } from './components/FloatingAiAssistantWidget';
+import { AICoPilotWidget } from './components/AICoPilotWidget';
+import { AISettingsModal } from './components/AISettingsModal';
+import { AIQuestionGeneratorModal } from './components/AIQuestionGeneratorModal';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -89,8 +92,28 @@ export function App() {
   const [isAdminCreateGameOpen, setIsAdminCreateGameOpen] = useState(false);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
+  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
+  const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
+
+  const handleApplyAIGameQuestions = (aiQuestions) => {
+    if (!aiQuestions || aiQuestions.length === 0) return;
+    const newAiGame = {
+      id: `game_ai_${Date.now()}`,
+      title: `Game AI - ${new Date().toLocaleDateString('vi-VN')}`,
+      subject: 'Địa Lí',
+      grade: '6',
+      gameType: 'dua-vit',
+      questions: aiQuestions,
+      userId: currentUser?.id || 'user_admin',
+      isCustomized: true,
+      updatedAt: new Date().toISOString()
+    };
+    StorageService.saveTeacherGame(newAiGame);
+    setSavedGames(prev => [newAiGame, ...prev]);
+    alert(`🎉 Đã nạp thành công ${aiQuestions.length} câu hỏi AI vào Kho Game của tôi! Thầy/cô có thể bấm chơi ngay lập tức.`);
+  };
 
   // Sync body class for playing game view
   useEffect(() => {
@@ -565,6 +588,7 @@ export function App() {
             onBrowseCatalog={() => setActiveTab('catalog')}
             onUpdateLessonTitle={handleUpdateLessonTitle}
             onRefreshGames={(synced) => setSavedGames(synced)}
+            onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
           />
         )}
 
@@ -889,6 +913,26 @@ export function App() {
           </div>
         </div>
       )}
+
+      {/* Omnipresent Gemini AI Co-Pilot Widget */}
+      <AICoPilotWidget 
+        activeTab={activeTab}
+        onOpenAISettings={() => setIsAISettingsOpen(true)}
+        onApplyAIGameQuestions={handleApplyAIGameQuestions}
+      />
+
+      {/* Gemini AI Settings Modal */}
+      <AISettingsModal 
+        isOpen={isAISettingsOpen}
+        onClose={() => setIsAISettingsOpen(false)}
+      />
+
+      {/* Zero-File AI Question Generator Modal */}
+      <AIQuestionGeneratorModal 
+        isOpen={isAIGeneratorOpen}
+        onClose={() => setIsAIGeneratorOpen(false)}
+        onApplyQuestions={handleApplyAIGameQuestions}
+      />
 
       {/* Floating AI System Assistant & Contact Widget */}
       <FloatingAiAssistantWidget 

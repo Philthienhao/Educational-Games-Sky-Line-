@@ -3,7 +3,7 @@ import { BookmarkCheck, Search, PlusCircle, Gamepad2, Sparkles, RefreshCw, Downl
 import { GameCard } from './GameCard';
 import { StorageService } from '../services/storage';
 
-export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlayGame, onEditGame, onDeleteGame, onBrowseCatalog, onUpdateLessonTitle, onRefreshGames }) {
+export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlayGame, onEditGame, onDeleteGame, onBrowseCatalog, onUpdateLessonTitle, onRefreshGames, onOpenAIGenerator }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -42,11 +42,11 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (evt) => {
+    reader.onload = async (event) => {
       try {
-        const result = StorageService.importFullBackup(evt.target.result);
+        const result = StorageService.importFullBackup(event.target.result);
         if (result.success) {
-          alert("🎉 " + result.message);
+          alert("🎉 Khôi phục dữ liệu từ file sao lưu thành công!");
           const synced = await StorageService.syncWithIndexedDB(currentUser?.id);
           if (onRefreshGames) onRefreshGames(synced);
         } else {
@@ -61,7 +61,7 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
   };
 
   const handleRestoreAdminData = () => {
-    if (window.confirm('Bạn có muốn nạp lại 100% kho Game Địa Lý, Lớp chủ nhiệm 12A1 và Slide bài giảng cho Thầy Hảo không?')) {
+    if (window.confirm('Bạn có muốn nạp lại 100% kho Game Địa Lý, Lớp chủ nhiệm 12A1 và Slide bài giảng cho Thầy Hảo?')) {
       const restored = StorageService.restoreInitialDataForAdmin();
       if (onRefreshGames) onRefreshGames(restored.games);
       alert('🎉 Đã nạp lại 100% kho dữ liệu Game Địa Lý, Lớp chủ nhiệm 12A1 & Slide bài giảng thành công!');
@@ -101,6 +101,26 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
           </div>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button 
+              className="btn"
+              onClick={onOpenAIGenerator}
+              style={{
+                background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 900,
+                padding: '10px 18px',
+                boxShadow: '0 4px 16px rgba(168, 85, 247, 0.45)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+              title="Bấm để Gemini AI tự động biên soạn câu hỏi theo đúng chủ đề SGK mà không cần file Excel"
+            >
+              <Sparkles size={18} />
+              🪄 AI Tạo Game Tự Động
+            </button>
+
             <button 
               className="btn btn-secondary"
               onClick={handleExportBackup}
