@@ -2821,6 +2821,25 @@ const CELESTIAL_CHEMICAL_DATA = {
       { name: 'Lõi Nhiệt Hạch (Nuclear Core)', chem: 'Phản ứng 4H → He + Năng lượng', temp: '15.000.000°C', press: '250 Tỷ atm' }
     ]
   },
+  mercury: {
+    name: 'SAO THỦY',
+    color: '#cbd5e1',
+    layers: [
+      { name: 'Vỏ Đất Đá (Crust)', chem: 'Silicat đá Basalt & Anorthosite', temp: '-180°C - 430°C', press: '10⁻¹⁴ atm' },
+      { name: 'Manti Rắn (Mantle)', chem: 'Khoáng vật Silicat (Mg, Fe)', temp: '600°C', press: '5 GPa' },
+      { name: 'Lõi Sắt Khổng Lồ (Inner Core)', chem: 'Hợp kim Sắt-Niken (85% bán kính)', temp: '1.200°C', press: '40 GPa' }
+    ]
+  },
+  venus: {
+    name: 'SAO KIM',
+    color: '#fbbf24',
+    layers: [
+      { name: 'Khí quyển CO₂ Dày', chem: '96.5% CO₂, 3.5% N₂, mây H₂SO₄', temp: '465°C', press: '92 atm (gấp 92 lần Trái Đất)' },
+      { name: 'Vỏ Silicat (Crust)', chem: 'Đá Basalt núi lửa', temp: '465°C', press: '92 atm' },
+      { name: 'Manti Đất Đá (Mantle)', chem: 'Silicat Đá Rắn & Dung Nham', temp: '2.000°C', press: '100 GPa' },
+      { name: 'Lõi Kim Loại (Core)', chem: 'Sắt & Niken', temp: '3.000°C', press: '250 GPa' }
+    ]
+  },
   earth: {
     name: 'TRÁI ĐẤT',
     color: '#0284c7',
@@ -2835,9 +2854,47 @@ const CELESTIAL_CHEMICAL_DATA = {
     name: 'SAO HỎA',
     color: '#ef4444',
     layers: [
-      { name: 'Vỏ Oxit Sắt', chem: 'Fe₂O₃ (Oxit Sắt), Basalt', temp: '-60°C - 20°C', press: '0.006 atm' },
-      { name: 'Manti Silicat', chem: 'Olivin, Pyroxen', temp: '1.500°C', press: '40 GPa' },
-      { name: 'Lõi Kim loại', chem: 'Fe, Ni, FeS (Sắt Sulfua)', temp: '1.800°C', press: '50 GPa' }
+      { name: 'Vỏ Oxit Sắt (Crust)', chem: 'Fe₂O₃ (Oxit Sắt), Basalt', temp: '-60°C - 20°C', press: '0.006 atm' },
+      { name: 'Manti Silicat (Mantle)', chem: 'Olivin, Pyroxen', temp: '1.500°C', press: '40 GPa' },
+      { name: 'Lõi Kim Loại (Core)', chem: 'Fe, Ni, FeS (Sắt Sulfua)', temp: '1.800°C', press: '50 GPa' }
+    ]
+  },
+  jupiter: {
+    name: 'SAO MỘC',
+    color: '#d97706',
+    layers: [
+      { name: 'Bầu Khí Quyển Thượng', chem: '89% H₂, 10% He, CH₄, NH₃', temp: '-110°C', press: '1 - 10 atm' },
+      { name: 'Lớp Hydro Phân Tử Lỏng', chem: 'Hydro Phân tử Lỏng', temp: '2.000°C', press: '200.000 atm' },
+      { name: 'Tầng Hydro Kim Loại Lỏng', chem: 'Hydro Ion hóa Dẫn Điện', temp: '10.000°C', press: '2.000.000 atm' },
+      { name: 'Lõi Đá & Băng Khổng Lồ', chem: 'Silicat, Sắt, H₂O, NH₃, CH₄', temp: '24.000°C', press: '40.000.000 atm' }
+    ]
+  },
+  saturn: {
+    name: 'SAO THỔ',
+    color: '#fde047',
+    layers: [
+      { name: 'Bầu Khí Quyển Thượng', chem: '96% H₂, 3% He, Tinh thể NH₃', temp: '-140°C', press: '1.4 atm' },
+      { name: 'Tầng Hydro Lỏng', chem: 'Hydro & Heli Lỏng', temp: '1.000°C', press: '100.000 atm' },
+      { name: 'Lớp Hydro Kim Loại', chem: 'Hydro Kim loại Dẫn điện', temp: '9.000°C', press: '1.000.000 atm' },
+      { name: 'Lõi Kim Loại & Đá Băng', chem: 'Đá Silicat, Sắt & Băng', temp: '11.700°C', press: '10.000.000 atm' }
+    ]
+  },
+  uranus: {
+    name: 'SAO THIÊN VƯƠNG',
+    color: '#22d3ee',
+    layers: [
+      { name: 'Tầng Khí Quyển Metan', chem: '83% H₂, 15% He, 2% CH₄', temp: '-195°C', press: '1.2 atm' },
+      { name: 'Tầng Manti Băng Nóng', chem: 'Nước (H₂O), Amoniac (NH₃), Metan (CH₄)', temp: '2.000 - 5.000°C', press: '800.000 atm' },
+      { name: 'Lõi Đất Đá Silicat', chem: 'Đá Silicat, Sắt & Niken', temp: '5.000°C', press: '8.000.000 atm' }
+    ]
+  },
+  neptune: {
+    name: 'SAO HẢI VƯƠNG',
+    color: '#3b82f6',
+    layers: [
+      { name: 'Tầng Khí Quyển Bão Gió', chem: '80% H₂, 19% He, 1.5% CH₄', temp: '-200°C', press: '1.3 atm' },
+      { name: 'Manti Băng Nước & Amoniac', chem: 'H₂O, NH₃, CH₄ Lỏng/Băng Dẫn điện', temp: '2.000 - 5.000°C', press: '1.000.000 atm' },
+      { name: 'Lõi Đá & Sắt Rắn', chem: 'Silicat, Sắt & Niken', temp: '5.400°C', press: '7.000.000 atm' }
     ]
   }
 };
@@ -2853,6 +2910,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
   const [badgePos, setBadgePos] = useState(null);
   const [showControlsGuide, setShowControlsGuide] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // Gesture Pilot & X-Ray Core Exploration State
   const [isGesturePilot, setIsGesturePilot] = useState(() => {
@@ -2868,6 +2926,43 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const [steerPos, setSteerPos] = useState({ x: 0, y: 0 });
   const [planetWaypoints, setPlanetWaypoints] = useState([]);
   const [showDebugHud, setShowDebugHud] = useState(false);
+
+  const lastBadgeTimeRef = useRef(0);
+
+  const handleSelectCelestial = (key) => {
+    if (!key || !SOLAR_PLANETS_CONFIG[key]) {
+      setSelectedPlanetKey(null);
+      return;
+    }
+    setSelectedPlanetKey(key);
+    setTargetPlanetKey(key);
+    const cfg = SOLAR_PLANETS_CONFIG[key];
+    if (cfg) {
+      setTargetPlanetName(cfg.name.toUpperCase());
+      if (onLog) {
+        onLog(`🎯 Khám phá hành tinh: ${cfg.name} (${cfg.enName}) - ${cfg.dist}`);
+      }
+    }
+  };
+
+  const handleSpeakPlanetInfo = (planet) => {
+    if (!planet) return;
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      if (isSpeaking) {
+        setIsSpeaking(false);
+        return;
+      }
+      const text = `${planet.name}, tên tiếng Anh là ${planet.enName}. Khoảng cách tới Mặt Trời: ${planet.dist}. Chu kỳ quỹ đạo: ${planet.period}. Đường kính: ${planet.size}. Nhiệt độ: ${planet.temp}. Số vệ tinh: ${planet.moons}. Đặc điểm nổi bật: ${planet.feature}`;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'vi-VN';
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+      setIsSpeaking(true);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   const [debugInfo, setDebugInfo] = useState({
     webcamStatus: 'ĐANG KHỞI TẠO...',
@@ -3362,6 +3457,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     sunMesh.add(sunCoreGroup);
     planetCoreGroups['sun'] = sunCoreGroup;
 
+    // Invisible Raycasting Hit Sphere for Sun
+    const sunHitGeo = new THREE.SphereGeometry(sunConfig.radius * 1.5, 16, 16);
+    const sunHitMat = new THREE.MeshBasicMaterial({ visible: false, depthWrite: false });
+    const sunHitMesh = new THREE.Mesh(sunHitGeo, sunHitMat);
+    sunHitMesh.userData = { key: 'sun' };
+    sunMesh.add(sunHitMesh);
+
     scene.add(sunMesh);
     planetMeshes['sun'] = sunMesh;
 
@@ -3399,6 +3501,13 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
       group.add(pMesh);
       planetMeshes[key] = pMesh;
+
+      // Invisible Raycasting Hit Sphere for easy clicking on small planets
+      const hitGeo = new THREE.SphereGeometry(Math.max(cfg.radius * 2.2, 7.5), 16, 16);
+      const hitMat = new THREE.MeshBasicMaterial({ visible: false, depthWrite: false });
+      const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+      hitMesh.userData = { key };
+      group.add(hitMesh);
 
       // 3D PLANETARY INTERNAL CORE EXPLORATION ENGINE (Cutaway models for ALL bodies)
       const pCoreGroup = createPlanetCoreCutawayMesh(key, cfg.radius);
@@ -3486,8 +3595,31 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       }
     };
 
+    const handlePointerMove = (event) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const targets = [sunMesh, ...Object.values(planetMeshes)];
+      const intersects = raycaster.intersectObjects(targets, true);
+
+      if (intersects.length > 0) {
+        let obj = intersects[0].object;
+        while (obj && !obj.userData?.key && obj.parent) {
+          obj = obj.parent;
+        }
+        if (obj && obj.userData?.key) {
+          renderer.domElement.style.cursor = 'pointer';
+          return;
+        }
+      }
+      renderer.domElement.style.cursor = isGesturePilotRef.current ? 'crosshair' : 'grab';
+    };
+
     const domElement = renderer.domElement;
     domElement.addEventListener('pointerdown', handlePointerDown);
+    domElement.addEventListener('pointermove', handlePointerMove);
 
     // 9. Animation & Space Travel Flight Physics Loop
     let animFrameId;
@@ -3674,6 +3806,24 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           const targetCamPos = targetWorldPos.clone().add(new THREE.Vector3(0, radius * 0.8, radius * 3.5));
           camera.position.lerp(targetCamPos, 0.05);
           controls.target.lerp(targetWorldPos, 0.05);
+
+          // Calculate 2D Screen Position for floating badge
+          const proj = targetWorldPos.clone().project(camera);
+          const containerW = container?.clientWidth || width;
+          const containerH = container?.clientHeight || height;
+          const sx = (proj.x * 0.5 + 0.5) * containerW;
+          const sy = (-proj.y * 0.5 + 0.5) * containerH;
+
+          const nowBadge = Date.now();
+          if (nowBadge - lastBadgeTimeRef.current > 40) {
+            lastBadgeTimeRef.current = nowBadge;
+            setBadgePos({ x: Math.round(sx), y: Math.round(sy) });
+          }
+        } else {
+          if (lastBadgeTimeRef.current !== 0) {
+            lastBadgeTimeRef.current = 0;
+            setBadgePos(null);
+          }
         }
       }
 
@@ -3698,6 +3848,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('resize', handleResize);
       domElement.removeEventListener('pointerdown', handlePointerDown);
+      domElement.removeEventListener('pointermove', handlePointerMove);
       controls.dispose();
       renderer.dispose();
       if (container) {
@@ -3803,44 +3954,174 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           </div>
         )}
 
-        {/* Docked Right-Side Celestial Detail Card (Standard Orbit Mode) */}
-        {!isGesturePilot && activePlanet && (
+        {/* Interactive Celestial Detail Card (Renders when clicked/selected) */}
+        {activePlanet && (
           <div style={{
-            position: 'absolute', top: '60px', right: '24px', maxWidth: '330px', width: 'calc(100% - 48px)',
-            background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
-            border: `2px solid ${activePlanet.color}`, borderRadius: '18px',
-            padding: '18px', color: '#f8fafc', boxShadow: '0 12px 48px rgba(0, 0, 0, 0.7)',
-            zIndex: 20
+            position: 'absolute', top: isGesturePilot ? '65px' : '20px', right: '20px',
+            maxWidth: '350px', width: 'calc(100% - 40px)',
+            maxHeight: 'calc(100% - 85px)', overflowY: 'auto',
+            background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)',
+            border: `2px solid ${activePlanet.color}`, borderRadius: '20px',
+            padding: '18px', color: '#f8fafc', boxShadow: `0 12px 48px rgba(0, 0, 0, 0.8), 0 0 24px ${activePlanet.color}44`,
+            zIndex: 40
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.12)', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: activePlanet.color, boxShadow: `0 0 10px ${activePlanet.color}` }} />
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>
-                  {activePlanet.name}
-                </h3>
+            {/* Header: Title, Subtitle, Close */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.15)', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: activePlanet.color, boxShadow: `0 0 12px ${activePlanet.color}` }} />
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#ffffff', margin: 0, lineHeight: 1.2 }}>
+                    {activePlanet.name}
+                  </h3>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: activePlanet.color, letterSpacing: '0.1em' }}>
+                    {activePlanet.enName}
+                  </span>
+                </div>
               </div>
-              <button onClick={() => setSelectedPlanetKey(null)} style={{ background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1', borderRadius: '8px', width: '26px', height: '26px', cursor: 'pointer', fontWeight: 800 }}>
+              <button
+                onClick={() => {
+                  setSelectedPlanetKey(null);
+                  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                  setIsSpeaking(false);
+                }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1',
+                  borderRadius: '10px', width: '28px', height: '28px', cursor: 'pointer',
+                  fontWeight: 900, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}
+                title="Đóng bảng thông tin"
+              >
                 ✕
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.78rem', color: '#cbd5e1' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Khoảng cách:</span>
-                <strong style={{ color: '#fff' }}>{activePlanet.dist}</strong>
+            {/* Quick Spec Parameters Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', padding: '8px 10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700 }}>📍 KHOẢNG CÁCH</div>
+                <div style={{ fontSize: '0.78rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>{activePlanet.dist}</div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Chu kỳ:</span>
-                <strong style={{ color: '#fff' }}>{activePlanet.period}</strong>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', padding: '8px 10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700 }}>⏱️ CHU KỲ QUỸ ĐẠO</div>
+                <div style={{ fontSize: '0.78rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>{activePlanet.period}</div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Đường kính:</span>
-                <strong style={{ color: '#fff' }}>{activePlanet.size}</strong>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', padding: '8px 10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700 }}>📏 ĐƯỜNG KÍNH</div>
+                <div style={{ fontSize: '0.78rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>{activePlanet.size}</div>
               </div>
-              <div style={{ marginTop: '6px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '8px 10px', borderRadius: '0 8px 8px 0', fontSize: '0.75rem', color: '#e2e8f0' }}>
-                <b>📌 Đặc điểm:</b> {activePlanet.feature}
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', padding: '8px 10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700 }}>🌡️ NHIỆT ĐỘ</div>
+                <div style={{ fontSize: '0.78rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>{activePlanet.temp}</div>
               </div>
             </div>
+
+            {/* Satellites / Moons */}
+            <div style={{ marginBottom: '10px', fontSize: '0.78rem', color: '#cbd5e1', display: 'flex', justifyContent: 'space-between', background: 'rgba(255, 255, 255, 0.04)', padding: '6px 10px', borderRadius: '8px' }}>
+              <span>🛰️ Vệ tinh tự nhiên:</span>
+              <strong style={{ color: '#ffffff' }}>{activePlanet.moons}</strong>
+            </div>
+
+            {/* Key Feature Highlight Box */}
+            <div style={{ marginBottom: '12px', background: 'rgba(56, 189, 248, 0.1)', borderLeft: `4px solid ${activePlanet.color}`, padding: '10px 12px', borderRadius: '0 10px 10px 0', fontSize: '0.78rem', color: '#e2e8f0', lineHeight: 1.45 }}>
+              <b>📌 Đặc điểm nổi bật:</b> {activePlanet.feature}
+            </div>
+
+            {/* Chemical & Geological Internal Core Structure (if available in CELESTIAL_CHEMICAL_DATA) */}
+            {CELESTIAL_CHEMICAL_DATA[selectedPlanetKey]?.layers && (
+              <div style={{ marginBottom: '12px', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', padding: '10px' }}>
+                <div style={{ fontSize: '0.72rem', fontWeight: 900, color: '#f59e0b', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ⚛️ CẤU TẠO ĐỊA CHẤT & LÕI NỘI TẠI (X-RAY)
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {CELESTIAL_CHEMICAL_DATA[selectedPlanetKey].layers.map((lyr, lIdx) => (
+                    <div key={lIdx} style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.04)', padding: '6px 8px', borderRadius: '6px', borderLeft: `3px solid ${lIdx === 0 ? '#38bdf8' : lIdx === 1 ? '#f59e0b' : lIdx === 2 ? '#ef4444' : '#eab308'}` }}>
+                      <div style={{ fontWeight: 800, color: '#fff' }}>{lyr.name}</div>
+                      <div style={{ color: '#cbd5e1', marginTop: '2px' }}>🧪 Thành phần: {lyr.chem}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.68rem', display: 'flex', gap: '10px', marginTop: '1px' }}>
+                        <span>🌡️ {lyr.temp}</span>
+                        <span>⚡ {lyr.press}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Bar: Voice TTS & X-Ray Toggle */}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+              <button
+                onClick={() => handleSpeakPlanetInfo(activePlanet)}
+                style={{
+                  flex: 1, background: isSpeaking ? '#ef4444' : 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                  color: '#ffffff', border: 'none', borderRadius: '10px',
+                  padding: '8px 12px', fontWeight: 800, fontSize: '0.78rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                  boxShadow: '0 4px 12px rgba(56, 189, 248, 0.3)'
+                }}
+              >
+                {isSpeaking ? '⏹️ DỪNG ĐỌC' : '🔊 ĐỌC THÔNG TIN (TTS)'}
+              </button>
+
+              <button
+                onClick={() => setIsXRayMode(!isXRayMode)}
+                style={{
+                  background: isXRayMode ? '#f59e0b' : 'rgba(255, 255, 255, 0.1)',
+                  color: isXRayMode ? '#000000' : '#f8fafc',
+                  border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '10px',
+                  padding: '8px 12px', fontWeight: 800, fontSize: '0.78rem',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px'
+                }}
+                title="Xem cấu tạo lớp bên trong"
+              >
+                ✌️ {isXRayMode ? 'TẮT X-RAY' : 'BẬT X-RAY'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Planet Selector Pills (Standard Orbit Mode) */}
+        {!isGesturePilot && (
+          <div style={{
+            position: 'absolute', bottom: '16px', left: '50%', transform: 'translateX(-50%)',
+            zIndex: 35, display: 'flex', alignItems: 'center', gap: '6px',
+            background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(56, 189, 248, 0.35)', borderRadius: '30px',
+            padding: '6px 14px', maxWidth: '94%', overflowX: 'auto',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)'
+          }}>
+            <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#38bdf8', paddingRight: '4px', whiteSpace: 'nowrap' }}>
+              🎯 KHÁM PHÁ:
+            </span>
+            {[
+              { key: 'sun', label: '☀️ Mặt Trời' },
+              { key: 'mercury', label: '⚪ Sao Thủy' },
+              { key: 'venus', label: '🟡 Sao Kim' },
+              { key: 'earth', label: '🌍 Trái Đất' },
+              { key: 'mars', label: '🔴 Sao Hỏa' },
+              { key: 'jupiter', label: '🪐 Sao Mộc' },
+              { key: 'saturn', label: '🪐 Sao Thổ' },
+              { key: 'uranus', label: '💎 Sao Thiên Vương' },
+              { key: 'neptune', label: '🔵 Sao Hải Vương' }
+            ].map(item => {
+              const isSel = selectedPlanetKey === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => handleSelectCelestial(item.key)}
+                  style={{
+                    background: isSel ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.06)',
+                    color: isSel ? '#38bdf8' : '#cbd5e1',
+                    border: isSel ? '1px solid #38bdf8' : '1px solid transparent',
+                    borderRadius: '20px', padding: '4px 12px', fontSize: '0.75rem',
+                    fontWeight: 800, cursor: 'pointer', whiteSpace: 'nowrap',
+                    boxShadow: isSel ? '0 0 12px rgba(56, 189, 248, 0.5)' : 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
         )}
 
