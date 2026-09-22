@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Sparkles, Zap, Trophy, RotateCcw, Volume2, CheckCircle2, XCircle, Clock, ArrowRight, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -239,8 +240,23 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
 
   const activeTeam = teams && teams[activeTeamIndex] ? teams[activeTeamIndex] : { name: `Đội ${activeTeamIndex + 1}`, color: '#0d9488' };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '10px 16px', width: '100%', maxWidth: '1080px', margin: '0 auto' }}>
+  return ReactDOM.createPortal(
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
+      background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '16px',
+      padding: '24px 36px',
+      boxSizing: 'border-box',
+      overflowY: 'auto'
+    }}>
       
       {/* KEYFRAMES & SLASH FX ANIMATIONS */}
       <style>{`
@@ -324,31 +340,31 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
       ) : (
         <>
           <div style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-        border: '2px solid rgba(13, 148, 136, 0.5)',
-        borderRadius: '24px',
-        padding: '24px 32px',
-        width: '100%',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.4)',
-        textAlign: 'center',
-        position: 'relative'
-      }}>
-        {currentQ.image && (
-          <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-            <img 
-              src={currentQ.image} 
-              alt="Câu hỏi" 
-              style={{ maxHeight: '220px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
-            />
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            border: '3px solid #0d9488',
+            borderRadius: '28px',
+            padding: '28px 36px',
+            width: '100%',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5), 0 0 25px rgba(13, 148, 136, 0.3)',
+            textAlign: 'center',
+            position: 'relative'
+          }}>
+            {currentQ.image && (
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <img 
+                  src={currentQ.image} 
+                  alt="Câu hỏi" 
+                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '18px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                />
+              </div>
+            )}
+            <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#5eead4', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '10px' }}>
+              CÂU HỎI {currentQIndex + 1} / {safeQuestions.length}
+            </div>
+            <h3 style={{ fontSize: '2.4rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>
+              {currentQ.question}
+            </h3>
           </div>
-        )}
-        <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#5eead4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-          CÂU HỎI {currentQIndex + 1} / {safeQuestions.length}
-        </div>
-        <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-          {currentQ.question}
-        </h3>
-      </div>
 
       {/* 2D WALL-BOUNCING ARENA CONTAINER */}
       <div 
@@ -528,6 +544,7 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
         </>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }

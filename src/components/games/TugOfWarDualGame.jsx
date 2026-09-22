@@ -542,7 +542,7 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
                 style={{ maxHeight: '160px', borderRadius: '12px', marginBottom: '12px', objectFit: 'contain' }}
               />
             )}
-            <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
+            <h3 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
               {currentBlueQ.question}
             </h3>
           </div>
@@ -792,7 +792,7 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
                 style={{ maxHeight: '160px', borderRadius: '12px', marginBottom: '12px', objectFit: 'contain' }}
               />
             )}
-            <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
+            <h3 style={{ fontSize: '1.85rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 6px rgba(0,0,0,0.4)' }}>
               {currentRedQ.question}
             </h3>
           </div>

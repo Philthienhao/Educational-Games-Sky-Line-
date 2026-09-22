@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Gift, Sparkles, CheckCircle2, XCircle, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -166,19 +167,25 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
       </div>
 
       {/* Question Modal */}
-      {activeBoxIndex !== null && currentQ && (
+      {activeBoxIndex !== null && currentQ && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 2000,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #eab308',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '36px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '920px', padding: '36px', borderRadius: '28px', border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 25px 60px rgba(0,0,0,0.7)' }}>
             
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <span className="badge badge-accent" style={{ fontSize: '1rem', padding: '8px 18px', borderRadius: '14px', fontWeight: 900 }}>
@@ -199,7 +206,7 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
               </div>
             )}
 
-            <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', marginBottom: '28px', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#ffffff', marginBottom: '28px', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h3>
 
@@ -284,9 +291,8 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
                 </button>
               </div>
             )}
-
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

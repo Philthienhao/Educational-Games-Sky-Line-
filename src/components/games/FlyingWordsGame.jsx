@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Plane, Sparkles, CheckCircle2, RotateCcw, Plus, Settings, Volume2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -133,8 +134,23 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
     try { SoundFX.correct(); } catch(e) {}
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '10px 20px', width: '100%', maxWidth: '950px', margin: '0 auto' }}>
+  return ReactDOM.createPortal(
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
+      background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '20px',
+      padding: '24px 36px',
+      boxSizing: 'border-box',
+      overflowY: 'auto'
+    }}>
       
       {/* Dynamic Keyframes for Flying Clouds */}
       <style>{`
@@ -365,6 +381,7 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }

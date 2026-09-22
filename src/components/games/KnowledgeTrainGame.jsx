@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { RotateCcw, Trophy, Sparkles, CheckCircle2, XCircle, Award } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -288,139 +289,148 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
           onStart={() => setIsGameStarted(true)}
         />
       ) : !winnerTeam && (
-        <div style={{
-          background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
-          width: '100%',
-          padding: '28px',
-          borderRadius: '24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px',
-          border: `3px solid ${currentTeamColor}`,
-          boxShadow: `0 0 25px ${currentTeamColor}30`
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-            <span className="badge badge-accent" style={{ background: currentTeamColor, color: '#fff', fontWeight: 900, padding: '6px 16px', fontSize: '0.95rem' }}>
-              👑 ĐẾN LƯỢT: {currentTeamObj.name.toUpperCase()}
-            </span>
-
-            {!answerState && (
-              <span style={{
-                background: timeLeft <= 5 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '1.2rem',
-                padding: '6px 18px',
-                borderRadius: '20px',
-                boxShadow: timeLeft <= 5 ? '0 0 16px rgba(239, 68, 68, 0.8)' : 'none'
-              }}>
-                ⏱️ Thời gian: <span style={{ fontSize: '1.35rem', color: '#fef08a' }}>{timeLeft}s</span>
+        ReactDOM.createPortal(
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+            border: `8px solid ${currentTeamColor}`,
+            zIndex: 9999999,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '36px 48px',
+            boxSizing: 'border-box',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <span className="badge badge-accent" style={{ background: currentTeamColor, color: '#fff', fontWeight: 900, padding: '8px 20px', fontSize: '1.2rem' }}>
+                🚂 ĐOÀN TÀU TRI THỨC — 👑 ĐẾN LƯỢT: {currentTeamObj.name.toUpperCase()}
               </span>
+
+              {!answerState && (
+                <span style={{
+                  background: timeLeft <= 5 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  border: `2px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '1.3rem',
+                  padding: '8px 22px',
+                  borderRadius: '20px',
+                  boxShadow: timeLeft <= 5 ? '0 0 20px rgba(239, 68, 68, 0.8)' : 'none'
+                }}>
+                  ⏱️ Thời gian: <span style={{ fontSize: '1.6rem', color: '#fef08a' }}>{timeLeft}s</span>
+                </span>
+              )}
+
+              <span style={{ fontSize: '1.2rem', color: '#cbd5e1', fontWeight: 900 }}>
+                Câu hỏi #{currentQIndex + 1} / {safeQuestions.length}
+              </span>
+            </div>
+
+            {currentQ.image && (
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <img 
+                  src={currentQ.image} 
+                  alt="Câu hỏi" 
+                  style={{ maxHeight: '280px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                />
+              </div>
             )}
 
-            <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 900 }}>
-              Câu hỏi #{currentQIndex + 1} / {safeQuestions.length}
-            </span>
-          </div>
+            <h3 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, marginBottom: '24px', textShadow: '0 2px 10px rgba(0,0,0,0.7)', textAlign: 'center' }}>
+              {currentQ.question}
+            </h3>
 
-          {currentQ.image && (
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <img 
-                src={currentQ.image} 
-                alt="Câu hỏi" 
-                style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
-              />
-            </div>
-          )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+              {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
+                const optText = currentQ.options?.[idx];
+                const isSelected = selectedOption === optLabel;
+                const isCorrect = String(currentQ.correct || 'A').toUpperCase() === optLabel;
 
-          <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, marginBottom: '24px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-            {currentQ.question}
-          </h3>
+                let bg = '#ffffff';
+                let border = '3px solid #cbd5e1';
+                let textColor = '#0f172a';
+                let badgeBg = '#2563eb';
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
-            {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-              if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
-              const optText = currentQ.options?.[idx];
-              const isSelected = selectedOption === optLabel;
-              const isCorrect = String(currentQ.correct || 'A').toUpperCase() === optLabel;
-
-              let bg = '#ffffff';
-              let border = '2.5px solid #cbd5e1';
-              let textColor = '#0f172a';
-              let badgeBg = '#2563eb';
-
-              if (answerState) {
-                if (isCorrect) {
-                  bg = '#dcfce7';
-                  border = '2.5px solid #16a34a';
-                  textColor = '#14532d';
-                  badgeBg = '#16a34a';
-                } else if (isSelected && !isCorrect) {
-                  bg = '#fee2e2';
-                  border = '2.5px solid #dc2626';
-                  textColor = '#7f1d1d';
-                  badgeBg = '#dc2626';
+                if (answerState) {
+                  if (isCorrect) {
+                    bg = '#dcfce7';
+                    border = '3px solid #16a34a';
+                    textColor = '#14532d';
+                    badgeBg = '#16a34a';
+                  } else if (isSelected && !isCorrect) {
+                    bg = '#fee2e2';
+                    border = '3px solid #dc2626';
+                    textColor = '#7f1d1d';
+                    badgeBg = '#dc2626';
+                  }
                 }
-              }
 
-              return (
-                <button
-                  key={optLabel}
-                  onClick={() => handleAnswerOption(optLabel)}
-                  disabled={!!answerState}
-                  style={{
-                    padding: '20px 24px',
-                    borderRadius: '20px',
-                    background: bg,
-                    border: border,
-                    color: textColor,
-                    textAlign: 'left',
-                    fontWeight: 900,
-                    fontSize: '1.3rem',
-                    lineHeight: 1.4,
-                    cursor: answerState ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '14px',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span style={{
-                    width: '38px',
-                    height: '38px',
-                    minWidth: '38px',
-                    borderRadius: '12px',
-                    background: badgeBg,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 900,
-                    fontSize: '1.2rem',
-                    color: '#ffffff',
-                    flexShrink: 0
-                  }}>
-                    {optLabel}
-                  </span>
-                  <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {answerState && (
-            <div style={{ padding: '16px 20px', borderRadius: '16px', background: answerState === 'correct' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-              <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
-                {answerState === 'correct' ? `🎉 ĐÚNG RỒI! ĐÃ THÊM 1 TOA TÀU CHO ${currentTeamObj.name.toUpperCase()}!` : `❌ TIẾC QUÁ! RẤT TIẾC CÂU NÀY BẠN TRẢ LỜI CHƯA ĐÚNG.`}
-              </div>
-              <button className="btn btn-primary" onClick={handleNextTurn}>
-                Lượt Tiếp Theo ➔
-              </button>
+                return (
+                  <button
+                    key={optLabel}
+                    onClick={() => handleAnswerOption(optLabel)}
+                    disabled={!!answerState}
+                    style={{
+                      padding: '22px 28px',
+                      borderRadius: '20px',
+                      background: bg,
+                      border: border,
+                      color: textColor,
+                      textAlign: 'left',
+                      fontWeight: 900,
+                      fontSize: '1.45rem',
+                      lineHeight: 1.4,
+                      cursor: answerState ? 'default' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+                      transition: 'all 0.2s ease',
+                      minHeight: '80px'
+                    }}
+                  >
+                    <span style={{
+                      width: '44px',
+                      height: '44px',
+                      minWidth: '44px',
+                      borderRadius: '14px',
+                      background: badgeBg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontSize: '1.4rem',
+                      color: '#ffffff',
+                      flexShrink: 0
+                    }}>
+                      {optLabel}
+                    </span>
+                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-        </div>
+            {answerState && (
+              <div style={{ padding: '20px 28px', borderRadius: '20px', background: answerState === 'correct' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)', border: answerState === 'correct' ? '2px solid #10b981' : '2px solid #ef4444', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                <div style={{ fontWeight: 900, fontSize: '1.4rem', color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
+                  {answerState === 'correct' ? `🎉 ĐÚNG RỒI! ĐÃ THÊM 1 TOA TÀU CHO ${currentTeamObj.name.toUpperCase()}!` : `❌ TIẾC QUÁ! RẤT TIẾC CÂU NÀY BẠN TRẢ LỜI CHƯA ĐÚNG.`}
+                </div>
+                <button className="btn btn-primary" onClick={handleNextTurn} style={{ fontSize: '1.3rem', padding: '14px 32px' }}>
+                  Lượt Tiếp Theo ➔
+                </button>
+              </div>
+            )}
+
+          </div>,
+          document.body
+        )
       )}
 
     </div>

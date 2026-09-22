@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Swords, CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -245,99 +246,118 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
           onStart={() => setIsGameStarted(true)}
         />
       ) : (
-        /* Question Card */
-        <div style={{ width: '100%', padding: '28px', background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)', borderRadius: '24px', border: '2px solid #00a896', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <span className="badge badge-teacher">
-              CÂU HỎI {currentQIndex + 1} / {questions.length}
-            </span>
-
-            {!answerState && (
-              <span style={{
-                background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
-                border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
-                color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
-                fontWeight: 900,
-                fontSize: '0.85rem',
-                padding: '4px 12px',
-                borderRadius: '10px'
-              }}>
-                ⏱️ {timeLeft}s
+        ReactDOM.createPortal(
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+            border: '8px solid #00a896',
+            zIndex: 9999999,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '36px 48px',
+            boxSizing: 'border-box',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <span className="badge badge-teacher" style={{ fontSize: '1.2rem', padding: '8px 18px' }}>
+                ⚔️ KÉO CO - CÂU HỎI {currentQIndex + 1} / {questions.length}
               </span>
-            )}
 
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              Đến lượt: <strong style={{ color: '#fff' }}>{currentTeam.name}</strong>
-            </span>
-          </div>
+              {!answerState && (
+                <span style={{
+                  background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
+                  border: `2px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
+                  color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
+                  fontWeight: 900,
+                  fontSize: '1.4rem',
+                  padding: '6px 18px',
+                  borderRadius: '12px'
+                }}>
+                  ⏱️ {timeLeft}s
+                </span>
+              )}
 
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '20px' }}>
-            {currentQ.question}
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
-            {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-              if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
-              const optText = currentQ.options[idx];
-              const isSelected = selectedOption === optLabel;
-              const isCorrect = currentQ.correct === optLabel;
-
-              let bg = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-              let border = '2px solid #334155';
-              let textColor = '#ffffff';
-              let badgeBg = '#2563eb';
-
-              if (answerState) {
-                if (isCorrect) {
-                  bg = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
-                  border = '2px solid #6ee7b7';
-                  badgeBg = '#047857';
-                } else if (isSelected && !isCorrect) {
-                  bg = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
-                  border = '2px solid #fca5a5';
-                  badgeBg = '#991b1b';
-                }
-              }
-
-              return (
-                <button
-                  key={optLabel}
-                  onClick={() => handleAnswer(optLabel)}
-                  disabled={!!answerState}
-                  style={{
-                    padding: '14px 18px',
-                    borderRadius: '14px',
-                    background: bg,
-                    border: border,
-                    color: textColor,
-                    textAlign: 'left',
-                    fontWeight: 800,
-                    cursor: answerState ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '10px'
-                  }}
-                >
-                  <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: badgeBg, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, flexShrink: 0 }}>
-                    {optLabel}
-                  </span>
-                  <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {answerState && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: '12px', background: answerState === 'correct' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' }}>
-              <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
-                {answerState === 'correct' ? `🎉 ${currentTeam.name} TRẢ LỜI ĐÚNG! KÉO DÂY VỀ PHÍA MÌNH!` : `❌ CHƯA ĐÚNG! Dây bị đẩy về phía đối thủ.`}
-              </div>
-              <button className="btn btn-primary" onClick={handleNextTurn}>
-                Lượt Tiếp Theo
-              </button>
+              <span style={{ fontSize: '1.2rem', color: '#cbd5e1' }}>
+                Đến lượt: <strong style={{ color: currentTurnTeam === 0 ? '#ef4444' : '#3b82f6', fontSize: '1.4rem' }}>{currentTeam.name}</strong>
+              </span>
             </div>
-          )}
-        </div>
+
+            <h3 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#fff', marginBottom: '24px', lineHeight: 1.4, textShadow: '0 2px 10px rgba(0,0,0,0.7)', textAlign: 'center' }}>
+              {currentQ.question}
+            </h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+              {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
+                const optText = currentQ.options[idx];
+                const isSelected = selectedOption === optLabel;
+                const isCorrect = currentQ.correct === optLabel;
+
+                let bg = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                let border = '2.5px solid #334155';
+                let textColor = '#ffffff';
+                let badgeBg = '#2563eb';
+
+                if (answerState) {
+                  if (isCorrect) {
+                    bg = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+                    border = '3px solid #6ee7b7';
+                    badgeBg = '#047857';
+                  } else if (isSelected && !isCorrect) {
+                    bg = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+                    border = '3px solid #fca5a5';
+                    badgeBg = '#991b1b';
+                  }
+                }
+
+                return (
+                  <button
+                    key={optLabel}
+                    onClick={() => handleAnswer(optLabel)}
+                    disabled={!!answerState}
+                    style={{
+                      padding: '20px 24px',
+                      borderRadius: '16px',
+                      background: bg,
+                      border: border,
+                      color: textColor,
+                      textAlign: 'left',
+                      fontWeight: 800,
+                      cursor: answerState ? 'default' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      minHeight: '76px',
+                      fontSize: '1.4rem'
+                    }}
+                  >
+                    <span style={{ width: '38px', height: '38px', borderRadius: '10px', background: badgeBg, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, flexShrink: 0, fontSize: '1.4rem' }}>
+                      {optLabel}
+                    </span>
+                    <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {answerState && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderRadius: '16px', background: answerState === 'correct' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)', border: answerState === 'correct' ? '2px solid #10b981' : '2px solid #ef4444' }}>
+                <div style={{ fontWeight: 900, fontSize: '1.4rem', color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
+                  {answerState === 'correct' ? `🎉 ${currentTeam.name} TRẢ LỜI ĐÚNG! KÉO DÂY VỀ PHÍA MÌNH!` : `❌ CHƯA ĐÚNG! Dây bị đẩy về phía đối thủ.`}
+                </div>
+                <button className="btn btn-primary" onClick={handleNextTurn} style={{ fontSize: '1.2rem', padding: '12px 28px' }}>
+                  Lượt Tiếp Theo
+                </button>
+              </div>
+            )}
+          </div>,
+          document.body
+        )
       )}
 
     </div>

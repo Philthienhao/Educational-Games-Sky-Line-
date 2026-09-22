@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { RotateCw, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -35,8 +36,23 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
     handleNext();
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '28px', padding: '20px', maxWidth: '750px', margin: '0 auto' }}>
+  return ReactDOM.createPortal(
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
+      background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '28px',
+      padding: '24px 36px',
+      boxSizing: 'border-box',
+      overflowY: 'auto'
+    }}>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -58,7 +74,7 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
         onClick={handleFlip}
         style={{
           width: '100%',
-          height: '340px',
+          height: '480px',
           perspective: '1000px',
           cursor: 'pointer'
         }}
@@ -90,7 +106,7 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
               MẶT TRƯỚC: CÂU HỎI {currentIndex + 1}
             </span>
 
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, margin: '20px 0', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ fontSize: '2.4rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, margin: '20px 0', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h3>
 
@@ -118,7 +134,7 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
               MẶT SAU: ĐÁP ÁN ĐÚNG
             </span>
 
-            <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fef08a', marginBottom: '12px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            <div style={{ fontSize: '2.4rem', fontWeight: 900, color: '#fef08a', marginBottom: '12px', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               ĐÁP ÁN: ({currentQ.correct}) - {currentQ.options[['A','B','C','D'].indexOf(currentQ.correct)]}
             </div>
 
@@ -147,6 +163,7 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
         </button>
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

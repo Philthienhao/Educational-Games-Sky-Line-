@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
   RotateCcw, Trophy, Award, Sparkles, CheckCircle2, XCircle, Shield, Zap,
@@ -1073,34 +1074,31 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
         }} />
       </div>
 
-      {/* 4. FULL-SCREEN HIGH-VISIBILITY QUESTION POPUP MODAL */}
-      {activeQuestion && (
+      {/* 4. FULL-SCREEN 100% VIEWPORT QUESTION OVERLAY (PORTALED TO DOCUMENT.BODY) */}
+      {activeQuestion && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(11, 15, 25, 0.92)',
-          backdropFilter: 'blur(16px)',
-          zIndex: 2000,
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #f59e0b',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '24px'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '32px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
           <div style={{
-            background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-            borderRadius: '32px',
-            maxWidth: '1440px',
-            width: '96vw',
-            maxHeight: '93vh',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            padding: '36px 44px',
-            boxShadow: '0 30px 70px rgba(0, 0, 0, 0.6), 0 0 50px rgba(245, 158, 11, 0.35)',
-            border: '6px solid #f59e0b',
-            animation: 'modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            position: 'relative',
-            overflowY: 'auto'
+            height: '100%',
+            width: '100%',
+            margin: 0
           }}>
             {/* Header: Turn Info + Question Badge + Giant Timer */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
@@ -1354,7 +1352,8 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* 5. RED SHELL SABOTAGE MODAL */}

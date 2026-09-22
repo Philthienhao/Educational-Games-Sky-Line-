@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
   RotateCcw, Trophy, Award, Sparkles, AlertTriangle, Shield, Zap, Flame, Crown, CheckCircle2, XCircle,
@@ -960,50 +961,48 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
         }} />
       </div>
 
-      {/* 4. QUESTION POPUP MODAL */}
-      {activeQuestion && (
+      {/* 4. FULL-SCREEN 100% VIEWPORT QUESTION OVERLAY (PORTALED TO DOCUMENT.BODY) */}
+      {activeQuestion && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 2000,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #f59e0b',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '36px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            maxWidth: '680px',
-            width: '100%',
-            padding: '32px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
-            border: '4px solid #f59e0b',
-            animation: 'modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            position: 'relative'
-          }}>
             {/* Question Header Status */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{
                   background: teams[currentTurnIdx].color,
                   color: '#fff',
                   fontWeight: 900,
-                  fontSize: '0.85rem',
-                  padding: '4px 12px',
-                  borderRadius: '12px'
+                  fontSize: '1rem',
+                  padding: '8px 18px',
+                  borderRadius: '14px',
+                  boxShadow: `0 4px 12px ${teams[currentTurnIdx].color}50`
                 }}>
                   LƯỢT CỦA: {teams[currentTurnIdx].name}
                 </span>
                 <span style={{
                   background: selectedMaterial === 'brick' ? '#fee2e2' : selectedMaterial === 'wood' ? '#ffedd5' : '#fef3c7',
                   color: selectedMaterial === 'brick' ? '#dc2626' : selectedMaterial === 'wood' ? '#ea580c' : '#d97706',
-                  fontWeight: 800,
-                  fontSize: '0.8rem',
-                  padding: '4px 10px',
-                  borderRadius: '10px'
+                  fontWeight: 900,
+                  fontSize: '0.95rem',
+                  padding: '8px 16px',
+                  borderRadius: '12px',
+                  border: `1.5px solid ${selectedMaterial === 'brick' ? '#fca5a5' : selectedMaterial === 'wood' ? '#fed7aa' : '#fde68a'}`
                 }}>
                   {selectedMaterial === 'brick' ? '🧱 Gạch (Khó +30đ)' : selectedMaterial === 'wood' ? '🪵 Gỗ (Vừa +20đ)' : '🏠 Ngói (Dễ +10đ)'}
                 </span>
@@ -1011,17 +1010,18 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
 
               {/* Countdown Timer Circle */}
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '56px',
+                height: '56px',
                 borderRadius: '50%',
                 background: timerSeconds <= 5 ? '#fee2e2' : '#f1f5f9',
                 color: timerSeconds <= 5 ? '#dc2626' : '#0f172a',
-                border: `3px solid ${timerSeconds <= 5 ? '#ef4444' : '#cbd5e1'}`,
+                border: `4px solid ${timerSeconds <= 5 ? '#ef4444' : '#cbd5e1'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: '1.1rem'
+                fontSize: '1.4rem',
+                boxShadow: timerSeconds <= 5 ? '0 0 20px rgba(239, 68, 68, 0.6)' : 'none'
               }}>
                 {timerSeconds}
               </div>
@@ -1029,11 +1029,12 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
 
             {/* Question Content */}
             <h3 style={{
-              fontSize: '1.35rem',
-              fontWeight: 800,
-              color: '#0f172a',
-              lineHeight: 1.4,
-              marginBottom: '24px'
+              fontSize: '2.4rem',
+              fontWeight: 900,
+              color: '#ffffff',
+              lineHeight: 1.45,
+              marginBottom: '28px',
+              textShadow: '0 2px 8px rgba(0,0,0,0.5)'
             }}>
               {activeQuestion.question}
             </h3>
@@ -1044,20 +1045,19 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                 src={activeQuestion.imageUrl} 
                 alt="Question illustration"
                 style={{
-                  maxHeight: '180px',
-                  borderRadius: '12px',
+                  maxHeight: '280px',
+                  borderRadius: '18px',
                   objectFit: 'contain',
-                  marginBottom: '20px',
-                  display: 'block',
-                  margin: '0 auto 20px auto'
+                  marginBottom: '28px',
+                  border: '2px solid rgba(255,255,255,0.2)'
                 }} 
               />
             )}
 
-            {/* 4 Answer Options */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
+            {/* Answer Options Grid (4 Large Tiles) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
               {activeQuestion.options.map((opt, idx) => {
-                const optionKey = String.fromCharCode(65 + idx); // A, B, C, D
+                const optionKey = String.fromCharCode(65 + idx);
                 const isSelected = selectedAnswer === optionKey;
                 const correctOpt = activeQuestion.correct || activeQuestion.answer;
                 const isThisCorrect = optionKey.toUpperCase() === String(correctOpt).toUpperCase();
@@ -1065,16 +1065,28 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                 let btnBg = '#ffffff';
                 let btnBorder = '#cbd5e1';
                 let btnColor = '#0f172a';
+                let badgeBg = '#f1f5f9';
+                let badgeColor = '#334155';
 
                 if (isAnswerSubmitted) {
                   if (isThisCorrect) {
                     btnBg = '#dcfce7';
                     btnBorder = '#16a34a';
                     btnColor = '#14532d';
+                    badgeBg = '#16a34a';
+                    badgeColor = '#ffffff';
                   } else if (isSelected) {
                     btnBg = '#fee2e2';
                     btnBorder = '#dc2626';
                     btnColor = '#7f1d1d';
+                    badgeBg = '#dc2626';
+                    badgeColor = '#ffffff';
+                  } else {
+                    btnBg = '#f8fafc';
+                    btnBorder = '#e2e8f0';
+                    btnColor = '#94a3b8';
+                    badgeBg = '#e2e8f0';
+                    badgeColor = '#94a3b8';
                   }
                 }
 
@@ -1085,32 +1097,34 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                     disabled={isAnswerSubmitted}
                     style={{
                       background: btnBg,
-                      border: `2.5px solid ${btnBorder}`,
+                      border: `3px solid ${btnBorder}`,
                       color: btnColor,
-                      padding: '14px 18px',
-                      borderRadius: '16px',
-                      fontSize: '1rem',
+                      padding: '20px 24px',
+                      borderRadius: '20px',
+                      fontSize: '1.5rem',
                       fontWeight: 900,
                       textAlign: 'left',
                       cursor: isAnswerSubmitted ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '12px',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
-                      transition: 'all 0.2s ease'
+                      gap: '16px',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.06)',
+                      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      lineHeight: 1.3
                     }}
                   >
                     <span style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '8px',
-                      background: isAnswerSubmitted && isThisCorrect ? '#16a34a' : '#2563eb',
-                      color: '#ffffff',
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '14px',
+                      background: badgeBg,
+                      color: badgeColor,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 900,
-                      fontSize: '0.85rem'
+                      fontSize: '1.4rem',
+                      flexShrink: 0
                     }}>
                       {optionKey}
                     </span>
@@ -1120,54 +1134,62 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
               })}
             </div>
 
-            {/* Answer Result Banner & Next Button */}
+            {/* Answer Result Banner */}
             {isAnswerSubmitted && (
               <div style={{
-                background: isCorrect ? (rewardInfo?.type === 'monster' ? '#fefce8' : '#f0fdf4') : '#fef2f2',
-                border: `2px solid ${isCorrect ? (rewardInfo?.type === 'monster' ? '#eab308' : '#4ade80') : '#f87171'}`,
-                borderRadius: '16px',
-                padding: '16px 20px',
+                background: isCorrect ? '#f0fdf4' : '#fef2f2',
+                border: `3px solid ${isCorrect ? '#22c55e' : '#ef4444'}`,
+                borderRadius: '20px',
+                padding: '20px 28px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '16px'
+                gap: '20px',
+                boxShadow: isCorrect ? '0 8px 24px rgba(34,197,94,0.18)' : '0 8px 24px rgba(239,68,68,0.18)',
+                animation: 'modalPop 0.3s ease'
               }}>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{
-                    fontSize: '1.05rem',
+                    fontSize: '1.4rem',
                     fontWeight: 900,
-                    color: isCorrect ? (rewardInfo?.type === 'monster' ? '#854d0e' : '#166534') : '#991b1b',
+                    color: isCorrect ? '#14532d' : '#7f1d1d',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '12px'
                   }}>
-                    {isCorrect ? <CheckCircle2 color={rewardInfo?.type === 'monster' ? '#ca8a04' : '#22c55e'} size={24} /> : <XCircle color="#ef4444" size={24} />}
+                    {isCorrect ? <CheckCircle2 color="#16a34a" size={30} /> : <XCircle color="#dc2626" size={30} />}
                     {isCorrect ? (
-                      rewardInfo?.type === 'monster' ? (
+                      selectedMaterial === 'brick' ? (
                         <span>
-                          🎉 CHÍNH XÁC! XÂY +1 TẦNG & 🎁 THẺ THƯỞNG: <b>{rewardInfo.monster.icon} {rewardInfo.monster.name}</b> (+{rewardInfo.points}đ)!
+                          🎉 CHÍNH XÁC! XÂY ĐƯỢC <b>TẦNG GẠCH VỮNG CHẮC (+30 ĐIỂM)</b>!
+                        </span>
+                      ) : selectedMaterial === 'wood' ? (
+                        <span>
+                          🎉 CHÍNH XÁC! XÂY ĐƯỢC <b>TẦNG GỖ SANG TRỌNG (+20 ĐIỂM)</b>!
                         </span>
                       ) : (
                         <span>
-                          🎉 CHÍNH XÁC! XÂY THÊM +1 TẦNG NHÀ & +{rewardInfo?.points || 10} ĐIỂM!
+                          🎉 CHÍNH XÁC! LỢP ĐƯỢC <b>MÁI NGÓI ĐẸP MẮT (+10 ĐIỂM)</b>!
                         </span>
                       )
                     ) : (
-                      'RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! 😅'
+                      <span>RẤT TIẾC, ĐÁP ÁN CHƯA ĐÚNG! KHÔNG THỂ XÂY TẦNG NÀY! 😅</span>
                     )}
                   </div>
                   {activeQuestion.explanation && (
-                    <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '4px' }}>
+                    <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#334155', marginTop: '6px', paddingLeft: '42px' }}>
                       💡 {activeQuestion.explanation}
                     </div>
                   )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {isCorrect && rewardInfo?.type === 'monster' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+                  {isCorrect && selectedMaterial === 'brick' && (
                     <button
                       onClick={() => {
-                        setActiveMonster(rewardInfo.monster);
+                        handleNextTurn();
+                        const otherTeamIdx = (currentTurnIdx + 1) % teams.length;
+                        onAddPoints(otherTeamIdx, -15);
                       }}
                       style={{
                         background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
@@ -1209,8 +1231,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
                 </div>
               </div>
             )}
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* 5. MONSTER / SABOTAGE EVENT MODAL */}

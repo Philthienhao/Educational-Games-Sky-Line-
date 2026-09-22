@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { HelpCircle, Users, RotateCw, Trophy, AlertTriangle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -123,8 +124,24 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
     setTurnTeam((currentTeamIdx + 1) % teams.length);
   };
 
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px', padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+  return ReactDOM.createPortal(
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
+      background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+      display: 'grid',
+      gridTemplateColumns: '1fr 340px',
+      gap: '24px',
+      padding: '36px 48px',
+      boxSizing: 'border-box',
+      overflowY: 'auto'
+    }}>
       
       {/* Left Main Quiz Arena */}
       <div style={{ background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)', borderRadius: '24px', border: '2px solid #00a896', padding: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
@@ -210,7 +227,7 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
               />
             </div>
           )}
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+          <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
             {currentQ.question}
           </h2>
         </div>
@@ -386,6 +403,7 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
         </div>
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

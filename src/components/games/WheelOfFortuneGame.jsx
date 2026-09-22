@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Play, RotateCw, CheckCircle2, XCircle, Trophy, Settings, Edit3, X, Sparkles, HelpCircle, Users } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -440,20 +441,26 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
         </div>
       )}
 
-      {/* Modal 2: Question Popup Modal */}
-      {showQuestionModal && (
+      {/* Modal 2: Question Popup Modal (PORTALED TO DOCUMENT.BODY) */}
+      {showQuestionModal && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(12px)',
-          zIndex: 3500,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #8b5cf6',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '36px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '750px', padding: '32px', position: 'relative' }}>
             
             {/* Close Button X */}
             <button 
@@ -489,7 +496,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
             </div>
 
             {/* Question Text */}
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '24px', lineHeight: 1.4 }}>
+            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#fff', marginBottom: '24px', lineHeight: 1.4, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {currentQ.question}
             </h2>
 
@@ -552,6 +559,7 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 900,
+                      fontSize: '1rem',
                       flexShrink: 0
                     }}>
                       {optLabel}
@@ -562,25 +570,26 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
               })}
             </div>
 
-            {/* Explanation Feedback */}
+            {/* Result & Explanation Banner */}
             {answerState && (
               <div style={{
-                padding: '16px 20px',
-                borderRadius: '14px',
-                background: answerState === 'correct' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                background: answerState === 'correct' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)',
                 border: answerState === 'correct' ? '1px solid #10b981' : '1px solid #ef4444',
-                marginBottom: '20px',
+                borderRadius: '16px',
+                padding: '16px 20px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
+                gap: '16px'
               }}>
                 <div>
-                  <div style={{ fontWeight: 800, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5', fontSize: '1.1rem' }}>
-                    {answerState === 'correct' ? `🎉 CHÍNH XÁC! (+100 ĐIỂM CHO ${teams && teams[currentTeamIdx]?.name ? teams[currentTeamIdx].name : 'ĐỘI CHƠI'})` : `❌ CHƯA ĐÚNG! Đáp án đúng là (${currentQ.correct || 'A'})`}
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {answerState === 'correct' ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                    {answerState === 'correct' ? `🎉 ĐÚNG RỒI! BẠN NHẬN ĐƯỢC 1 LƯỢT QUAY BÍ ẨN!` : `❌ CHƯA ĐÚNG RỒI! CHUYỂN LƯỢT CHO ĐỘI TIẾP THEO.`}
                   </div>
                   {currentQ.explanation && (
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                      💡 Gợi ý: {currentQ.explanation}
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '4px' }}>
+                      💡 Căn cứ: {currentQ.explanation}
                     </div>
                   )}
                 </div>
@@ -593,9 +602,8 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
                 </button>
               </div>
             )}
-
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

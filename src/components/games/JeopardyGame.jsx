@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Volume2, VolumeX, RotateCcw, HelpCircle, Award, Zap, Bomb, Sparkles, Flame, Check, X, ShieldAlert, ArrowRight, Trophy } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -125,32 +126,26 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
     }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div style={{
       position: 'fixed',
-      inset: 0,
-      background: 'rgba(11, 15, 25, 0.9)',
-      backdropFilter: 'blur(10px)',
-      zIndex: 3500,
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      border: '8px solid #f59e0b',
+      zIndex: 9999999,
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px'
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      padding: '36px 48px',
+      boxSizing: 'border-box',
+      color: '#fff',
+      overflowY: 'auto'
     }}>
-      <div style={{
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        border: '2px solid #f59e0b',
-        borderRadius: '28px',
-        padding: '32px',
-        maxWidth: '750px',
-        width: '100%',
-        color: '#fff',
-        boxShadow: '0 25px 60px rgba(245, 158, 11, 0.3)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '20px',
-        animation: 'popIn 0.3s ease-out'
-      }}>
         {/* Header Tile Banner */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -258,7 +253,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
               </div>
             )}
 
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {tile.question}
             </h2>
 
@@ -373,8 +368,8 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
             )}
           </div>
         )}
-      </div>
-    </div>
+      </div>,
+      document.body
   );
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { KeyRound, CheckCircle2, XCircle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -328,20 +329,26 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
         </div>
       </div>
 
-      {/* Row Question Modal */}
-      {activeRowIndex !== null && (
+      {/* Row Question Modal (PORTALED TO DOCUMENT.BODY) */}
+      {activeRowIndex !== null && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(10px)',
-          zIndex: 2000,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #f59e0b',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '36px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '700px', padding: '32px' }}>
             
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
               <span className="badge badge-accent">
@@ -349,7 +356,7 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
               </span>
             </div>
 
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '24px', lineHeight: 1.4 }}>
+            <h3 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#fff', marginBottom: '24px', lineHeight: 1.4, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
               {rows[activeRowIndex].questionObj.question}
             </h3>
 
@@ -383,23 +390,38 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
                     onClick={() => handleAnswerOption(optLabel)}
                     disabled={!!answerState}
                     style={{
-                      padding: '16px',
+                      padding: '16px 20px',
                       borderRadius: '16px',
                       background: bg,
                       border: border,
                       color: textColor,
                       textAlign: 'left',
-                      fontWeight: 800,
+                      fontSize: '1rem',
+                      fontWeight: 900,
                       cursor: answerState ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '10px'
+                      gap: '12px',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    <span style={{ width: '28px', height: '28px', borderRadius: '8px', background: badgeBg, color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, flexShrink: 0 }}>
+                    <span style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '10px',
+                      background: badgeBg,
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontSize: '1rem',
+                      flexShrink: 0
+                    }}>
                       {optLabel}
                     </span>
-                    <span style={{ flex: 1, color: '#ffffff', fontWeight: 800 }}>{optText}</span>
+                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
                   </button>
                 );
               })}
@@ -415,9 +437,8 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
                 </button>
               </div>
             )}
-
-          </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

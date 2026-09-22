@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Flag, Trophy, RotateCcw, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -344,21 +345,29 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
           onStart={() => setIsGameStarted(true)}
         />
       ) : (
+        ReactDOM.createPortal(
         <div style={{
-          width: '100%',
-          padding: '28px 32px',
-          borderRadius: '26px',
-          background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)',
-          border: '2px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          border: '8px solid #0284c7',
+          zIndex: 9999999,
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          justifyContent: 'space-between',
+          padding: '36px 48px',
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
           {/* Question Box Top Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-            <span style={{ background: '#0284c7', color: '#fff', padding: '6px 16px', borderRadius: '12px', fontWeight: 900, fontSize: '0.95rem', letterSpacing: '0.5px' }}>
-              CÂU HỎI {currentQIndex + 1} / {totalQuestions}
+            <span style={{ background: '#0284c7', color: '#fff', padding: '8px 20px', borderRadius: '14px', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '0.5px' }}>
+              🏎️ ĐUA XE - CÂU HỎI {currentQIndex + 1} / {totalQuestions}
             </span>
 
             {!answerState && (
@@ -367,33 +376,34 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
                 border: `2px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
                 color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
                 fontWeight: 900,
-                fontSize: '1rem',
-                padding: '6px 16px',
-                borderRadius: '12px'
+                fontSize: '1.4rem',
+                padding: '6px 20px',
+                borderRadius: '14px'
               }}>
                 ⏱️ {timeLeft}s
               </span>
             )}
 
-            <span style={{ fontSize: '1rem', color: '#cbd5e1', fontWeight: 800 }}>
-              Đến lượt xe đua của: <strong style={{ color: teams[activeTeamIndex]?.color || '#fff', fontSize: '1.2rem', marginLeft: '4px' }}>{teams[activeTeamIndex]?.name}</strong>
+            <span style={{ fontSize: '1.2rem', color: '#cbd5e1', fontWeight: 800 }}>
+              Đến lượt xe đua của: <strong style={{ color: teams[activeTeamIndex]?.color || '#fff', fontSize: '1.4rem', marginLeft: '6px' }}>{teams[activeTeamIndex]?.name}</strong>
             </span>
           </div>
 
           {/* Prominent Question Text */}
           <h3 style={{ 
-            fontSize: '1.85rem', 
+            fontSize: '2.8rem', 
             fontWeight: 900, 
             color: '#ffffff', 
-            margin: '8px 0 16px 0', 
-            lineHeight: 1.45,
-            textShadow: '0 2px 8px rgba(0,0,0,0.6)'
+            margin: '16px 0 24px 0', 
+            lineHeight: 1.4,
+            textShadow: '0 2px 10px rgba(0,0,0,0.7)',
+            textAlign: 'center'
           }}>
             {currentQ.question}
           </h3>
 
           {/* Prominent Options Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
             {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
               if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
               const optText = currentQ.options[idx];
@@ -401,19 +411,19 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
               const isCorrect = currentQ.correct === optLabel;
 
               let bg = '#ffffff';
-              let border = '2.5px solid #cbd5e1';
+              let border = '3px solid #cbd5e1';
               let textColor = '#0f172a';
               let badgeBg = '#2563eb';
 
               if (answerState) {
                 if (isCorrect) {
                   bg = '#dcfce7';
-                  border = '2.5px solid #16a34a';
+                  border = '3px solid #16a34a';
                   textColor = '#14532d';
                   badgeBg = '#16a34a';
                 } else if (isSelected && !isCorrect) {
                   bg = '#fee2e2';
-                  border = '2.5px solid #dc2626';
+                  border = '3px solid #dc2626';
                   textColor = '#7f1d1d';
                   badgeBg = '#dc2626';
                 }
@@ -425,34 +435,36 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
                   onClick={() => handleAnswer(optLabel)}
                   disabled={!!answerState}
                   style={{
-                    padding: '18px 22px',
-                    borderRadius: '18px',
+                    padding: '22px 28px',
+                    borderRadius: '20px',
                     background: bg,
                     border: border,
                     color: textColor,
                     textAlign: 'left',
                     fontWeight: 900,
-                    fontSize: '1.25rem',
+                    fontSize: '1.4rem',
                     cursor: answerState ? 'default' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '14px',
-                    boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
-                    transition: 'all 0.2s ease'
+                    gap: '16px',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.15)',
+                    transition: 'all 0.2s ease',
+                    minHeight: '80px'
                   }}
                 >
-                  <span style={{ 
-                    width: '38px', 
-                    height: '38px', 
-                    borderRadius: '12px', 
-                    background: badgeBg, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontWeight: 900, 
-                    fontSize: '1.15rem',
+                  <span style={{
+                    width: '42px',
+                    height: '42px',
+                    minWidth: '42px',
+                    borderRadius: '12px',
+                    background: badgeBg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 900,
+                    fontSize: '1.4rem',
                     color: '#ffffff',
-                    flexShrink: 0 
+                    flexShrink: 0
                   }}>
                     {optLabel}
                   </span>
@@ -500,9 +512,11 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
               </button>
             </div>
           )}
-        </div>
-      )}
+        </div>,
+        document.body
+      )
+    )}
 
-    </div>
-  );
+  </div>
+);
 }

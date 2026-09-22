@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, Play, Sparkles, UserCheck, Zap, Activity } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Play, Edit3, Plus, Minus, Trash2, Zap } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { isOptionValidForQuestion } from '../../utils/universalParser';
@@ -557,18 +558,19 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
   }
 
   // MAIN GAMEPLAY ARENA SCREEN
-  return (
+  return ReactDOM.createPortal(
     <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
       display: 'flex',
       flexDirection: 'column',
-      width: '100%',
-      maxWidth: '1380px',
-      minHeight: '700px',
-      margin: '0 auto',
       background: '#f8fafc',
-      borderRadius: '24px',
-      overflow: 'hidden',
-      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
       fontFamily: 'Montserrat, system-ui, sans-serif',
       color: '#0f172a'
     }}>
@@ -991,6 +993,7 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

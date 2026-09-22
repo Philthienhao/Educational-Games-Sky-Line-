@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Edit3, Plus, Minus, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -470,20 +471,23 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
             : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)')) // Blue for Unselected
     : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)'; // Default Blue
 
-  return (
+  return ReactDOM.createPortal(
     <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      width: '100%',
-      maxWidth: '1280px',
-      minHeight: '680px',
-      margin: '0 auto',
       background: 'linear-gradient(180deg, #e0f2fe 0%, #fef3c7 50%, #ffe4e6 100%)',
-      borderRadius: '24px',
-      padding: '16px 24px',
-      boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
-      position: 'relative',
+      padding: '24px 36px',
+      boxSizing: 'border-box',
+      overflowY: 'auto',
       fontFamily: 'Montserrat, system-ui, sans-serif',
       color: '#1e293b'
     }}>
@@ -1104,7 +1108,7 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
         marginBottom: '28px',
         border: '2px solid rgba(255, 255, 255, 0.8)'
       }}>
-        <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#1e293b', margin: 0, lineHeight: 1.4 }}>
+        <h2 style={{ fontSize: '2.4rem', fontWeight: 900, color: '#1e293b', margin: 0, lineHeight: 1.4 }}>
           {currentQ.question}
         </h2>
       </div>
@@ -1447,6 +1451,7 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
         <div style={{ width: '90px' }} />
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

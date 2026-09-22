@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Link, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -62,8 +63,23 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
     setSelectedTerm(null);
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '10px 20px', width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+  return ReactDOM.createPortal(
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      zIndex: 9999999,
+      background: 'linear-gradient(135deg, #07121e 0%, #0f172a 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '24px',
+      padding: '24px 36px',
+      boxSizing: 'border-box',
+      overflowY: 'auto'
+    }}>
       
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
@@ -93,7 +109,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
         
         {/* Column A (Terms / Questions) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#f59e0b', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#f59e0b', textAlign: 'center' }}>
             📌 CỘT A (KHÁI NIỆM / CÂU HỎI)
           </h3>
           {pairs.map((p) => {
@@ -115,7 +131,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                     : (isSelected ? '2.5px solid #d97706' : '2.5px solid #cbd5e1'),
                   color: isMatched ? '#14532d' : (isSelected ? '#92400e' : '#0f172a'),
                   fontWeight: 900,
-                  fontSize: '1.05rem',
+                  fontSize: '1.45rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -150,9 +166,9 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
                     ? '#dcfce7' 
                     : '#ffffff',
                   border: isMatched ? '2.5px solid #16a34a' : '2.5px solid #cbd5e1',
-                  color: isMatched ? '#14532d' : '#0f172a',
+                  color: isMatched ? '#1e3a8a' : '#0f172a',
                   fontWeight: 900,
-                  fontSize: '1.05rem',
+                  fontSize: '1.45rem',
                   cursor: isMatched ? 'default' : 'pointer',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -177,6 +193,7 @@ export function MatchingPairsGame({ questions, teams, onAddPoints }) {
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }

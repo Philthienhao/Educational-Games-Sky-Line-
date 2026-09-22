@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { Shield, Key, Volume2, VolumeX, Maximize, ArrowLeft, Heart, X, Check, Award, Sparkles, Lock, Play, Compass } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -830,32 +831,25 @@ export function JungleRescueGame({ questions = [], teams, onAddPoints, onClose }
 
       </div>
 
-      {/* BATTLE ENCOUNTER PARCHMENT DIALOG POPUP */}
-      {showEncounterModal && currentQ && (
+      {/* BATTLE ENCOUNTER PARCHMENT DIALOG POPUP (PORTALED TO DOCUMENT.BODY) */}
+      {showEncounterModal && currentQ && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.65)',
-          backdropFilter: 'blur(4px)',
-          zIndex: 4000,
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          background: '#fffdf5',
+          backgroundImage: 'radial-gradient(#fef9c3 1px, transparent 1px)',
+          backgroundSize: '16px 16px',
+          border: '8px solid #b45309',
+          zIndex: 9999999,
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px'
+          boxSizing: 'border-box',
+          overflowY: 'auto'
         }}>
-          <div style={{
-            background: '#fffdf5',
-            backgroundImage: 'radial-gradient(#fef9c3 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-            borderRadius: '24px',
-            border: '6px solid #b45309',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
-            width: '100%',
-            maxWidth: '780px',
-            overflow: 'hidden',
-            display: 'flex',
-            position: 'relative'
-          }}>
             {/* Close X Button */}
             <button
               onClick={handleCloseEncounter}
@@ -886,7 +880,7 @@ export function JungleRescueGame({ questions = [], teams, onAddPoints, onClose }
               </div>
 
               {/* Question Text */}
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#451a03', margin: 0, lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#451a03', margin: 0, lineHeight: 1.4 }}>
                 {currentQ.question}
               </h3>
 
@@ -1064,9 +1058,8 @@ export function JungleRescueGame({ questions = [], teams, onAddPoints, onClose }
                 {currentDino.full}
               </div>
             </div>
-
-          </div>
-        </div>
+          </div>,
+        document.body
       )}
 
       {/* FINAL TREASURE REWARD / DEFEAT MODAL */}
