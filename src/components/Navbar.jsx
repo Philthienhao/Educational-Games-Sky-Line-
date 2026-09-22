@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock, HeartHandshake } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock, HeartHandshake, Globe, Beaker } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -165,7 +165,7 @@ export function Navbar({
               onClick={() => setActiveTab('geo-experiments')}
               style={{ background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(245, 158, 11, 0.15)', color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 900 }}
             >
-              <Sparkles size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#fde047'} />
+              <Globe size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#fde047'} />
               Mô hình mô phỏng Địa Lí
             </button>
 
@@ -174,7 +174,7 @@ export function Navbar({
               onClick={() => setActiveTab('virtual-lab')}
               style={{ background: activeTab === 'virtual-lab' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(13, 148, 136, 0.15)', color: activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', fontWeight: 900 }}
             >
-              <Sparkles size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
+              <Beaker size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
               Mô phỏng thí nghiệm KHTN
             </button>
 
