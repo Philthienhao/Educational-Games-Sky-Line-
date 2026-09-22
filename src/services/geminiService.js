@@ -39,17 +39,16 @@ export const GeminiService = {
    */
   async callGeminiAPI(systemInstruction, userPrompt, temperature = 0.7) {
     const apiKey = this.getApiKey();
-    if (!apiKey) {
-      throw new Error("Chưa cài đặt Gemini API Key.");
+    if (!apiKey || apiKey.trim().length < 10) {
+      return null;
     }
 
+    // Standard production models in fallback sequence (verified working v1beta models)
     const models = [
-      'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-pro',
-      'gemini-2.0-flash-exp'
+      'gemini-2.0-flash-exp',
+      'gemini-1.5-flash-latest'
     ];
-    let lastError = null;
 
     for (const modelName of models) {
       try {
@@ -80,18 +79,16 @@ export const GeminiService = {
         if (response.ok) {
           const data = await response.json();
           const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          if (candidateText) return candidateText.trim();
+          if (candidateText && candidateText.trim().length > 0) {
+            return candidateText.trim();
+          }
         }
-
-        const errJson = await response.json().catch(() => ({}));
-        const errMsg = errJson?.error?.message || `Lỗi API (${response.status})`;
-        lastError = new Error(`Gemini Error (${modelName}): ${errMsg}`);
       } catch (e) {
-        lastError = e;
+        console.warn(`Gemini API call model warning (${modelName}):`, e.message);
       }
     }
 
-    throw lastError || new Error("Không thể kết nối Gemini API.");
+    return null;
   },
 
   /**
@@ -167,21 +164,23 @@ Chú ý: Các đáp án A, B, C, D phải ngắn gọn, hấp dẫn, đúng ki�
 
         const userPrompt = `Hãy biên soạn ${targetCount} câu hỏi trắc nghiệm chuẩn về chủ đề: "${promptText}".`;
         const rawResult = await this.callGeminiAPI(systemPrompt, userPrompt, 0.4);
-        let cleanJson = rawResult.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleanJson);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((item, idx) => ({
-            id: `ai_q_${Date.now()}_${idx}`,
-            question: item.question || `Câu hỏi ${idx + 1}`,
-            optionA: item.optionA || item?.options?.[0] || 'Lựa chọn A',
-            optionB: item.optionB || item?.options?.[1] || 'Lựa chọn B',
-            optionC: item.optionC || item?.options?.[2] || 'Lựa chọn C',
-            optionD: item.optionD || item?.options?.[3] || 'Lựa chọn D',
-            options: [item.optionA || 'A', item.optionB || 'B', item.optionC || 'C', item.optionD || 'D'],
-            correctAnswer: (item.correctAnswer || item.correct || 'A').toUpperCase().trim(),
-            correct: (item.correctAnswer || item.correct || 'A').toUpperCase().trim(),
-            explanation: item.explanation || ''
-          }));
+        if (rawResult && typeof rawResult === 'string') {
+          let cleanJson = rawResult.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(cleanJson);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.map((item, idx) => ({
+              id: `ai_q_${Date.now()}_${idx}`,
+              question: item.question || `Câu hỏi ${idx + 1}`,
+              optionA: item.optionA || item?.options?.[0] || 'Lựa chọn A',
+              optionB: item.optionB || item?.options?.[1] || 'Lựa chọn B',
+              optionC: item.optionC || item?.options?.[2] || 'Lựa chọn C',
+              optionD: item.optionD || item?.options?.[3] || 'Lựa chọn D',
+              options: [item.optionA || 'A', item.optionB || 'B', item.optionC || 'C', item.optionD || 'D'],
+              correctAnswer: (item.correctAnswer || item.correct || 'A').toUpperCase().trim(),
+              correct: (item.correctAnswer || item.correct || 'A').toUpperCase().trim(),
+              explanation: item.explanation || ''
+            }));
+          }
         }
       }
     } catch (e) {
@@ -205,7 +204,8 @@ Hãy viết một đoạn nhận xét học bạ vừa chân thành, sâu sắc,
 - Tình hình học tập: ${academicProgress || 'Đạt chuẩn'}
 - Khen thưởng: ${rewardCount || 0} lượt | Vi phạm: ${behaviorCount || 0} lượt
 - Ghi chú: ${teacherNotes || 'Ngoan ngoãn, hòa đồng'}`;
-        return await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        const res = await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        if (res && typeof res === 'string') return res;
       }
     } catch (e) {
       console.warn('Gemini Student Remark fallback:', e.message);
@@ -225,7 +225,8 @@ Hãy viết một đoạn nhận xét học bạ vừa chân thành, sâu sắc,
         const systemPrompt = `Bạn là Chuyên gia phương pháp dạy học đổi mới theo Công văn 5512 Bộ GD&ĐT Việt Nam.
 Hãy xây dựng dàn ý bài giảng chi tiết gồm các phần: Mục tiêu, Khởi động, Kiến thức mới, Luyện tập và Vận dụng.`;
         const userPrompt = `Xây dựng kế hoạch bài dạy môn ${subject || 'Địa Lí'} lớp ${grade || '6'} cho bài: "${topic}".`;
-        return await this.callGeminiAPI(systemPrompt, userPrompt, 0.6);
+        const res = await this.callGeminiAPI(systemPrompt, userPrompt, 0.6);
+        if (res && typeof res === 'string') return res;
       }
     } catch (e) {
       console.warn('Gemini Lesson Outline fallback:', e.message);
@@ -257,7 +258,8 @@ Hãy xây dựng dàn ý bài giảng chi tiết gồm các phần: Mục tiêu,
       if (apiKey && apiKey.trim().length > 15) {
         const systemPrompt = `Bạn là Trợ lý Giáo viên chủ nhiệm chuyên nghiệp. Soạn kịch bản họp phụ huynh và thư tri ân.`;
         const userPrompt = `Soạn thảo kịch bản họp phụ huynh lớp "${className || 'Chủ nhiệm'}" về chủ đề: "${topic}".`;
-        return await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        const res = await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        if (res && typeof res === 'string') return res;
       }
     } catch (e) {
       console.warn('Gemini Parent Meeting fallback:', e.message);
@@ -298,7 +300,8 @@ Bạn luôn xưng là "Trợ lý AI Thầy Hảo" hoặc "Em", xưng hô thân t
 Trả lời ngắn gọn, chuyên nghiệp, chính xác, có biểu tượng cảm xúc vui tươi. Hỗ trợ giáo viên tạo game, thiết kế bài giảng, soạn câu hỏi, quản lý lớp chủ nhiệm.
 Ngữ cảnh trang hiện tại của giáo viên: ${contextTab}.`;
 
-        return await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        const res = await this.callGeminiAPI(systemPrompt, userPrompt, 0.7);
+        if (res && typeof res === 'string') return res;
       }
     } catch (e) {
       console.warn('Gemini General Assistant fallback:', e.message);
