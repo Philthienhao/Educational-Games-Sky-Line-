@@ -38,8 +38,15 @@ export const GeminiService = {
       throw new Error("Chưa cài đặt Gemini API Key. Vui lòng bấm vào ô Cài Đặt AI ở góc màn hình để nhập API Key!");
     }
 
-    // Try standard production models in fallback sequence
-    const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    // Try standard production models in fallback sequence (prioritizing gemini-3.6-flash)
+    const models = [
+      'gemini-3.6-flash',
+      'gemini-2.5-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-latest',
+      'gemini-2.0-flash-exp'
+    ];
     let lastError = null;
 
     for (const modelName of models) {
