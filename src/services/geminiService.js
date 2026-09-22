@@ -30,7 +30,7 @@ export const GeminiService = {
   },
 
   /**
-   * Base fetch call to Google Gemini REST API
+   * Base fetch call to Google Gemini REST API with automatic model fallback
    */
   async callGeminiAPI(systemInstruction, userPrompt, temperature = 0.7) {
     const apiKey = this.getApiKey();
@@ -38,39 +38,51 @@ export const GeminiService = {
       throw new Error("Chưa cài đặt Gemini API Key. Vui lòng bấm vào ô Cài Đặt AI ở góc màn hình để nhập API Key!");
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // Try standard production models in fallback sequence
+    const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    let lastError = null;
 
-    const bodyPayload = {
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: userPrompt }]
+    for (const modelName of models) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const bodyPayload = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: userPrompt }]
+            }
+          ],
+          systemInstruction: systemInstruction ? {
+            parts: [{ text: systemInstruction }]
+          } : undefined,
+          generationConfig: {
+            temperature: temperature,
+            maxOutputTokens: 2048
+          }
+        };
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyPayload)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (candidateText) return candidateText.trim();
         }
-      ],
-      systemInstruction: systemInstruction ? {
-        parts: [{ text: systemInstruction }]
-      } : undefined,
-      generationConfig: {
-        temperature: temperature,
-        maxOutputTokens: 2048
+
+        const errJson = await response.json().catch(() => ({}));
+        const errMsg = errJson?.error?.message || `Lỗi API (${response.status})`;
+        lastError = new Error(`Gemini AI Error (${modelName}): ${errMsg}`);
+      } catch (e) {
+        lastError = e;
       }
-    };
-
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bodyPayload)
-    });
-
-    if (!response.ok) {
-      const errJson = await response.json().catch(() => ({}));
-      const errMsg = errJson?.error?.message || `Lỗi API (${response.status})`;
-      throw new Error(`Gemini AI Error: ${errMsg}`);
     }
 
-    const data = await response.json();
-    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    return candidateText.trim();
+    throw lastError || new Error("Không thể kết nối Gemini AI. Vui lòng kiểm tra lại Key!");
   },
 
   /**
