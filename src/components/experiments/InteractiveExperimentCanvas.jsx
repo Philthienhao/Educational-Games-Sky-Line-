@@ -3574,23 +3574,33 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     // 8. Raycasting for Mouse Clicks & Hover Pointer Feedback
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
 
     const handlePointerDown = (event) => {
+      pointerDownPos = { x: event.clientX, y: event.clientY };
+    };
+
+    const handlePointerUp = (event) => {
+      const distMoved = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+      if (distMoved > 8) return; // Ignore camera orbit rotate drags
+
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      const targets = [sunMesh, ...Object.values(planetMeshes)];
-      const intersects = raycaster.intersectObjects(targets, true);
+      const intersects = raycaster.intersectObjects(scene.children, true);
 
       if (intersects.length > 0) {
-        let obj = intersects[0].object;
-        while (obj && !obj.userData?.key && obj.parent) {
-          obj = obj.parent;
-        }
-        if (obj && obj.userData?.key) {
-          handleSelectCelestial(obj.userData.key);
+        for (let i = 0; i < intersects.length; i++) {
+          let obj = intersects[i].object;
+          while (obj && !obj.userData?.key && obj.parent) {
+            obj = obj.parent;
+          }
+          if (obj && obj.userData?.key) {
+            handleSelectCelestial(obj.userData.key);
+            break;
+          }
         }
       }
     };
@@ -3601,17 +3611,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      const targets = [sunMesh, ...Object.values(planetMeshes)];
-      const intersects = raycaster.intersectObjects(targets, true);
+      const intersects = raycaster.intersectObjects(scene.children, true);
 
       if (intersects.length > 0) {
-        let obj = intersects[0].object;
-        while (obj && !obj.userData?.key && obj.parent) {
-          obj = obj.parent;
-        }
-        if (obj && obj.userData?.key) {
-          renderer.domElement.style.cursor = 'pointer';
-          return;
+        for (let i = 0; i < intersects.length; i++) {
+          let obj = intersects[i].object;
+          while (obj && !obj.userData?.key && obj.parent) {
+            obj = obj.parent;
+          }
+          if (obj && obj.userData?.key) {
+            renderer.domElement.style.cursor = 'pointer';
+            return;
+          }
         }
       }
       renderer.domElement.style.cursor = isGesturePilotRef.current ? 'crosshair' : 'grab';
@@ -3619,6 +3630,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
     const domElement = renderer.domElement;
     domElement.addEventListener('pointerdown', handlePointerDown);
+    domElement.addEventListener('pointerup', handlePointerUp);
     domElement.addEventListener('pointermove', handlePointerMove);
 
     // 9. Animation & Space Travel Flight Physics Loop
@@ -3848,6 +3860,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       cancelAnimationFrame(animFrameId);
       window.removeEventListener('resize', handleResize);
       domElement.removeEventListener('pointerdown', handlePointerDown);
+      domElement.removeEventListener('pointerup', handlePointerUp);
       domElement.removeEventListener('pointermove', handlePointerMove);
       controls.dispose();
       renderer.dispose();
@@ -3864,13 +3877,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       
       {/* 3D WebGL Scene Canvas Container */}
       <div 
-        ref={mountRef} 
         onPointerDown={(e) => {
           if (!isGesturePilotRef.current) return;
           isScreenDraggingRef.current = true;
           dragStartPosRef.current = { x: e.clientX, y: e.clientY };
           lastManualInputTimeRef.current = Date.now();
-          setSelectedPlanetKey(null);
         }}
         onPointerMove={(e) => {
           if (!isGesturePilotRef.current || !isScreenDraggingRef.current) return;
@@ -3901,6 +3912,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           cursor: isGesturePilot ? 'crosshair' : 'grab'
         }}
       >
+        {/* Dedicated Three.js WebGL Mount Target (Empty div, NO React children inside!) */}
+        <div ref={mountRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }} />
         {/* Standard Mode Top Header (only when NOT in cockpit mode) */}
         {!isGesturePilot && (
           <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, display: 'flex', gap: '16px', alignItems: 'center' }}>
