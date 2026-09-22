@@ -95,16 +95,16 @@ export function Sidebar({
   };
 
   const navItems = [
-    { id: 'catalog', label: 'Kho Game Giáo Dục', icon: Gamepad2 },
-    { id: 'my-games', label: 'Game Của Tôi', icon: BookmarkCheck, count: myGamesCount },
-    { id: 'call-student', label: 'Gọi Tên Học Sinh', icon: UserCheck },
-    { id: 'timer', label: 'Đồng Hồ Bấm Giờ', icon: Clock },
-    { id: 'homeroom', label: 'Lớp Chủ Nhiệm', icon: Users },
-    { id: 'parent-meeting', label: 'Họp Phụ Huynh', icon: HeartHandshake, color: '#ec4899' },
-    { id: 'textbook-download', label: 'Tải SGK', icon: BookOpen },
-    { id: 'virtual-lab', label: 'Thí Nghiệm KHTN', icon: FlaskConical },
-    { id: 'geo-experiments', label: '3D Địa Lí', icon: Globe, color: '#f59e0b' },
-    { id: 'lecture-slides', label: 'Slide Bài Giảng', icon: Presentation }
+    { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users },
+    { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2 },
+    { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount },
+    { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserCheck },
+    { id: 'parent-meeting', label: 'Hỗ trợ họp phụ huynh', icon: HeartHandshake, color: '#ec4899' },
+    { id: 'lecture-slides', label: 'Slide bài giảng', icon: Presentation },
+    { id: 'textbook-download', label: 'Sách giáo khoa', icon: BookOpen },
+    { id: 'geo-experiments', label: 'Mô hình mô phỏng Địa Lí', icon: Globe, color: '#f59e0b' },
+    { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskConical },
+    { id: 'timer', label: 'Đồng hồ bấm giờ', icon: Clock }
   ];
 
   return (

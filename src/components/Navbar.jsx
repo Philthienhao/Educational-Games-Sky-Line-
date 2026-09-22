@@ -94,11 +94,20 @@ export function Navbar({
           {/* Center Nav Buttons */}
           <nav style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <button 
+              className={`btn ${activeTab === 'homeroom' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('homeroom')}
+              style={{ background: activeTab === 'homeroom' ? 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
+            >
+              <Users size={18} />
+              Lớp chủ nhiệm
+            </button>
+
+            <button 
               className={`btn ${activeTab === 'catalog' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('catalog')}
             >
               <Gamepad2 size={18} />
-              Kho Game Giáo Dục
+              Kho Game giáo dục
             </button>
 
             <button 
@@ -107,7 +116,7 @@ export function Navbar({
               style={{ position: 'relative' }}
             >
               <BookmarkCheck size={18} />
-              Game Của Tôi
+              Game của tôi
               {myGamesCount > 0 && (
                 <span className="badge badge-custom" style={{ marginLeft: '4px', fontSize: '0.7rem' }}>
                   {myGamesCount}
@@ -121,61 +130,7 @@ export function Navbar({
               style={{ background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
             >
               <UserCheck size={18} />
-              Gọi Tên Học Sinh
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'timer' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('timer')}
-              style={{ background: activeTab === 'timer' ? 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)' : undefined, fontWeight: 800 }}
-            >
-              <Clock size={18} />
-              Đồng Hồ Bấm Giờ
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'homeroom' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('homeroom')}
-              style={{ background: activeTab === 'homeroom' ? 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
-            >
-              <Users size={18} />
-              Lớp Chủ Nhiệm
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'textbook-download' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('textbook-download')}
-              style={{ background: activeTab === 'textbook-download' ? 'linear-gradient(135deg, #0d9488 0%, #059669 100%)' : undefined, fontWeight: 800 }}
-            >
-              <BookOpen size={18} />
-              Tải File SGK
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'lecture-slides' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('lecture-slides')}
-              style={{ background: activeTab === 'lecture-slides' ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' : undefined, fontWeight: 800 }}
-            >
-              <Presentation size={18} />
-              Slide Bài Giảng
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'geo-experiments' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('geo-experiments')}
-              style={{ background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(245, 158, 11, 0.15)', color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 900 }}
-            >
-              <Sparkles size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#fde047'} />
-              🌐 Mô Hình 3D Địa Lý
-            </button>
-
-            <button 
-              className={`btn ${activeTab === 'virtual-lab' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setActiveTab('virtual-lab')}
-              style={{ background: activeTab === 'virtual-lab' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(13, 148, 136, 0.15)', color: activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', fontWeight: 900 }}
-            >
-              <Sparkles size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
-              🧪 Thí Nghiệm KHTN
+              Kho Game Gọi tên học sinh
             </button>
 
             <button 
@@ -184,7 +139,52 @@ export function Navbar({
               style={{ background: activeTab === 'parent-meeting' ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)' : 'rgba(236, 72, 153, 0.15)', color: activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6', border: '1px solid rgba(236, 72, 153, 0.4)', fontWeight: 900 }}
             >
               <HeartHandshake size={18} color={activeTab === 'parent-meeting' ? '#ffffff' : '#f472b6'} />
-              🤝 Hỗ Trợ Họp Phụ Huynh
+              Hỗ trợ họp phụ huynh
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'lecture-slides' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('lecture-slides')}
+              style={{ background: activeTab === 'lecture-slides' ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' : undefined, fontWeight: 800 }}
+            >
+              <Presentation size={18} />
+              Slide bài giảng
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'textbook-download' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('textbook-download')}
+              style={{ background: activeTab === 'textbook-download' ? 'linear-gradient(135deg, #0d9488 0%, #059669 100%)' : undefined, fontWeight: 800 }}
+            >
+              <BookOpen size={18} />
+              Sách giáo khoa
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'geo-experiments' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('geo-experiments')}
+              style={{ background: activeTab === 'geo-experiments' ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(245, 158, 11, 0.15)', color: activeTab === 'geo-experiments' ? '#ffffff' : '#fde047', border: '1px solid rgba(245, 158, 11, 0.4)', fontWeight: 900 }}
+            >
+              <Sparkles size={18} color={activeTab === 'geo-experiments' ? '#ffffff' : '#fde047'} />
+              Mô hình mô phỏng Địa Lí
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'virtual-lab' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('virtual-lab')}
+              style={{ background: activeTab === 'virtual-lab' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(13, 148, 136, 0.15)', color: activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', fontWeight: 900 }}
+            >
+              <Sparkles size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
+              Mô phỏng thí nghiệm KHTN
+            </button>
+
+            <button 
+              className={`btn ${activeTab === 'timer' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('timer')}
+              style={{ background: activeTab === 'timer' ? 'linear-gradient(135deg, #0d9488 0%, #4f46e5 100%)' : undefined, fontWeight: 800 }}
+            >
+              <Clock size={18} />
+              Đồng hồ bấm giờ
             </button>
 
 
