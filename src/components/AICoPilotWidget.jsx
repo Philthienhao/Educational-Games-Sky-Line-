@@ -10,7 +10,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     {
       id: 1,
       sender: 'ai',
-      text: '👋 Xin chào Thầy/Cô! Em là **Trợ lý AI Thầy Hảo (Sky-Line AI)**. Em có thể tự động tạo câu hỏi Game, soạn Slide, viết nhận xét học sinh, tóm tắt SGK và hỗ trợ mọi môn học. Thầy/Cô cần em giúp gì ạ?'
+      text: '👋 Xin chào Thầy/Cô! Em là **Trợ lý AI Thầy Hảo (Sky-Line AI PRO 3.6)**. Em có thể tự động tạo câu hỏi Game, soạn Slide, viết nhận xét học sinh, tóm tắt SGK và hỗ trợ mọi môn học. Thầy/Cô cần em giúp gì ạ?'
     }
   ]);
   const [copiedId, setCopiedId] = useState(null);
@@ -67,6 +67,19 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     const textToSend = customText || prompt;
     if (!textToSend.trim() || loading) return;
 
+    if (!GeminiService.getApiKey()) {
+      if (onOpenAISettings) onOpenAISettings();
+      const userMsg = { id: Date.now(), sender: 'user', text: textToSend };
+      const aiNotice = {
+        id: Date.now() + 1,
+        sender: 'ai',
+        text: '⚠️ **Thầy/Cô chưa cài đặt API Key Gemini!**\nEm đã tự động mở bảng **Cài Đặt API Key** bên cạnh. Thầy/Cô dán mã API Key (lấy miễn phí từ Google Studio) vào ô rồi bấm **Lưu** là em sẵn sàng hoạt động ngay ạ!'
+      };
+      setMessages(prev => [...prev, userMsg, aiNotice]);
+      if (!customText) setPrompt('');
+      return;
+    }
+
     const userMsg = { id: Date.now(), sender: 'user', text: textToSend };
     setMessages(prev => [...prev, userMsg]);
     if (!customText) setPrompt('');
@@ -95,10 +108,11 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
       const aiMsg = { id: Date.now() + 1, sender: 'ai', text: reply };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
+      if (onOpenAISettings) onOpenAISettings();
       const errReply = { 
         id: Date.now() + 1, 
         sender: 'ai', 
-        text: `⚠️ **Lỗi kết nối AI**: ${err.message}. Thầy/Cô vui lòng bấm vào biểu tượng bánh răng ⚙️ góc trên để kiểm tra lại API Key Gemini nhé!` 
+        text: `⚠️ **Lỗi kết nối AI**: ${err.message}. Em đã mở bảng Cài Đặt API Key bên cạnh để Thầy/Cô kiểm tra hoặc đổi API Key Gemini mới nhé!` 
       };
       setMessages(prev => [...prev, errReply]);
     } finally {
@@ -141,7 +155,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
         <Sparkles size={22} className="pulse-icon" />
         <span>Trợ Lý AI Gemini</span>
         <span className="badge" style={{ background: '#f59e0b', color: '#0f172a', fontWeight: 900, fontSize: '0.68rem', padding: '2px 7px', borderRadius: '10px' }}>
-          PRO 2.5
+          PRO 3.6
         </span>
       </div>
 

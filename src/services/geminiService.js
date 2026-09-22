@@ -1,6 +1,6 @@
 /**
  * Gemini AI Service for Sky-Line Educational Games Platform
- * Integrates Google Gemini 2.5 Flash API for automated game creation,
+ * Integrates Google Gemini PRO 3.6 / Flash API for automated game creation,
  * homeroom remarks, lesson outlines, parent meeting scripts, and textbook quizzes.
  */
 
@@ -11,7 +11,7 @@ export const GeminiService = {
    * Get active Gemini API key (custom or fallback)
    */
   getApiKey() {
-    const customKey = localStorage.getItem('user_gemini_api_key');
+    const customKey = localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key');
     if (customKey && customKey.trim().length > 15) {
       return customKey.trim();
     }
@@ -24,8 +24,11 @@ export const GeminiService = {
   saveApiKey(key) {
     if (!key) {
       localStorage.removeItem('user_gemini_api_key');
+      localStorage.removeItem('gemini_api_key');
     } else {
-      localStorage.setItem('user_gemini_api_key', key.trim());
+      const trimmed = key.trim();
+      localStorage.setItem('user_gemini_api_key', trimmed);
+      localStorage.setItem('gemini_api_key', trimmed);
     }
   },
 
@@ -38,13 +41,11 @@ export const GeminiService = {
       throw new Error("Chưa cài đặt Gemini API Key. Vui lòng bấm vào ô Cài Đặt AI ở góc màn hình để nhập API Key!");
     }
 
-    // Try standard production models in fallback sequence (prioritizing gemini-3.6-flash)
+    // Standard production models in fallback sequence
     const models = [
-      'gemini-3.6-flash',
-      'gemini-2.5-flash',
       'gemini-2.0-flash',
       'gemini-1.5-flash',
-      'gemini-1.5-flash-latest',
+      'gemini-1.5-pro',
       'gemini-2.0-flash-exp'
     ];
     let lastError = null;

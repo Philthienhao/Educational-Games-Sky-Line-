@@ -202,7 +202,7 @@ export async function generateQuestionsFromTextbook({ textbookText, promptComman
   const targetCount = countMatch ? Math.min(50, Math.max(1, parseInt(countMatch[1], 10))) : 15;
 
   // Check saved API key
-  const effectiveKey = apiKey || localStorage.getItem('gemini_api_key') || '';
+  const effectiveKey = apiKey || localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
 
   if (effectiveKey && effectiveKey.trim().length > 10) {
     try {
