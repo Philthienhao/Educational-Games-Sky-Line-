@@ -9,6 +9,9 @@ import {
   Globe,
   Shield, 
   UserCheck, 
+  UserPlus,
+  Atom,
+  FlaskRound,
   PlusCircle, 
   FileSpreadsheet, 
   Camera, 
@@ -98,12 +101,12 @@ export function Sidebar({
     { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users, color: '#0284c7' },
     { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2, color: '#0d9488' },
     { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount, color: '#0284c7' },
-    { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserCheck, color: '#0284c7' },
+    { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserPlus, color: '#0284c7' },
     { id: 'parent-meeting', label: 'Hỗ trợ họp phụ huynh', icon: HeartHandshake, color: '#ec4899' },
     { id: 'lecture-slides', label: 'Slide bài giảng', icon: Presentation, color: '#6366f1' },
     { id: 'textbook-download', label: 'Sách giáo khoa', icon: BookOpen, color: '#059669' },
     { id: 'geo-experiments', label: 'Mô hình mô phỏng Địa Lí', icon: Globe, color: '#f59e0b' },
-    { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: Beaker, color: '#0d9488' },
+    { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskRound, color: '#0d9488' },
     { id: 'timer', label: 'Đồng hồ bấm giờ', icon: Clock, color: '#8b5cf6' }
   ];
 
@@ -210,7 +213,7 @@ export function Sidebar({
                   }}
                   className={`sidebar-menu-btn ${isActive ? 'active' : ''}`}
                 >
-                  <Icon size={19} className="menu-icon" color={isActive ? '#ffffff' : (item.color || '#0d9488')} />
+                  <Icon size={20} strokeWidth={2.2} style={{ minWidth: '20px', minHeight: '20px', width: '20px', height: '20px', flexShrink: 0 }} className="menu-icon" color={isActive ? '#ffffff' : (item.color || '#0d9488')} />
                   <span className="menu-label">{item.label}</span>
                   {item.count > 0 && (
                     <span className="menu-count-badge">{item.count}</span>

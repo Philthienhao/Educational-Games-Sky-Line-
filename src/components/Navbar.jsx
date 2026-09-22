@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, Clock, HeartHandshake, Globe, Beaker } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, UserPlus, FlaskRound, Clock, HeartHandshake, Globe, Beaker } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -129,7 +129,7 @@ export function Navbar({
               onClick={() => setActiveTab('call-student')}
               style={{ background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
             >
-              <UserCheck size={18} />
+              <UserPlus size={18} />
               Kho Game Gọi tên học sinh
             </button>
 
@@ -174,7 +174,7 @@ export function Navbar({
               onClick={() => setActiveTab('virtual-lab')}
               style={{ background: activeTab === 'virtual-lab' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : 'rgba(13, 148, 136, 0.15)', color: activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', fontWeight: 900 }}
             >
-              <Beaker size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
+              <FlaskRound size={18} color={activeTab === 'virtual-lab' ? '#ffffff' : '#2dd4bf'} />
               Mô phỏng thí nghiệm KHTN
             </button>
 
