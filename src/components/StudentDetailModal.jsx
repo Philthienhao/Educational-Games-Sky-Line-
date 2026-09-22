@@ -7,17 +7,8 @@ import { AvatarStorageService } from '../services/avatarStorage';
 export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete }) {
   if (!isOpen || !student) return null;
 
-  // Auto trigger fullscreen & hide sidebar when opening student detail modal
+  // Clean up any body lock class on unmount
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('is-modal-open');
-      document.body.classList.add('is-fullscreen');
-      try {
-        if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        }
-      } catch (e) {}
-    }
     return () => {
       document.body.classList.remove('is-modal-open');
       document.body.classList.remove('is-fullscreen');

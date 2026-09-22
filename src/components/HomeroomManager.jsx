@@ -440,13 +440,6 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     if (!st) return;
     setEditingStudent(st);
     setIsModalOpen(true);
-    document.body.classList.add('is-modal-open');
-    document.body.classList.add('is-fullscreen');
-    try {
-      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-    } catch (e) {}
   };
 
   // Save Single Student Edit
