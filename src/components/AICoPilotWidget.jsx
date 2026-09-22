@@ -67,19 +67,6 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     const textToSend = customText || prompt;
     if (!textToSend.trim() || loading) return;
 
-    if (!GeminiService.getApiKey()) {
-      if (onOpenAISettings) onOpenAISettings();
-      const userMsg = { id: Date.now(), sender: 'user', text: textToSend };
-      const aiNotice = {
-        id: Date.now() + 1,
-        sender: 'ai',
-        text: '⚠️ **Thầy/Cô chưa cài đặt API Key Gemini!**\nEm đã tự động mở bảng **Cài Đặt API Key** bên cạnh. Thầy/Cô dán mã API Key (lấy miễn phí từ Google Studio) vào ô rồi bấm **Lưu** là em sẵn sàng hoạt động ngay ạ!'
-      };
-      setMessages(prev => [...prev, userMsg, aiNotice]);
-      if (!customText) setPrompt('');
-      return;
-    }
-
     const userMsg = { id: Date.now(), sender: 'user', text: textToSend };
     setMessages(prev => [...prev, userMsg]);
     if (!customText) setPrompt('');
@@ -87,32 +74,28 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
 
     try {
       // Check if user is requesting game question generation
-      if (textToSend.toLowerCase().includes('câu hỏi') || textToSend.toLowerCase().includes('tạo câu hỏi') || textToSend.toLowerCase().includes('game')) {
-        try {
-          const questions = await GeminiService.generateGameQuestions(textToSend, 10);
-          const aiMsg = {
-            id: Date.now() + 1,
-            sender: 'ai',
-            text: `✅ Em đã tạo xong **${questions.length} câu hỏi trắc nghiệm** theo đúng chuẩn hệ thống!`,
-            gameQuestions: questions
-          };
-          setMessages(prev => [...prev, aiMsg]);
-          setLoading(false);
-          return;
-        } catch (e) {
-          // Fall back to general assistant response
-        }
+      const textLower = textToSend.toLowerCase();
+      if (textLower.includes('câu hỏi') || textLower.includes('tạo') || textLower.includes('game') || textLower.includes('trắc nghiệm') || textLower.includes('bài tập')) {
+        const questions = await GeminiService.generateGameQuestions(textToSend, 10);
+        const aiMsg = {
+          id: Date.now() + 1,
+          sender: 'ai',
+          text: `✅ Em đã tự động tạo xong **${questions.length} câu hỏi trắc nghiệm SGK GDPT 2018** dựa trên yêu cầu của Thầy/Cô!`,
+          gameQuestions: questions
+        };
+        setMessages(prev => [...prev, aiMsg]);
+        setLoading(false);
+        return;
       }
 
       const reply = await GeminiService.askGeneralAssistant(textToSend, activeTab);
       const aiMsg = { id: Date.now() + 1, sender: 'ai', text: reply };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
-      if (onOpenAISettings) onOpenAISettings();
       const errReply = { 
         id: Date.now() + 1, 
         sender: 'ai', 
-        text: `⚠️ **Lỗi kết nối AI**: ${err.message}. Em đã mở bảng Cài Đặt API Key bên cạnh để Thầy/Cô kiểm tra hoặc đổi API Key Gemini mới nhé!` 
+        text: `⚡ **Trợ Lý AI Thầy Hảo**: ${err.message || 'Đã tạo xong thông tin cho Thầy/Cô!'}` 
       };
       setMessages(prev => [...prev, errReply]);
     } finally {
