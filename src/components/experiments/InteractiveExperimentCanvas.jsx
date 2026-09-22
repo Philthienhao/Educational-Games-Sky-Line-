@@ -3973,10 +3973,10 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
             position: 'absolute', top: isGesturePilot ? '65px' : '20px', right: '20px',
             maxWidth: '350px', width: 'calc(100% - 40px)',
             maxHeight: 'calc(100% - 85px)', overflowY: 'auto',
-            background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)',
+            background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(20px)',
             border: `2px solid ${activePlanet.color}`, borderRadius: '20px',
-            padding: '18px', color: '#f8fafc', boxShadow: `0 12px 48px rgba(0, 0, 0, 0.8), 0 0 24px ${activePlanet.color}44`,
-            zIndex: 40
+            padding: '18px', color: '#f8fafc', boxShadow: `0 16px 48px rgba(0, 0, 0, 0.9), 0 0 32px ${activePlanet.color}55`,
+            zIndex: 100, pointerEvents: 'auto'
           }}>
             {/* Header: Title, Subtitle, Close */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.15)', paddingBottom: '10px' }}>
