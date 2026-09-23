@@ -380,17 +380,20 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
                 {msg.gameQuestions && (
                   <div style={{ marginTop: '12px', background: 'rgba(13, 148, 136, 0.25)', border: '1px solid #0d9488', padding: '12px', borderRadius: '12px' }}>
                     <div style={{ fontWeight: 800, color: '#5eead4', fontSize: '0.82rem', marginBottom: '8px' }}>
-                      🎯 Bộ câu hỏi AI đã sẵn sàng để nạp vào Game!
+                      🎯 Bộ {msg.gameQuestions.length} câu hỏi AI đã sẵn sàng!
                     </div>
                     <button
                       onClick={() => {
-                        onApplyAIGameQuestions(msg.gameQuestions);
+                        const intent = msg.gameIntent || detectGameIntent(msg.text || '');
+                        if (onApplyAIGameQuestions) {
+                          onApplyAIGameQuestions(msg.gameQuestions, intent.type, intent.title, true);
+                        }
                         setIsOpen(false);
                       }}
                       className="btn btn-success btn-sm"
-                      style={{ width: '100%', fontWeight: 900 }}
+                      style={{ width: '100%', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                     >
-                      🚀 Nạp Trực Tiếp Vào Game Hiện Tại
+                      🚀 Mở & Cho Học Sinh Chơi Ngay ({msg.gameIntent?.title || 'Game Kéo Co'})
                     </button>
                   </div>
                 )}

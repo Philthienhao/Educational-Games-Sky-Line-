@@ -110,7 +110,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   ]);
 
   const questions = game.questions || game.defaultQuestions || [];
-  const engineType = game.engineType || 'tug-of-war';
+  const engineType = game.engineType || game.gameType || 'tug-of-war-dual';
 
   const handleAddPoints = (teamIndex, points) => {
     const targetIdx = (typeof teamIndex === 'number' && teamIndex >= 0) ? teamIndex : activeTeamIndex;

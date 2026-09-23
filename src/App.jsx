@@ -100,20 +100,37 @@ export function App() {
   const handleApplyAIGameQuestions = (aiQuestions, targetGameType = 'tug-of-war-dual', targetGameTitle = null, autoLaunch = true) => {
     if (!aiQuestions || aiQuestions.length === 0) return;
 
-    let engineType = targetGameType;
+    let engineType = targetGameType || 'tug-of-war-dual';
     if (targetGameType === 'dua-vit') engineType = 'duck-race';
     if (targetGameType === 'dua-rua') engineType = 'turtle-race';
     if (targetGameType === 'astronaut') engineType = 'astronaut-explorer';
 
-    const titleText = targetGameTitle ? `Game AI: ${targetGameTitle}` : `Game AI - ${new Date().toLocaleDateString('vi-VN')}`;
+    let icon = '🪢';
+    let defaultName = 'Kéo Co Kiến Thức';
+    if (engineType === 'duck-race') { icon = '🦆'; defaultName = 'Đua Vịt Tri Thức'; }
+    else if (engineType === 'turtle-race') { icon = '🐢'; defaultName = 'Đua Rùa Tri Thức'; }
+    else if (engineType === 'head-tilt') { icon = '👤'; defaultName = 'Nghiêng Đầu Chuẩn'; }
+    else if (engineType === 'millionaire') { icon = '💰'; defaultName = 'Ai Là Triệu Phú'; }
+    else if (engineType === 'mario-race') { icon = '🍄'; defaultName = 'Mario Phiêu Lưu Tri Thức'; }
+    else if (engineType === 'tower-builder') { icon = '🏗️'; defaultName = 'Kiến Trúc Sư Tri Thức'; }
+    else if (engineType === 'astronaut-explorer') { icon = '🚀'; defaultName = 'Vũ Trụ Astronaut'; }
+    else if (engineType === 'fruit-ninja') { icon = '🍉'; defaultName = 'Chém Hoa Quả / Bong Bóng'; }
+    else if (engineType === 'car-race') { icon = '🏎️'; defaultName = 'Đua Xe Kiến Thức'; }
+    else if (engineType === 'mystery-box') { icon = '🎁'; defaultName = 'Hộp Quà Bí Mật'; }
+    else if (engineType === 'picture-reveal') { icon = '🖼️'; defaultName = 'Lật Mảnh Ghép Bí Mật'; }
+    else if (engineType === 'crossword') { icon = '🧩'; defaultName = 'Ô Chữ Khóa Bí Mật'; }
+    else if (engineType === 'pose-imitation') { icon = '🏃‍♂️'; defaultName = 'Bắt Chước Tư Thế Camera'; }
+
+    const titleText = targetGameTitle || `${defaultName} (AI - ${new Date().toLocaleDateString('vi-VN')})`;
 
     const newAiGame = {
       id: `game_ai_${Date.now()}`,
       title: titleText,
       subject: 'Địa Lí',
       grade: '6',
-      gameType: targetGameType,
+      gameType: engineType,
       engineType: engineType,
+      icon: icon,
       questions: aiQuestions,
       userId: currentUser?.id || 'user_admin',
       isCustomized: true,
