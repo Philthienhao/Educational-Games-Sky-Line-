@@ -39,23 +39,22 @@ export const GeminiService = {
   async testApiKey(customKey) {
     const keyToTest = (customKey || this.getApiKey() || '').trim();
     if (!keyToTest || keyToTest.length < 15) {
-      return { success: false, error: 'API Key quá ngắn hoặc không hợp lệ (mã chuẩn bắt đầu bằng AIzaSy...)' };
+      return { success: false, error: 'API Key quá ngắn hoặc không hợp lệ (mã chuẩn Gemini bắt đầu bằng AIzaSy...)' };
     }
 
     const models = ['gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest'];
-    let lastErrMsg = '';
 
-    for (const modelName of models) {
+    const testSingleModel = async (modelName) => {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${keyToTest}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
       try {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${keyToTest}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: 'Xin chào' }] }]
+            contents: [{ role: 'user', parts: [{ text: 'Ping' }] }]
           }),
           signal: controller.signal
         });
@@ -67,16 +66,36 @@ export const GeminiService = {
           if (candidateText) {
             return { success: true, model: modelName };
           }
-        } else {
-          const errData = await response.json().catch(() => ({}));
-          lastErrMsg = errData?.error?.message || `Lỗi HTTP ${response.status}`;
         }
+        const errData = await response.json().catch(() => ({}));
+        const msg = errData?.error?.message || `Lỗi HTTP ${response.status}`;
+        throw new Error(msg);
       } catch (e) {
-        lastErrMsg = e.name === 'AbortError' ? 'Hết thời gian chờ kết nối (Timeout)' : (e.message || 'Lỗi kết nối mạng');
+        clearTimeout(timeoutId);
+        const errMsg = e.name === 'AbortError' ? 'Hết thời gian chờ kết nối (Timeout 4s)' : (e.message || 'Lỗi kết nối');
+        throw new Error(errMsg);
       }
-    }
+    };
 
-    return { success: false, error: lastErrMsg || 'Google API từ chối Key hoặc chưa kích hoạt dịch vụ Gemini.' };
+    try {
+      const result = await Promise.any(models.map(m => testSingleModel(m)));
+      return result;
+    } catch (aggregateErr) {
+      const errors = aggregateErr.errors || [];
+      const firstErr = errors.find(e => e.message && !e.message.includes('Timeout')) || errors[0];
+      const errorDetail = firstErr?.message || 'Google API từ chối Key hoặc chưa kích hoạt dịch vụ Gemini.';
+      
+      let friendlyError = errorDetail;
+      if (errorDetail.includes('API key not valid') || errorDetail.includes('INVALID_ARGUMENT')) {
+        friendlyError = 'API Key không hợp lệ hoặc đã bị khóa trên Google AI Studio. Vui lòng kiểm tra lại mã Key!';
+      } else if (errorDetail.includes('Quota') || errorDetail.includes('RESOURCE_EXHAUSTED')) {
+        friendlyError = 'API Key đã vượt quá giới hạn truy vấn (Quota limit) của Google. Vui lòng thử lại sau hoặc dùng Key khác!';
+      } else if (errorDetail.includes('Failed to fetch') || errorDetail.includes('Lỗi kết nối')) {
+        friendlyError = 'Không thể kết nối đến máy chủ Google (Lỗi mạng hoặc Trình duyệt chặn kết nối). Vui lòng kiểm tra kết nối mạng!';
+      }
+
+      return { success: false, error: friendlyError };
+    }
   },
 
   /**

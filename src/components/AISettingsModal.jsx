@@ -1,36 +1,86 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Key, CheckCircle2, ShieldCheck, Info } from 'lucide-react';
+import { X, Sparkles, Key, CheckCircle2, ShieldCheck, AlertCircle, Trash2 } from 'lucide-react';
 import { GeminiService } from '../services/geminiService';
 
 export function AISettingsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('user_gemini_api_key') || '');
-  const [testStatus, setTestStatus] = useState(null); // 'testing' | 'success' | 'error'
+  const savedKey = localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key') || '';
+  const [apiKey, setApiKey] = useState(savedKey);
+  const [testStatus, setTestStatus] = useState(null); // null | 'testing' | 'success' | 'error'
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
-  const handleSave = () => {
-    GeminiService.saveApiKey(apiKey);
-    setTestStatus('success');
-    setTimeout(() => {
-      onClose();
-    }, 400);
+  const handleInputChange = (e) => {
+    setApiKey(e.target.value);
+    setTestStatus(null);
+    setErrorMsg('');
+    setSuccessMsg('');
   };
 
-  const handleTestKey = async () => {
-    if (!apiKey || apiKey.trim().length < 15) {
+  const handleClearKey = () => {
+    GeminiService.saveApiKey('');
+    setApiKey('');
+    setTestStatus(null);
+    setErrorMsg('');
+    setSuccessMsg('Đã xóa API Key cá nhân. Hệ thống đã chuyển về sử dụng Gemini AI miễn phí.');
+  };
+
+  const handleSave = async () => {
+    const trimmed = (apiKey || '').trim();
+    if (!trimmed) {
+      GeminiService.saveApiKey('');
+      onClose();
+      return;
+    }
+
+    if (trimmed.length < 15) {
       setTestStatus('error');
-      setErrorMsg('API Key không hợp lệ hoặc quá ngắn. Vui lòng kiểm tra lại (Key chuẩn bắt đầu bằng AIzaSy...).');
+      setErrorMsg('API Key không hợp lệ hoặc quá ngắn (chuẩn bắt đầu bằng AIzaSy...).');
       return;
     }
 
     setTestStatus('testing');
     setErrorMsg('');
+    setSuccessMsg('');
+
     try {
-      const result = await GeminiService.testApiKey(apiKey);
+      const result = await GeminiService.testApiKey(trimmed);
       if (result.success) {
-        GeminiService.saveApiKey(apiKey);
+        GeminiService.saveApiKey(trimmed);
         setTestStatus('success');
+        setSuccessMsg(`Đã xác thực thành công và lưu Gemini API Key cá nhân! (Model: ${result.model})`);
+        setTimeout(() => {
+          onClose();
+        }, 1200);
+      } else {
+        setTestStatus('error');
+        setErrorMsg(result.error || 'Không thể kết nối Gemini API. Vui lòng kiểm tra lại mã Key!');
+      }
+    } catch (e) {
+      setTestStatus('error');
+      setErrorMsg(e.message || 'Lỗi kết nối kiểm tra Key!');
+    }
+  };
+
+  const handleTestKey = async () => {
+    const trimmed = (apiKey || '').trim();
+    if (!trimmed || trimmed.length < 15) {
+      setTestStatus('error');
+      setErrorMsg('API Key không hợp lệ hoặc quá ngắn. Vui lòng kiểm tra lại (chuẩn bắt đầu bằng AIzaSy...).');
+      return;
+    }
+
+    setTestStatus('testing');
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      const result = await GeminiService.testApiKey(trimmed);
+      if (result.success) {
+        GeminiService.saveApiKey(trimmed);
+        setTestStatus('success');
+        setSuccessMsg(`Kết nối Gemini AI thành công! Trợ lý đã sẵn sàng phục vụ (Model active: ${result.model}).`);
       } else {
         setTestStatus('error');
         setErrorMsg(result.error || 'Không thể kết nối Gemini API. Vui lòng kiểm tra lại mã Key!');
@@ -90,17 +140,47 @@ export function AISettingsModal({ isOpen, onClose }) {
           </button>
         </div>
 
+        {/* Current Active Status Badge */}
+        <div style={{
+          background: savedKey ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+          border: savedKey ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(56, 189, 248, 0.35)',
+          padding: '10px 14px', borderRadius: '14px', marginBottom: '16px',
+          fontSize: '0.82rem', fontWeight: 800,
+          color: savedKey ? '#6ee7b7' : '#7dd3fc',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        }}>
+          <span>
+            {savedKey 
+              ? '🟢 Đang sử dụng Gemini API Key cá nhân của Thầy/Cô' 
+              : '⚡ Đang sử dụng Gemini AI hệ thống miễn phí'}
+          </span>
+          {savedKey && (
+            <button 
+              type="button" 
+              onClick={handleClearKey}
+              style={{
+                background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)',
+                color: '#fca5a5', padding: '4px 10px', borderRadius: '8px',
+                fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '4px'
+              }}
+            >
+              <Trash2 size={13} /> Xóa Key
+            </button>
+          )}
+        </div>
+
         {/* Info Banner */}
         <div style={{
           background: 'rgba(139, 92, 246, 0.15)',
           border: '1px solid rgba(139, 92, 246, 0.35)',
-          padding: '14px', borderRadius: '14px', marginBottom: '20px',
-          fontSize: '0.86rem', color: '#ddd6fe', lineHeight: 1.5
+          padding: '12px 14px', borderRadius: '14px', marginBottom: '20px',
+          fontSize: '0.82rem', color: '#ddd6fe', lineHeight: 1.5
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, color: '#f59e0b', marginBottom: '4px' }}>
             <ShieldCheck size={18} /> Bảo Mật 100% Trên Máy Cá Nhân
           </div>
-          API Key của thầy/cô được lưu trực tiếp trên trình duyệt của máy tính này, không bị gửi lên máy chủ trung gian. Thầy/cô có thể tạo Gemini API Key miễn phí tại Google AI Studio.
+          API Key của thầy/cô được lưu trực tiếp trên trình duyệt máy tính này, không bị gửi lên máy chủ trung gian. Thầy/cô có thể tạo Gemini API Key miễn phí tại Google AI Studio.
         </div>
 
         {/* Input Form */}
@@ -113,7 +193,7 @@ export function AISettingsModal({ isOpen, onClose }) {
             type="password"
             placeholder="Dán mã AIzaSy... vào đây"
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            onChange={handleInputChange}
             style={{
               width: '100%',
               padding: '12px 16px',
@@ -153,21 +233,21 @@ export function AISettingsModal({ isOpen, onClose }) {
                 cursor: 'pointer'
               }}
             >
-              {testStatus === 'testing' ? '⏳ Đang thử kết nối...' : '⚡ Kiểm Tra Kết Nối'}
+              {testStatus === 'testing' ? '⏳ Đang thử kết nối (1-2s)...' : '⚡ Kiểm Tra Kết Nối'}
             </button>
           </div>
         </div>
 
         {/* Status Alerts */}
         {testStatus === 'success' && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', padding: '10px 14px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={18} /> Kết nối Gemini AI thành công! Trợ lý AI đã sẵn sàng phục vụ.
+          <div style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle2 size={18} style={{ shrink: 0 }} /> {successMsg || 'Kết nối Gemini AI thành công! Trợ lý AI đã sẵn sàng phục vụ.'}
           </div>
         )}
 
         {testStatus === 'error' && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '10px 14px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '20px' }}>
-            ⚠️ {errorMsg}
+          <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertCircle size={18} style={{ shrink: 0 }} /> {errorMsg}
           </div>
         )}
 
@@ -184,6 +264,7 @@ export function AISettingsModal({ isOpen, onClose }) {
           </button>
           <button 
             onClick={handleSave}
+            disabled={testStatus === 'testing'}
             style={{
               padding: '10px 24px', borderRadius: '12px',
               background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)',
@@ -199,3 +280,4 @@ export function AISettingsModal({ isOpen, onClose }) {
     </div>
   );
 }
+
