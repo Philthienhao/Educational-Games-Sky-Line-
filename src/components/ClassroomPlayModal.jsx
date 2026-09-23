@@ -27,6 +27,7 @@ import { MagicHatGame } from './games/MagicHatGame';
 import { MagicGrimoireGame } from './games/MagicGrimoireGame';
 import { TowerBuilderGame } from './games/TowerBuilderGame';
 import { MarioRaceGame } from './games/MarioRaceGame';
+import { IndoorPEDanceGame } from './games/IndoorPEDanceGame';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
@@ -233,6 +234,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'mario-race':
         component = <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />;
         break;
+      case 'indoor-pe-dance':
+        component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;
+        break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
         break;
@@ -245,7 +249,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{

@@ -297,6 +297,18 @@ const FRUIT_NINJA_SAMPLE_QUESTIONS = [
 
 const INITIAL_BASE_GAMES = [
   {
+    id: 'indoor-pe-dance-game',
+    title: '🏃‍♂️ Thể Dục Trong Nhà - AI Nhảy Theo Video',
+    subtitle: 'AI Camera Nhận Diện & Chấm Điểm Thể Dục Lớp Học',
+    category: 'Tương tác AI Camera',
+    icon: '🏃‍♂️',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    description: 'Chiếu video bài tập thể dục / nhảy mẫu lên màn hình. AI Camera nhận diện chuyển động khung xương học sinh và chấm điểm thời gian thực trên thang điểm 100!',
+    engineType: 'indoor-pe-dance',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
     id: 'pose-imitation-game',
     title: 'Bắt chước nhanh - Cơ hội lớn',
     subtitle: 'Nhận Diện Tư Thế Cơ Thể Chọn Đáp Án',
@@ -634,6 +646,20 @@ const INITIAL_BASE_GAMES = [
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_indoor_pe',
+    userId: 'user_admin',
+    baseGameId: 'indoor-pe-dance-game',
+    title: '🏃‍♂️ Thể Dục Trong Nhà — AI Nhảy Theo Video & Chấm Điểm',
+    lessonTitle: '🏃‍♂️ Thể Dục Trong Nhà — AI Nhảy Theo Video & Chấm Điểm',
+    subject: 'Thể Dục / Vận Động',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    icon: '🏃‍♂️',
+    engineType: 'indoor-pe-dance',
+    description: 'Chức năng thể dục lớp học ngày mưa: Trình chiếu video động tác mẫu và nhận diện khung xương học sinh qua Camera để chấm điểm 100 theo thời gian thực!',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_geo_3d',
     userId: 'user_admin',
