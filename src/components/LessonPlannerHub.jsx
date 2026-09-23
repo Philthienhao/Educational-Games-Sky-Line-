@@ -4,7 +4,7 @@ import { GeminiService } from '../services/geminiService';
 import { AISlideEditor } from './planner/AISlideEditor';
 import { AIMindmapCanvas } from './planner/AIMindmapCanvas';
 import { AIWorksheetView } from './planner/AIWorksheetView';
-import mammoth from 'mammoth';
+import { BUILTIN_TEXTBOOKS, loadBuiltInTextbook } from '../services/aiTextbookService';
 
 const SAMPLE_SGK_LESSONS = {
   '6': {
@@ -84,7 +84,7 @@ export function LessonPlannerHub({ currentUser }) {
   };
 
   const handleGenerateAll = async () => {
-    const topicText = selectedSgkLesson || customPrompt || fileContent.slice(0, 300) || 'Bài Học Trọng Tâm SGK';
+    const topicText = selectedSgkLesson || customPrompt || fileName || 'Bài Học Trọng Tâm SGK';
     if (!topicText.trim()) {
       alert('Vui lòng chọn bài học SGK hoặc nhập thông tin chủ đề bài học.');
       return;
@@ -93,11 +93,41 @@ export function LessonPlannerHub({ currentUser }) {
     setLoading(true);
 
     try {
-      // Concurrently generate Slides, Mindmap, and Worksheet JSON
+      // 1. Try finding and loading full SGK text from built-in textbook catalog
+      let textbookText = fileContent || '';
+      if (!textbookText) {
+        const searchGrade = String(grade).toLowerCase().replace('lớp', '').trim();
+        const searchSubject = (subject || '').toLowerCase().trim();
+        const searchTopic = (topicText || '').toLowerCase().trim();
+
+        const matched = BUILTIN_TEXTBOOKS.filter(b => {
+          const bGrade = (b.grade || '').toLowerCase();
+          const bSubject = (b.subject || '').toLowerCase();
+          const matchG = !searchGrade || bGrade.includes(searchGrade);
+          const matchS = !searchSubject || bSubject.includes(searchSubject) || searchSubject.includes(bSubject);
+          return matchG && matchS;
+        });
+
+        if (matched.length > 0) {
+          const rawSgk = await loadBuiltInTextbook(matched[0].id);
+          if (rawSgk && rawSgk.length > 50) {
+            // Find specific chapter/lesson index if possible
+            const topicClean = searchTopic.replace(/^bài\s*\d+:\s*/i, '').trim();
+            const idx = rawSgk.toLowerCase().indexOf(topicClean);
+            if (idx !== -1) {
+              textbookText = rawSgk.slice(Math.max(0, idx - 100), idx + 8000);
+            } else {
+              textbookText = rawSgk.slice(0, 10000);
+            }
+          }
+        }
+      }
+
+      // 2. Concurrently generate Slides, Mindmap, and Worksheet JSON with full SGK context
       const [slidesRes, mindmapRes, worksheetRes] = await Promise.all([
-        GeminiService.generateLessonSlidesJSON(topicText, grade, subject),
-        GeminiService.generateMindmapJSON(topicText, grade, subject),
-        GeminiService.generateWorksheetJSON(topicText, grade, subject)
+        GeminiService.generateLessonSlidesJSON(topicText, grade, subject, textbookText, fileContent),
+        GeminiService.generateMindmapJSON(topicText, grade, subject, textbookText, fileContent),
+        GeminiService.generateWorksheetJSON(topicText, grade, subject, textbookText, fileContent)
       ]);
 
       setSlidesData(slidesRes);

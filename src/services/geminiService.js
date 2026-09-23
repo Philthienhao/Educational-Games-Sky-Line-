@@ -382,7 +382,7 @@ Ngữ cảnh trang hiện tại của giáo viên: ${contextTab}.`;
   /**
    * 6. Generate Slide Presentation JSON Structure
    */
-  async generateLessonSlidesJSON(topicText, grade = '6', subject = 'Địa Lí') {
+  async generateLessonSlidesJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
     try {
       const apiKey = this.getApiKey();
       if (apiKey && apiKey.trim().length > 15) {
@@ -398,7 +398,14 @@ BẮT BUỘC trả về đúng mảng JSON thuần túy (không chứa mã markd
     "slideType": "intro"
   }
 ]`;
-        const userPrompt = `Thiết kế bộ Slide bài giảng 6-8 trang cho bài học: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        let userPrompt = `Thiết kế bộ Slide bài giảng 6-8 trang cho bài học: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        if (textbookContext) {
+          userPrompt += `\n\nNỘI DUNG VĂN BẢN TRÍCH XUẤT TỪ SÁCH GIÁO KHOA CHUẨN:\n"""\n${textbookContext.slice(0, 15000)}\n"""\nHãy bám sát 100% nội dung Sách Giáo Khoa trên để soạn Slide!`;
+        }
+        if (sampleTemplateContext) {
+          userPrompt += `\n\nMẪU PHONG CÁCH/BỐ CỤC SLIDE THẦY CÔ YÊU CẦU MẪU:\n"""\n${sampleTemplateContext.slice(0, 5000)}\n"""\nHãy thiết kế chuẩn theo mẫu này!`;
+        }
+
         const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.5);
         if (raw && typeof raw === 'string') {
           const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
@@ -441,7 +448,7 @@ BẮT BUỘC trả về đúng mảng JSON thuần túy (không chứa mã markd
         bulletPoints: [
           'Chia lớp thành 4 đội thi đấu trả lời câu hỏi',
           'Hoàn thành Phiếu học tập cá nhân trong 5 phút',
-          'Đại diện đại diện nhóm lên bảng trình bày'
+          'Đại diện đại diện nhóm lên bảng trình trình bày'
         ],
         teacherNote: 'Giáo viên di chuyển quanh lớp hỗ trợ các nhóm gặp khó khăn.',
         visualHint: 'Biểu tượng nhóm học tập và thảo luận',
@@ -477,7 +484,7 @@ BẮT BUỘC trả về đúng mảng JSON thuần túy (không chứa mã markd
   /**
    * 7. Generate Mindmap JSON Structure
    */
-  async generateMindmapJSON(topicText, grade = '6', subject = 'Địa Lí') {
+  async generateMindmapJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
     try {
       const apiKey = this.getApiKey();
       if (apiKey && apiKey.trim().length > 15) {
@@ -498,7 +505,14 @@ BẮT BUỘC trả về đối tượng JSON thuần túy (không chứa mã mar
     }
   ]
 }`;
-        const userPrompt = `Tạo cây sơ đồ tư duy khoa học đầy đủ kiến thức cho bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        let userPrompt = `Tạo cây sơ đồ tư duy khoa học đầy đủ kiến thức cho bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        if (textbookContext) {
+          userPrompt += `\n\nNỘI DUNG VĂN BẢN SÁCH GIÁO KHOA:\n"""\n${textbookContext.slice(0, 15000)}\n"""\nHãy dùng chính xác các mục và kiến thức trong SGK để làm các nhánh sơ đồ tư duy!`;
+        }
+        if (sampleTemplateContext) {
+          userPrompt += `\n\nMẪU SƠ ĐỒ TƯ DUY YÊU CẦU:\n"""\n${sampleTemplateContext.slice(0, 5000)}\n"""\nHãy tuân thủ đúng cấu trúc phân nhánh theo mẫu này!`;
+        }
+
         const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.4);
         if (raw && typeof raw === 'string') {
           const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
@@ -551,7 +565,7 @@ BẮT BUỘC trả về đối tượng JSON thuần túy (không chứa mã mar
   /**
    * 8. Generate Printable A4 Worksheet JSON
    */
-  async generateWorksheetJSON(topicText, grade = '6', subject = 'Địa Lí') {
+  async generateWorksheetJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
     try {
       const apiKey = this.getApiKey();
       if (apiKey && apiKey.trim().length > 15) {
@@ -569,7 +583,14 @@ BẮT BUỘC trả về đối tượng JSON thuần túy (không markdown \`\`\
   ],
   "illustrationHint": "Gợi ý ảnh minh họa bài học"
 }`;
-        const userPrompt = `Soạn phiếu học tập sinh động A4 bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        let userPrompt = `Soạn phiếu học tập sinh động A4 bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        if (textbookContext) {
+          userPrompt += `\n\nNỘI DUNG NGUYÊN VĂN TỪ SÁCH GIÁO KHOA:\n"""\n${textbookContext.slice(0, 15000)}\n"""\nHãy đặt các câu hỏi trắc nghiệm và tự luận chính xác từ văn bản SGK trên!`;
+        }
+        if (sampleTemplateContext) {
+          userPrompt += `\n\nMẪU PHIẾU HỌC TẬP YÊU CẦU:\n"""\n${sampleTemplateContext.slice(0, 5000)}\n"""\nHãy thiết kế các phần và dạng câu hỏi đúng theo mẫu này!`;
+        }
+
         const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.5);
         if (raw && typeof raw === 'string') {
           const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
