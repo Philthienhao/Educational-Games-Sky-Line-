@@ -11,22 +11,33 @@ export function AISettingsModal({ isOpen, onClose }) {
 
   const handleSave = () => {
     GeminiService.saveApiKey(apiKey);
-    onClose();
+    setTestStatus('success');
+    setTimeout(() => {
+      onClose();
+    }, 400);
   };
 
   const handleTestKey = async () => {
+    if (!apiKey || apiKey.trim().length < 15) {
+      setTestStatus('error');
+      setErrorMsg('API Key không hợp lệ hoặc quá ngắn. Vui lòng kiểm tra lại (Key chuẩn bắt đầu bằng AIzaSy...).');
+      return;
+    }
+
     setTestStatus('testing');
     setErrorMsg('');
     try {
-      // Temporarily set key to test
-      GeminiService.saveApiKey(apiKey);
-      const res = await GeminiService.callGeminiAPI('Trả lời ngắn gọn', 'Test API Gemini');
-      if (res) {
+      const result = await GeminiService.testApiKey(apiKey);
+      if (result.success) {
+        GeminiService.saveApiKey(apiKey);
         setTestStatus('success');
+      } else {
+        setTestStatus('error');
+        setErrorMsg(result.error || 'Không thể kết nối Gemini API. Vui lòng kiểm tra lại mã Key!');
       }
     } catch (e) {
       setTestStatus('error');
-      setErrorMsg(e.message || 'Không thể kết nối Gemini API. Vui lòng kiểm tra lại Key!');
+      setErrorMsg(e.message || 'Không thể kết nối Gemini API. Vui lòng kiểm tra lại mã Key!');
     }
   };
 

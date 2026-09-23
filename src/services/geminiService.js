@@ -33,6 +33,51 @@ export const GeminiService = {
       localStorage.setItem('gemini_api_key', trimmed);
     }
   },
+  /**
+   * Test custom API key connection explicitly
+   */
+  async testApiKey(customKey) {
+    const keyToTest = (customKey || this.getApiKey() || '').trim();
+    if (!keyToTest || keyToTest.length < 15) {
+      return { success: false, error: 'API Key quá ngắn hoặc không hợp lệ (mã chuẩn bắt đầu bằng AIzaSy...)' };
+    }
+
+    const models = ['gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash-latest'];
+    let lastErrMsg = '';
+
+    for (const modelName of models) {
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${keyToTest}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: 'Xin chào' }] }]
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (candidateText) {
+            return { success: true, model: modelName };
+          }
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          lastErrMsg = errData?.error?.message || `Lỗi HTTP ${response.status}`;
+        }
+      } catch (e) {
+        lastErrMsg = e.name === 'AbortError' ? 'Hết thời gian chờ kết nối (Timeout)' : (e.message || 'Lỗi kết nối mạng');
+      }
+    }
+
+    return { success: false, error: lastErrMsg || 'Google API từ chối Key hoặc chưa kích hoạt dịch vụ Gemini.' };
+  },
 
   /**
    * Base fetch call to Google Gemini REST API with automatic model fallback
