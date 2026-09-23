@@ -213,7 +213,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
       >
         <GripVertical size={16} style={{ opacity: 0.75, cursor: 'grab' }} />
         <Sparkles size={20} className="pulse-icon" />
-        <span>Trợ Lý AI Gemini</span>
+        <span>Trợ Lí Thầy Hảo</span>
         <span className="badge" style={{ background: '#f59e0b', color: '#0f172a', fontWeight: 900, fontSize: '0.68rem', padding: '2px 7px', borderRadius: '10px' }}>
           PRO 3.6
         </span>
