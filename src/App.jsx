@@ -97,22 +97,35 @@ export function App() {
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
 
-  const handleApplyAIGameQuestions = (aiQuestions) => {
+  const handleApplyAIGameQuestions = (aiQuestions, targetGameType = 'tug-of-war-dual', targetGameTitle = null, autoLaunch = true) => {
     if (!aiQuestions || aiQuestions.length === 0) return;
+
+    let engineType = targetGameType;
+    if (targetGameType === 'dua-vit') engineType = 'duck-race';
+    if (targetGameType === 'dua-rua') engineType = 'turtle-race';
+    if (targetGameType === 'astronaut') engineType = 'astronaut-explorer';
+
+    const titleText = targetGameTitle ? `Game AI: ${targetGameTitle}` : `Game AI - ${new Date().toLocaleDateString('vi-VN')}`;
+
     const newAiGame = {
       id: `game_ai_${Date.now()}`,
-      title: `Game AI - ${new Date().toLocaleDateString('vi-VN')}`,
+      title: titleText,
       subject: 'Địa Lí',
       grade: '6',
-      gameType: 'dua-vit',
+      gameType: targetGameType,
+      engineType: engineType,
       questions: aiQuestions,
       userId: currentUser?.id || 'user_admin',
       isCustomized: true,
       updatedAt: new Date().toISOString()
     };
+
     StorageService.saveTeacherGame(newAiGame);
     setSavedGames(prev => [newAiGame, ...prev]);
-    alert(`🎉 Đã nạp thành công ${aiQuestions.length} câu hỏi AI vào Kho Game của tôi! Thầy/cô có thể bấm chơi ngay lập tức.`);
+
+    if (autoLaunch) {
+      setPlayingGame(newAiGame);
+    }
   };
 
   // Sync body class for playing game view
@@ -919,6 +932,7 @@ export function App() {
         activeTab={activeTab}
         onOpenAISettings={() => setIsAISettingsOpen(true)}
         onApplyAIGameQuestions={handleApplyAIGameQuestions}
+        onSelectTab={(tabId) => setActiveTab(tabId)}
       />
 
       {/* Gemini AI Settings Modal */}

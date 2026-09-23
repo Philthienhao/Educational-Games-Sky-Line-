@@ -2,7 +2,59 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, X, Send, Copy, Check, MessageSquare, Bot, Key, Settings, Lightbulb, GripVertical } from 'lucide-react';
 import { GeminiService } from '../services/geminiService';
 
-export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQuestions }) {
+export function detectGameIntent(textPrompt) {
+  const lower = (textPrompt || '').toLowerCase();
+
+  if (lower.includes('kéo co') || lower.includes('keo co') || lower.includes('tug of war')) {
+    return { type: 'tug-of-war-dual', title: 'Kéo Co Kiến Thức', icon: '🪢' };
+  }
+  if (lower.includes('đua vịt') || lower.includes('dua vit') || lower.includes('con vịt')) {
+    return { type: 'duck-race', title: 'Đua Vịt Tri Thức', icon: '🦆' };
+  }
+  if (lower.includes('đua rùa') || lower.includes('dua rua') || lower.includes('con rùa')) {
+    return { type: 'turtle-race', title: 'Đua Rùa Tri Thức', icon: '🐢' };
+  }
+  if (lower.includes('nghiêng đầu') || lower.includes('nghieng dau') || lower.includes('tilt')) {
+    return { type: 'head-tilt', title: 'Nghiêng Đầu Chuẩn', icon: '👤' };
+  }
+  if (lower.includes('triệu phú') || lower.includes('trieu phu') || lower.includes('tri thức')) {
+    return { type: 'millionaire', title: 'Ai Là Triệu Phú', icon: '💰' };
+  }
+  if (lower.includes('mario')) {
+    return { type: 'mario-race', title: 'Mario Phiêu Lưu Tri Thức', icon: '🍄' };
+  }
+  if (lower.includes('xây tháp') || lower.includes('tháp') || lower.includes('kiến trúc sư')) {
+    return { type: 'tower-builder', title: 'Kiến Trúc Sư Tri Thức', icon: '🏗️' };
+  }
+  if (lower.includes('astronaut') || lower.includes('vũ trụ') || lower.includes('phi hành gia')) {
+    return { type: 'astronaut-explorer', title: 'Vũ Trụ Astronaut', icon: '🚀' };
+  }
+  if (lower.includes('hoa quả') || lower.includes('chém') || lower.includes('bong bóng')) {
+    return { type: 'fruit-ninja', title: 'Chém Hoa Quả / Bong Bóng', icon: '🍉' };
+  }
+  if (lower.includes('đua xe') || lower.includes('dua xe') || lower.includes('ô tô')) {
+    return { type: 'car-race', title: 'Đua Xe Kiến Thức', icon: '🏎️' };
+  }
+  if (lower.includes('hộp quà') || lower.includes('hop qua')) {
+    return { type: 'mystery-box', title: 'Hộp Quà Bí Mật', icon: '🎁' };
+  }
+  if (lower.includes('lật mảnh ghép') || lower.includes('bức ảnh')) {
+    return { type: 'picture-reveal', title: 'Lật Mảnh Ghép Bí Mật', icon: '🖼️' };
+  }
+  if (lower.includes('ô chữ') || lower.includes('o chu')) {
+    return { type: 'crossword', title: 'Ô Chữ Khóa Bí Mật', icon: '🧩' };
+  }
+  if (lower.includes('tư thế') || lower.includes('bắt chước') || lower.includes('pose')) {
+    return { type: 'pose-imitation', title: 'Bắt Chước Tư Thế Camera', icon: '🏃‍♂️' };
+  }
+  if (lower.includes('gắp thú')) {
+    return { type: 'claw-machine', title: 'Gắp Thú Tri Thức', icon: '🧸' };
+  }
+
+  return { type: 'tug-of-war-dual', title: 'Kéo Co Kiến Thức', icon: '🎮' };
+}
+
+export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQuestions, onSelectTab }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,7 +62,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     {
       id: 1,
       sender: 'ai',
-      text: '👋 Xin chào Thầy/Cô! Em là **Trợ lý AI Thầy Hảo (Sky-Line AI PRO 3.6)**. Em có thể tự động tạo câu hỏi Game, soạn Slide, viết nhận xét học sinh, tóm tắt SGK và hỗ trợ mọi môn học. Thầy/Cô cần em giúp gì ạ?'
+      text: '👋 Xin chào Thầy/Cô! Em là **Trợ lý AI Thầy Hảo (Sky-Line AI PRO 3.6)**. Em có thể tự động đọc câu lệnh, tạo 10-50 câu hỏi trắc nghiệm và kích hoạt mở ngay Game (Kéo Co, Đua Vịt, Đua Rùa, Nghiêng Đầu...), Soạn Slide hoặc Nhận xét học sinh! Thầy/Cô hãy thử gõ câu lệnh ngay bên dưới ạ.'
     }
   ]);
   const [copiedId, setCopiedId] = useState(null);
@@ -128,9 +180,9 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
         ];
       default:
         return [
-          '🪄 Tạo 10 câu hỏi trắc nghiệm Địa lí 6 bài Trái Đất',
-          '🎮 Gợi ý game giáo dục gây hứng thú học tập',
-          '📝 Viết nhận xét khen thưởng học sinh'
+          '🪄 Tạo 20 câu hỏi trắc nghiệm và nhập vào Game Kéo Co Kiến Thức',
+          '🦆 Tạo 15 câu hỏi trắc nghiệm nhập vào Game Đua Vịt',
+          '👤 Tạo 10 câu hỏi nhập vào Game Nghiêng Đầu'
         ];
     }
   };
@@ -145,19 +197,44 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     setLoading(true);
 
     try {
-      // Check if user is requesting game question generation
       const textLower = textToSend.toLowerCase();
+
+      // 1. Detect Game creation & Auto-Launch request
       if (textLower.includes('câu hỏi') || textLower.includes('tạo') || textLower.includes('game') || textLower.includes('trắc nghiệm') || textLower.includes('bài tập')) {
-        const questions = await GeminiService.generateGameQuestions(textToSend, 10);
+        const gameIntent = detectGameIntent(textToSend);
+        
+        // Extract requested question count (default 10 or 20)
+        const countMatch = textToSend.match(/(\d+)\s*câu/i);
+        const count = countMatch ? Math.min(50, Math.max(1, parseInt(countMatch[1], 10))) : 10;
+
+        const questions = await GeminiService.generateGameQuestions(textToSend, count);
+
+        // Auto-apply & auto-launch game screen immediately for teacher!
+        if (onApplyAIGameQuestions) {
+          onApplyAIGameQuestions(questions, gameIntent.type, gameIntent.title, true);
+        }
+
         const aiMsg = {
           id: Date.now() + 1,
           sender: 'ai',
-          text: `✅ Em đã tự động tạo xong **${questions.length} câu hỏi trắc nghiệm SGK GDPT 2018** dựa trên yêu cầu của Thầy/Cô!`,
-          gameQuestions: questions
+          text: `🎉 **Đã tự động khởi tạo thành công ${questions.length} câu hỏi AI!**\n\n🎮 **Trò chơi chỉ định:** ${gameIntent.icon} **${gameIntent.title}**\n\nBàn chơi đã được kích hoạt trực tiếp trên màn hình! Thầy/cô có thể tùy chỉnh lại câu hỏi hoặc bấm bắt đầu cho học sinh chơi ngay lập tức.`,
+          gameQuestions: questions,
+          gameIntent: gameIntent
         };
+
         setMessages(prev => [...prev, aiMsg]);
         setLoading(false);
+        setIsOpen(false); // Auto close drawer so teacher sees full game arena!
         return;
+      }
+
+      // 2. Tab Navigation Intent Handling
+      if (textLower.includes('slide') || textLower.includes('bài giảng') || textLower.includes('5512')) {
+        if (onSelectTab) onSelectTab('lecture-slides');
+      } else if (textLower.includes('nhận xét') || textLower.includes('học bạ') || textLower.includes('chủ nhiệm')) {
+        if (onSelectTab) onSelectTab('homeroom');
+      } else if (textLower.includes('phụ huynh') || textLower.includes('kịch bản họp')) {
+        if (onSelectTab) onSelectTab('parent-meeting');
       }
 
       const reply = await GeminiService.askGeneralAssistant(textToSend, activeTab);
