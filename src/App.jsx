@@ -44,6 +44,7 @@ import { FloatingAiAssistantWidget } from './components/FloatingAiAssistantWidge
 import { AICoPilotWidget } from './components/AICoPilotWidget';
 import { AISettingsModal } from './components/AISettingsModal';
 import { AIQuestionGeneratorModal } from './components/AIQuestionGeneratorModal';
+import { LessonPlannerHub } from './components/LessonPlannerHub';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -597,6 +598,11 @@ export function App() {
         {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
         {activeTab === 'homeroom' && (
           <HomeroomManager currentUser={currentUser} />
+        )}
+
+        {/* View 3.5: AI Soạn Giáo Án Đa Năng (Lesson Planner Hub) */}
+        {activeTab === 'ai-lesson-planner' && (
+          <LessonPlannerHub currentUser={currentUser} />
         )}
 
         {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}

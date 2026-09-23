@@ -376,9 +376,243 @@ Ngữ cảnh trang hiện tại của giáo viên: ${contextTab}.`;
 📌 **Thầy/Cô có thể thử ngay các tính năng tự động:**
 - 🪄 **Tạo Game & Đề Thi**: Gõ *"Tạo 20 câu hỏi Địa lí 6 bài 1"* hoặc *"Tạo 15 câu hỏi Lịch sử 10"*.
 - 📝 **Nhận Xét Học Sinh**: Nhập *"Viết nhận xét cho học sinh Nam khá giỏi"*.
-- 📊 **Slide Bài Giảng**: Nhập *"Soạn bài giảng môn Địa lí lớp 6"*.
+- 📊 **Slide Bài Giảng**: Nhập *"Soạn bài giảng môn Địa lí lớp 6"*.`;
+  },
 
-*(Để kích hoạt trí tuệ nhân tạo Gemini API trực tiếp từ máy chủ Google, Thầy/Cô có thể bấm biểu tượng Cài Đặt ⚙️ để dán API Key cá nhân bất cứ lúc nào!)*`;
+  /**
+   * 6. Generate Slide Presentation JSON Structure
+   */
+  async generateLessonSlidesJSON(topicText, grade = '6', subject = 'Địa Lí') {
+    try {
+      const apiKey = this.getApiKey();
+      if (apiKey && apiKey.trim().length > 15) {
+        const systemPrompt = `Bạn là Chuyên gia thiết kế Slide Bài Giảng Giáo Dục Việt Nam theo chuẩn GDPT 2018.
+BẮT BUỘC trả về đúng mảng JSON thuần túy (không chứa mã markdown \`\`\`json) với cấu trúc mảng các trang Slide như sau:
+[
+  {
+    "title": "Tên trang Slide (VD: Khởi động / Khái niệm / Luyện tập)",
+    "subtitle": "Mô tả ngắn gọn hoặc câu dẫn",
+    "bulletPoints": ["Điểm chính 1", "Điểm chính 2", "Điểm chính 3"],
+    "teacherNote": "Ghi chú hoạt động dạy học của giáo viên (Công văn 5512)",
+    "visualHint": "Gợi ý hình ảnh minh họa phù hợp",
+    "slideType": "intro"
+  }
+]`;
+        const userPrompt = `Thiết kế bộ Slide bài giảng 6-8 trang cho bài học: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.5);
+        if (raw && typeof raw === 'string') {
+          const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(clean);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Gemini Slide JSON fallback:', e.message);
+    }
+
+    return [
+      {
+        title: `Bài Học: ${topicText || 'Khám Phá Tri Thức'}`,
+        subtitle: `Môn ${subject || 'Địa Lí'} - Lớp ${grade || '6'} (GDPT 2018)`,
+        bulletPoints: [
+          'Học sinh nêu được khái niệm và ý nghĩa cốt lõi của bài học',
+          'Khai thác kênh hình, hình ảnh sơ đồ thực tế',
+          'Rèn luyện tư duy phản biện và năng lực tự học'
+        ],
+        teacherNote: 'Hoạt động Khởi động: Chiếu hình ảnh minh họa, yêu cầu học sinh thảo luận cặp đôi 3 phút.',
+        visualHint: 'Hình ảnh tổng quan trái đất hoặc thiên nhiên sinh động',
+        slideType: 'intro'
+      },
+      {
+        title: 'I. KIẾN THỨC TRỌNG TÂM',
+        subtitle: 'Khám phá các khái niệm & hiện tượng quan trọng',
+        bulletPoints: [
+          'Đặc điểm 1: Cơ sở lý thuyết và quy luật tự nhiên',
+          'Đặc điểm 2: Tác động thực tế đến đời sống con người',
+          'Đặc điểm 3: Các ví dụ minh họa sinh động trong SGK'
+        ],
+        teacherNote: 'Giáo viên diễn giảng kết hợp mở sơ đồ tư duy cho học sinh quan sát.',
+        visualHint: 'Sơ đồ hình vẽ cấu trúc bài học',
+        slideType: 'concept'
+      },
+      {
+        title: 'II. HOẠT ĐỘNG THẢO LUẬN NHÓM',
+        subtitle: 'Thực hành khai thác dữ liệu & phiếu học tập',
+        bulletPoints: [
+          'Chia lớp thành 4 đội thi đấu trả lời câu hỏi',
+          'Hoàn thành Phiếu học tập cá nhân trong 5 phút',
+          'Đại diện đại diện nhóm lên bảng trình bày'
+        ],
+        teacherNote: 'Giáo viên di chuyển quanh lớp hỗ trợ các nhóm gặp khó khăn.',
+        visualHint: 'Biểu tượng nhóm học tập và thảo luận',
+        slideType: 'activity'
+      },
+      {
+        title: 'III. LUYỆN TẬP & CỦNG CỐ',
+        subtitle: 'Trải nghiệm Game tương tác lớp học',
+        bulletPoints: [
+          'Chơi Game Kéo Co Kiến Thức / Đua Vịt Tri Thức',
+          'Củng cố lại 5-10 câu hỏi cốt lõi của bài',
+          'Tuyên dương và cộng điểm thi đua cho đội thắng'
+        ],
+        teacherNote: 'Kích hoạt Game tương tác trên màn hình máy chiếu TV.',
+        visualHint: 'Biểu tượng game giáo dục rực rỡ',
+        slideType: 'quiz'
+      },
+      {
+        title: 'IV. VẬN DỤNG & DẶN DÒ',
+        subtitle: 'Ứng dụng thực tế tại gia đình & địa phương',
+        bulletPoints: [
+          'Quan sát các hiện tượng thực tế xung quanh em',
+          'Chuẩn bị bài học tiếp theo trong Sách Giáo Khoa',
+          'Hoàn thành bài tập nâng cao trong Phiếu Học Tập'
+        ],
+        teacherNote: 'Dặn dò học sinh ghi chú chép bài đầy đủ vào vở.',
+        visualHint: 'Biểu tượng ngôi nhà và cuốn sách mở',
+        slideType: 'summary'
+      }
+    ];
+  },
+
+  /**
+   * 7. Generate Mindmap JSON Structure
+   */
+  async generateMindmapJSON(topicText, grade = '6', subject = 'Địa Lí') {
+    try {
+      const apiKey = this.getApiKey();
+      if (apiKey && apiKey.trim().length > 15) {
+        const systemPrompt = `Bạn là Chuyên gia Xây dựng Sơ Đồ Tư Duy Khoa Học GDPT 2018.
+BẮT BUỘC trả về đối tượng JSON thuần túy (không chứa mã markdown \`\`\`json) theo cấu trúc cây sơ đồ tư duy:
+{
+  "id": "root",
+  "label": "Chủ đề chính bài học",
+  "children": [
+    {
+      "id": "branch_1",
+      "label": "Nhánh cấp 1 (VD: Mục tiêu)",
+      "color": "#0284c7",
+      "children": [
+        { "id": "sub_1_1", "label": "Ý nhỏ 1.1" },
+        { "id": "sub_1_2", "label": "Ý nhỏ 1.2" }
+      ]
+    }
+  ]
+}`;
+        const userPrompt = `Tạo cây sơ đồ tư duy khoa học đầy đủ kiến thức cho bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.4);
+        if (raw && typeof raw === 'string') {
+          const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(clean);
+          if (parsed && parsed.label && Array.isArray(parsed.children)) return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Gemini Mindmap JSON fallback:', e.message);
+    }
+
+    return {
+      id: 'root',
+      label: topicText || 'CHỦ ĐỀ BÀI HỌC SGK',
+      children: [
+        {
+          id: 'b1',
+          label: '1. Khái Niệm & Đặc Điểm',
+          color: '#0284c7',
+          children: [
+            { id: 'b1_1', label: 'Định nghĩa chuẩn SGK GDPT 2018' },
+            { id: 'b1_2', label: 'Các đặc trưng cơ bản dễ nhận biết' },
+            { id: 'b1_3', label: 'Phân loại & yếu tố ảnh hưởng' }
+          ]
+        },
+        {
+          id: 'b2',
+          label: '2. Nguyên Lý & Tác Động',
+          color: '#0d9488',
+          children: [
+            { id: 'b2_1', label: 'Quy luật hình thành & phát triển' },
+            { id: 'b2_2', label: 'Vai trò đối với môi trường tự nhiên' },
+            { id: 'b2_3', label: 'Ảnh hưởng trực tiếp đến đời sống' }
+          ]
+        },
+        {
+          id: 'b3',
+          label: '3. Thực Hành & Vận Dụng',
+          color: '#8b5cf6',
+          children: [
+            { id: 'b3_1', label: 'Khai thác bản đồ, biểu đồ SGK' },
+            { id: 'b3_2', label: 'Giải quyết tình huống thực tế' },
+            { id: 'b3_3', label: 'Ghi nhớ bằng từ khóa cốt lõi' }
+          ]
+        }
+      ]
+    };
+  },
+
+  /**
+   * 8. Generate Printable A4 Worksheet JSON
+   */
+  async generateWorksheetJSON(topicText, grade = '6', subject = 'Địa Lí') {
+    try {
+      const apiKey = this.getApiKey();
+      if (apiKey && apiKey.trim().length > 15) {
+        const systemPrompt = `Bạn là Giáo viên chuyên soạn Phiếu Học Tập sinh động cho học sinh phổ thông.
+BẮT BUỘC trả về đối tượng JSON thuần túy (không markdown \`\`\`json):
+{
+  "title": "PHIẾU HỌC TẬP: TÊN BÀI HỌC",
+  "subject": "Môn học",
+  "grade": "Khối lớp",
+  "objectives": ["Mục tiêu 1", "Mục tiêu 2"],
+  "summaryNotes": "Ghi nhớ kiến thức cốt lõi (3-4 dòng)",
+  "questions": [
+    { "id": 1, "type": "mcq", "question": "Câu hỏi trắc nghiệm?", "options": ["A", "B", "C", "D"], "answer": "A" },
+    { "id": 2, "type": "essay", "question": "Câu hỏi tự luận vận dụng suy nghĩ?" }
+  ],
+  "illustrationHint": "Gợi ý ảnh minh họa bài học"
+}`;
+        const userPrompt = `Soạn phiếu học tập sinh động A4 bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
+        const raw = await this.callGeminiAPI(systemPrompt, userPrompt, 0.5);
+        if (raw && typeof raw === 'string') {
+          const clean = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(clean);
+          if (parsed && parsed.title) return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Gemini Worksheet JSON fallback:', e.message);
+    }
+
+    return {
+      title: `PHIẾU HỌC TẬP: ${topicText || 'BÀI HỌC THỰC HÀNH'}`,
+      subject: subject || 'Địa Lí',
+      grade: grade || '6',
+      objectives: [
+        'Nắm vững khái niệm và quy luật cơ bản của bài học.',
+        'Khai thác thành thạo kiến thức và vận dụng vào đời sống.'
+      ],
+      summaryNotes: `Bài học "${topicText || 'Kiến thức trọng tâm'}" giúp học sinh phát triển năng lực nhận thức địa lý/khoa học, kết hợp quan sát thực tế và rèn luyện kỹ năng tổng hợp thông tin chuẩn xác.`,
+      questions: [
+        {
+          id: 1,
+          type: 'mcq',
+          question: `Nội dung cốt lõi nhất của bài học "${topicText || 'này'}" là gì?`,
+          options: ['Khái niệm & quy luật chính', 'Các ví dụ phụ', 'Số liệu tham khảo', 'Không có đáp án đúng'],
+          answer: 'A'
+        },
+        {
+          id: 2,
+          type: 'mcq',
+          question: 'Ý nghĩa của việc học bài học này vào thực tiễn cuộc sống là gì?',
+          options: ['Ứng dụng quan sát tự nhiên', 'Rèn luyện kỹ năng làm việc nhóm', 'Nâng cao tư duy phản biện', 'Tất cả các ý trên'],
+          answer: 'D'
+        },
+        {
+          id: 3,
+          type: 'essay',
+          question: 'Em hãy nêu 2 ví dụ thực tế liên quan đến bài học mà em quan sát được xung quanh em:'
+        }
+      ],
+      illustrationHint: 'Sơ đồ hình vẽ minh họa SGK sinh động'
+    };
   }
 };
 
