@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Sparkles, X, Send, Copy, Check, MessageSquare, Bot, Key, Settings, Lightbulb } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sparkles, X, Send, Copy, Check, MessageSquare, Bot, Key, Settings, Lightbulb, GripVertical } from 'lucide-react';
 import { GeminiService } from '../services/geminiService';
 
 export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQuestions }) {
@@ -14,6 +14,78 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
     }
   ]);
   const [copiedId, setCopiedId] = useState(null);
+
+  // Position state (Default bottom: 105px, right: 24px so it never overlaps avatar chatbot)
+  const [pos, setPos] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gvd_ai_widget_pos');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return { right: 24, bottom: 105 };
+  });
+
+  const dragRef = useRef({ isDragging: false, startX: 0, startY: 0, startRight: 24, startBottom: 105, hasMoved: false });
+
+  const handlePointerDown = (e) => {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragRef.current = {
+      isDragging: true,
+      startX: clientX,
+      startY: clientY,
+      startRight: pos.right,
+      startBottom: pos.bottom,
+      hasMoved: false
+    };
+  };
+
+  const handlePointerMove = (e) => {
+    if (!dragRef.current.isDragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const dx = clientX - dragRef.current.startX;
+    const dy = clientY - dragRef.current.startY;
+
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      dragRef.current.hasMoved = true;
+    }
+
+    const newRight = Math.max(10, Math.min(window.innerWidth - 220, dragRef.current.startRight - dx));
+    const newBottom = Math.max(10, Math.min(window.innerHeight - 80, dragRef.current.startBottom - dy));
+
+    const newPos = { right: newRight, bottom: newBottom };
+    setPos(newPos);
+    try {
+      localStorage.setItem('gvd_ai_widget_pos', JSON.stringify(newPos));
+    } catch(err) {}
+  };
+
+  const handlePointerUp = () => {
+    dragRef.current.isDragging = false;
+  };
+
+  useEffect(() => {
+    const onMove = (e) => handlePointerMove(e);
+    const onUp = (e) => handlePointerUp(e);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, [pos]);
+
+  const handleBtnClick = () => {
+    if (dragRef.current.hasMoved) {
+      dragRef.current.hasMoved = false;
+      return;
+    }
+    setIsOpen(!isOpen);
+  };
 
   const getContextPrompts = () => {
     switch (activeTab) {
@@ -111,31 +183,36 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
 
   return (
     <>
-      {/* FLOATING ACTION TRIGGER BUTTON AT BOTTOM RIGHT */}
+      {/* FLOATING ACTION TRIGGER BUTTON (DRAGGABLE & REPOSITIONABLE) */}
       <div 
-        onClick={() => setIsOpen(!isOpen)}
+        onMouseDown={handlePointerDown}
+        onTouchStart={handlePointerDown}
+        onClick={handleBtnClick}
         style={{
           position: 'fixed',
-          bottom: '24px',
-          right: '24px',
+          bottom: `${pos.bottom}px`,
+          right: `${pos.right}px`,
           zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          padding: '12px 20px',
+          gap: '8px',
+          padding: '12px 18px',
           borderRadius: '30px',
           background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #0284c7 100%)',
           color: '#ffffff',
           fontWeight: 900,
           fontSize: '0.92rem',
-          cursor: 'pointer',
+          cursor: dragRef.current.isDragging ? 'grabbing' : 'grab',
           boxShadow: '0 8px 30px rgba(139, 92, 246, 0.55)',
           border: '2px solid rgba(255, 255, 255, 0.4)',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          userSelect: 'none',
+          touchAction: 'none',
+          transition: dragRef.current.isDragging ? 'none' : 'box-shadow 0.3s ease, bottom 0.2s ease, right 0.2s ease'
         }}
-        title="Bấm để trò chuyện và tạo nội dung bằng Trợ lý AI Gemini"
+        title="Bấm để trò chuyện AI | Giữ chuột kéo rê để di chuyển nút bất kỳ"
       >
-        <Sparkles size={22} className="pulse-icon" />
+        <GripVertical size={16} style={{ opacity: 0.75, cursor: 'grab' }} />
+        <Sparkles size={20} className="pulse-icon" />
         <span>Trợ Lý AI Gemini</span>
         <span className="badge" style={{ background: '#f59e0b', color: '#0f172a', fontWeight: 900, fontSize: '0.68rem', padding: '2px 7px', borderRadius: '10px' }}>
           PRO 3.6
@@ -146,8 +223,8 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
       {isOpen && (
         <div style={{
           position: 'fixed',
-          bottom: '84px',
-          right: '24px',
+          bottom: `${Math.min(window.innerHeight - 620, Math.max(12, pos.bottom + 56))}px`,
+          right: `${Math.min(window.innerWidth - 440, Math.max(12, pos.right))}px`,
           width: '420px',
           maxWidth: '90vw',
           height: '600px',
