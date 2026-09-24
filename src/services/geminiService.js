@@ -379,7 +379,7 @@ Ngữ cảnh trang hiện tại của giáo viên: ${contextTab}.`;
    * 6. Generate Slide Presentation JSON Structure
    */
   async generateLessonSlidesJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
-    const sgkKnowledge = getSGKLessonData(topicText, grade, subject);
+    const sgkKnowledge = getSGKLessonData(topicText, grade, subject, textbookContext);
     const activeText = textbookContext || sgkKnowledge?.fullText || '';
 
     try {
@@ -436,7 +436,7 @@ Cấu trúc mảng Slide:
    * 7. Generate Mindmap JSON Structure
    */
   async generateMindmapJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
-    const sgkKnowledge = getSGKLessonData(topicText, grade, subject);
+    const sgkKnowledge = getSGKLessonData(topicText, grade, subject, textbookContext);
     const activeText = textbookContext || sgkKnowledge?.fullText || '';
 
     try {
@@ -490,7 +490,7 @@ NGHIÊM CẤM ghi từ chung chung! BẮT BUỘC các nhánh phải chứa chín
    * 8. Generate Printable A4 Worksheet JSON
    */
   async generateWorksheetJSON(topicText, grade = '6', subject = 'Địa Lí', textbookContext = '', sampleTemplateContext = '') {
-    const sgkKnowledge = getSGKLessonData(topicText, grade, subject);
+    const sgkKnowledge = getSGKLessonData(topicText, grade, subject, textbookContext);
     const activeText = textbookContext || sgkKnowledge?.fullText || '';
 
     try {
