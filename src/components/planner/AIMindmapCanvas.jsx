@@ -38,36 +38,43 @@ export function AIMindmapCanvas({ mindmapData: initialData, topicTitle }) {
   };
 
   // Helper to render tree nodes hierarchically
-  const renderNodeTree = (node, depth = 0) => {
+  const renderNodeTree = (node, depth = 0, parentColor = null) => {
     const isCollapsed = collapsedIds.has(node.id);
     const hasChildren = node.children && node.children.length > 0;
     const isEditing = editingNodeId === node.id;
 
-    // Color theme by depth
-    const colors = ['#0284c7', '#0d9488', '#8b5cf6', '#d97706', '#ec4899'];
-    const nodeColor = node.color || colors[depth % colors.length];
+    // Organic Vibrant Colors matching Tony Buzan Mindmap style
+    const branchColors = ['#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ec4899', '#06b6d4'];
+    const nodeColor = node.color || parentColor || branchColors[depth % branchColors.length];
 
     return (
-      <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 12px', position: 'relative' }}>
+      <div key={node.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: depth === 0 ? '0 20px' : '0 10px', position: 'relative' }}>
         
         {/* Node Box */}
         <div style={{
-          padding: depth === 0 ? '14px 24px' : '10px 18px',
-          borderRadius: depth === 0 ? '20px' : '14px',
-          background: depth === 0 ? 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)' : '#0f172a',
-          border: `2px solid ${nodeColor}`,
+          padding: depth === 0 ? '18px 32px' : depth === 1 ? '12px 22px' : '8px 16px',
+          borderRadius: depth === 0 ? '30px' : '16px',
+          background: depth === 0 
+            ? 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%)' 
+            : depth === 1
+            ? 'rgba(15, 23, 42, 0.92)'
+            : 'rgba(30, 41, 59, 0.9)',
+          border: `3px solid ${nodeColor}`,
           color: '#ffffff',
           fontWeight: depth === 0 ? 900 : 800,
-          fontSize: depth === 0 ? '1.1rem' : depth === 1 ? '0.92rem' : '0.82rem',
-          boxShadow: `0 6px 20px ${nodeColor}40`,
+          fontSize: depth === 0 ? '1.25rem' : depth === 1 ? '0.98rem' : '0.85rem',
+          boxShadow: depth === 0 
+            ? '0 10px 30px rgba(236, 72, 153, 0.5)' 
+            : `0 6px 20px ${nodeColor}50`,
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '10px',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
           userSelect: 'none',
-          maxWidth: '260px',
-          textAlign: 'center'
+          maxWidth: depth === 0 ? '340px' : '260px',
+          textAlign: 'center',
+          backdropFilter: 'blur(10px)'
         }}>
           {isEditing ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -91,7 +98,7 @@ export function AIMindmapCanvas({ mindmapData: initialData, topicTitle }) {
             </div>
           ) : (
             <span onClick={() => handleStartEdit(node)}>
-              {node.label}
+              {depth === 0 ? `🧠 ${node.label}` : node.label}
             </span>
           )}
 
@@ -99,10 +106,11 @@ export function AIMindmapCanvas({ mindmapData: initialData, topicTitle }) {
             <button
               onClick={(e) => { e.stopPropagation(); toggleCollapse(node.id); }}
               style={{
-                background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff',
-                width: '20px', height: '20px', borderRadius: '50%',
+                background: nodeColor, border: 'none', color: '#fff',
+                width: '22px', height: '22px', borderRadius: '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', fontSize: '0.75rem', fontWeight: 900
+                cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
               }}
             >
               {isCollapsed ? '+' : '-'}
@@ -112,10 +120,13 @@ export function AIMindmapCanvas({ mindmapData: initialData, topicTitle }) {
 
         {/* Children Branch Lines */}
         {hasChildren && !isCollapsed && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '12px' }}>
-            <div style={{ width: '2px', height: '20px', background: nodeColor }} />
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', borderTop: `2px solid ${nodeColor}`, paddingTop: '16px' }}>
-              {node.children.map(child => renderNodeTree(child, depth + 1))}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '14px' }}>
+            <div style={{ width: '3px', height: '22px', background: nodeColor, borderRadius: '3px' }} />
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', borderTop: `3px solid ${nodeColor}`, paddingTop: '18px', borderRadius: '4px' }}>
+              {node.children.map((child, idx) => {
+                const childColor = child.color || branchColors[(idx + depth) % branchColors.length];
+                return renderNodeTree({ ...child, color: childColor }, depth + 1, childColor);
+              })}
             </div>
           </div>
         )}

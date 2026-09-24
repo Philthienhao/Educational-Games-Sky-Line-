@@ -149,33 +149,66 @@ export function AIWorksheetView({ worksheetData: initialData, topicTitle }) {
 
         {/* Question Sections */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ fontWeight: 900, fontSize: '0.95rem', color: '#0f172a', borderBottom: '1.5px solid #e2e8f0', paddingBottom: '6px' }}>
-            ✍️ PHẦN BÀI TẬP THỰC HÀNH & VẬN DỤNG
-          </div>
-
-          {(worksheet.questions || []).map((q, idx) => (
-            <div key={idx} style={{ background: '#fafafa', border: '1px solid #e2e8f0', padding: '14px', borderRadius: '12px' }}>
-              <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0f172a', marginBottom: '8px' }}>
-                Câu {idx + 1}: {q.question}
+          
+          {/* PHẦN 1: TRẮC NGHIỆM */}
+          {worksheet.questions && worksheet.questions.filter(q => q.type === 'mcq' || !q.type).length > 0 && (
+            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px' }}>
+              <div style={{ fontWeight: 900, color: '#0284c7', fontSize: '0.95rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ background: '#0284c7', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>1</span>
+                PHẦN 1: CÂU HỎI TRẮC NGHIỆM (Khoanh tròn vào đáp án đúng nhất)
               </div>
 
-              {q.type === 'mcq' && q.options && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '8px' }}>
-                  {q.options.map((opt, oIdx) => (
-                    <div key={oIdx} style={{ fontSize: '0.85rem', color: '#334155', fontWeight: 600 }}>
-                      <span style={{ fontWeight: 800, color: '#0284c7' }}>{String.fromCharCode(65 + oIdx)}.</span> {opt}
+              {worksheet.questions.filter(q => q.type === 'mcq' || !q.type).map((q, idx) => (
+                <div key={q.id || idx} style={{ marginBottom: '14px', fontSize: '0.88rem' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
+                    Câu {idx + 1}: {q.question}
+                  </div>
+                  {q.options && Array.isArray(q.options) && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingLeft: '12px' }}>
+                      {q.options.map((opt, oIdx) => {
+                        const letter = ['A', 'B', 'C', 'D'][oIdx] || String.fromCharCode(65 + oIdx);
+                        return (
+                          <div key={oIdx} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#334155' }}>
+                            <span style={{ fontWeight: 800, color: '#0284c7' }}>{letter}.</span> {opt}
+                          </div>
+                        );
+                      })}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-
-              {q.type === 'essay' && (
-                <div style={{ marginTop: '10px', height: '80px', border: '1px dashed #cbd5e1', borderRadius: '8px', background: '#fff', padding: '8px', fontSize: '0.78rem', color: '#94a3b8' }}>
-                  Bài làm của học sinh: ....................................................................................................................................................
-                </div>
-              )}
+              ))}
             </div>
-          ))}
+          )}
+
+          {/* PHẦN 2: TỰ LUẬN & VẬN DỤNG */}
+          {worksheet.questions && worksheet.questions.filter(q => q.type === 'essay' || q.type === 'fill_in').length > 0 && (
+            <div style={{ background: '#fdf2f8', border: '1px solid #fbcfe8', borderRadius: '12px', padding: '16px 20px' }}>
+              <div style={{ fontWeight: 900, color: '#db2777', fontSize: '0.95rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ background: '#db2777', color: '#fff', borderRadius: '50%', width: '22px', height: '22px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>2</span>
+                PHẦN 2: TỰ LUẬN & VẬN DỤNG THỰC TẾ (Học sinh suy nghĩ và điền câu trả lời)
+              </div>
+
+              {worksheet.questions.filter(q => q.type === 'essay' || q.type === 'fill_in').map((q, idx) => (
+                <div key={q.id || idx} style={{ marginBottom: '18px', fontSize: '0.88rem' }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
+                    Câu {idx + 1}: {q.question}
+                  </div>
+                  <div style={{
+                    borderBottom: '1px dashed #cbd5e1',
+                    lineHeight: '2rem',
+                    color: '#94a3b8',
+                    paddingLeft: '8px',
+                    fontSize: '0.85rem'
+                  }}>
+                    ........................................................................................................................................................................
+                    <br />
+                    ........................................................................................................................................................................
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
         </div>
 
         {/* Footer Signature */}

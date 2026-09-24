@@ -23,7 +23,8 @@ import {
   X,
   Sparkles,
   User,
-  Award
+  Award,
+  Activity
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -88,6 +89,7 @@ export function Sidebar({
 
   const navItems = [
     { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users, color: '#0284c7' },
+    { id: 'indoor-pe-dance', label: '🏃‍♂️ Thể dục trong nhà (AI)', icon: Activity, color: '#10b981', badge: 'MỚI' },
     { id: 'ai-lesson-planner', label: 'AI Soạn giáo án', icon: Sparkles, color: '#a855f7' },
     { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2, color: '#0d9488' },
     { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount, color: '#0284c7' },
@@ -207,6 +209,20 @@ export function Sidebar({
                   <span className="menu-label">{item.label}</span>
                   {item.count > 0 && (
                     <span className="menu-count-badge">{item.count}</span>
+                  )}
+                  {item.badge && (
+                    <span style={{
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.65rem',
+                      fontWeight: 900,
+                      padding: '2px 7px',
+                      borderRadius: '8px',
+                      marginLeft: 'auto',
+                      boxShadow: '0 2px 6px rgba(16, 185, 129, 0.4)'
+                    }}>
+                      {item.badge}
+                    </span>
                   )}
                 </button>
               );

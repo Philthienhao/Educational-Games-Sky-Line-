@@ -45,6 +45,7 @@ import { AICoPilotWidget } from './components/AICoPilotWidget';
 import { AISettingsModal } from './components/AISettingsModal';
 import { AIQuestionGeneratorModal } from './components/AIQuestionGeneratorModal';
 import { LessonPlannerHub } from './components/LessonPlannerHub';
+import { IndoorPEDanceGame } from './components/games/IndoorPEDanceGame';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
@@ -604,6 +605,11 @@ export function App() {
         {/* View 3.5: AI Soạn Giáo Án Đa Năng (Lesson Planner Hub) */}
         {activeTab === 'ai-lesson-planner' && (
           <LessonPlannerHub currentUser={currentUser} />
+        )}
+
+        {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
+        {activeTab === 'indoor-pe-dance' && (
+          <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
         )}
 
         {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
