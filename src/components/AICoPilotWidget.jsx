@@ -233,7 +233,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
 
       // 2. Tab Navigation Intent Handling
       if (textLower.includes('slide') || textLower.includes('giáo án') || textLower.includes('sơ đồ') || textLower.includes('phiếu học tập') || textLower.includes('bài giảng') || textLower.includes('5512')) {
-        if (onSelectTab) onSelectTab('ai-lesson-planner');
+        if (onSelectTab) onSelectTab('lecture-slides');
       } else if (textLower.includes('nhận xét') || textLower.includes('học bạ') || textLower.includes('chủ nhiệm')) {
         if (onSelectTab) onSelectTab('homeroom');
       } else if (textLower.includes('phụ huynh') || textLower.includes('kịch bản họp')) {
