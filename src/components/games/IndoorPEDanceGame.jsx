@@ -2,13 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Camera, ArrowLeft, Play, Pause, Upload, Zap, Flame, Award, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import sampleVideo1 from '../../assets/Videotheduc.mp4';
+import sampleVideo2 from '../../assets/videotheduc2.mp4';
 
-// Preset Videos available in public/ folder
+// Preset Videos imported directly from src/assets/ for 100% reliable Vite bundling
 const PRESET_VIDEOS = [
   {
     id: 'video_1',
     title: '🏃‍♂️ Bài Thể Dục Mẫu 1 (Vận Động Sôi Động)',
-    url: '/Videotheduc.mp4',
+    url: sampleVideo1,
     duration: '03:15',
     category: 'Vận động toàn thân',
     icon: '⚡'
@@ -16,7 +18,7 @@ const PRESET_VIDEOS = [
   {
     id: 'video_2',
     title: '💃 Bài Thể Dục Mẫu 2 (Nhịp Điệu & Thể Lực)',
-    url: '/videotheduc2.mp4',
+    url: sampleVideo2,
     duration: '04:20',
     category: 'Thể lực & Nhịp điệu',
     icon: '🔥'
@@ -36,7 +38,6 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   const streamRef = useRef(null);
 
   // States
-  const [hasStartedVideo, setHasStartedVideo] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
@@ -59,6 +60,13 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   const prevFrameDataRef = useRef(null);
   const currentMotionEnergyRef = useRef(50);
   const scoreHistoryRef = useRef([]);
+
+  // Auto Load Video Frame on Selection Change
+  useEffect(() => {
+    if (sampleVideoRef.current) {
+      sampleVideoRef.current.load();
+    }
+  }, [selectedVideo]);
 
   // Start Real Student WebCam
   const startCamera = async () => {
@@ -237,29 +245,14 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   }, [cameraActive, isPlaying]);
 
   // Video Player Controls
-  const handleStartPlayVideo = () => {
-    setHasStartedVideo(true);
-    if (sampleVideoRef.current) {
-      sampleVideoRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch(err => {
-        console.warn('Sample video play error:', err);
-        // Retry playing
-        if (sampleVideoRef.current) {
-          sampleVideoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-        }
-      });
-    }
-  };
-
   const handleTogglePlay = () => {
-    if (!hasStartedVideo) {
-      handleStartPlayVideo();
-      return;
-    }
     if (sampleVideoRef.current) {
       if (sampleVideoRef.current.paused) {
-        sampleVideoRef.current.play().then(() => setIsPlaying(true)).catch(e => console.warn(e));
+        sampleVideoRef.current.play().then(() => {
+          setIsPlaying(true);
+        }).catch(err => {
+          console.warn('Sample video play error:', err);
+        });
       } else {
         sampleVideoRef.current.pause();
         setIsPlaying(false);
@@ -268,7 +261,6 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   };
 
   const handleRestartVideo = () => {
-    setHasStartedVideo(true);
     if (sampleVideoRef.current) {
       sampleVideoRef.current.currentTime = 0;
       sampleVideoRef.current.play().catch(() => {});
@@ -282,7 +274,6 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   const handleSelectVideo = (video) => {
     setSelectedVideo(video);
     setCustomVideoName('');
-    setHasStartedVideo(false);
     setIsPlaying(false);
     if (sampleVideoRef.current) {
       sampleVideoRef.current.src = video.url;
@@ -304,7 +295,6 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
       };
       setSelectedVideo(customVid);
       setCustomVideoName(file.name);
-      setHasStartedVideo(false);
       setIsPlaying(false);
       if (sampleVideoRef.current) {
         sampleVideoRef.current.src = url;
@@ -532,14 +522,15 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
             <Play size={16} color="#38bdf8" /> 🎬 VIDEO MẪU HƯỚNG DẪN BÀI TẬP
           </div>
 
-          {/* Sample Video Element */}
+          {/* Sample Video Element - Direct Clean HD Display */}
           <div style={{
             flex: 1,
             background: '#000000',
             position: 'relative',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            padding: '10px'
           }}>
             <video
               ref={sampleVideoRef}
@@ -547,53 +538,17 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
               loop
               playsInline
               controls
+              preload="auto"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               onEnded={() => setIsPlaying(false)}
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain'
+                objectFit: 'contain',
+                borderRadius: '16px'
               }}
             />
-
-            {!hasStartedVideo && (
-              <div 
-                onClick={handleStartPlayVideo}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'rgba(15, 23, 42, 0.75)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  backdropFilter: 'blur(6px)',
-                  zIndex: 20
-                }}
-              >
-                <div style={{
-                  width: '88px',
-                  height: '88px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 10px 35px rgba(34, 197, 94, 0.6)',
-                  border: '4px solid #ffffff'
-                }}>
-                  <Play size={46} color="#ffffff" style={{ marginLeft: '6px' }} />
-                </div>
-                <h3 style={{ marginTop: '20px', fontSize: '1.3rem', fontWeight: 900, color: '#ffffff' }}>
-                  BẤM ĐỂ PHÁT VIDEO MẪU
-                </h3>
-                <p style={{ fontSize: '0.9rem', color: '#38bdf8', margin: '6px 0 0 0', fontWeight: 700 }}>
-                  Bấm vào đây để mở nhạc và phát video bài tập mẫu
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Bottom Player Controls */}
@@ -609,20 +564,21 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
               <button
                 onClick={handleTogglePlay}
                 style={{
-                  background: isPlaying ? '#ef4444' : '#22c55e',
+                  background: isPlaying ? '#ef4444' : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '10px',
-                  padding: '8px 16px',
-                  fontWeight: 800,
-                  fontSize: '0.85rem',
+                  borderRadius: '12px',
+                  padding: '10px 20px',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '8px',
+                  boxShadow: '0 4px 15px rgba(34, 197, 94, 0.4)'
                 }}
               >
-                {isPlaying ? <><Pause size={16} /> Tạm Dừng Video</> : <><Play size={16} /> Phát Video Mẫu</>}
+                {isPlaying ? <><Pause size={18} /> Tạm Dừng Video</> : <><Play size={18} /> PHÁT VIDEO MẪU</>}
               </button>
               <button
                 onClick={handleRestartVideo}
@@ -630,8 +586,8 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
                   background: 'rgba(255,255,255,0.1)',
                   color: '#ffffff',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: '10px',
-                  padding: '8px 14px',
+                  borderRadius: '12px',
+                  padding: '10px 16px',
                   fontWeight: 700,
                   fontSize: '0.85rem',
                   cursor: 'pointer',
