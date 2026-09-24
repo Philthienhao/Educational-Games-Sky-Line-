@@ -45,7 +45,7 @@ export function detectGameIntent(textPrompt) {
     return { type: 'crossword', title: 'Ô Chữ Khóa Bí Mật', icon: '🧩' };
   }
   if (lower.includes('thể dục') || lower.includes('the duc') || lower.includes('nhảy theo video') || lower.includes('tập thể dục')) {
-    return { type: 'indoor-pe-dance', title: 'Thể Dục Trong Nhà - AI Nhảy Theo Video', icon: '🏃‍♂️' };
+    return { type: 'indoor-pe-dance', title: 'Thử thách thể dục', icon: '🏃‍♂️' };
   }
   if (lower.includes('tư thế') || lower.includes('bắt chước') || lower.includes('pose')) {
     return { type: 'pose-imitation', title: 'Bắt Chước Tư Thế Camera', icon: '🏃‍♂️' };

@@ -121,7 +121,7 @@ export function App() {
     else if (engineType === 'picture-reveal') { icon = '🖼️'; defaultName = 'Lật Mảnh Ghép Bí Mật'; }
     else if (engineType === 'crossword') { icon = '🧩'; defaultName = 'Ô Chữ Khóa Bí Mật'; }
     else if (engineType === 'pose-imitation') { icon = '🏃‍♂️'; defaultName = 'Bắt Chước Tư Thế Camera'; }
-    else if (engineType === 'indoor-pe-dance') { icon = '🏃‍♂️'; defaultName = 'Thể Dục Trong Nhà - AI Nhảy Theo Video'; }
+    else if (engineType === 'indoor-pe-dance') { icon = '🏃‍♂️'; defaultName = 'Thử thách thể dục'; }
 
     const titleText = targetGameTitle || `${defaultName} (AI - ${new Date().toLocaleDateString('vi-VN')})`;
 

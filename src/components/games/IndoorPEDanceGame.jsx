@@ -25,7 +25,7 @@ const PRESET_VIDEOS = [
   }
 ];
 
-export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục Trong Nhà - AI Nhảy Theo Video & Chấm Điểm Camera' }) {
+export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thử thách thể dục' }) {
   // Video Selection
   const [selectedVideo, setSelectedVideo] = useState(PRESET_VIDEOS[0]);
   const [customVideoName, setCustomVideoName] = useState('');
