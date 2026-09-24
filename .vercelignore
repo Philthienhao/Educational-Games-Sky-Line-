@@ -6,3 +6,7 @@ dist/textbooks/*.pdf
 Video.mov
 *.mov
 *.mp4
+*.pptx
+slide/
+phieuhoctap/
+sodotuduy/

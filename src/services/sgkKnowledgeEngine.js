@@ -536,87 +536,163 @@ BÀI HỌC: ${topicQuery.toUpperCase()} (MÔN ${subject.toUpperCase()} - KHỐI 
         visualHint: 'Biểu tượng cuốn sách và cuốn vở',
         slideType: 'summary'
       }
-    ],
-    mindmap: {
-      id: 'root',
-      label: `💡 ${topicQuery.toUpperCase()}`,
-      children: [
-        {
-          id: 'b1',
-          label: '1. Khái Niệm & Lý Thuyết',
-          color: '#ef4444',
-          children: [
-            { id: 'b1_1', label: `Định nghĩa chuẩn ${topicTitleClean}` },
-            { id: 'b1_2', label: 'Các đặc điểm cơ bản dễ nhận biết' },
-            { id: 'b1_3', label: 'Phân loại & yếu tố ảnh hưởng' }
-          ]
-        },
-        {
-          id: 'b2',
-          label: '2. Nguyên Lý & Tác Động',
-          color: '#3b82f6',
-          children: [
-            { id: 'b2_1', label: 'Quy luật hình thành & phát triển' },
-            { id: 'b2_2', label: 'Vai trò đối với đời sống & thực tiễn' }
-          ]
-        },
-        {
-          id: 'b3',
-          label: '3. Thực Hành & Vận Dụng',
-          color: '#10b981',
-          children: [
-            { id: 'b3_1', label: 'Bài tập khai thác kênh hình SGK' },
-            { id: 'b3_2', label: 'Ứng dụng thực tế đời sống hàng ngày' }
-          ]
-        }
-      ]
-    },
-    worksheet: {
-      title: `PHIẾU HỌC TẬP: ${topicQuery.toUpperCase()}`,
-      subject: subject,
-      grade: grade,
-      objectives: [
-        `Nắm vững kiến thức trọng tâm và định nghĩa của bài học "${topicTitleClean}".`,
-        'Rèn luyện kỹ năng quan sát, khai thác kiến thức và vận dụng thực tế.'
-      ],
-      summaryNotes: `Bài học "${topicTitleClean}" thuộc chương trình môn ${subject} Lớp ${grade} giúp học sinh phát triển tư duy nhận thức và năng lực giải quyết vấn đề thực tiễn.`,
-      illustrationHint: `Sơ đồ hình vẽ minh họa cho bài học ${topicTitleClean}`,
-      questions: [
-        {
-          id: 1,
-          type: 'mcq',
-          question: `Nội dung kiến thức cốt lõi nhất của bài học "${topicTitleClean}" là gì?`,
-          options: [
-            `A. Các định nghĩa, nguyên lý và đặc điểm chính của ${topicTitleClean}.`,
-            'B. Các số liệu tham khảo phụ.',
-            'C. Tên các tác giả biên soạn sách giáo khoa.',
-            'D. Không có đáp án đúng.'
-          ],
-          answer: 'A'
-        },
-        {
-          id: 2,
-          type: 'mcq',
-          question: `Học sinh cần vận dụng kiến thức bài học "${topicTitleClean}" vào thực tế như thế nào?`,
-          options: [
-            'A. Quan sát hiện tượng thực tế, giải thích bản chất và rút ra bài học ghi nhớ.',
-            'B. Học thuộc lòng không cần hiểu.',
-            'C. Bỏ qua các hình vẽ bài học.',
-            'D. Tất cả các ý trên.'
-          ],
-          answer: 'A'
-        },
-        {
-          id: 3,
-          type: 'essay',
-          question: `Em hãy trình bày 2 điểm kiến thức em ấn tượng nhất sau khi học xong bài "${topicTitleClean}".`
-        },
-        {
-          id: 4,
-          type: 'essay',
-          question: `Lấy 1 ví dụ thực tế trong đời sống liên quan trực tiếp đến bài học "${topicTitleClean}" mà em quan sát được.`
-        }
-      ]
+    ]
+  }
+};
+
+/**
+ * Parse Any Uploaded Custom Document (DOCX, PDF, TXT) into Slides, Mindmap & Worksheet
+ */
+export function parseUploadedDocumentToOutputs(rawText, fileName = '', topicQuery = '', grade = '6', subject = 'Địa Lí') {
+  if (!rawText || typeof rawText !== 'string' || rawText.trim().length < 20) {
+    return null;
+  }
+
+  const docTitle = fileName ? fileName.replace(/\.[^/.]+$/, "") : (topicQuery || 'Nội Dung Bài Học Tải Lên');
+  const clean = rawText.replace(/\r\n/g, '\n').trim();
+  const paragraphs = clean.split('\n\n').map(p => p.trim()).filter(p => p.length > 0);
+  const lines = clean.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  // Extract sections from lines starting with I., II., 1., 2., Bài, or ending with :
+  const sections = [];
+  let currentSec = { title: '1. NỘI DUNG TRỌNG TÂM', content: [] };
+
+  lines.forEach(line => {
+    const isHeading = /^(bài|[ivx\d]+[\.\:\-]|chương|mục|phần)\b/i.test(line) || (line.length < 80 && line.endsWith(':'));
+    if (isHeading && currentSec.content.length > 0) {
+      sections.push(currentSec);
+      currentSec = { title: line.toUpperCase(), content: [] };
+    } else {
+      currentSec.content.push(line);
     }
+  });
+  if (currentSec.content.length > 0) sections.push(currentSec);
+
+  // 1. Generate Slides from Uploaded Document
+  const slides = [
+    {
+      title: docTitle,
+      subtitle: `Tài liệu bài học tải lên • Môn ${subject} - Khối ${grade}`,
+      bulletPoints: [
+        paragraphs[0]?.slice(0, 120) || 'Nội dung bài giảng bóc tách từ tệp văn bản tải lên',
+        paragraphs[1]?.slice(0, 120) || 'Phân tích các mục kiến thức và bài tập thực hành',
+        'Tổng hợp các khái niệm và câu hỏi trắc nghiệm tự động'
+      ],
+      teacherNote: 'Hoạt động Khởi động: Cho học sinh đọc lướt qua tài liệu tải lên trong 3 phút.',
+      visualHint: 'Hình ảnh bìa tài liệu và sơ đồ tổng quan',
+      slideType: 'intro'
+    }
+  ];
+
+  const colors = ['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+
+  sections.slice(0, 6).forEach((sec, idx) => {
+    const secTitle = sec.title.length > 5 ? sec.title : `Mục ${idx + 1}: Kiến Thức Trọng Tâm`;
+    const bulletCandidates = sec.content.filter(l => l.length > 15 && !l.includes('---')).slice(0, 4);
+    if (bulletCandidates.length === 0) bulletCandidates.push('Tóm tắt ý chính nội dung phần này.');
+
+    slides.push({
+      title: secTitle,
+      subtitle: `Khai thác nội dung phần ${idx + 1} từ tệp bài học`,
+      bulletPoints: bulletCandidates,
+      teacherNote: `Giáo viên diễn giảng nội dung phần ${secTitle} và hướng dẫn học sinh chép bài.`,
+      visualHint: 'Sơ đồ minh họa kiến thức tệp bài học',
+      slideType: 'concept'
+    });
+  });
+
+  // 2. Generate Mindmap from Uploaded Document
+  const mindmapBranches = sections.slice(0, 5).map((sec, idx) => {
+    const subLines = sec.content.filter(l => l.length > 10).slice(0, 3);
+    return {
+      id: `b_${idx + 1}`,
+      label: sec.title.slice(0, 40),
+      color: colors[idx % colors.length],
+      children: subLines.map((sub, sIdx) => ({
+        id: `sub_${idx + 1}_${sIdx + 1}`,
+        label: sub.slice(0, 50)
+      }))
+    };
+  });
+
+  const mindmap = {
+    id: 'root',
+    label: `📄 ${docTitle.toUpperCase()}`,
+    children: mindmapBranches.length > 0 ? mindmapBranches : [
+      { id: 'b1', label: '1. Nội Dung Bài Học', color: '#3b82f6', children: [{ id: 'b1_1', label: paragraphs[0]?.slice(0, 40) || 'Kiến thức cốt lõi' }] }
+    ]
+  };
+
+  // 3. Generate Worksheet from Uploaded Document
+  // Extract key fact sentences for multiple choice questions
+  const factSentences = lines.filter(l => l.length > 25 && l.length < 150 && !l.includes('?') && !l.includes('---')).slice(0, 6);
+  
+  const questions = factSentences.map((fact, idx) => {
+    return {
+      id: idx + 1,
+      type: 'mcq',
+      question: `Căn cứ theo tài liệu tải lên: "${fact.slice(0, 80)}..." khẳng định nào sau đây là ĐÚNG?`,
+      options: [
+        `A. ${fact.slice(0, 70)} (Chính xác)`,
+        `B. Trái ngược hoàn toàn với nội dung văn bản bài học`,
+        `C. Không được đề cập đến trong tài liệu bài học`,
+        `D. Thông tin chưa đủ cơ sở xác minh`
+      ],
+      answer: 'A'
+    };
+  });
+
+  if (questions.length < 3) {
+    questions.push(
+      {
+        id: questions.length + 1,
+        type: 'mcq',
+        question: `Nội dung chính của tài liệu bài học "${docTitle}" tập trung vào vấn đề gì?`,
+        options: [
+          'A. Phân tích các khái niệm, quy luật và bài tập thực hành trong tệp tải lên.',
+          'B. Các thông tin quảng cáo thương mại.',
+          'C. Danh sách các bài hát giải trí.',
+          'D. Không có đáp án đúng.'
+        ],
+        answer: 'A'
+      }
+    );
+  }
+
+  questions.push({
+    id: questions.length + 1,
+    type: 'essay',
+    question: `Em hãy tóm tắt 3 ý kiến thức quan trọng nhất mà em đúc kết được từ tài liệu bài học "${docTitle}".`
+  });
+
+  questions.push({
+    id: questions.length + 1,
+    type: 'essay',
+    question: `Vận dụng kiến thức từ tệp bài học "${docTitle}", em hãy liên hệ 1 ví dụ thực tế trong đời sống hàng ngày.`
+  });
+
+  const worksheet = {
+    title: `PHIẾU HỌC TẬP: ${docTitle.toUpperCase()}`,
+    subject: subject,
+    grade: grade,
+    objectives: [
+      `Bóc tách và ghi nhớ nội dung cốt lõi từ tệp bài học "${docTitle}".`,
+      'Vận dụng giải quyết các câu hỏi trắc nghiệm và bài tập tự luận thực tế.'
+    ],
+    summaryNotes: `Tóm tắt tệp bài học: ${paragraphs[0]?.slice(0, 250) || clean.slice(0, 250)}...`,
+    illustrationHint: `Hình ảnh minh họa kiến thức bài học ${docTitle}`,
+    questions: questions
+  };
+
+  return {
+    title: docTitle,
+    subject: subject,
+    grade: grade,
+    fullText: clean,
+    slides: slides,
+    mindmap: mindmap,
+    worksheet: worksheet
   };
 }
+
+

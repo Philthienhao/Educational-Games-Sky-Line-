@@ -4,7 +4,7 @@ import { GeminiService } from '../services/geminiService';
 import { AISlideEditor } from './planner/AISlideEditor';
 import { AIMindmapCanvas } from './planner/AIMindmapCanvas';
 import { AIWorksheetView } from './planner/AIWorksheetView';
-import { BUILTIN_TEXTBOOKS, loadBuiltInTextbook } from '../services/aiTextbookService';
+import { BUILTIN_TEXTBOOKS, loadBuiltInTextbook, extractTextFromTextbookFile } from '../services/aiTextbookService';
 
 const SAMPLE_SGK_LESSONS = {
   '6': {
@@ -72,19 +72,19 @@ export function LessonPlannerHub({ currentUser }) {
     const file = e.target.files[0];
     if (!file) return;
     setFileName(file.name);
+    setLoading(true);
 
-    if (file.name.endsWith('.docx')) {
-      try {
-        const arrayBuffer = await file.arrayBuffer();
-        const result = await mammoth.extractRawText({ arrayBuffer });
-        setFileContent(result.value);
-      } catch (err) {
-        alert('Lỗi đọc file DOCX: ' + err.message);
+    try {
+      const extractedText = await extractTextFromTextbookFile(file);
+      if (extractedText && extractedText.length > 10) {
+        setFileContent(extractedText);
+      } else {
+        alert('Không thể bóc tách văn bản từ tệp này. Vui lòng kiểm tra lại tệp!');
       }
-    } else {
-      // Plain text or fallback
-      const text = await file.text();
-      setFileContent(text.slice(0, 5000));
+    } catch (err) {
+      alert('Lỗi đọc tệp: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
