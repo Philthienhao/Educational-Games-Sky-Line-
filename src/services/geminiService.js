@@ -4,8 +4,8 @@
  * Guarantees 100% out-of-the-box operation for game creation, remarks, lesson outlines, & Q&A.
  */
 
-import { getCurriculumQuestions, DEFAULT_EDUCATIVE_QUESTIONS } from './curriculumQuestionBank';
-import { getSGKLessonData } from './sgkKnowledgeEngine';
+import { getCurriculumQuestions, DEFAULT_EDUCATIVE_QUESTIONS } from './curriculumQuestionBank.js';
+import { getSGKLessonData } from './sgkKnowledgeEngine.js';
 
 const FALLBACK_GEMINI_KEY = ''; 
 
@@ -14,6 +14,7 @@ export const GeminiService = {
    * Get active Gemini API key (custom or fallback)
    */
   getApiKey() {
+    if (typeof localStorage === 'undefined') return FALLBACK_GEMINI_KEY;
     const customKey = localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key');
     if (customKey && customKey.trim().length > 15) {
       return customKey.trim();
@@ -25,6 +26,7 @@ export const GeminiService = {
    * Save custom API key
    */
   saveApiKey(key) {
+    if (typeof localStorage === 'undefined') return;
     if (!key) {
       localStorage.removeItem('user_gemini_api_key');
       localStorage.removeItem('gemini_api_key');

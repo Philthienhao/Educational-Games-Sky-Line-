@@ -1,8 +1,15 @@
+// Safe polyfill for DOMMatrix in Node test environments
+if (typeof globalThis.DOMMatrix === 'undefined') {
+  globalThis.DOMMatrix = class DOMMatrix {
+    constructor() { this.a = 1; this.b = 0; this.c = 0; this.d = 1; this.e = 0; this.f = 0; }
+  };
+}
+
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 import * as pdfjsLib from 'pdfjs-dist';
-import textbookCatalog from './textbookCatalog.json';
-import { getCurriculumQuestions } from './curriculumQuestionBank';
+import textbookCatalog from './textbookCatalog.json' with { type: 'json' };
+import { getCurriculumQuestions } from './curriculumQuestionBank.js';
 
 // Set PDF.js worker fallback if needed
 try {
@@ -114,7 +121,62 @@ export async function loadBuiltInTextbook(textbookId) {
 }
 
 /**
- * Extract raw text from textbook file (.pdf, .docx, .txt, .xlsx, .csv)
+ * Extract raw text from PPTX buffer using native browser DecompressionStream
+ */
+export async function extractPPTXText(buffer) {
+  try {
+    const uint8 = new Uint8Array(buffer);
+    let textResult = '';
+    
+    for (let i = 0; i < uint8.length - 30; i++) {
+      if (uint8[i] === 0x50 && uint8[i+1] === 0x4b && uint8[i+2] === 0x03 && uint8[i+3] === 0x04) {
+        const compMethod = uint8[i+8] | (uint8[i+9] << 8);
+        const compSize = uint8[i+18] | (uint8[i+19] << 8) | (uint8[i+20] << 16) | (uint8[i+21] << 24);
+        const fileNameLen = uint8[i+26] | (uint8[i+27] << 8);
+        const extraLen = uint8[i+28] | (uint8[i+29] << 8);
+        
+        const fileNameBuf = uint8.subarray(i + 30, i + 30 + fileNameLen);
+        const fileName = new TextDecoder().decode(fileNameBuf);
+        
+        const dataStart = i + 30 + fileNameLen + extraLen;
+        
+        if (fileName.includes('ppt/slides/slide') && fileName.endsWith('.xml')) {
+          const compressedData = uint8.subarray(dataStart, dataStart + compSize);
+          try {
+            let xmlStr = '';
+            if (compMethod === 8 && typeof DecompressionStream !== 'undefined') {
+              const ds = new DecompressionStream('deflate-raw');
+              const writer = ds.writable.getWriter();
+              writer.write(compressedData);
+              writer.close();
+              const response = new Response(ds.readable);
+              xmlStr = await response.text();
+            } else if (compMethod === 0) {
+              xmlStr = new TextDecoder().decode(compressedData);
+            }
+            
+            if (xmlStr) {
+              const matches = xmlStr.match(/<a:t[^>]*>(.*?)<\/a:t>/gi) || [];
+              const slideTexts = matches.map(m => m.replace(/<[^>]+>/g, '').trim()).filter(Boolean);
+              if (slideTexts.length > 0) {
+                textResult += `\n--- ${fileName} ---\n` + slideTexts.join(' ');
+              }
+            }
+          } catch (e) {
+            // ignore slide decompression errors gracefully
+          }
+        }
+      }
+    }
+    return textResult;
+  } catch (err) {
+    console.warn('PPTX extraction error:', err);
+    return '';
+  }
+}
+
+/**
+ * Extract raw text from textbook file (.pdf, .docx, .pptx, .txt, .xlsx, .csv)
  */
 export async function extractTextFromTextbookFile(file) {
   if (!file) return '';
@@ -140,7 +202,16 @@ export async function extractTextFromTextbookFile(file) {
       console.warn('Mammoth docx parse error:', e);
     }
   }
-  // 3. Excel Document (.xlsx, .xls)
+  // 3. PowerPoint Presentation (.pptx, .ppt)
+  else if (fileName.endsWith('.pptx') || fileName.endsWith('.ppt')) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      rawText = await extractPPTXText(arrayBuffer);
+    } catch (e) {
+      console.warn('PPTX parse error:', e);
+    }
+  }
+  // 4. Excel Document (.xlsx, .xls)
   else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
     try {
       const data = await file.arrayBuffer();
@@ -155,7 +226,7 @@ export async function extractTextFromTextbookFile(file) {
       console.warn('Excel parse error:', e);
     }
   }
-  // 4. PDF Document (.pdf)
+  // 5. PDF Document (.pdf)
   else if (fileName.endsWith('.pdf')) {
     try {
       const arrayBuffer = await file.arrayBuffer();

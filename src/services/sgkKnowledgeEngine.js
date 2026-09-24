@@ -454,19 +454,25 @@ BÀI 5: TRÁI ĐẤT TRONG HỆ MẶT TRỜI. HÌNH DẠNG VÀ KÍCH THƯỚC C�
 /**
  * Intelligent SGK Lesson Lookup Helper
  */
-export function getSGKLessonData(topicQuery, grade = '6', subject = 'Địa Lí') {
+export function getSGKLessonData(topicQuery, grade = '6', subject = 'Địa Lí', customUploadedText = '') {
+  // 1. If custom text from uploaded file/notes is provided, parse it directly!
+  if (customUploadedText && typeof customUploadedText === 'string' && customUploadedText.trim().length > 20) {
+    const parsedUploaded = parseUploadedDocumentToOutputs(customUploadedText, topicQuery, topicQuery, grade, subject);
+    if (parsedUploaded) return parsedUploaded;
+  }
+
   if (!topicQuery) return null;
 
   const queryClean = String(topicQuery).toLowerCase().trim();
 
-  // 1. Direct key match
+  // 2. Direct key match in database
   for (const [key, data] of Object.entries(SGK_LESSON_DATABASE)) {
     if (queryClean.includes(key) || key.includes(queryClean.replace(/^bài\s*\d+:\s*/i, ''))) {
       return data;
     }
   }
 
-  // 2. Generic dynamic generator for ANY subject / lesson topic entered
+  // 3. Generic dynamic generator for ANY subject / lesson topic entered
   const topicTitleClean = topicQuery.replace(/^bài\s*\d+:\s*/i, '').trim();
 
   return {
