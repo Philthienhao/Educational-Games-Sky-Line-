@@ -64,6 +64,8 @@ AnhHocSinh95/
 batchuocnhanhcohoilon/
 quaivat/
 *.mp4
+!public/Videotheduc.mp4
+!public/videotheduc2.mp4
 *.pptx
 slide/
 phieuhoctap/
