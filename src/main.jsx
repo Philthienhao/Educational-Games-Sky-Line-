@@ -3,11 +3,15 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v1.1.7_chatbot_toggle_auto_hide';
+const CURRENT_APP_BUILD_VERSION = 'v1.1.9_thuthach_theduc_force_rename';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {
     localStorage.setItem('gvd_app_build_version', CURRENT_APP_BUILD_VERSION);
+    try {
+      localStorage.removeItem('gvd_base_games');
+      localStorage.removeItem('gvd_saved_games');
+    } catch (e) {}
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(n => caches.delete(n))).catch(() => {});
     }

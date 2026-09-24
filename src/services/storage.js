@@ -1021,8 +1021,14 @@ export const StorageService = {
             }
           });
 
-          // Reset all dummy playsCount numbers to 0
+          // Reset all dummy playsCount numbers to 0 & update system game title
           storedGames.forEach(g => {
+            if (g.id === 'indoor-pe-dance-game' || g.engineType === 'indoor-pe-dance') {
+              if (g.title !== 'Thử thách thể dục') {
+                g.title = 'Thử thách thể dục';
+                updated = true;
+              }
+            }
             if (typeof g.playsCount !== 'number' || g.playsCount > 100) {
               g.playsCount = 0;
               updated = true;
@@ -1056,6 +1062,15 @@ export const StorageService = {
               if (!saved.some(g => g.id === ig.id) && !deletedIdsForInit.includes(ig.id)) {
                 saved.push(ig);
                 updated = true;
+              }
+            });
+            saved.forEach(g => {
+              if (g.engineType === 'indoor-pe-dance' || g.id === 'saved_sample_indoor_pe') {
+                if (g.title !== 'Thử thách thể dục') {
+                  g.title = 'Thử thách thể dục';
+                  g.lessonTitle = 'Thử thách thể dục';
+                  updated = true;
+                }
               }
             });
             saved = saved.filter(g => g && typeof g === 'object' && (g.title || g.lessonTitle || g.name || g.id) && !deletedIdsForInit.includes(g.id));
