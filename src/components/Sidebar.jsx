@@ -89,7 +89,7 @@ export function Sidebar({
 
   const navItems = [
     { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users, color: '#0284c7' },
-    { id: 'indoor-pe-dance', label: '🏃‍♂️ Thử thách thể dục', icon: Activity, color: '#10b981' },
+    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' },
     { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2, color: '#0d9488' },
     { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount, color: '#0284c7' },
     { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserPlus, color: '#0284c7' },

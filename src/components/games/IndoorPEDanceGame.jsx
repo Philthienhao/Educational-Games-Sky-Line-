@@ -25,7 +25,7 @@ const PRESET_VIDEOS = [
   }
 ];
 
-export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thử thách thể dục' }) {
+export function IndoorPEDanceGame({ onClose, title = 'Thử thách thể dục' }) {
   // Video Selection
   const [selectedVideo, setSelectedVideo] = useState(PRESET_VIDEOS[0]);
   const [customVideoName, setCustomVideoName] = useState('');

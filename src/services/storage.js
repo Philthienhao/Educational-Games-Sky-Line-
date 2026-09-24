@@ -298,7 +298,7 @@ const FRUIT_NINJA_SAMPLE_QUESTIONS = [
 const INITIAL_BASE_GAMES = [
   {
     id: 'indoor-pe-dance-game',
-    title: '🏃‍♂️ Thử thách thể dục',
+    title: 'Thử thách thể dục',
     subtitle: 'AI Camera Nhận Diện & Chấm Điểm Thể Dục Lớp Học',
     category: 'Tương tác AI Camera',
     icon: '🏃‍♂️',
@@ -650,8 +650,8 @@ const INITIAL_SAVED_GAMES = [
     id: 'saved_sample_indoor_pe',
     userId: 'user_admin',
     baseGameId: 'indoor-pe-dance-game',
-    title: '🏃‍♂️ Thử thách thể dục',
-    lessonTitle: '🏃‍♂️ Thử thách thể dục',
+    title: 'Thử thách thể dục',
+    lessonTitle: 'Thử thách thể dục',
     subject: 'Thể Dục / Vận Động',
     gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
     icon: '🏃‍♂️',
