@@ -36,6 +36,7 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   const streamRef = useRef(null);
 
   // States
+  const [hasStartedVideo, setHasStartedVideo] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState(null);
@@ -236,22 +237,38 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   }, [cameraActive, isPlaying]);
 
   // Video Player Controls
-  const handleTogglePlay = () => {
+  const handleStartPlayVideo = () => {
+    setHasStartedVideo(true);
     if (sampleVideoRef.current) {
-      if (isPlaying) {
+      sampleVideoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(err => {
+        console.warn('Sample video play error:', err);
+        // Retry playing
+        if (sampleVideoRef.current) {
+          sampleVideoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+        }
+      });
+    }
+  };
+
+  const handleTogglePlay = () => {
+    if (!hasStartedVideo) {
+      handleStartPlayVideo();
+      return;
+    }
+    if (sampleVideoRef.current) {
+      if (sampleVideoRef.current.paused) {
+        sampleVideoRef.current.play().then(() => setIsPlaying(true)).catch(e => console.warn(e));
+      } else {
         sampleVideoRef.current.pause();
         setIsPlaying(false);
-      } else {
-        sampleVideoRef.current.play().then(() => {
-          setIsPlaying(true);
-        }).catch(err => {
-          console.warn('Sample video play error:', err);
-        });
       }
     }
   };
 
   const handleRestartVideo = () => {
+    setHasStartedVideo(true);
     if (sampleVideoRef.current) {
       sampleVideoRef.current.currentTime = 0;
       sampleVideoRef.current.play().catch(() => {});
@@ -265,6 +282,7 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
   const handleSelectVideo = (video) => {
     setSelectedVideo(video);
     setCustomVideoName('');
+    setHasStartedVideo(false);
     setIsPlaying(false);
     if (sampleVideoRef.current) {
       sampleVideoRef.current.src = video.url;
@@ -286,6 +304,7 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
       };
       setSelectedVideo(customVid);
       setCustomVideoName(file.name);
+      setHasStartedVideo(false);
       setIsPlaying(false);
       if (sampleVideoRef.current) {
         sampleVideoRef.current.src = url;
@@ -538,40 +557,40 @@ export function IndoorPEDanceGame({ onClose, title = '🏃‍♂️ Thể Dục 
               }}
             />
 
-            {!isPlaying && (
+            {!hasStartedVideo && (
               <div 
-                onClick={handleTogglePlay}
+                onClick={handleStartPlayVideo}
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'rgba(15, 23, 42, 0.5)',
+                  background: 'rgba(15, 23, 42, 0.75)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
-                  backdropFilter: 'blur(4px)',
-                  zIndex: 5
+                  backdropFilter: 'blur(6px)',
+                  zIndex: 20
                 }}
               >
                 <div style={{
-                  width: '84px',
-                  height: '84px',
+                  width: '88px',
+                  height: '88px',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 10px 30px rgba(59, 130, 246, 0.6)',
-                  border: '3px solid #ffffff'
+                  boxShadow: '0 10px 35px rgba(34, 197, 94, 0.6)',
+                  border: '4px solid #ffffff'
                 }}>
-                  <Play size={42} color="#ffffff" style={{ marginLeft: '4px' }} />
+                  <Play size={46} color="#ffffff" style={{ marginLeft: '6px' }} />
                 </div>
-                <h3 style={{ marginTop: '16px', fontSize: '1.2rem', fontWeight: 900, color: '#ffffff' }}>
-                  Bắt Đầu Bài Tập Thể Dục
+                <h3 style={{ marginTop: '20px', fontSize: '1.3rem', fontWeight: 900, color: '#ffffff' }}>
+                  BẤM ĐỂ PHÁT VIDEO MẪU
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                  Bấm vào đây để mở nhạc và học sinh nhảy theo video
+                <p style={{ fontSize: '0.9rem', color: '#38bdf8', margin: '6px 0 0 0', fontWeight: 700 }}>
+                  Bấm vào đây để mở nhạc và phát video bài tập mẫu
                 </p>
               </div>
             )}
