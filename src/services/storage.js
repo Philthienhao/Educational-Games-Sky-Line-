@@ -872,6 +872,64 @@ const INITIAL_ADMIN_FOLDERS = [
   }
 ];
 
+const INITIAL_SKL_WEB_LINKS = [
+  {
+    id: 'link_1',
+    title: 'Hệ Thống Quản Lý Học Tập Sky-Line (Portal)',
+    url: 'https://sky-line.edu.vn',
+    category: 'Hệ Thống Sky-Line',
+    description: 'Trang thông tin & Cổng kết nối giáo dục Hệ thống Trường Sky-Line',
+    icon: '🏫',
+    color: '#0284c7',
+    isFavorite: true,
+    createdAt: '2026-03-01'
+  },
+  {
+    id: 'link_2',
+    title: 'K12Online - Nền Tảng Dạy Học Trực Tuyến',
+    url: 'https://k12online.vn',
+    category: 'Cổng Giáo Dục & Dạy Học',
+    description: 'Hệ thống quản lý học tập và kiểm tra đánh giá trực tuyến cho học sinh & giáo viên',
+    icon: '💻',
+    color: '#059669',
+    isFavorite: true,
+    createdAt: '2026-03-01'
+  },
+  {
+    id: 'link_3',
+    title: 'Kho Học Liệu & SGK Điện Tử Học Liệu VN',
+    url: 'https://hoclieu.vn',
+    category: 'Sách & Học Liệu',
+    description: 'Kho sách giáo khoa điện tử, bài tập tương tác và tài liệu tham khảo chính thức',
+    icon: '📚',
+    color: '#0d9488',
+    isFavorite: true,
+    createdAt: '2026-03-01'
+  },
+  {
+    id: 'link_4',
+    title: 'Canva Giáo Dục - Thiết Kế Bài Giảng',
+    url: 'https://www.canva.com/education',
+    category: 'Công Cụ Thiết Kế',
+    description: 'Thiết kế slide bài giảng, infographic và tài liệu học tập trực quan sinh động',
+    icon: '🎨',
+    color: '#ec4899',
+    isFavorite: true,
+    createdAt: '2026-03-01'
+  },
+  {
+    id: 'link_5',
+    title: 'Google Drive Bài Giảng & Hồ Sơ Lớp',
+    url: 'https://drive.google.com',
+    category: 'Lưu Trữ & Bài Giảng',
+    description: 'Thư mục lưu trữ tài liệu dạy học, giáo án và slide bài giảng cá nhân',
+    icon: '☁️',
+    color: '#f59e0b',
+    isFavorite: true,
+    createdAt: '2026-03-01'
+  }
+];
+
 let isStorageInitRunning = false;
 
 export const StorageService = {
@@ -2424,6 +2482,75 @@ export const StorageService = {
       return true;
     } catch (e) {
       return false;
+    }
+  },
+
+  // Per-User SKL Web Links Storage
+  getSKLWebLinks: (userId) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_web_links_${effectiveId}`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data !== null) {
+        const parsed = JSON.parse(data);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+
+    return INITIAL_SKL_WEB_LINKS;
+  },
+
+  saveSKLWebLinks: (userId, links) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const key = `gvd_user_web_links_${effectiveId}`;
+    try {
+      const safeLinks = Array.isArray(links) ? links : [];
+      localStorage.setItem(key, JSON.stringify(safeLinks));
+      IDBStorageService.setItem(key, safeLinks).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'web_links', safeLinks).catch(() => {});
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  // Granular SKL Web Links JSON Export & Import Engine
+  exportSKLWebLinksBackup: (userId) => {
+    StorageService.init();
+    const effectiveId = StorageService.getEffectiveUserId(userId);
+    const links = StorageService.getSKLWebLinks(effectiveId);
+    const payload = {
+      type: 'WEB_LINKS_BACKUP',
+      userId: effectiveId,
+      exportDate: new Date().toISOString(),
+      data: links
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `SaoLuu_DiaChiWebSKL_${effectiveId}_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importSKLWebLinksBackup: (userId, jsonStr) => {
+    try {
+      const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+      const data = Array.isArray(parsed.data) ? parsed.data : (Array.isArray(parsed) ? parsed : []);
+      if (!Array.isArray(data)) {
+        throw new Error('Định dạng tệp sao lưu Địa chỉ web SKL không hợp lệ!');
+      }
+      const effectiveId = StorageService.getEffectiveUserId(userId);
+      StorageService.saveSKLWebLinks(effectiveId, data);
+      return { success: true, message: `Khôi phục thành công ${data.length} Địa chỉ web SKL!` };
+    } catch (e) {
+      return { success: false, message: e.message || 'Lỗi đọc tệp JSON Địa chỉ web SKL!' };
     }
   },
 

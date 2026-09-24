@@ -95,6 +95,7 @@ export function Sidebar({
     { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserPlus, color: '#0284c7' },
     { id: 'parent-meeting', label: 'Hỗ trợ họp phụ huynh', icon: HeartHandshake, color: '#ec4899' },
     { id: 'lecture-slides', label: 'Slide bài giảng', icon: Presentation, color: '#6366f1' },
+    { id: 'skl-web-links', label: 'Địa chỉ web SKL', icon: Globe, color: '#3b82f6' },
     { id: 'textbook-download', label: 'Sách giáo khoa', icon: BookOpen, color: '#059669' },
     { id: 'geo-experiments', label: 'Mô hình mô phỏng Địa Lí', icon: Globe, color: '#f59e0b' },
     { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskRound, color: '#0d9488' },

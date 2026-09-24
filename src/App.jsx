@@ -32,6 +32,7 @@ import { AdminCreateGameModal } from './components/AdminCreateGameModal';
 import { ClassroomPlayModal } from './components/ClassroomPlayModal';
 import { TextbookDownloadManager } from './components/TextbookDownloadManager';
 import { LectureSlideManager } from './components/LectureSlideManager';
+import { SKLWebLinksManager } from './components/SKLWebLinksManager';
 import { VirtualLabManager } from './components/VirtualLabManager';
 import { GeoExperimentsView } from './components/GeoExperimentsView';
 import { ParentMeetingSupport } from './components/ParentMeetingSupport';
@@ -652,6 +653,11 @@ export function App() {
         {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
         {activeTab === 'lecture-slides' && (
           <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+        )}
+
+        {/* View 6.2: Địa Chỉ Web SKL (Per-User Web Bookmarks Manager) */}
+        {activeTab === 'skl-web-links' && (
+          <SKLWebLinksManager currentUser={currentUser} />
         )}
 
         {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}

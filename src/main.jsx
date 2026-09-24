@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v1.1.9_thuthach_theduc_force_rename';
+const CURRENT_APP_BUILD_VERSION = 'v2.0.0_skl_web_links_feature';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {

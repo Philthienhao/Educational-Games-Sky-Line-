@@ -168,6 +168,12 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
           '💡 3 Hoạt động nhóm phát huy năng lực học sinh',
           '❓ 5 Câu hỏi củng cố kiến thức cuối bài'
         ];
+      case 'skl-web-links':
+        return [
+          '🌐 Hướng dẫn lưu trang web dạy học cá nhân',
+          '📌 Đề xuất các trang web học liệu chuẩn cho giáo viên',
+          '📥 Cách sao lưu danh sách địa chỉ web SKL'
+        ];
       case 'textbook-download':
         return [
           '📖 Tóm tắt kiến thức trọng tâm SGK Địa Lí 6',
