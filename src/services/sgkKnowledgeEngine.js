@@ -554,127 +554,231 @@ export function parseUploadedDocumentToOutputs(rawText, fileName = '', topicQuer
     return null;
   }
 
-  const docTitle = fileName ? fileName.replace(/\.[^/.]+$/, "") : (topicQuery || 'Nội Dung Bài Học Tải Lên');
-  const clean = rawText.replace(/\r\n/g, '\n').trim();
-  const paragraphs = clean.split('\n\n').map(p => p.trim()).filter(p => p.length > 0);
-  const lines = clean.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  // 1. Clean raw text & strip structural file noise (like ppt/slides/slideX.xml, Sheet headers)
+  let clean = rawText
+    .replace(/--- ppt\/slides\/slide\d+\.xml ---/gi, '\n')
+    .replace(/--- Sheet: [^---]+ ---/gi, '\n')
+    .replace(/\r\n/g, '\n')
+    .trim();
 
-  // Extract sections from lines starting with I., II., 1., 2., Bài, or ending with :
-  const sections = [];
-  let currentSec = { title: '1. NỘI DUNG TRỌNG TÂM', content: [] };
+  // Filter out noise lines (XML tags, file paths, standalone page numbers)
+  const lines = clean
+    .split('\n')
+    .map(l => l.trim())
+    .filter(l => {
+      if (!l || l.length < 3) return false;
+      if (/^(ppt\/slides\/|http|https|file:)/i.test(l)) return false;
+      if (/^\d+$/.test(l)) return false; // standalone numbers
+      return true;
+    });
+
+  const docTitle = fileName ? fileName.replace(/\.[^/.]+$/, "") : (topicQuery || 'Nội Dung Bài Học');
+
+  // 2. Separate Headings vs Teaching Body Content into Pedagogical Activities
+  const activities = [];
+  let currentActivity = {
+    title: '1. HÌNH THÀNH KIẾN THỨC MỚI',
+    type: 'concept',
+    content: []
+  };
+
+  const isActivityHeader = (line) => {
+    return /^(hoạt động|hoat dong)\s*\d+/i.test(line) ||
+           /^(mục|phần|chương|bài)\s*[\d\w]+/i.test(line) ||
+           /^[I|V|X]+\.\s+/i.test(line) ||
+           /^[\d]+\.\s+[A-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯ]/i.test(line);
+  };
 
   lines.forEach(line => {
-    const isHeading = /^(bài|[ivx\d]+[\.\:\-]|chương|mục|phần)\b/i.test(line) || (line.length < 80 && line.endsWith(':'));
-    if (isHeading && currentSec.content.length > 0) {
-      sections.push(currentSec);
-      currentSec = { title: line.toUpperCase(), content: [] };
+    if (isActivityHeader(line)) {
+      if (currentActivity.content.length > 0) {
+        activities.push(currentActivity);
+      }
+      
+      let actType = 'concept';
+      const lower = line.toLowerCase();
+      if (lower.includes('khởi động') || lower.includes('mở đầu')) actType = 'intro';
+      else if (lower.includes('luyện tập') || lower.includes('củng cố')) actType = 'activity';
+      else if (lower.includes('vận dụng') || lower.includes('dặn dò') || lower.includes('bài tập về nhà')) actType = 'summary';
+
+      currentActivity = {
+        title: line.replace(/^[-•*+]\s*/, '').trim(),
+        type: actType,
+        content: []
+      };
     } else {
-      currentSec.content.push(line);
+      const cleanLine = line.replace(/^[-•*+]\s*/, '').trim();
+      if (cleanLine.length > 5) {
+        currentActivity.content.push(cleanLine);
+      }
     }
   });
-  if (currentSec.content.length > 0) sections.push(currentSec);
 
-  // 1. Generate Slides from Uploaded Document
-  const slides = [
-    {
-      title: docTitle,
-      subtitle: `Tài liệu bài học tải lên • Môn ${subject} - Khối ${grade}`,
-      bulletPoints: [
-        paragraphs[0]?.slice(0, 120) || 'Nội dung bài giảng bóc tách từ tệp văn bản tải lên',
-        paragraphs[1]?.slice(0, 120) || 'Phân tích các mục kiến thức và bài tập thực hành',
-        'Tổng hợp các khái niệm và câu hỏi trắc nghiệm tự động'
-      ],
-      teacherNote: 'Hoạt động Khởi động: Cho học sinh đọc lướt qua tài liệu tải lên trong 3 phút.',
-      visualHint: 'Hình ảnh bìa tài liệu và sơ đồ tổng quan',
-      slideType: 'intro'
-    }
-  ];
+  if (currentActivity.content.length > 0) {
+    activities.push(currentActivity);
+  }
 
-  const colors = ['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+  // 3. Build Slides according to Pedagogical Teaching Process (Công văn 5512)
+  const slides = [];
 
-  sections.slice(0, 6).forEach((sec, idx) => {
-    const secTitle = sec.title.length > 5 ? sec.title : `Mục ${idx + 1}: Kiến Thức Trọng Tâm`;
-    const bulletCandidates = sec.content.filter(l => l.length > 15 && !l.includes('---')).slice(0, 4);
-    if (bulletCandidates.length === 0) bulletCandidates.push('Tóm tắt ý chính nội dung phần này.');
+  // SLIDE 1: Title & Pedagogical Objectives
+  slides.push({
+    title: `BÀI HỌC: ${docTitle.toUpperCase()}`,
+    subtitle: `Kế hoạch bài dạy môn ${subject} - Khối lớp ${grade} (GDPT 2018)`,
+    bulletPoints: [
+      `Mục tiêu kiến thức: Nắm vững trọng tâm bài dạy "${docTitle}"`,
+      'Mục tiêu năng lực: Tự học, thảo luận nhóm và khai thác tư liệu bài học',
+      'Mục tiêu phẩm chất: Chăm chỉ, trách nhiệm và ứng dụng kiến thức thực tiễn'
+    ],
+    teacherNote: 'Hoạt động Khởi động (5 phút): Giáo viên phổ biến mục tiêu bài học và tạo không khí học tập tích cực.',
+    visualHint: 'Biểu tượng sơ đồ mục tiêu bài dạy và bìa bài học',
+    slideType: 'intro'
+  });
 
-    slides.push({
-      title: secTitle,
-      subtitle: `Khai thác nội dung phần ${idx + 1} từ tệp bài học`,
-      bulletPoints: bulletCandidates,
-      teacherNote: `Giáo viên diễn giảng nội dung phần ${secTitle} và hướng dẫn học sinh chép bài.`,
-      visualHint: 'Sơ đồ minh họa kiến thức tệp bài học',
-      slideType: 'concept'
+  // SLIDE 2: Hoạt động 1 - Khởi động (Warm-Up / Problem Situation)
+  const introAct = activities.find(a => a.type === 'intro') || activities[0];
+  slides.push({
+    title: 'HOẠT ĐỘNG 1: KHỞI ĐỘNG',
+    subtitle: 'Tạo tình huống có vấn đề & khơi gợi hứng thú học tập',
+    bulletPoints: [
+      introAct?.content[0] || `Quan sát hình ảnh / video minh họa liên quan đến ${docTitle}`,
+      introAct?.content[1] || 'Thảo luận cặp đôi trả lời câu hỏi tình huống của giáo viên',
+      'Xác định nhiệm vụ học tập trọng tâm trong tiết học hôm nay'
+    ],
+    teacherNote: 'Giáo viên chiếu câu hỏi / hình ảnh khởi động, yêu cầu học sinh thảo luận cặp đôi trong 3 phút.',
+    visualHint: 'Hình ảnh tình huống khởi động thực tế bài học',
+    slideType: 'intro'
+  });
+
+  // SLIDE 3+: Hoạt động 2 - Hình thành kiến thức mới (Core Teaching Content per Section)
+  const conceptActs = activities.filter(a => a.type === 'concept');
+  if (conceptActs.length > 0) {
+    conceptActs.forEach((act, idx) => {
+      const bullets = act.content.filter(c => c.length > 10).slice(0, 4);
+      if (bullets.length === 0) bullets.push(`Nội dung kiến thức trọng tâm phần ${idx + 1}`);
+
+      slides.push({
+        title: act.title.length > 5 ? act.title : `HOẠT ĐỘNG 2.${idx + 1}: HÌNH THÀNH KIẾN THỨC MỚI`,
+        subtitle: `Chi tiết nội dung kiến thức bài dạy - Phần ${idx + 1}`,
+        bulletPoints: bullets,
+        teacherNote: `Giáo viên diễn giảng nội dung phần "${act.title}", hướng dẫn học sinh đọc SGK và ghi vở đầy đủ.`,
+        visualHint: 'Sơ đồ hình vẽ minh họa kiến thức bài học',
+        slideType: 'concept'
+      });
     });
+  } else {
+    const allBody = lines.filter(l => !isActivityHeader(l) && l.length > 15);
+    for (let i = 0; i < allBody.length; i += 3) {
+      const chunk = allBody.slice(i, i + 3);
+      if (chunk.length > 0 && slides.length < 6) {
+        slides.push({
+          title: `HOẠT ĐỘNG 2.${Math.floor(i / 3) + 1}: HÌNH THÀNH KIẾN THỨC MỚI`,
+          subtitle: `Nội dung bài dạy trọng tâm`,
+          bulletPoints: chunk,
+          teacherNote: 'Giáo viên tổ chức cho học sinh thảo luận nhóm khai thác kiến thức bài học.',
+          visualHint: 'Sơ đồ tư duy kiến thức bài học',
+          slideType: 'concept'
+        });
+      }
+    }
+  }
+
+  // SLIDE N-1: Hoạt động 3 - Luyện tập (Practice & Quiz)
+  const practiceAct = activities.find(a => a.type === 'activity');
+  slides.push({
+    title: 'HOẠT ĐỘNG 3: LUYỆN TẬP & CỦNG CỐ',
+    subtitle: 'Rèn luyện kỹ năng & trả lời câu hỏi củng cố',
+    bulletPoints: [
+      practiceAct?.content[0] || 'Hoàn thành các câu hỏi trắc nghiệm củng cố bài học',
+      practiceAct?.content[1] || 'Giải quyết bài tập tự luận trong Phiếu Học Tập A4',
+      'Đại diện các nhóm học sinh lên bảng trình bày kết quả'
+    ],
+    teacherNote: 'Tổ chức trò chơi trắc nghiệm hoặc phát Phiếu học tập A4 cho học sinh làm trong 7 phút.',
+    visualHint: 'Biểu tượng bài tập trắc nghiệm và nhóm học tập',
+    slideType: 'activity'
   });
 
-  // 2. Generate Mindmap from Uploaded Document
-  const mindmapBranches = sections.slice(0, 5).map((sec, idx) => {
-    const subLines = sec.content.filter(l => l.length > 10).slice(0, 3);
+  // SLIDE N: Hoạt động 4 - Vận dụng & Dặn dò (Application & Homework)
+  const summaryAct = activities.find(a => a.type === 'summary');
+  slides.push({
+    title: 'HOẠT ĐỘNG 4: VẬN DỤNG & DẶN DÒ',
+    subtitle: 'Liên hệ thực tế đời sống & nhiệm vụ tại nhà',
+    bulletPoints: [
+      summaryAct?.content[0] || `Vận dụng kiến thức bài ${docTitle} giải thích hiện tượng thực tế`,
+      summaryAct?.content[1] || 'Hoàn thành bài tập nâng cao trong Phiếu Học Tập',
+      'Đọc trước nội dung bài học tiếp theo trong Sách Giáo Khoa'
+    ],
+    teacherNote: 'Dặn dò học sinh chép bài đầy đủ và thực hiện nhiệm vụ học tập tại nhà.',
+    visualHint: 'Hình ảnh ngôi nhà và cuốn sách dặn dò',
+    slideType: 'summary'
+  });
+
+  // 4. Build Mindmap Branches by Pedagogical Activities
+  const colors = ['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ec4899'];
+  const mindmapBranches = activities.slice(0, 5).map((act, idx) => {
+    const subLines = act.content.filter(l => l.length > 8).slice(0, 3);
     return {
-      id: `b_${idx + 1}`,
-      label: sec.title.slice(0, 40),
+      id: `act_${idx + 1}`,
+      label: act.title.slice(0, 45),
       color: colors[idx % colors.length],
       children: subLines.map((sub, sIdx) => ({
         id: `sub_${idx + 1}_${sIdx + 1}`,
-        label: sub.slice(0, 50)
+        label: sub.slice(0, 55)
       }))
     };
   });
 
   const mindmap = {
     id: 'root',
-    label: `📄 ${docTitle.toUpperCase()}`,
+    label: `🧠 BÀI: ${docTitle.toUpperCase()}`,
     children: mindmapBranches.length > 0 ? mindmapBranches : [
-      { id: 'b1', label: '1. Nội Dung Bài Học', color: '#3b82f6', children: [{ id: 'b1_1', label: paragraphs[0]?.slice(0, 40) || 'Kiến thức cốt lõi' }] }
+      { id: 'b1', label: '1. Nội Dung Bài Học', color: '#3b82f6', children: [{ id: 'b1_1', label: clean.slice(0, 50) || 'Kiến thức cốt lõi' }] }
     ]
   };
 
-  // 3. Generate Worksheet from Uploaded Document
-  // Extract key fact sentences for multiple choice questions
-  const factSentences = lines.filter(l => l.length > 25 && l.length < 150 && !l.includes('?') && !l.includes('---')).slice(0, 6);
+  // 5. Build A4 Worksheet Questions from Extracted Teaching Sentences
+  const factSentences = lines.filter(l => l.length > 25 && l.length < 160 && !l.includes('?') && !isActivityHeader(l)).slice(0, 6);
   
   const questions = factSentences.map((fact, idx) => {
     return {
       id: idx + 1,
       type: 'mcq',
-      question: `Căn cứ theo tài liệu tải lên: "${fact.slice(0, 80)}..." khẳng định nào sau đây là ĐÚNG?`,
+      question: `Căn cứ theo nội dung bài dạy: "${fact.slice(0, 80)}..." khẳng định nào sau đây là ĐÚNG?`,
       options: [
-        `A. ${fact.slice(0, 70)} (Chính xác)`,
-        `B. Trái ngược hoàn toàn với nội dung văn bản bài học`,
-        `C. Không được đề cập đến trong tài liệu bài học`,
-        `D. Thông tin chưa đủ cơ sở xác minh`
+        `A. ${fact.slice(0, 75)} (Đáp án chính xác)`,
+        `B. Khái niệm trên không được đề cập đến trong bài học`,
+        `C. Trái ngược hoàn toàn với nguyên lý bài dạy`,
+        `D. Thông tin thiếu căn cứ xác minh`
       ],
       answer: 'A'
     };
   });
 
   if (questions.length < 3) {
-    questions.push(
-      {
-        id: questions.length + 1,
-        type: 'mcq',
-        question: `Nội dung chính của tài liệu bài học "${docTitle}" tập trung vào vấn đề gì?`,
-        options: [
-          'A. Phân tích các khái niệm, quy luật và bài tập thực hành trong tệp tải lên.',
-          'B. Các thông tin quảng cáo thương mại.',
-          'C. Danh sách các bài hát giải trí.',
-          'D. Không có đáp án đúng.'
-        ],
-        answer: 'A'
-      }
-    );
+    questions.push({
+      id: questions.length + 1,
+      type: 'mcq',
+      question: `Ý nghĩa trọng tâm nhất của bài dạy "${docTitle}" là gì?`,
+      options: [
+        `A. Nắm vững bản chất khái niệm và ứng dụng bài học "${docTitle}" vào thực tiễn.`,
+        'B. Ghi nhớ các thông tin không liên quan bài học.',
+        'C. Đọc lướt qua mà không cần làm bài tập.',
+        'D. Tất cả các phương án trên đều sai.'
+      ],
+      answer: 'A'
+    });
   }
 
   questions.push({
     id: questions.length + 1,
     type: 'essay',
-    question: `Em hãy tóm tắt 3 ý kiến thức quan trọng nhất mà em đúc kết được từ tài liệu bài học "${docTitle}".`
+    question: `Em hãy tóm tắt 3 nội dung kiến thức quan trọng nhất mà em đã học được từ bài dạy "${docTitle}".`
   });
 
   questions.push({
     id: questions.length + 1,
     type: 'essay',
-    question: `Vận dụng kiến thức từ tệp bài học "${docTitle}", em hãy liên hệ 1 ví dụ thực tế trong đời sống hàng ngày.`
+    question: `Vận dụng kiến thức bài học "${docTitle}", em hãy nêu 1 ví dụ thực tế liên hệ trong đời sống hàng ngày.`
   });
 
   const worksheet = {
@@ -682,11 +786,11 @@ export function parseUploadedDocumentToOutputs(rawText, fileName = '', topicQuer
     subject: subject,
     grade: grade,
     objectives: [
-      `Bóc tách và ghi nhớ nội dung cốt lõi từ tệp bài học "${docTitle}".`,
-      'Vận dụng giải quyết các câu hỏi trắc nghiệm và bài tập tự luận thực tế.'
+      `Nắm vững kiến thức trọng tâm bài dạy "${docTitle}".`,
+      'Giải quyết các câu hỏi trắc nghiệm và bài tập vận dụng tự luận.'
     ],
-    summaryNotes: `Tóm tắt tệp bài học: ${paragraphs[0]?.slice(0, 250) || clean.slice(0, 250)}...`,
-    illustrationHint: `Hình ảnh minh họa kiến thức bài học ${docTitle}`,
+    summaryNotes: `Tóm tắt nội dung bài dạy: ${clean.slice(0, 260)}...`,
+    illustrationHint: `Hình ảnh minh họa kiến thức bài dạy ${docTitle}`,
     questions: questions
   };
 

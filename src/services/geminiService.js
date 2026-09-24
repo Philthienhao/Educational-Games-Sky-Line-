@@ -387,18 +387,25 @@ Ngữ cảnh trang hiện tại của giáo viên: ${contextTab}.`;
     try {
       const apiKey = this.getApiKey();
       if (apiKey && apiKey.trim().length > 15) {
-        const systemPrompt = `Bạn là Chuyên gia thiết kế Slide Bài Giảng Giáo Dục Việt Nam theo chuẩn GDPT 2018.
+        const systemPrompt = `Bạn là Chuyên gia thiết kế Slide Bài Giảng Giáo Dục Việt Nam theo chuẩn Công văn 5512 Bộ GD&ĐT (GDPT 2018).
 BẮT BUỘC trả về mảng JSON thuần túy (không chứa mã markdown \`\`\`json).
-NỘI QUY: NGHIÊM CẤM dùng các từ ngữ hay câu hỏi chung chung (như "Học sinh nêu khái niệm cốt lõi", "Cơ sở lý thuyết"). BẮT BUỘC phải viết kiến thức thực tế cụ thể của bài học!
-Cấu trúc mảng Slide:
+NỘI QUY: BẮT BUỘC phân biệt rõ ràng đâu là TIÊU ĐỀ HOẠT ĐỘNG và đâu là NỘI DUNG BÀI DẠY CỤ THỂ.
+BẮT BUỘC phải thiết kế Slide theo đúng tiến trình dạy học 4 hoạt động chuẩn Công văn 5512:
+1. Trang Giới Thiệu: Tên bài học & Mục tiêu bài học (Kiến thức, Năng lực, Phẩm chất)
+2. HOẠT ĐỘNG 1: KHỞI ĐỘNG (Tình huống mở đầu, câu hỏi khơi gợi hứng thú)
+3. HOẠT ĐỘNG 2: HÌNH THÀNH KIẾN THỨC MỚI (Chia thành các Slide mục I, II, III... chi tiết nội dung kiến thức bài dạy)
+4. HOẠT ĐỘNG 3: LUYỆN TẬP & CỦNG CỐ (Các câu hỏi trắc nghiệm, bài tập củng cố)
+5. HOẠT ĐỘNG 4: VẬN DỤNG & DẶN DÒ (Liên hệ thực tế, bài tập về nhà)
+
+Cấu trúc mảng Slide JSON:
 [
   {
-    "title": "Tên trang Slide (VD: Khởi động / I. Khái niệm... / Luyện tập)",
+    "title": "Tên trang Slide (VD: HOẠT ĐỘNG 1: KHỞI ĐỘNG / I. Khái niệm... / HOẠT ĐỘNG 3: LUYỆN TẬP)",
     "subtitle": "Mô tả ngắn gọn hoặc câu dẫn",
     "bulletPoints": ["Kiến thức cụ thể 1", "Kiến thức cụ thể 2", "Kiến thức cụ thể 3"],
-    "teacherNote": "Ghi chú hoạt động dạy học của giáo viên (Công văn 5512)",
+    "teacherNote": "Ghi chú hoạt động dạy học của giáo viên",
     "visualHint": "Gợi ý hình ảnh minh họa phù hợp bài học",
-    "slideType": "intro"
+    "slideType": "concept"
   }
 ]`;
         let userPrompt = `Thiết kế bộ Slide bài giảng 6-8 trang chi tiết cho bài: "${topicText}" (Môn ${subject}, Lớp ${grade}).`;
