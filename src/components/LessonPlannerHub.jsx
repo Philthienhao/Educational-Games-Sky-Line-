@@ -202,7 +202,101 @@ export function LessonPlannerHub({ currentUser }) {
         </div>
       </div>
 
-      {/* STEP 1: INPUT CONTROL SECTION */}
+      {/* STEP 1: SELECT TARGET OUTPUT PRODUCTS FIRST */}
+      <div style={{
+        background: '#090d16',
+        border: '2px solid rgba(168, 85, 247, 0.45)',
+        borderRadius: '24px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: '0 10px 30px rgba(168, 85, 247, 0.2)'
+      }}>
+        <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#c4b5fd', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <Layers size={22} color="#a855f7" /> 
+          BƯỚC 1: CHỌN CÁC SẢN PHẨM KHỞI TẠO MONG MUỐN (Có thể chọn 1 hoặc nhiều)
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
+          
+          {/* Target 1: Slide bài dạy PPT */}
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '14px',
+            padding: '16px 20px', borderRadius: '16px',
+            background: generateSlides ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.15) 100%)' : 'rgba(255,255,255,0.03)',
+            border: `2px solid ${generateSlides ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
+            cursor: 'pointer', transition: 'all 0.2s ease',
+            boxShadow: generateSlides ? '0 6px 20px rgba(99, 102, 241, 0.35)' : 'none'
+          }}>
+            <input
+              type="checkbox"
+              checked={generateSlides}
+              onChange={(e) => setGenerateSlides(e.target.checked)}
+              style={{ width: '22px', height: '22px', accentColor: '#6366f1', cursor: 'pointer' }}
+            />
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '0.98rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Presentation size={20} color="#818cf8" /> Slide Bài Dạy PPT
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#c7d2fe', marginTop: '4px', lineHeight: 1.4 }}>
+                Theo chuẩn thư mục mẫu slide • Tùy chỉnh & trình chiếu
+              </div>
+            </div>
+          </label>
+
+          {/* Target 2: Sơ đồ tư duy khoa học */}
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '14px',
+            padding: '16px 20px', borderRadius: '16px',
+            background: generateMindmap ? 'linear-gradient(135deg, rgba(13, 148, 136, 0.3) 0%, rgba(15, 118, 110, 0.15) 100%)' : 'rgba(255,255,255,0.03)',
+            border: `2px solid ${generateMindmap ? '#0d9488' : 'rgba(255,255,255,0.1)'}`,
+            cursor: 'pointer', transition: 'all 0.2s ease',
+            boxShadow: generateMindmap ? '0 6px 20px rgba(13, 148, 136, 0.35)' : 'none'
+          }}>
+            <input
+              type="checkbox"
+              checked={generateMindmap}
+              onChange={(e) => setGenerateMindmap(e.target.checked)}
+              style={{ width: '22px', height: '22px', accentColor: '#0d9488', cursor: 'pointer' }}
+            />
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '0.98rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Network size={20} color="#2dd4bf" /> Sơ Đồ Tư Duy Khoa Học
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#99f6e4', marginTop: '4px', lineHeight: 1.4 }}>
+                Chuẩn đám mây Tony Buzan thư mục sodotuduy & SVG
+              </div>
+            </div>
+          </label>
+
+          {/* Target 3: Phiếu học tập A4 */}
+          <label style={{
+            display: 'flex', alignItems: 'center', gap: '14px',
+            padding: '16px 20px', borderRadius: '16px',
+            background: generateWorksheet ? 'linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(190, 24, 93, 0.15) 100%)' : 'rgba(255,255,255,0.03)',
+            border: `2px solid ${generateWorksheet ? '#ec4899' : 'rgba(255,255,255,0.1)'}`,
+            cursor: 'pointer', transition: 'all 0.2s ease',
+            boxShadow: generateWorksheet ? '0 6px 20px rgba(236, 72, 153, 0.35)' : 'none'
+          }}>
+            <input
+              type="checkbox"
+              checked={generateWorksheet}
+              onChange={(e) => setGenerateWorksheet(e.target.checked)}
+              style={{ width: '22px', height: '22px', accentColor: '#ec4899', cursor: 'pointer' }}
+            />
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '0.98rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileText size={20} color="#f472b6" /> Phiếu Học Tập A4
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#fbcfe8', marginTop: '4px', lineHeight: 1.4 }}>
+                Chuẩn thư mục phieuhoctap • Trắc nghiệm & Tự luận
+              </div>
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      {/* STEP 2: INPUT LESSON SOURCE SECTION */}
       <div style={{
         background: '#090d16',
         border: '1.5px solid rgba(139, 92, 246, 0.35)',
@@ -213,7 +307,7 @@ export function LessonPlannerHub({ currentUser }) {
       }}>
         <div style={{ fontSize: '1rem', fontWeight: 900, color: '#a7f3d0', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
           <BookOpen size={20} color="#10b981" /> 
-          BƯỚC 1: CHỌN NGUỒN BÀI HỌC HOẶC TẢI TỆP NỘI DUNG
+          BƯỚC 2: CHỌN NGUỒN BÀI HỌC HOẶC TẢI TỆP NỘI DUNG
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
@@ -316,117 +410,28 @@ export function LessonPlannerHub({ currentUser }) {
 
         </div>
 
-        {/* STEP 2: SELECT TARGET OUTPUT PRODUCTS */}
-        <div style={{
-          marginTop: '20px',
-          background: 'rgba(15, 23, 42, 0.75)',
-          padding: '20px',
-          borderRadius: '18px',
-          border: '1.5px solid rgba(168, 85, 247, 0.4)'
-        }}>
-          <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#c4b5fd', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <Layers size={18} color="#a855f7" /> 
-            BƯỚC 2: CHỌN CÁC SẢN PHẨM KHỞI TẠO MONG MUỐN (Có thể chọn 1 hoặc nhiều)
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
-            
-            {/* Target 1: Slide bài dạy PPT */}
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '14px 18px', borderRadius: '14px',
-              background: generateSlides ? 'rgba(99, 102, 241, 0.25)' : 'rgba(255,255,255,0.03)',
-              border: `2px solid ${generateSlides ? '#6366f1' : 'rgba(255,255,255,0.1)'}`,
-              cursor: 'pointer', transition: 'all 0.2s'
-            }}>
-              <input
-                type="checkbox"
-                checked={generateSlides}
-                onChange={(e) => setGenerateSlides(e.target.checked)}
-                style={{ width: '20px', height: '20px', accentColor: '#6366f1', cursor: 'pointer' }}
-              />
-              <div>
-                <div style={{ fontWeight: 900, fontSize: '0.92rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Presentation size={18} color="#818cf8" /> Slide Bài Dạy PPT
-                </div>
-                <div style={{ fontSize: '0.78rem', color: '#c7d2fe', marginTop: '2px' }}>
-                  Nhiều phong cách, tùy chỉnh & trình chiếu
-                </div>
-              </div>
-            </label>
-
-            {/* Target 2: Sơ đồ tư duy khoa học */}
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '14px 18px', borderRadius: '14px',
-              background: generateMindmap ? 'rgba(13, 148, 136, 0.25)' : 'rgba(255,255,255,0.03)',
-              border: `2px solid ${generateMindmap ? '#0d9488' : 'rgba(255,255,255,0.1)'}`,
-              cursor: 'pointer', transition: 'all 0.2s'
-            }}>
-              <input
-                type="checkbox"
-                checked={generateMindmap}
-                onChange={(e) => setGenerateMindmap(e.target.checked)}
-                style={{ width: '20px', height: '20px', accentColor: '#0d9488', cursor: 'pointer' }}
-              />
-              <div>
-                <div style={{ fontWeight: 900, fontSize: '0.92rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Network size={18} color="#2dd4bf" /> Sơ Đồ Tư Duy Khoa Học
-                </div>
-                <div style={{ fontSize: '0.78rem', color: '#99f6e4', marginTop: '2px' }}>
-                  Đám mây nhiều màu sắc chuẩn Tony Buzan & SVG
-                </div>
-              </div>
-            </label>
-
-            {/* Target 3: Phiếu học tập A4 */}
-            <label style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              padding: '14px 18px', borderRadius: '14px',
-              background: generateWorksheet ? 'rgba(236, 72, 153, 0.25)' : 'rgba(255,255,255,0.03)',
-              border: `2px solid ${generateWorksheet ? '#ec4899' : 'rgba(255,255,255,0.1)'}`,
-              cursor: 'pointer', transition: 'all 0.2s'
-            }}>
-              <input
-                type="checkbox"
-                checked={generateWorksheet}
-                onChange={(e) => setGenerateWorksheet(e.target.checked)}
-                style={{ width: '20px', height: '20px', accentColor: '#ec4899', cursor: 'pointer' }}
-              />
-              <div>
-                <div style={{ fontWeight: 900, fontSize: '0.92rem', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <FileText size={18} color="#f472b6" /> Phiếu Học Tập A4
-                </div>
-                <div style={{ fontSize: '0.78rem', color: '#fbcfe8', marginTop: '2px' }}>
-                  Sinh động, có ảnh minh họa & in ấn khổ A4
-                </div>
-              </div>
-            </label>
-          </div>
-        </div>
-
         {/* Generate Trigger Button */}
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center' }}>
           <button
             onClick={handleGenerateAll}
             disabled={loading}
             style={{
-              padding: '14px 36px',
+              padding: '16px 42px',
               borderRadius: '30px',
               background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #0284c7 100%)',
               color: '#ffffff',
               border: 'none',
               fontWeight: 900,
-              fontSize: '1rem',
+              fontSize: '1.05rem',
               cursor: 'pointer',
-              boxShadow: '0 8px 28px rgba(168, 85, 247, 0.5)',
+              boxShadow: '0 8px 30px rgba(168, 85, 247, 0.55)',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '12px',
+              transition: 'transform 0.2s'
             }}
           >
-            <Wand2 size={22} className={loading ? 'spin-icon' : ''} />
-            <span>{loading ? '⏳ AI đang tự động biên soạn nội dung mong muốn...' : '🪄 Khởi Tạo Sản Phẩm Giáo Án AI'}</span>
+            <Wand2 size={24} className={loading ? 'spin-icon' : ''} />
           </button>
         </div>
 
