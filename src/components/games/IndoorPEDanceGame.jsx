@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Camera, ArrowLeft, Play, Pause, Upload, Zap, Flame, Award, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import sampleVideo1 from '../../assets/Videotheduc.mp4';
-import sampleVideo2 from '../../assets/videotheduc2.mp4';
+const sampleVideo1 = '/Videotheduc.mp4';
+const sampleVideo2 = '/videotheduc2.mp4';
 
-// Preset Videos imported directly from src/assets/ for 100% reliable Vite bundling
+// Preset Videos with public static asset paths
 const PRESET_VIDEOS = [
   {
     id: 'video_1',
