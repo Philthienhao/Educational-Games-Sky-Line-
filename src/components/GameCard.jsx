@@ -3,6 +3,7 @@ import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight } fr
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
+import { getGameThumbnail } from '../utils/gameThumbnails';
 
 export function GameCard({ 
   game, 
@@ -20,6 +21,7 @@ export function GameCard({
   const handlePlay = onPlay || onPlayDirect;
   const handleCustomize = onCustomize || onEditTemplate;
   const handleDelete = onDelete || onDeleteBaseGame;
+  const thumbnailUrl = getGameThumbnail(game);
 
   return (
     <div 
@@ -34,21 +36,54 @@ export function GameCard({
         background: '#ffffff'
       }}
     >
-      {/* 3D Rounded Header Illustration Box (Matching Proposed Mockup) */}
+      {/* 3D HD Header Thumbnail Showcase Box */}
       <div 
         style={{
           background: game.gradient || 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
           margin: '12px 12px 0 12px',
-          height: '140px',
+          height: '160px',
           borderRadius: '18px',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 8px 24px -6px rgba(13, 148, 136, 0.35)',
+          boxShadow: '0 10px 28px -6px rgba(13, 148, 136, 0.35)',
           overflow: 'hidden'
         }}
       >
+        {/* Full-bleed HD Image Thumbnail */}
+        {thumbnailUrl && (
+          <img 
+            src={thumbnailUrl} 
+            alt={game.title || 'Game Thumbnail'}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              position: 'absolute',
+              inset: 0,
+              transition: 'transform 0.5s ease',
+              filter: 'brightness(1.02)'
+            }}
+            loading="lazy"
+            onError={(e) => {
+              // Fallback if image load fails
+              e.target.style.display = 'none';
+            }}
+          />
+        )}
+
+        {/* Gradient Overlay Vignette for High Readability */}
+        <div 
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.05) 50%, rgba(15, 23, 42, 0.55) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        />
+
         {/* Category Badge Floating Top Left */}
         <span style={{ 
           position: 'absolute',
@@ -58,32 +93,46 @@ export function GameCard({
           fontWeight: 800, 
           textTransform: 'uppercase', 
           color: '#ffffff',
-          background: 'rgba(255, 255, 255, 0.28)',
-          backdropFilter: 'blur(8px)',
-          padding: '4px 10px',
-          borderRadius: '12px',
-          letterSpacing: '0.05em' 
+          background: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(10px)',
+          padding: '5px 12px',
+          borderRadius: '14px',
+          letterSpacing: '0.06em',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
+          zIndex: 2,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
         }}>
           {game.category || 'Game Giáo Dục'}
         </span>
 
         {/* Saved / Play Count Badge Floating Top Right */}
         {isSavedGame ? (
-          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#ffffff', color: '#0d9488', fontWeight: 900 }}>
+          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#0d9488', color: '#ffffff', fontWeight: 900, border: '1px solid rgba(255,255,255,0.4)', zIndex: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
             ĐÃ LƯU
           </span>
         ) : (
-          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 700, background: 'rgba(0,0,0,0.25)', padding: '4px 10px', borderRadius: '12px', backdropFilter: 'blur(6px)' }}>
+          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 800, background: 'rgba(15, 23, 42, 0.65)', padding: '5px 12px', borderRadius: '14px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.25)', zIndex: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
             {typeof game.playsCount === 'number' ? game.playsCount : 0} Lượt chơi
           </span>
         )}
 
-        {/* 3D Large Centered Icon */}
+        {/* Floating Engine Icon Badge Bottom Right */}
         <div style={{
-          fontSize: '3.4rem',
-          filter: 'drop-shadow(0 10px 18px rgba(0,0,0,0.25))',
-          transform: 'translateY(2px)',
-          transition: 'transform 0.3s ease'
+          position: 'absolute',
+          bottom: '10px',
+          right: '12px',
+          width: '38px',
+          height: '38px',
+          borderRadius: '12px',
+          background: 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '1.4rem',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          border: '1.5px solid rgba(255,255,255,0.9)',
+          zIndex: 2
         }}>
           {game.icon || '🎮'}
         </div>
