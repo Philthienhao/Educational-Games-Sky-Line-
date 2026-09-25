@@ -89,7 +89,6 @@ export function Sidebar({
 
   const navItems = [
     { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users, color: '#0284c7' },
-    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' },
     { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2, color: '#0d9488' },
     { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount, color: '#0284c7' },
     { id: 'call-student', label: 'Kho Game Gọi tên học sinh', icon: UserPlus, color: '#0284c7' },
@@ -99,7 +98,8 @@ export function Sidebar({
     { id: 'geo-experiments', label: 'Mô hình mô phỏng Địa Lí', icon: Globe, color: '#f59e0b' },
     { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskRound, color: '#0d9488' },
     { id: 'timer', label: 'Đồng hồ bấm giờ', icon: Clock, color: '#8b5cf6' },
-    { id: 'skl-web-links', label: 'Địa chỉ web SKL', icon: Globe, color: '#3b82f6' }
+    { id: 'skl-web-links', label: 'Địa chỉ web SKL', icon: Globe, color: '#3b82f6' },
+    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' }
   ];
 
   return (
