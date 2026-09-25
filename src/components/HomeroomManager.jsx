@@ -1479,34 +1479,42 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
           </div>
 
           {allViolationStudents.length === 0 ? (
-            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem' }}>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem', background: 'linear-gradient(135deg, #071521 0%, #0f172a 100%)', borderRadius: '20px', border: '1.5px solid rgba(16, 185, 129, 0.4)' }}>
               ✨ Tuyệt vời! Hiện tại lớp không có học sinh nào có lịch sử vi phạm.
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '18px', width: '100%' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '18px', width: '100%' }}>
               {allViolationStudents.map(st => (
-                <div key={st.id} className="glass-panel" style={{ padding: '20px', borderRadius: '18px', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <div key={st.id} style={{
+                  padding: '22px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #1f0d11 0%, #0f172a 100%)',
+                  border: '1.5px solid rgba(239, 68, 68, 0.55)',
+                  boxShadow: '0 8px 30px rgba(239, 68, 68, 0.25)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900 }}>
+                      <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 14px rgba(239, 68, 68, 0.4)' }}>
                         ⚠️
                       </div>
                       <div>
-                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>{st.name}</h4>
-                        <span style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: 700 }}>Tổng: {st.violations.length} vi phạm (Trừ {st.violations.length * pointRules.violationDeduction}đ)</span>
+                        <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', textShadow: '0 1px 4px rgba(0,0,0,0.8)', margin: 0 }}>{st.name}</h4>
+                        <span style={{ fontSize: '0.82rem', color: '#f87171', fontWeight: 800, marginTop: '2px', display: 'block' }}>
+                          Tổng: {st.violations.length} vi phạm (Trừ {st.violations.length * pointRules.violationDeduction}đ)
+                        </span>
                       </div>
                     </div>
 
-                    <button className="btn btn-secondary btn-sm" onClick={() => openStudentDetail(st)}>
+                    <button className="btn btn-secondary btn-sm" onClick={() => openStudentDetail(st)} style={{ fontWeight: 800, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: '#ffffff' }}>
                       <Edit3 size={14} /> Quản lý
                     </button>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {st.violations.map((v, i) => (
-                      <div key={i} style={{ background: 'rgba(0,0,0,0.3)', padding: '10px 12px', borderRadius: '10px', fontSize: '0.82rem', borderLeft: '3px solid #ef4444' }}>
-                        <div style={{ color: '#fca5a5', fontWeight: 800 }}>⚠️ {v.title}</div>
-                        <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Trừ: -{v.points || pointRules.violationDeduction}đ • Ngày: {v.date}</div>
+                      <div key={i} style={{ background: 'rgba(239, 68, 68, 0.18)', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', border: '1px solid rgba(239, 68, 68, 0.4)', borderLeft: '4px solid #ef4444' }}>
+                        <div style={{ color: '#fca5a5', fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>⚠️ {v.title}</div>
+                        <div style={{ color: '#e2e8f0', fontSize: '0.8rem', marginTop: '4px', fontWeight: 600 }}>Trừ: -{v.points || pointRules.violationDeduction}đ • Ngày: {v.date}</div>
                       </div>
                     ))}
                   </div>
@@ -1557,24 +1565,30 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px', width: '100%' }}>
             {classData.students.filter(s => (s.rewards || []).length > 0).map(st => (
-              <div key={st.id} className="glass-panel" style={{ padding: '18px', borderRadius: '16px', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontWeight: 900 }}>
+              <div key={st.id} style={{
+                padding: '22px',
+                borderRadius: '20px',
+                background: 'linear-gradient(135deg, #0d1e16 0%, #0f172a 100%)',
+                border: '1.5px solid rgba(245, 158, 11, 0.45)',
+                boxShadow: '0 8px 25px rgba(245, 158, 11, 0.2)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)' }}>
                     🏆
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff' }}>{st.name}</h4>
-                    <span style={{ fontSize: '0.78rem', color: '#fde047', fontWeight: 700 }}>{st.rewards.length} thành tích khen thưởng</span>
+                    <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>{st.name}</h4>
+                    <span style={{ fontSize: '0.82rem', color: '#fde047', fontWeight: 800, marginTop: '2px', display: 'block' }}>{st.rewards.length} thành tích khen thưởng</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {st.rewards.map((r, i) => (
-                    <div key={i} style={{ background: 'rgba(0,0,0,0.25)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
-                      <div style={{ color: '#fde047', fontWeight: 700 }}>✨ {r.title}</div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '2px' }}>Cộng: +{r.points || pointRules.rewardBonus}đ ({r.date})</div>
+                    <div key={i} style={{ background: 'rgba(245, 158, 11, 0.18)', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', border: '1px solid rgba(245, 158, 11, 0.35)', borderLeft: '4px solid #f59e0b' }}>
+                      <div style={{ color: '#fde047', fontWeight: 800, fontSize: '0.9rem' }}>✨ {r.title}</div>
+                      <div style={{ color: '#e2e8f0', fontSize: '0.8rem', marginTop: '4px', fontWeight: 600 }}>Cộng: +{r.points || pointRules.rewardBonus}đ ({r.date})</div>
                     </div>
                   ))}
                 </div>
@@ -1610,20 +1624,27 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
           </div>
 
           {highViolationStudents.length === 0 ? (
-            <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem' }}>
+            <div style={{ padding: '40px', textAlign: 'center', color: '#6ee7b7', fontWeight: 800, fontSize: '1.05rem', background: 'linear-gradient(135deg, #071521 0%, #0f172a 100%)', borderRadius: '20px', border: '1.5px solid rgba(16, 185, 129, 0.4)' }}>
               ✨ Tuyệt vời! Hiện tại không có học sinh nào vi phạm từ 2 lần trở lên.
             </div>
           ) : (
             highViolationStudents.map(st => (
-              <div key={st.id} className="glass-panel" style={{ padding: '22px', borderRadius: '20px', borderLeft: '6px solid #dc2626', background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(15, 23, 42, 0.9) 100%)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '12px' }}>
+              <div key={st.id} style={{
+                padding: '24px',
+                borderRadius: '20px',
+                background: 'linear-gradient(135deg, #280a0e 0%, #0f172a 100%)',
+                border: '1.5px solid rgba(220, 38, 38, 0.65)',
+                borderLeft: '6px solid #dc2626',
+                boxShadow: '0 8px 30px rgba(220, 38, 38, 0.3)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 900, fontSize: '1.3rem', boxShadow: '0 0 15px rgba(220,38,38,0.6)' }}>
                       🚨
                     </div>
                     <div>
-                      <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>{st.name} ({st.studentId})</h4>
-                      <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>SĐT Phụ Huynh: <strong style={{ color: '#38bdf8' }}>{st.phone || 'Chưa có SĐT'}</strong></span>
+                      <h4 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#ffffff', margin: 0, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{st.name} ({st.studentId})</h4>
+                      <span style={{ fontSize: '0.88rem', color: '#cbd5e1', marginTop: '4px', display: 'block' }}>SĐT Phụ Huynh: <strong style={{ color: '#38bdf8' }}>{st.phone || 'Chưa có SĐT'}</strong></span>
                     </div>
                   </div>
 
@@ -1631,18 +1652,18 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                     <span className="badge" style={{ background: '#dc2626', color: '#fff', fontWeight: 900, padding: '6px 14px', fontSize: '0.85rem' }}>
                       CẢNH BÁO: {st.violations.length} LẦN VI PHẠM
                     </span>
-                    <button className="btn btn-danger btn-sm" onClick={() => openStudentDetail(st)}>
+                    <button className="btn btn-danger btn-sm" onClick={() => openStudentDetail(st)} style={{ fontWeight: 800 }}>
                       <Edit3 size={15} /> Xử Lý Chi Tiết
                     </button>
                   </div>
                 </div>
 
-                <h5 style={{ fontSize: '0.88rem', fontWeight: 800, color: '#fca5a5', marginBottom: '10px' }}>Chi tiết danh sách các lần vi phạm đã tự động nạp ({st.violations.length} lần):</h5>
+                <h5 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fca5a5', marginBottom: '10px' }}>Chi tiết danh sách các lần vi phạm đã tự động nạp ({st.violations.length} lần):</h5>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
                   {st.violations.map((v, i) => (
-                    <div key={i} style={{ background: 'rgba(0,0,0,0.4)', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
+                    <div key={i} style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '12px 14px', borderRadius: '12px', fontSize: '0.85rem', border: '1px solid rgba(239, 68, 68, 0.4)' }}>
                       <span style={{ color: '#fca5a5', fontWeight: 800 }}>Lần {i+1}: {v.title}</span>
-                      <div style={{ color: 'var(--text-muted)', marginTop: '4px', fontSize: '0.78rem' }}>Ngày: {v.date} • Ghi chú: {v.note || 'Không có'}</div>
+                      <div style={{ color: '#cbd5e1', marginTop: '4px', fontSize: '0.8rem', fontWeight: 600 }}>Ngày: {v.date} • Ghi chú: {v.note || 'Không có'}</div>
                     </div>
                   ))}
                 </div>
