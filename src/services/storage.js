@@ -192,6 +192,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường TH&THCS Quảng Chính',
     createdAt: '2026-09-27'
+  },
+  {
+    id: 'user_hoang_tuan',
+    username: 'hoangtuan',
+    password: '123456',
+    name: 'Thạch Lâm Hoàng Tuấn',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường tiểu học Ngọc Tố',
+    createdAt: '2026-09-27'
   }
 ];
 
