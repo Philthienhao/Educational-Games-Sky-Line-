@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GeoPlateTectonicsSim } from './GeoPlateTectonicsSim';
 
 // --- TOP-LEVEL SOLAR SYSTEM 3D PROCEDURAL TEXTURES & CONFIG (Rule 1 compliance) ---
 const SOLAR_PLANETS_CONFIG = {
@@ -7876,6 +7877,9 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'geo_6_07':
       case 'geo_glacial_river':
         return <GeoGlacialRiverSim onLog={addLog} />;
+      case 'exp_geo_plate_tectonics':
+      case 'geo_plate_tectonics':
+        return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       default: {
         const detectedType = detectExperimentInteractiveType(experiment);
         if (detectedType === 'chem_water_oxygen_separation') {
@@ -7888,6 +7892,9 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         const isGeo = isGeoExperiment(experiment);
 
         if (isGeo) {
+          if (title.includes('mảng') || title.includes('xô') || title.includes('tách') || title.includes('hội tụ') || title.includes('thạch quyển')) {
+            return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
           if (title.includes('hành tinh') || title.includes('mặt trời') || title.includes('vũ trụ')) {
             return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
@@ -7897,7 +7904,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           if (title.includes('núi lửa') || title.includes('magma')) {
             return <GeoVolcanoSim onLog={addLog} />;
           }
-          if (title.includes('động đất') || title.includes('sóng') || title.includes('kiến tạo')) {
+          if (title.includes('động đất') || title.includes('sóng') || title.includes('chấn động')) {
             return <GeoEarthquakeSim onLog={addLog} />;
           }
           if (title.includes('tuần hoàn') || title.includes('nước') || title.includes('mưa')) {
@@ -7909,7 +7916,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           if (title.includes('sông') || title.includes('suối') || title.includes('băng') || title.includes('tuyết')) {
             return <GeoGlacialRiverSim onLog={addLog} />;
           }
-          return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         return <KHTNDynamicLabSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       }

@@ -1560,5 +1560,30 @@
     "phenomenon": "Các bọt khí Oxi bé li ti bám trên thành ống nghiệm thoát ra và bay lên khi nhiệt độ tăng.",
     "explanation": "Độ tan của khí Oxi giảm khi nhiệt độ tăng, khiến Oxi thoát ra khỏi nước.",
     "interactiveType": "chem_water_oxygen_separation"
+  },
+  {
+    "id": "exp_geo_plate_tectonics",
+    "title": "🌋 Mô Phỏng 2D/Canvas: Thạch Quyển & Thuyết Kiến Tạo Mảng (Địa Lí 10)",
+    "subject": "Địa lí",
+    "subjectCategory": "KHTN",
+    "grade": 10,
+    "chapter": "Địa lí 10 - Thạch Quyển, Nội Lực & Thuyết Kiến Tạo Mảng (GDPT 2018)",
+    "objective": "Mô phỏng 4 ranh giới mảng kiến tạo: Va chạm Lục địa - Đại dương (Andes/Nazca), Va chạm Lục địa - Lục địa (Himalaya/Everest), Tách giãn Lục địa (Đông Phi/Biển Đỏ) và Tách giãn Đại dương (Sống núi giữa Đại Tây Dương). Khoan mẫu đá đo tuổi HSL và đo chấn động địa chấn Richter.",
+    "equipment": [
+      "Mô hình 2D Integrator Slab Path & Mantle Convection",
+      "Máy đo sóng địa chấn Richter Seismograph",
+      "Công cụ khoan mẫu đá đáy biển Core Drilling Sampler",
+      "Bảng trắc nghiệm củng cố kiến thức Nhà Địa Chất Học"
+    ],
+    "steps": [
+      "1. Chọn 1 trong 4 kịch bản ranh giới kiến tạo: Lục địa - Đại dương, Lục địa - Lục địa, Tách giãn Lục địa hoặc Sống núi Đại dương.",
+      "2. Kéo thanh thời gian tiến trình địa chất (0 -> 100 Ma) và điều chỉnh tốc độ mô phỏng.",
+      "3. Bật/tắt đường sức dòng đối lưu Manti và theo dõi đồ thị chấn động trên máy đo địa chấn Seismograph.",
+      "4. Click trực tiếp lên vỏ đại dương ở kịch bản Sống núi để khoan lấy mẫu đá đo tuổi địa chất theo thang màu HSL.",
+      "5. Thử sức với bộ câu hỏi Quiz trắc nghiệm củng cố kiến thức khoa học!"
+    ],
+    "phenomenon": "Mảng đại dương chìm tạo vực sâu và núi lửa; 2 mảng lục địa xô uốn nếp nâng cao tạo dãy Himalaya; mảng lục địa tách vỡ tạo thung lũng Đông Phi; mảng đại dương tách rời hình thành vỏ mới và dải sọc từ tính đảo cực.",
+    "explanation": "Dòng đối lưu quánh dẻo trong lớp manti tác dụng lực kéo làm di chuyển các mảng thạch quyển nổi phía trên.",
+    "interactiveType": "geo_plate_tectonics"
   }
 ]

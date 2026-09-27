@@ -38,15 +38,15 @@ export function GeoExperimentsView({ currentUser }) {
     setActiveExperiment({ ...exp, ...extraProps });
   };
 
-  // Filter 7 Geography 6 experiments from catalog
+  // Filter Geography experiments from catalog
   const geoExperiments = defaultExperiments.filter(exp => 
     exp.subject === 'Địa lí' || exp.subject === 'Địa lý' || exp.interactiveType?.startsWith('geo_')
   );
 
   const categories = [
-    { id: 'all', label: '🌐 Tất Cả 7 Thí Nghiệm', count: geoExperiments.length },
+    { id: 'all', label: `🌐 Tất Cả ${geoExperiments.length} Mô Hình Địa Lý`, count: geoExperiments.length },
+    { id: 'geology', label: '🌋 Nội Lực & Kiến Tạo Mảng (Địa Lí 10)', filter: ['geo_plate_tectonics', 'geo_volcano', 'geo_earthquake', 'geo_earth_structure'] },
     { id: 'astronomy', label: '🪐 Trái Đất & Vũ Trụ', filter: ['geo_solar_system', 'geo_earth_sun_moon'] },
-    { id: 'geology', label: '🌋 Nội Lực & Kiến Tạo', filter: ['geo_volcano', 'geo_earthquake', 'geo_earth_structure'] },
     { id: 'hydrology', label: '💧 Nước & Băng Tuyết', filter: ['geo_water_cycle', 'geo_glacial_river'] }
   ];
 
@@ -58,6 +58,7 @@ export function GeoExperimentsView({ currentUser }) {
 
   const getExpIcon = (type) => {
     switch (type) {
+      case 'geo_plate_tectonics': return <Globe size={24} color="#f59e0b" />;
       case 'geo_solar_system': return <Globe size={24} color="#38bdf8" />;
       case 'geo_earth_sun_moon': return <Sun size={24} color="#fde047" />;
       case 'geo_volcano': return <Flame size={24} color="#ef4444" />;
@@ -238,7 +239,7 @@ export function GeoExperimentsView({ currentUser }) {
                 </div>
                 <div>
                   <span style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#b45309', border: '1px solid rgba(245, 158, 11, 0.35)', padding: '3px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 800 }}>
-                    Địa lí 6
+                    Địa lí {exp.grade || 6}
                   </span>
                 </div>
               </div>
