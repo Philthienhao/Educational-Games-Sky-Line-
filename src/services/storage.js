@@ -182,6 +182,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường THCS Hiệp Mỹ',
     createdAt: '2026-09-16'
+  },
+  {
+    id: 'user_kim_oanh',
+    username: 'kimoanh',
+    password: '123456',
+    name: 'Đặng Thị Kim Oanh',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường TH&THCS Quảng Chính',
+    createdAt: '2026-09-27'
   }
 ];
 
