@@ -1371,20 +1371,36 @@ export const StorageService = {
     const deletedUserIds = StorageService.getDeletedUserIds();
     if (deletedUserIds.includes(cleanUser)) return null;
 
+    const normalizeKey = (str) => {
+      if (!str) return '';
+      return String(str)
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/\s+/g, '');
+    };
+
+    const targetNorm = normalizeKey(cleanUser);
+
     // 1. Priority Check: Built-in System Seed Accounts (Guaranteed 100% login on all devices/browsers)
     const seedUser = INITIAL_USERS.find(iu => {
       if (!iu || !iu.username) return false;
       const iuId = iu.id;
       const iuName = String(iu.username).trim().toLowerCase();
       if (deletedUserIds.includes(iuId) || deletedUserIds.includes(iuName)) return false;
+
       const iuPass = String(iu.password).trim();
-      return iuName === cleanUser && (
-        iuPass === cleanPass ||
-        cleanPass === '1234' ||
-        cleanPass === '123456' ||
-        cleanUser === 'annatran'
-      );
+      const iuNormName = normalizeKey(iu.username);
+      const iuNormFullName = normalizeKey(iu.name);
+
+      const usernameMatches = iuName === cleanUser || iuNormName === targetNorm || (iuNormFullName && iuNormFullName === targetNorm);
+      const passwordMatches = iuPass === cleanPass || cleanPass === '1234' || cleanPass === '123456' || cleanUser === 'annatran';
+
+      return usernameMatches && passwordMatches;
     });
+
     if (seedUser) {
       if (seedUser.username === 'philthienhao' || seedUser.id === 'user_admin') {
         seedUser.role = 'admin';
@@ -1398,11 +1414,13 @@ export const StorageService = {
       if (!u || !u.username) return false;
       const uName = String(u.username).trim().toLowerCase();
       const uPass = u.password !== undefined && u.password !== null ? String(u.password).trim() : '';
-      return uName === cleanUser && (
-        uPass === cleanPass ||
-        cleanPass === '1234' ||
-        cleanPass === '123456'
-      );
+      const uNormName = normalizeKey(u.username);
+      const uNormFullName = normalizeKey(u.name);
+
+      const usernameMatches = uName === cleanUser || uNormName === targetNorm || (uNormFullName && uNormFullName === targetNorm);
+      const passwordMatches = uPass === cleanPass || cleanPass === '1234' || cleanPass === '123456';
+
+      return usernameMatches && passwordMatches;
     });
 
     if (found && (found.username === 'philthienhao' || found.id === 'user_admin')) {
