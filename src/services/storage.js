@@ -192,6 +192,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường tiểu học Ngọc Tố',
     createdAt: '2026-09-27'
+  },
+  {
+    id: 'user_ha_giang',
+    username: 'hagiang',
+    password: '123456',
+    name: 'Hà Giang Sa Lem',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ thống giáo dục Sky-Line',
+    createdAt: '2026-09-28'
   }
 ];
 
