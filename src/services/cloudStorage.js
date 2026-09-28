@@ -264,14 +264,25 @@ export const CloudStorageService = {
       });
 
       const { url, key } = getSupabaseCredentials();
-      if (url && key && userId) {
-        fetch(`${url}/rest/v1/teachers_users?id=eq.${encodeURIComponent(userId)}`, {
-          method: 'DELETE',
-          headers: {
-            'apikey': key,
-            'Authorization': `Bearer ${key}`
-          }
-        }).catch(() => {});
+      if (url && key) {
+        if (userId) {
+          fetch(`${url}/rest/v1/teachers_users?id=eq.${encodeURIComponent(userId)}`, {
+            method: 'DELETE',
+            headers: {
+              'apikey': key,
+              'Authorization': `Bearer ${key}`
+            }
+          }).catch(() => {});
+        }
+        if (cleanUser) {
+          fetch(`${url}/rest/v1/teachers_users?username=eq.${encodeURIComponent(cleanUser)}`, {
+            method: 'DELETE',
+            headers: {
+              'apikey': key,
+              'Authorization': `Bearer ${key}`
+            }
+          }).catch(() => {});
+        }
       }
     } catch (e) {}
   },

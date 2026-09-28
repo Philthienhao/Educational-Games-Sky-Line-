@@ -995,20 +995,28 @@ export const StorageService = {
       try {
         try { localStorage.removeItem('gvd_deleted_usernames'); } catch (e) {}
 
+        const deletedUserIds = StorageService.getDeletedUserIds();
+
         let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
         if (!Array.isArray(users)) users = [];
 
-        // Purge sample legacy accounts co_hoa, thay_nam & old corrupt seed entry
+        // Purge sample legacy accounts co_hoa, thay_nam & deleted user accounts
         users = users.filter(u => {
           if (!u || !u.username) return false;
           const uName = String(u.username).trim().toLowerCase();
+          const uId = u.id;
           if (uName === 'co_hoa' || uName === 'thay_nam') return false;
           if (uName === 'phamtham' && u.name === 'Cô Phạm Thị Thanh Thảo') return false;
+          if (deletedUserIds.includes(uId) || deletedUserIds.includes(uName)) return false;
           return true;
         });
 
         INITIAL_USERS.forEach(iu => {
+          if (!iu || !iu.username) return;
           const iuName = String(iu.username || '').trim().toLowerCase();
+          const iuId = iu.id;
+          if (deletedUserIds.includes(iuId) || deletedUserIds.includes(iuName)) return;
+
           const idx = users.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === iuName);
           if (idx === -1) {
             users.push(iu);
@@ -1022,7 +1030,7 @@ export const StorageService = {
         });
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-        // Asynchronously restore any accounts saved in IndexedDB back into LocalStorage if missing
+        // Asynchronously restore any accounts saved in IndexedDB back into LocalStorage if missing (excluding deleted)
         IDBStorageService.getAllUsers().then(idbUsers => {
           if (Array.isArray(idbUsers) && idbUsers.length > 0) {
             let currentUsers = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
@@ -1031,8 +1039,11 @@ export const StorageService = {
             idbUsers.forEach(iu => {
               if (iu && iu.username) {
                 const uName = String(iu.username).trim().toLowerCase();
+                const iuId = iu.id;
                 if (uName === 'co_hoa' || uName === 'thay_nam') return;
                 if (uName === 'phamtham' && iu.name === 'Cô Phạm Thị Thanh Thảo') return;
+                if (deletedUserIds.includes(iuId) || deletedUserIds.includes(uName)) return;
+
                 const exists = currentUsers.some(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
                 if (!exists) {
                   currentUsers.push(iu);
@@ -1046,7 +1057,7 @@ export const StorageService = {
           }
         }).catch(() => {});
 
-        // Asynchronously pull Cloud Users to cache locally for instant cross-device access
+        // Asynchronously pull Cloud Users to cache locally for instant cross-device access (excluding deleted)
         CloudStorageService.getCloudUsers().then(cloudUsers => {
           if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
             let currentUsers = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
@@ -1055,6 +1066,9 @@ export const StorageService = {
             cloudUsers.forEach(cu => {
               if (cu && cu.username) {
                 const uName = String(cu.username).trim().toLowerCase();
+                const cuId = cu.id;
+                if (deletedUserIds.includes(cuId) || deletedUserIds.includes(uName)) return;
+
                 const idx = currentUsers.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === uName);
                 if (idx === -1) {
                   currentUsers.push(cu);
@@ -1353,10 +1367,15 @@ export const StorageService = {
 
     if (!cleanUser || !cleanPass) return null;
 
+    const deletedUserIds = StorageService.getDeletedUserIds();
+    if (deletedUserIds.includes(cleanUser)) return null;
+
     // 1. Priority Check: Built-in System Seed Accounts (Guaranteed 100% login on all devices/browsers)
     const seedUser = INITIAL_USERS.find(iu => {
       if (!iu || !iu.username) return false;
+      const iuId = iu.id;
       const iuName = String(iu.username).trim().toLowerCase();
+      if (deletedUserIds.includes(iuId) || deletedUserIds.includes(iuName)) return false;
       const iuPass = String(iu.password).trim();
       return iuName === cleanUser && (
         iuPass === cleanPass ||
@@ -1394,6 +1413,10 @@ export const StorageService = {
 
   // Authenticate User Async (Checks local first, then queries Cloud Storage for newly created remote accounts)
   authenticateUserAsync: async (username, password) => {
+    const cleanUser = username ? String(username).trim().toLowerCase() : '';
+    const deletedUserIds = StorageService.getDeletedUserIds();
+    if (deletedUserIds.includes(cleanUser)) return null;
+
     const localUser = StorageService.authenticateUser(username, password);
     if (localUser) {
       if (localUser.username === 'philthienhao' || localUser.id === 'user_admin') {
@@ -1406,6 +1429,10 @@ export const StorageService = {
     try {
       const cloudUser = await CloudStorageService.authenticateCloudUser(username, password);
       if (cloudUser) {
+        const cuId = cloudUser.id;
+        const cuName = String(cloudUser.username).trim().toLowerCase();
+        if (deletedUserIds.includes(cuId) || deletedUserIds.includes(cuName)) return null;
+
         if (cloudUser.username === 'philthienhao' || cloudUser.id === 'user_admin') {
           cloudUser.role = 'admin';
         }
@@ -1450,22 +1477,94 @@ export const StorageService = {
     }
   },
 
+  // Persistent Deleted Users Blacklist Management (Zero Resurrect & Safe Account Recreation Invariants)
+  getDeletedUserIds: () => {
+    let deleted = [];
+    try {
+      deleted = JSON.parse(localStorage.getItem('gvd_deleted_user_ids') || '[]');
+      if (!Array.isArray(deleted)) deleted = [];
+    } catch (e) {
+      deleted = [];
+    }
+    return deleted;
+  },
+
+  addDeletedUserId: (userId, username) => {
+    const deleted = StorageService.getDeletedUserIds();
+    let updated = false;
+
+    if (userId && !deleted.includes(userId)) {
+      deleted.push(userId);
+      updated = true;
+    }
+    if (username) {
+      const cleanUname = String(username).trim().toLowerCase();
+      if (cleanUname && !deleted.includes(cleanUname)) {
+        deleted.push(cleanUname);
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      try {
+        localStorage.setItem('gvd_deleted_user_ids', JSON.stringify(deleted));
+      } catch (e) {}
+      IDBStorageService.setItem('gvd_deleted_user_ids', deleted).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData('system_admin', 'deleted_user_ids', deleted).catch(() => {});
+    }
+  },
+
+  removeDeletedUserId: (usernameOrId) => {
+    if (!usernameOrId) return;
+    const cleanTarget = String(usernameOrId).trim().toLowerCase();
+    let deleted = StorageService.getDeletedUserIds();
+    const initialLen = deleted.length;
+
+    deleted = deleted.filter(item => {
+      if (!item) return false;
+      const cleanItem = String(item).trim().toLowerCase();
+      return cleanItem !== cleanTarget && item !== usernameOrId;
+    });
+
+    if (deleted.length !== initialLen) {
+      try {
+        localStorage.setItem('gvd_deleted_user_ids', JSON.stringify(deleted));
+      } catch (e) {}
+      IDBStorageService.setItem('gvd_deleted_user_ids', deleted).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData('system_admin', 'deleted_user_ids', deleted).catch(() => {});
+    }
+  },
+
   // Users Management
   getUsers: () => {
     StorageService.init();
+    const deletedUserIds = StorageService.getDeletedUserIds();
     const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-    return users.map(u => {
-      if (u && (u.username === 'philthienhao' || u.id === 'user_admin')) {
-        return { ...u, role: 'admin' };
-      }
-      return u;
-    });
+    return users
+      .filter(u => {
+        if (!u || !u.username) return false;
+        const uId = u.id;
+        const uName = String(u.username).trim().toLowerCase();
+        if (deletedUserIds.includes(uId) || deletedUserIds.includes(uName)) return false;
+        return true;
+      })
+      .map(u => {
+        if (u && (u.username === 'philthienhao' || u.id === 'user_admin')) {
+          return { ...u, role: 'admin' };
+        }
+        return u;
+      });
   },
 
   createUser: (userData) => {
-    const users = StorageService.getUsers();
     const cleanUname = userData.username ? String(userData.username).trim().toLowerCase() : '';
     const cleanPass = userData.password !== undefined && userData.password !== null ? String(userData.password).trim() : '';
+
+    if (cleanUname) {
+      StorageService.removeDeletedUserId(cleanUname);
+    }
+
+    const users = StorageService.getUsers();
 
     const newUser = {
       id: `user_${Date.now()}`,
@@ -1511,16 +1610,33 @@ export const StorageService = {
 
     const targetUser = users.find(u => u.id === userId || (u.username && u.username.trim().toLowerCase() === cleanId));
 
+    if (targetUser && (targetUser.role === 'admin' || targetUser.username === 'philthienhao' || targetUser.id === 'user_admin')) {
+      console.warn("Cannot delete system admin account");
+      return;
+    }
+
+    const targetUsername = targetUser?.username ? String(targetUser.username).trim().toLowerCase() : cleanId;
+    const targetId = targetUser?.id || userId;
+
+    // Record deletion in deleted users blacklist across LocalStorage, IDB, Cloud
+    StorageService.addDeletedUserId(targetId, targetUsername);
+
     users = users.filter(u => 
-      u.id !== userId && 
-      u.username !== userId && 
+      u.id !== targetId && 
+      u.username !== targetUsername && 
       (!u.username || u.username.trim().toLowerCase() !== cleanId)
     );
 
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
     IDBStorageService.clearAndSaveAllUsers(users).catch(() => {});
     if (targetUser) {
-      CloudStorageService.deleteCloudUser(userId, targetUser.username).catch(() => {});
+      CloudStorageService.deleteCloudUser(targetId, targetUsername).catch(() => {});
+    }
+
+    // Clear session if current user was deleted
+    const curr = StorageService.getCurrentUser();
+    if (curr && (curr.id === targetId || curr.username === targetUsername)) {
+      localStorage.removeItem(CURRENT_USER_KEY);
     }
   },
 
