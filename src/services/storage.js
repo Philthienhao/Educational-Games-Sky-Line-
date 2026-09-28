@@ -991,12 +991,12 @@ export const StorageService = {
         let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
         if (!Array.isArray(users)) users = [];
 
-        // Purge sample legacy accounts co_hoa, thay_nam & deleted user accounts
+        // Purge sample legacy accounts co_hoa, thay_nam, bachhat & deleted user accounts
         users = users.filter(u => {
           if (!u || !u.username) return false;
           const uName = String(u.username).trim().toLowerCase();
           const uId = u.id;
-          if (uName === 'co_hoa' || uName === 'thay_nam') return false;
+          if (uName === 'co_hoa' || uName === 'thay_nam' || uName === 'bachhat' || uId === 'user_bach_hat') return false;
           if (uName === 'phamtham' && u.name === 'Cô Phạm Thị Thanh Thảo') return false;
           if (deletedUserIds.includes(uId) || deletedUserIds.includes(uName)) return false;
           return true;
@@ -1530,6 +1530,8 @@ export const StorageService = {
     } catch (e) {
       deleted = [];
     }
+    if (!deleted.includes('user_bach_hat')) deleted.push('user_bach_hat');
+    if (!deleted.includes('bachhat')) deleted.push('bachhat');
     return deleted;
   },
 
