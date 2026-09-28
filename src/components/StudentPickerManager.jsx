@@ -85,10 +85,18 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
   };
 
   const studentsList = homeroomData?.students || [];
+  const [remainingQuickStudents, setRemainingQuickStudents] = useState([]);
+
+  useEffect(() => {
+    if (studentsList.length > 0) {
+      setRemainingQuickStudents(studentsList);
+    }
+  }, [studentsList]);
 
   // Quick Instant Random Picker (1-second spinner)
   const handleQuickPick = () => {
-    if (!studentsList || studentsList.length === 0) {
+    const activePool = remainingQuickStudents.length > 0 ? remainingQuickStudents : studentsList;
+    if (!activePool || activePool.length === 0) {
       alert('Chưa có danh sách học sinh trong Lớp Chủ Nhiệm! Vui lòng thêm học sinh ở mục "Lớp Chủ Nhiệm" hoặc chọn trò chơi Đua Vịt/Đua Rùa để tải tệp Excel.');
       return;
     }
@@ -97,14 +105,36 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
 
     let count = 0;
     const interval = setInterval(() => {
-      const randomStudent = studentsList[Math.floor(Math.random() * studentsList.length)];
+      const randomStudent = activePool[Math.floor(Math.random() * activePool.length)];
       setQuickPickedStudent(randomStudent);
       count++;
       if (count >= 15) {
         clearInterval(interval);
         setIsPickingQuick(false);
+
+        // Pick final winner and remove from remaining pool
+        const winnerIndex = Math.floor(Math.random() * activePool.length);
+        const winner = activePool[winnerIndex];
+        setQuickPickedStudent(winner);
+
+        const winnerName = (typeof winner === 'object' && winner !== null) ? (winner.name || winner.studentName || '') : String(winner || '');
+        const updated = activePool.filter(s => {
+          const sName = (typeof s === 'object' && s !== null) ? (s.name || s.studentName || '') : String(s || '');
+          return sName !== winnerName;
+        });
+
+        if (updated.length === 0) {
+          setRemainingQuickStudents(studentsList);
+        } else {
+          setRemainingQuickStudents(updated);
+        }
       }
     }, 80);
+  };
+
+  const handleResetQuickList = () => {
+    setRemainingQuickStudents(studentsList);
+    setQuickPickedStudent(null);
   };
 
   return (
@@ -213,16 +243,21 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
             <Dices size={24} />
           </div>
           <div>
-            <h4 style={{ margin: 0, color: '#0f172a', fontWeight: 900, fontSize: '1.1rem' }}>
-              Quay Nhanh 1 Học Sinh (Tức Thì)
-            </h4>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 style={{ margin: 0, color: '#0f172a', fontWeight: 900, fontSize: '1.1rem' }}>
+                Quay Nhanh 1 Học Sinh (Tức Thì)
+              </h4>
+              <span className="badge" style={{ background: '#f59e0b', color: '#ffffff', fontWeight: 800, fontSize: '0.75rem', padding: '2px 8px', borderRadius: '8px' }}>
+                Còn {remainingQuickStudents.length}/{studentsList.length} HS
+              </span>
+            </div>
             <p style={{ margin: '2px 0 0 0', color: '#334155', fontSize: '0.88rem', fontWeight: 600 }}>
-              Dành cho thầy cô cần chọn nhanh 1 em lên bảng trong 1 giây từ danh sách Lớp Chủ Nhiệm.
+              Dành cho thầy cô cần chọn nhanh 1 em lên bảng. Học sinh đã chọn sẽ tự động ẩn đi để không lặp lại!
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {quickPickedStudent && (
             <div style={{
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -240,6 +275,17 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
               <Award size={20} />
               {quickPickedStudent.name || quickPickedStudent}
             </div>
+          )}
+
+          {remainingQuickStudents.length < studentsList.length && (
+            <button
+              onClick={handleResetQuickList}
+              className="btn btn-secondary"
+              style={{ padding: '10px 14px', borderRadius: '12px', fontSize: '0.82rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Khôi phục danh sách đầy đủ ban đầu"
+            >
+              <RefreshCw size={14} /> Reset Danh Sách
+            </button>
           )}
 
           <button

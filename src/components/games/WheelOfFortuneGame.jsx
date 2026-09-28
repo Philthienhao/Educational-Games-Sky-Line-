@@ -298,6 +298,20 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {selectedResult && slices.includes(selectedResult) && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                setSlices(prev => prev.filter(s => s !== selectedResult));
+                setSelectedResult(null);
+              }}
+              style={{ background: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5', border: '1px solid #ef4444' }}
+              title="Xóa ô này khỏi vòng quay để không lặp lại"
+            >
+              ❌ Xóa ô "{selectedResult}"
+            </button>
+          )}
+
           {/* Edit Wheel Button */}
           <button 
             className="btn btn-secondary btn-sm"

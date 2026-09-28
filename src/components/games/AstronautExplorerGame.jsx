@@ -26,6 +26,7 @@ const PLANET_COLORS = ['#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#fb923c', '#
 
 export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex = 0, onClose, currentUser }) {
   const [selectedRosterName, setSelectedRosterName] = useState('Lớp Chủ Nhiệm');
+  const [fullRosterNames, setFullRosterNames] = useState([]);
   const [rawStudentNames, setRawStudentNames] = useState([]);
   const [studentPlanets, setStudentPlanets] = useState([]);
   const [showRosterModal, setShowRosterModal] = useState(false);
@@ -68,6 +69,7 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
       setSelectedRosterName('Lớp 9A1 (Mẫu 24 HS)');
     }
 
+    setFullRosterNames(names);
     setRawStudentNames(names);
     setCustomRosterText(names.join('\n'));
   }, [questions, currentUser]);
@@ -173,10 +175,36 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
   };
 
   const handleResetMission = () => {
+    if (winnerStudent) {
+      setRawStudentNames(prev => {
+        const next = prev.filter((stItem, idx) => {
+          const id = `planet_${idx}`;
+          const name = (typeof stItem === 'object' && stItem !== null) ? (stItem.name || stItem.question || stItem.text || 'Học sinh') : String(stItem || 'Học sinh');
+          if (winnerStudent.id) {
+            return id !== winnerStudent.id && name !== winnerStudent.name;
+          }
+          return name !== winnerStudent.name;
+        });
+        if (next.length === 0) {
+          return fullRosterNames.length > 0 ? fullRosterNames : prev;
+        }
+        return next;
+      });
+    }
     setExplorerState('idle');
     setCountdownSeconds(3);
     setRocketPos({ x: 50, y: 86, scale: 1, rotate: -45, launchAngle: 0 });
     setWinnerStudent(null);
+  };
+
+  const handleRestoreFullRoster = () => {
+    if (fullRosterNames.length > 0) {
+      setRawStudentNames([...fullRosterNames]);
+      setExplorerState('idle');
+      setCountdownSeconds(3);
+      setRocketPos({ x: 50, y: 86, scale: 1, rotate: -45, launchAngle: 0 });
+      setWinnerStudent(null);
+    }
   };
 
   const handleSelectPresetRoster = (presetName) => {
@@ -185,6 +213,7 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
         const hr = StorageService.getTeacherHomeroom(currentUser?.id);
         if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
           const names = hr.students.map(s => (typeof s === 'object' && s !== null) ? (s.name || s.studentName || 'Học sinh') : String(s || ''));
+          setFullRosterNames(names);
           setRawStudentNames(names);
           setCustomRosterText(names.join('\n'));
           setSelectedRosterName(hr.className || 'Lớp Chủ Nhiệm');
@@ -194,6 +223,7 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
       } catch(e) {}
     } else if (DEFAULT_STUDENT_ROSTERS[presetName]) {
       const names = DEFAULT_STUDENT_ROSTERS[presetName];
+      setFullRosterNames(names);
       setRawStudentNames(names);
       setCustomRosterText(names.join('\n'));
       setSelectedRosterName(presetName);
@@ -206,10 +236,14 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
       alert('Vui lòng nhập ít nhất 1 tên học sinh.');
       return;
     }
+    setFullRosterNames(lines);
     setRawStudentNames(lines);
     setSelectedRosterName(`Tùy chỉnh (${lines.length} HS)`);
     setShowRosterModal(false);
-    handleResetMission();
+    setExplorerState('idle');
+    setCountdownSeconds(3);
+    setRocketPos({ x: 50, y: 86, scale: 1, rotate: -45, launchAngle: 0 });
+    setWinnerStudent(null);
   };
 
   return (
@@ -237,15 +271,27 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
               🧑‍🚀 Phi Hành Gia — Thám Hiểm Vũ Trụ
             </h2>
             <span className="badge" style={{ background: 'rgba(56, 189, 248, 0.25)', color: '#7dd3fc', border: '1px solid #0284c7', fontWeight: 800, padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem' }}>
-              {selectedRosterName} ({rawStudentNames.length} Học Sinh)
+              {selectedRosterName} (Còn {rawStudentNames.length}/{fullRosterNames.length} HS)
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: '2px 0 0 0' }}>
-            Đếm ngược 3s kịch tính, tên lửa tại trạm trung tâm phóng chéo ngẫu nhiên lên trúng tên học sinh phía trên!
+            Tên lửa tại trạm trung tâm phóng ngẫu nhiên. Tên học sinh được chọn sẽ tự động mất đi để không trùng lượt sau!
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {rawStudentNames.length < fullRosterNames.length && (
+            <button
+              onClick={handleRestoreFullRoster}
+              disabled={explorerState !== 'idle'}
+              className="btn btn-secondary btn-sm"
+              style={{ borderRadius: '12px', padding: '8px 14px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7' }}
+              title="Khôi phục danh sách đầy đủ ban đầu"
+            >
+              <RotateCcw size={16} /> Reset Danh Sách ({fullRosterNames.length} HS)
+            </button>
+          )}
+
           <button
             onClick={() => setShowRosterModal(true)}
             disabled={explorerState !== 'idle'}
@@ -584,6 +630,10 @@ export function AstronautExplorerGame({ questions, teams, game, activeTeamIndex 
             <p style={{ color: '#cbd5e1', fontSize: '0.98rem', margin: 0 }}>
               Tên lửa vũ trụ đã hạ cánh thành công xuống hành tinh {winnerStudent.name}!
             </p>
+
+            <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '6px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800 }}>
+              ✨ Đã loại khỏi lượt phóng tiếp theo (Còn {Math.max(0, rawStudentNames.length - 1)} HS)
+            </span>
 
             <div style={{ display: 'flex', gap: '14px', marginTop: '10px' }}>
               <button

@@ -28,6 +28,7 @@ const PLUSHIE_COLORS = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '
 export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, onClose, currentUser }) {
   // Roster & Settings State
   const [selectedRosterName, setSelectedRosterName] = useState('Lớp Chủ Nhiệm');
+  const [fullRosterNames, setFullRosterNames] = useState([]);
   const [rawStudentNames, setRawStudentNames] = useState([]);
   const [plushieBin, setPlushieBin] = useState([]);
   const [showRosterModal, setShowRosterModal] = useState(false);
@@ -78,6 +79,7 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
       setSelectedRosterName('Lớp 9A1 (Mẫu 24 HS)');
     }
 
+    setFullRosterNames(names);
     setRawStudentNames(names);
     setCustomRosterText(names.join('\n'));
   }, [questions, currentUser]);
@@ -259,12 +261,41 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
   };
 
   const handleResetGame = () => {
+    if (targetPlushie) {
+      setRawStudentNames(prev => {
+        const next = prev.filter((stItem, idx) => {
+          const id = `plushie_${idx}`;
+          const name = (typeof stItem === 'object' && stItem !== null) ? (stItem.name || stItem.question || stItem.text || 'Học sinh') : String(stItem || 'Học sinh');
+          if (targetPlushie.id) {
+            return id !== targetPlushie.id && name !== targetPlushie.name;
+          }
+          return name !== targetPlushie.name;
+        });
+        if (next.length === 0) {
+          // If all students picked, auto-restore full roster!
+          return fullRosterNames.length > 0 ? fullRosterNames : prev;
+        }
+        return next;
+      });
+    }
     setClawState('idle');
     setClawX(50);
     setClawY(0);
     setIsClawClosed(false);
     setTargetPlushie(null);
     setShowFakeOutBanner(false);
+  };
+
+  const handleRestoreFullRoster = () => {
+    if (fullRosterNames.length > 0) {
+      setRawStudentNames([...fullRosterNames]);
+      setClawState('idle');
+      setClawX(50);
+      setClawY(0);
+      setIsClawClosed(false);
+      setTargetPlushie(null);
+      setShowFakeOutBanner(false);
+    }
   };
 
   // Switch Roster Preset
@@ -274,6 +305,7 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
         const hr = StorageService.getTeacherHomeroom(currentUser?.id);
         if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
           const names = hr.students.map(s => (typeof s === 'object' && s !== null) ? (s.name || s.studentName || 'Học sinh') : String(s || ''));
+          setFullRosterNames(names);
           setRawStudentNames(names);
           setCustomRosterText(names.join('\n'));
           setSelectedRosterName(hr.className || 'Lớp Chủ Nhiệm');
@@ -283,6 +315,7 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
       } catch(e) {}
     } else if (DEFAULT_STUDENT_ROSTERS[presetName]) {
       const names = DEFAULT_STUDENT_ROSTERS[presetName];
+      setFullRosterNames(names);
       setRawStudentNames(names);
       setCustomRosterText(names.join('\n'));
       setSelectedRosterName(presetName);
@@ -296,10 +329,16 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
       alert('Vui lòng nhập ít nhất 1 tên học sinh.');
       return;
     }
+    setFullRosterNames(lines);
     setRawStudentNames(lines);
     setSelectedRosterName(`Tùy chỉnh (${lines.length} HS)`);
     setShowRosterModal(false);
-    handleResetGame();
+    setClawState('idle');
+    setClawX(50);
+    setClawY(0);
+    setIsClawClosed(false);
+    setTargetPlushie(null);
+    setShowFakeOutBanner(false);
   };
 
   // Dynamic CSS Transitions for Master Carriage Assembly & Cable Claw Head
@@ -340,15 +379,27 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
               🧸 Máy Gắp Thú Gọi Tên Học Sinh
             </h2>
             <span className="badge" style={{ background: 'rgba(168, 85, 247, 0.25)', color: '#c084fc', border: '1px solid #a855f7', fontWeight: 800, padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem' }}>
-              {selectedRosterName} ({rawStudentNames.length} Học Sinh)
+              {selectedRosterName} (Còn {rawStudentNames.length}/{fullRosterNames.length} HS)
             </span>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: '2px 0 0 0' }}>
-            Gắp ngẫu nhiên gấu bông chọn ra 1 học sinh may mắn lên bảng nhận thưởng!
+            Gắp ngẫu nhiên gấu bông chọn ra 1 học sinh. Tên học sinh sẽ tự động mất đi để không trùng lượt sau!
           </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {rawStudentNames.length < fullRosterNames.length && (
+            <button
+              onClick={handleRestoreFullRoster}
+              disabled={clawState !== 'idle'}
+              className="btn btn-secondary btn-sm"
+              style={{ borderRadius: '12px', padding: '8px 14px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7' }}
+              title="Khôi phục danh sách đầy đủ ban đầu"
+            >
+              <RotateCcw size={16} /> Reset Danh Sách ({fullRosterNames.length} HS)
+            </button>
+          )}
+
           <button
             onClick={() => setShowRosterModal(true)}
             disabled={clawState !== 'idle'}
@@ -766,6 +817,10 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
             <p style={{ color: '#cbd5e1', fontSize: '0.98rem', margin: 0 }}>
               Đã được máy gắp thú bông chọn ngẫu nhiên lên bảng nhận thưởng!
             </p>
+
+            <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '6px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800 }}>
+              ✨ Đã loại khỏi lượt gắp tiếp theo (Còn {Math.max(0, rawStudentNames.length - 1)} HS)
+            </span>
 
             <div style={{ display: 'flex', gap: '14px', marginTop: '10px' }}>
               <button
