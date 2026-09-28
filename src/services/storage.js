@@ -154,16 +154,6 @@ const INITIAL_USERS = [
     createdAt: '2026-09-15'
   },
   {
-    id: 'user_bach_hat',
-    username: 'bachhat',
-    password: '123456',
-    name: 'Nguyễn Thị Bạch Hạt',
-    role: 'teacher',
-    subject: 'Giáo viên',
-    school: 'Trường TH và THCS Nguyễn Văn Trỗi',
-    createdAt: '2026-09-15'
-  },
-  {
     id: 'user_tieu_ngoc',
     username: 'tieungoc',
     password: '123456',
@@ -995,6 +985,7 @@ export const StorageService = {
       try {
         try { localStorage.removeItem('gvd_deleted_usernames'); } catch (e) {}
 
+        StorageService.syncDeletedUserIdsFromCloud().catch(() => {});
         const deletedUserIds = StorageService.getDeletedUserIds();
 
         let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
@@ -1456,10 +1447,18 @@ export const StorageService = {
       const userStr = localStorage.getItem(CURRENT_USER_KEY);
       if (userStr) {
         const user = JSON.parse(userStr);
-        if (user && (user.username === 'philthienhao' || user.id === 'user_admin')) {
-          user.role = 'admin';
+        if (user && user.isLoggedIn) {
+          const deletedUserIds = StorageService.getDeletedUserIds();
+          const cleanUname = user.username ? String(user.username).trim().toLowerCase() : '';
+          if (deletedUserIds.includes(user.id) || deletedUserIds.includes(cleanUname)) {
+            localStorage.removeItem(CURRENT_USER_KEY);
+            return null;
+          }
+          if (user.username === 'philthienhao' || user.id === 'user_admin') {
+            user.role = 'admin';
+          }
+          return user;
         }
-        if (user && user.isLoggedIn) return user;
         if (user && (user.isLoggedIn === false || user.loggedOut)) return null;
       }
     } catch (e) {}
@@ -1478,6 +1477,51 @@ export const StorageService = {
   },
 
   // Persistent Deleted Users Blacklist Management (Zero Resurrect & Safe Account Recreation Invariants)
+  syncDeletedUserIdsFromCloud: async () => {
+    try {
+      const cloudDeleted = await CloudStorageService.getUserPrivateCloudData('system_admin', 'deleted_user_ids');
+      if (Array.isArray(cloudDeleted) && cloudDeleted.length > 0) {
+        let localDeleted = StorageService.getDeletedUserIds();
+        let updated = false;
+        cloudDeleted.forEach(id => {
+          if (id && !localDeleted.includes(id)) {
+            localDeleted.push(id);
+            updated = true;
+          }
+        });
+        if (updated) {
+          localStorage.setItem('gvd_deleted_user_ids', JSON.stringify(localDeleted));
+          IDBStorageService.setItem('gvd_deleted_user_ids', localDeleted).catch(() => {});
+          
+          let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+          if (Array.isArray(users)) {
+            const filteredUsers = users.filter(u => {
+              if (!u || !u.username) return false;
+              const uId = u.id;
+              const uName = String(u.username).trim().toLowerCase();
+              return !localDeleted.includes(uId) && !localDeleted.includes(uName);
+            });
+            localStorage.setItem(USERS_KEY, JSON.stringify(filteredUsers));
+            IDBStorageService.clearAndSaveAllUsers(filteredUsers).catch(() => {});
+          }
+
+          const currStr = localStorage.getItem(CURRENT_USER_KEY);
+          if (currStr) {
+            try {
+              const curr = JSON.parse(currStr);
+              if (curr && curr.username) {
+                const cUname = String(curr.username).trim().toLowerCase();
+                if (localDeleted.includes(curr.id) || localDeleted.includes(cUname)) {
+                  localStorage.removeItem(CURRENT_USER_KEY);
+                }
+              }
+            } catch (e) {}
+          }
+        }
+      }
+    } catch (e) {}
+  },
+
   getDeletedUserIds: () => {
     let deleted = [];
     try {
