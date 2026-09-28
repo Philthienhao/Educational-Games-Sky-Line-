@@ -67,10 +67,28 @@ export const CloudStorageService = {
   },
 
   /**
-   * Fetch all cloud registered users with multi-endpoint failover
+   * Fetch all cloud registered users with multi-endpoint failover & deleted blacklist filtering
    */
   getCloudUsers: async () => {
     const { url, key } = getSupabaseCredentials();
+
+    const filterDeletedUsers = (usersList) => {
+      if (!Array.isArray(usersList)) return [];
+      let deletedIds = [];
+      try {
+        deletedIds = JSON.parse(localStorage.getItem('gvd_deleted_user_ids') || '[]');
+        if (!Array.isArray(deletedIds)) deletedIds = [];
+      } catch (e) {}
+
+      return usersList.filter(u => {
+        if (!u || !u.username) return false;
+        const uName = String(u.username).trim().toLowerCase();
+        const uId = u.id;
+        if (uName === 'co_hoa' || uName === 'thay_nam' || uName === 'bachhat' || uId === 'user_bach_hat') return false;
+        if (deletedIds.includes(uId) || deletedIds.includes(uName)) return false;
+        return true;
+      });
+    };
 
     // 1. Primary: Try Supabase REST API if configured
     if (url && key) {
@@ -83,7 +101,7 @@ export const CloudStorageService = {
         });
         if (response.ok) {
           const data = await response.json();
-          if (Array.isArray(data) && data.length > 0) return data;
+          if (Array.isArray(data) && data.length > 0) return filterDeletedUsers(data);
         }
       } catch (e) {
         console.warn("Supabase getCloudUsers error:", e);
@@ -96,7 +114,7 @@ export const CloudStorageService = {
       const res = await fetch(cdnUrl, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) return data;
+        if (Array.isArray(data) && data.length > 0) return filterDeletedUsers(data);
       }
     } catch (e) {}
 
@@ -111,7 +129,7 @@ export const CloudStorageService = {
 
         if (response && response.ok) {
           const data = await response.json();
-          if (Array.isArray(data) && data.length >= 0) return data;
+          if (Array.isArray(data) && data.length >= 0) return filterDeletedUsers(data);
         }
       } catch (e) {
         console.warn("CloudStorageService endpoint fetch info:", e.message || e);
@@ -213,11 +231,23 @@ export const CloudStorageService = {
     const cleanUser = String(username).trim().toLowerCase();
     const cleanPass = String(password).trim();
 
+    let deletedIds = [];
+    try {
+      deletedIds = JSON.parse(localStorage.getItem('gvd_deleted_user_ids') || '[]');
+      if (!Array.isArray(deletedIds)) deletedIds = [];
+    } catch (e) {}
+
+    if (cleanUser === 'bachhat' || cleanUser === 'co_hoa' || cleanUser === 'thay_nam' || deletedIds.includes(cleanUser) || deletedIds.includes('user_bach_hat')) {
+      return null;
+    }
+
     try {
       const cloudUsers = await CloudStorageService.getCloudUsers();
       const matched = cloudUsers.find(u => {
         if (!u || !u.username || u.password === undefined) return false;
-        return String(u.username).trim().toLowerCase() === cleanUser && String(u.password).trim() === cleanPass;
+        const uName = String(u.username).trim().toLowerCase();
+        if (uName === 'bachhat' || deletedIds.includes(uName) || deletedIds.includes(u.id)) return false;
+        return uName === cleanUser && String(u.password).trim() === cleanPass;
       });
 
       if (matched) {
