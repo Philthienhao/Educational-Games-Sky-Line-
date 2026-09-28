@@ -236,6 +236,10 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
   };
 
   const handleNextQuestion = () => {
+    if (selectedResult && slices.length > 1) {
+      setSlices(prev => prev.filter(s => s !== selectedResult));
+    }
+    setSelectedResult(null);
     setShowQuestionModal(false);
     setSelectedOption(null);
     setAnswerState(null);

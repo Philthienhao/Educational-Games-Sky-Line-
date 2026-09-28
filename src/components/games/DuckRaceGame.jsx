@@ -39,9 +39,10 @@ const DUCK_ACCESSORIES = ['👑', '🎩', '🎉', '👓', '🎀', '🕶️', '�
 export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
   // Student Roster State
   const [selectedRosterName, setSelectedRosterName] = useState('Lớp 9A1 (Mẫu 24 HS)');
+  const [fullRosterList, setFullRosterList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [studentList, setStudentList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [editingRoster, setEditingRoster] = useState(false);
-  const [customRosterText, setCustomRosterText] = useState(studentList.join('\n'));
+  const [customRosterText, setCustomRosterText] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)'].join('\n'));
 
   // Race Settings
   const [winnerCountToPick, setWinnerCountToPick] = useState(1);
@@ -218,9 +219,31 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
       alert('Vui lòng nhập ít nhất 1 tên học sinh.');
       return;
     }
+    setFullRosterList(lines);
     setStudentList(lines);
     setSelectedRosterName('Tùy chỉnh (' + lines.length + ' HS)');
     setEditingRoster(false);
+  };
+
+  const handleRemoveWinnerAndClose = () => {
+    if (allRankings.length > 0) {
+      const winnerNames = allRankings.slice(0, winnerCountToPick).map(r => r.name);
+      setStudentList(prev => {
+        const next = prev.filter(name => !winnerNames.includes(name));
+        if (next.length === 0) {
+          return fullRosterList.length > 0 ? fullRosterList : prev;
+        }
+        return next;
+      });
+    }
+    setShowWinnerPopup(false);
+  };
+
+  const handleRestoreFullRoster = () => {
+    if (fullRosterList.length > 0) {
+      setStudentList([...fullRosterList]);
+      setCustomRosterText(fullRosterList.join('\n'));
+    }
   };
 
   const primaryWinner = allRankings[0];
@@ -290,12 +313,33 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
 
           {/* Roster & Winner Config Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {studentList.length < fullRosterList.length && (
+              <button
+                onClick={handleRestoreFullRoster}
+                disabled={isRacing}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: '14px',
+                  background: 'rgba(16, 185, 129, 0.25)',
+                  border: '1px solid #10b981',
+                  color: '#6ee7b7',
+                  fontWeight: 800,
+                  fontSize: '0.78rem',
+                  cursor: 'pointer'
+                }}
+                title="Khôi phục danh sách đầy đủ"
+              >
+                Reset DS ({fullRosterList.length} HS)
+              </button>
+            )}
+
             <select
               value={selectedRosterName}
               onChange={(e) => {
                 const name = e.target.value;
                 setSelectedRosterName(name);
                 const list = DEFAULT_STUDENT_ROSTERS[name] || [];
+                setFullRosterList(list);
                 setStudentList(list);
                 setCustomRosterText(list.join('\n'));
               }}
@@ -852,9 +896,13 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
               {primaryWinner.name}
             </h1>
 
+            <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#059669', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '6px 14px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 800 }}>
+              ✨ Đã loại khỏi đợt đua tiếp theo (Còn {Math.max(0, studentList.length - winnerCountToPick)}/{fullRosterList.length} HS)
+            </span>
+
             {/* Blue Rounded Primary Button Matching Sample Video */}
             <button
-              onClick={() => setShowWinnerPopup(false)}
+              onClick={handleRemoveWinnerAndClose}
               style={{
                 width: '100%',
                 padding: '14px',
@@ -868,7 +916,7 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
                 boxShadow: '0 8px 20px rgba(37, 99, 235, 0.35)'
               }}
             >
-              Đóng
+              Đóng & Loại Khỏi Lượt Đua Tiếp
             </button>
 
             {/* View Full Ranking Button */}
