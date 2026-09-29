@@ -24,7 +24,14 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
       setDescription(gameTemplate.description || '');
       setSecretImage(gameTemplate.secretImage || gameTemplate.bgImageUrl || '');
       const existingQs = gameTemplate.questions || gameTemplate.defaultQuestions || [];
-      setQuestions(JSON.parse(JSON.stringify(existingQs)));
+      const normalizedQs = (Array.isArray(existingQs) ? existingQs : []).map((q, idx) => ({
+        id: q?.id || `q_${idx}_${Date.now()}`,
+        question: q?.question || q?.title || '',
+        options: (Array.isArray(q?.options) && q.options.length > 0) ? [...q.options] : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'],
+        correct: q?.correct || 'A',
+        explanation: q?.explanation || ''
+      }));
+      setQuestions(normalizedQs);
       setUploadError('');
       setUploadSuccess('');
     }
@@ -97,6 +104,10 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
   // Update question option
   const handleUpdateOption = (qIndex, optIndex, value) => {
     const updated = [...questions];
+    if (!updated[qIndex]) return;
+    if (!Array.isArray(updated[qIndex].options)) {
+      updated[qIndex].options = ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+    }
     updated[qIndex].options[optIndex] = value;
     setQuestions(updated);
   };
@@ -577,7 +588,7 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
                           </span>
                           <input 
                             type="text"
-                            value={q.options[optIndex] || ''}
+                            value={(q && Array.isArray(q.options) && q.options[optIndex]) || ''}
                             onChange={(e) => handleUpdateOption(qIndex, optIndex, e.target.value)}
                             placeholder={optIndex >= 2 ? `Phương án ${letter} (Bỏ trống nếu là Đúng/Sai)...` : `Phương án ${letter}...`}
                             style={{

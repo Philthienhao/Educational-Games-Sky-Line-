@@ -613,8 +613,9 @@ export function TugOfWarDualGame({ questions: propQuestions = [], teams = [], on
           {/* 4 Options Buttons 2x2 Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {['A', 'B', 'C', 'D'].map((label, idx) => {
-              if (!isOptionValidForQuestion(currentBlueQ?.options, idx)) return null;
-              const optText = currentBlueQ.options[idx];
+              const blueOpts = Array.isArray(currentBlueQ?.options) ? currentBlueQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+              if (!isOptionValidForQuestion(blueOpts, idx)) return null;
+              const optText = blueOpts[idx] || '';
               const isSelected = blueSelected === label;
               const isCorrect = currentBlueQ.correct === label;
 
@@ -863,8 +864,9 @@ export function TugOfWarDualGame({ questions: propQuestions = [], teams = [], on
           {/* 4 Options Buttons 2x2 Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {['A', 'B', 'C', 'D'].map((label, idx) => {
-              if (!isOptionValidForQuestion(currentRedQ?.options, idx)) return null;
-              const optText = currentRedQ.options[idx];
+              const redOpts = Array.isArray(currentRedQ?.options) ? currentRedQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+              if (!isOptionValidForQuestion(redOpts, idx)) return null;
+              const optText = redOpts[idx] || '';
               const isSelected = redSelected === label;
               const isCorrect = currentRedQ.correct === label;
 

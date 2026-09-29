@@ -135,8 +135,9 @@ export function extractQuestionsFromText(rawText) {
  * Check if an option index should be rendered for a question (Intelligently detects 2-option True/False questions & dummy placeholders)
  */
 export function isOptionValidForQuestion(optionsArray, idx) {
+  if (!optionsArray || !Array.isArray(optionsArray)) return idx < 2;
   if (idx < 2) return true; // Options A and B are always valid
-  if (!optionsArray || !Array.isArray(optionsArray) || optionsArray.length <= idx) return false;
+  if (optionsArray.length <= idx) return false;
 
   const optText = String(optionsArray[idx] || '').trim();
   if (!optText) return false;

@@ -481,8 +481,9 @@ export function CarRaceGame({ questions: propQuestions = [], teams = [], onAddPo
           {/* Prominent Options Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
             {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-              if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
-              const optText = currentQ.options[idx];
+              const qOpts = Array.isArray(currentQ?.options) ? currentQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+              if (!isOptionValidForQuestion(qOpts, idx)) return null;
+              const optText = qOpts[idx] || '';
               const isSelected = selectedOption === optLabel;
               const isCorrect = currentQ.correct === optLabel;
 

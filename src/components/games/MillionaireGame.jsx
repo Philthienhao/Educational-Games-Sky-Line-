@@ -287,8 +287,9 @@ export function MillionaireGame({ questions: propQuestions = [], teams = [], onA
         {/* Options Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', marginBottom: '28px' }}>
           {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-            if (!isOptionValidForQuestion(currentQ?.options, idx)) return null;
-            const optText = currentQ.options[idx];
+            const qOpts = Array.isArray(currentQ?.options) ? currentQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+            if (!isOptionValidForQuestion(qOpts, idx)) return null;
+            const optText = qOpts[idx] || '';
             const isHidden = hiddenOptions.includes(optLabel);
             const isSelected = selectedOption === optLabel;
             const isCorrect = currentQ.correct === optLabel;
