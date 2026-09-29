@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Upload, FileSpreadsheet, Plus, Trash2, Save, Play, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
 import { parseExcelFile, downloadExcelTemplate } from '../utils/excel';
+import { parseUploadedFile } from '../utils/universalParser';
 import { SoundFX } from '../utils/sound';
 
 export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser, onSaveAndPlay, onSaveToMyGames }) {
@@ -48,7 +49,7 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
     reader.readAsDataURL(file);
   };
 
-  // Handle Excel File Upload
+  // Handle Excel/Word/TXT Question File Upload
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -58,12 +59,15 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
     setUploadSuccess('');
 
     try {
-      const parsedQuestions = await parseExcelFile(file);
+      const parsedQuestions = await parseUploadedFile(file);
+      if (!parsedQuestions || parsedQuestions.length === 0) {
+        throw new Error('Không đọc được câu hỏi nào từ file đã chọn.');
+      }
       setQuestions(parsedQuestions);
       setUploadSuccess(`Đã nhập thành công ${parsedQuestions.length} câu hỏi từ tệp ${file.name}!`);
       SoundFX.correct();
     } catch (err) {
-      setUploadError(err.message || 'Lỗi khi nhập file Excel.');
+      setUploadError(err.message || 'Lỗi khi nhập file câu hỏi (Excel/Word/TXT).');
       SoundFX.wrong();
     } finally {
       setIsProcessingFile(false);
@@ -458,7 +462,7 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
                 {isProcessingFile ? 'Đang Đọc File...' : 'Nhập Từ File Excel'}
                 <input 
                   type="file" 
-                  accept=".xlsx, .xls"
+                  accept=".xlsx, .xls, .docx, .doc, .txt"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                 />

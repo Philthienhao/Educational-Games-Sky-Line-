@@ -1,21 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { HelpCircle, Users, RotateCw, Trophy, AlertTriangle, Sparkles } from 'lucide-react';
+import { HelpCircle, Users, RotateCw, Trophy, AlertTriangle, Sparkles, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_MILLIONAIRE_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: 'Hành tinh nào gần Mặt Trời nhất?', options: ['Sao Thủy', 'Sao Kim', 'Trái Đất', 'Sao Hỏa'], correct: 'A' }
+];
+
+export function MillionaireGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null); // 'correct' | 'wrong'
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const activeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_MILLIONAIRE_QUESTIONS);
 
   const [localTeam, setLocalTeam] = useState(0);
   const currentTeamIdx = setActiveTeamIndex !== undefined ? activeTeamIndex : localTeam;
   const setTurnTeam = (newIdx) => {
-    if (setActiveTeamIndex) setActiveTeamIndex(newIdx);
+    if (setActiveTeamIndex && teams.length > 0) setActiveTeamIndex(newIdx);
     else setLocalTeam(newIdx);
   };
   
@@ -26,14 +36,26 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
   const [audiencePoll, setAudiencePoll] = useState(null);
   const [usedSwitch, setUsedSwitch] = useState(false);
 
-  const moneyLadder = [
-    '100 ĐIỂM', '200 ĐIỂM', '300 ĐIỂM', '500 ĐIỂM', '1.000 ĐIỂM ⭐',
-    '2.000 ĐIỂM', '4.000 ĐIỂM', '8.000 ĐIỂM', '16.000 ĐIỂM', '32.000 ĐIỂM ⭐',
-    '64.000 ĐIỂM', '125.000 ĐIỂM', '250.000 ĐIỂM', '500.000 ĐIỂM', '1.000.000 ĐIỂM 🏆'
-  ];
-
-  const currentQ = questions[currentLevel % questions.length] || questions[0];
+  const currentQ = activeQuestions[currentLevel % activeQuestions.length] || activeQuestions[0] || { question: '', options: ['A','B','C','D'], correct: 'A' };
   const [timeLeft, setTimeLeft] = useState(20);
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setCurrentLevel(0);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Ai Là Triệu Phú!`);
+        try { SoundFX.correct(); } catch(e) {}
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      try { SoundFX.wrong(); } catch(e) {}
+    }
+  };
 
   useEffect(() => {
     if (!isGameStarted || answerState) return;
@@ -155,10 +177,25 @@ export function MillionaireGame({ questions, teams, onAddPoints, activeTeamIndex
         ) : (
           <>
             {/* Top Lifelines Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {onClose && (
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={onClose}
+                style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+              >
+                <ArrowLeft size={16} /> Quay lại
+              </button>
+            )}
+
+            <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', border: '1px solid #10b981', cursor: 'pointer' }}>
+              <Upload size={14} /> Nhập File Câu Hỏi
+              <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+            </label>
+
             <div style={{ fontWeight: 800, color: '#fbbf24', fontSize: '1.1rem' }}>
-              MỐC CÂU HỎI SỐ {currentLevel + 1}: <span style={{ color: '#fff' }}>{moneyLadder[currentLevel]}</span>
+              MỐC CÂU HỎI SỐ {currentLevel + 1}: <span style={{ color: '#fff' }}>{moneyLadder[currentLevel % moneyLadder.length]}</span>
             </div>
             {!answerState && (
               <span style={{

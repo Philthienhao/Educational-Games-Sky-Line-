@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { RotateCcw, Trophy, Sparkles, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { RotateCcw, Trophy, Sparkles, CheckCircle2, XCircle, Award, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#10b981', '#f59e0b',
   '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
 ];
 
-export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
-    {
-      question: 'Việt Nam nằm ở khu vực nào của Châu Á?',
-      options: ['Đông Á', 'Đông Nam Á', 'Nam Á', 'Tây Nam Á'],
-      correct: 'B'
-    }
-  ];
+const DEFAULT_TRAIN_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function KnowledgeTrainGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_TRAIN_QUESTIONS);
 
   const totalRequiredCars = Math.min(5, safeQuestions.length);
 
@@ -44,7 +47,27 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
   const [winReason, setWinReason] = useState('');
   const [timeLeft, setTimeLeft] = useState(20);
 
-  const currentQ = safeQuestions[currentQIndex % safeQuestions.length];
+  const currentQ = safeQuestions[currentQIndex % safeQuestions.length] || safeQuestions[0];
+
+  // Question File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setTeamCarsMap({});
+        setCurrentQIndex(0);
+        setTotalAnsweredCount(0);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Đoàn Tàu Tri Thức!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   useEffect(() => {
     if (!isGameStarted || answerState || winnerTeam) return;
@@ -158,18 +181,36 @@ export function KnowledgeTrainGame({ questions, teams = [], onAddPoints, activeT
       
       {/* Header Banner */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-            🚂 Cuộc Đua Đoàn Tàu Tri Thức ({activeTeams.length} Đội Thi Đua)
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Trả lời đúng câu hỏi để ghép thêm 1 toa tàu vào đúng đoàn tàu của mình. Đội nào đạt <strong>{totalRequiredCars} toa tàu</strong> trước sẽ chiến thắng!
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+              🚂 Cuộc Đua Đoàn Tàu Tri Thức ({activeTeams.length} Đội Thi Đua)
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+              Trả lời đúng câu hỏi để ghép thêm 1 toa tàu vào đúng đoàn tàu của mình. Đội nào đạt <strong>{totalRequiredCars} toa tàu</strong> trước sẽ chiến thắng!
+            </p>
+          </div>
         </div>
 
-        <button className="btn btn-secondary btn-sm" onClick={handleResetTrainRace}>
-          <RotateCcw size={16} /> Đặt Lại Cuộc Đua Tàu
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', cursor: 'pointer' }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
+          <button className="btn btn-secondary btn-sm" onClick={handleResetTrainRace}>
+            <RotateCcw size={16} /> Đặt Lại Cuộc Đua Tàu
+          </button>
+        </div>
       </div>
 
       {/* DYNAMIC TRAIN TRACKS FOR ALL TEAMS */}

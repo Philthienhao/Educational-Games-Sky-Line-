@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Swords, CheckCircle2, XCircle, Trophy, Sparkles } from 'lucide-react';
+import { Swords, CheckCircle2, XCircle, Trophy, Sparkles, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_TUG_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: 'Trái Đất quay quanh Mặt Trời, đúng hay sai?', options: ['Đúng', 'Sai', 'Không xác định', 'Cả hai sai'], correct: 'A' }
+];
+
+export function TugOfWarGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [ropePosition, setRopePosition] = useState(0); // -100 (Red win) to +100 (Blue win)
@@ -14,13 +19,37 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const activeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_TUG_QUESTIONS);
 
   const team0 = (teams && teams[0]) || { name: 'Đội Đỏ', score: 0 };
   const team1 = (teams && teams[1]) || { name: 'Đội Xanh', score: 0 };
   const currentTeam = currentTurnTeam === 0 ? team0 : team1;
 
-  const currentQ = questions[currentQIndex] || questions[0];
+  const currentQ = activeQuestions[currentQIndex] || activeQuestions[0] || { question: '', options: ['A','B','C','D'], correct: 'A' };
   const [timeLeft, setTimeLeft] = useState(20);
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setCurrentQIndex(0);
+        setRopePosition(0);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Kéo Co!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   useEffect(() => {
     if (!isGameStarted || answerState || winner) return;
@@ -86,8 +115,50 @@ export function TugOfWarGame({ questions, teams, onAddPoints, activeTeamIndex = 
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '28px', padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '20px', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
       
+      {/* Top Bar Controls */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
+        <div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: 800
+              }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+        </div>
+
+        <label style={{
+          padding: '6px 14px',
+          borderRadius: '12px',
+          background: 'rgba(16, 185, 129, 0.2)',
+          border: '1px solid #10b981',
+          color: '#6ee7b7',
+          fontWeight: 800,
+          fontSize: '0.85rem',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          <Upload size={15} /> Nhập File Câu Hỏi
+          <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+        </label>
+      </div>
+
       {/* Tug of War Arena Banner */}
       <div style={{
         width: '100%',

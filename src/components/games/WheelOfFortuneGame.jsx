@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Play, RotateCw, CheckCircle2, XCircle, Trophy, Settings, Edit3, X, Sparkles, HelpCircle, Users } from 'lucide-react';
+import { Play, RotateCw, CheckCircle2, XCircle, Trophy, Settings, Edit3, X, Sparkles, HelpCircle, Users, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile, parseStudentRosterFile } from '../../utils/universalParser';
 
 const SLICE_COLORS = [
   '#f43f5e', '#ec4899', '#d946ef', '#a855f7',
@@ -12,7 +12,7 @@ const SLICE_COLORS = [
   '#eab308', '#f59e0b', '#ef4444', '#14b8a6'
 ];
 
-export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+export function WheelOfFortuneGame({ questions: propQuestions = [], teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [selectedResult, setSelectedResult] = useState(null);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -20,12 +20,15 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null); // 'correct' | 'wrong'
   const [localTeam, setLocalTeam] = useState(0);
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : [
+        { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' }
+      ]);
   
   const currentTeamIdx = setActiveTeamIndex !== undefined ? activeTeamIndex : localTeam;
-  const setTurnTeam = (newIdx) => {
-    if (setActiveTeamIndex) setActiveTeamIndex(newIdx);
-    else setLocalTeam(newIdx);
-  };
 
   const [timer, setTimer] = useState(20);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -38,6 +41,43 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
   ]);
 
   const [slicesInputText, setSlicesInputText] = useState(slices.join('\n'));
+
+  // Question File Upload Handler
+  const handleQuestionFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setCurrentQIndex(0);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Vòng Quay!`);
+        try { SoundFX.correct(); } catch(e) {}
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi nhập file câu hỏi');
+      try { SoundFX.wrong(); } catch(e) {}
+    }
+  };
+
+  // Student Roster File Upload Handler for Wheel Slices
+  const handleRosterFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const names = await parseStudentRosterFile(file);
+      if (names && names.length > 0) {
+        setSlices(names);
+        setSlicesInputText(names.join('\n'));
+        setShowWheelEditModal(false);
+        alert(`Đã nhập ${names.length} tên học sinh vào Vòng Quay!`);
+        try { SoundFX.correct(); } catch(e) {}
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi nhập file danh sách học sinh');
+      try { SoundFX.wrong(); } catch(e) {}
+    }
+  };
 
   const canvasRef = useRef(null);
   const currentRotation = useRef(0);
@@ -212,7 +252,6 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
     explanation: 'Đáp án A là câu trả lời chính xác.'
   };
 
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [defaultQ];
   const currentQ = safeQuestions[currentQIndex % safeQuestions.length] || defaultQ;
   const safeOptions = Array.isArray(currentQ?.options) ? currentQ.options : ['A', 'B', 'C', 'D'];
 
@@ -297,11 +336,27 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
       
       {/* Controls Header Bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', maxWidth: '850px', flexWrap: 'wrap', gap: '12px' }}>
-        <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-          🎯 Ô Vừa Quay Vào: <span style={{ color: '#fbbf24', fontSize: '1.2rem' }}>{selectedResult || 'Bấm QUAY VÒNG QUAY'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-bright)' }}>
+            🎯 Ô Vừa Quay Vào: <span style={{ color: '#fbbf24', fontSize: '1.2rem' }}>{selectedResult || 'Bấm QUAY VÒNG QUAY'}</span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', border: '1px solid #10b981', cursor: 'pointer' }}>
+            <Upload size={16} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleQuestionFileUpload} style={{ display: 'none' }} />
+          </label>
+
           {selectedResult && slices.includes(selectedResult) && (
             <button
               className="btn btn-secondary btn-sm"
@@ -333,7 +388,10 @@ export function WheelOfFortuneGame({ questions, teams, onAddPoints, activeTeamIn
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Cộng điểm cho:</span>
               <select 
                 value={currentTeamIdx} 
-                onChange={(e) => setTurnTeam(Number(e.target.value))}
+                onChange={(e) => {
+                  if (setActiveTeamIndex) setActiveTeamIndex(Number(e.target.value));
+                  else setLocalTeam(Number(e.target.value));
+                }}
                 style={{ padding: '6px 12px', borderRadius: '10px', background: '#1e293b', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', fontWeight: 700 }}
               >
                 {teams.map((t, idx) => (

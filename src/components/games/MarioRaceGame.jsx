@@ -572,7 +572,9 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
     if (b.step !== a.step) return b.step - a.step;
     return b.score - a.score;
   });
-  const winner = sortedTeams[0];
+  const winner = (Array.isArray(sortedTeams) && sortedTeams.length > 0) 
+    ? sortedTeams[0] 
+    : { name: 'Đội Vô Địch', score: 0, color: '#f59e0b', step: 0 };
 
   return (
     <div 

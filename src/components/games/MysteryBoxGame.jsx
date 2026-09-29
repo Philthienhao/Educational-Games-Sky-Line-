@@ -1,32 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Gift, Sparkles, CheckCircle2, XCircle, Trophy } from 'lucide-react';
+import { Gift, Sparkles, CheckCircle2, XCircle, Trophy, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_MYSTERY_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function MysteryBoxGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [openedBoxes, setOpenedBoxes] = useState([]);
   const [activeBoxIndex, setActiveBoxIndex] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null);
-  
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_MYSTERY_QUESTIONS);
+
   // Use activeTeamIndex if provided, or fallback to internal state
   const [localActiveTeam, setLocalActiveTeam] = useState(0);
   const currentTeamIdx = setActiveTeamIndex !== undefined ? activeTeamIndex : localActiveTeam;
   const setTurnTeam = (newIdx) => {
-    if (setActiveTeamIndex) setActiveTeamIndex(newIdx);
+    if (setActiveTeamIndex && teams.length > 0) setActiveTeamIndex(newIdx);
     else setLocalActiveTeam(newIdx);
   };
 
-  const currentTeam = teams[currentTeamIdx % teams.length] || teams[0];
+  const currentTeam = (teams && teams.length > 0) ? (teams[currentTeamIdx % teams.length] || teams[0]) : { name: 'Đội 1', color: '#f43f5e', score: 0 };
 
   const BOX_COLORS = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
   const BOX_ICONS = ['🎁', '📦', '✨', '⭐', '🎉', '💎', '🏆', '🎈'];
   const BOX_PRIZES = ['+100 Điểm', '+150 Điểm', '+200 Điểm', 'NHÂN ĐÔI ĐIỂM', '+300 Điểm', '+250 Điểm'];
 
   // Dynamically generate boxes matching ALL uploaded questions (unlimited)
-  const boxesList = (questions && questions.length > 0 ? questions : Array.from({ length: 6 }));
+  const boxesList = (safeQuestions && safeQuestions.length > 0 ? safeQuestions : Array.from({ length: 6 }));
   const boxes = boxesList.map((_, idx) => ({
     id: idx + 1,
     color: BOX_COLORS[idx % BOX_COLORS.length],
@@ -34,8 +44,27 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
     icon: BOX_ICONS[idx % BOX_ICONS.length]
   }));
 
-  const currentQ = activeBoxIndex !== null ? (questions[activeBoxIndex % questions.length] || questions[0]) : null;
+  const currentQ = activeBoxIndex !== null ? (safeQuestions[activeBoxIndex % safeQuestions.length] || safeQuestions[0]) : null;
   const [timeLeft, setTimeLeft] = useState(20);
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setOpenedBoxes([]);
+        setActiveBoxIndex(null);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Hộp Quà Bí Mật!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   useEffect(() => {
     if (activeBoxIndex === null || answerState) return;
@@ -91,12 +120,27 @@ export function MysteryBoxGame({ questions, teams, onAddPoints, activeTeamIndex 
       
       {/* Banner */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-          🎁 Chọn Hộp Quà Bí Mật Để Nhận Thưởng
-        </h2>
-
-        {/* Turn Selector Banner */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+            🎁 Chọn Hộp Quà Bí Mật Để Nhận Thưởng
+          </h2>
+        </div>
+
+        {/* Turn Selector & File Upload Banner */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', border: '1px solid #10b981', cursor: 'pointer' }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
           {currentTeam && (
             <div style={{
               padding: '6px 16px',

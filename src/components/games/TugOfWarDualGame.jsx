@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Edit3 } from 'lucide-react';
+import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Edit3, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
+export function TugOfWarDualGame({ questions: propQuestions = [], teams = [], onAddPoints, onClose }) {
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [customQuestions, setCustomQuestions] = useState(null);
   // Configurable Match Timer (default 90 seconds)
   const [matchDuration, setMatchDuration] = useState(90);
   const [timeLeft, setTimeLeft] = useState(90);
@@ -35,7 +36,11 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
   const redTeamScore = redTeamObj?.score || 0;
 
   // Question lists for each team (shuffled independently)
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
+  const activeQuestionsList = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : []);
+
+  const safeQuestions = activeQuestionsList.length > 0 ? activeQuestionsList : [
     {
       question: 'Việt Nam nằm ở khu vực nào của Châu Á?',
       options: ['Đông Á', 'Đông Nam Á', 'Nam Á', 'Tây Nam Á'],
@@ -50,10 +55,31 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
   const [blueQuestions, setBlueQuestions] = useState(() => [...safeQuestions].sort(() => 0.5 - Math.random()));
   const [redQuestions, setRedQuestions] = useState(() => [...safeQuestions].sort(() => 0.5 - Math.random()));
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setBlueQuestions([...parsed].sort(() => 0.5 - Math.random()));
+        setRedQuestions([...parsed].sort(() => 0.5 - Math.random()));
+        setBlueIndex(0);
+        setRedIndex(0);
+        setRopePosition(0);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Kéo Co Đối Kháng!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
+
   useEffect(() => {
-    if (Array.isArray(questions) && questions.length > 0) {
-      setBlueQuestions([...questions].sort(() => 0.5 - Math.random()));
-      setRedQuestions([...questions].sort(() => 0.5 - Math.random()));
+    if (activeQuestionsList.length > 0) {
+      setBlueQuestions([...activeQuestionsList].sort(() => 0.5 - Math.random()));
+      setRedQuestions([...activeQuestionsList].sort(() => 0.5 - Math.random()));
       setBlueIndex(0);
       setRedIndex(0);
       setBlueAnswerState(null);
@@ -61,7 +87,7 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
       setBlueSelected(null);
       setRedSelected(null);
     }
-  }, [questions]);
+  }, [propQuestions, customQuestions]);
 
   const [blueIndex, setBlueIndex] = useState(0);
   const [redIndex, setRedIndex] = useState(0);
@@ -264,8 +290,45 @@ export function TugOfWarDualGame({ questions, teams, onAddPoints }) {
         borderBottom: '1px solid rgba(255,255,255,0.1)',
         position: 'relative'
       }}>
-        {/* Left Game Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Left Game Title & Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontWeight: 800
+              }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+
+          <label style={{
+            padding: '6px 12px',
+            borderRadius: '10px',
+            background: 'rgba(16, 185, 129, 0.2)',
+            border: '1px solid #10b981',
+            color: '#6ee7b7',
+            fontWeight: 800,
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#facc15', margin: 0, textShadow: '0 2px 8px rgba(250, 204, 21, 0.3)' }}>
             🪢 Kéo Co Kiến Thức
           </h2>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Play, Edit3, Plus, Minus, Trash2, Zap } from 'lucide-react';
+import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Play, Edit3, Plus, Minus, Trash2, Zap, Upload, LogOut } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
 // Eagerly import all 20 pose images from src/assets/batchuocnhanhcohoilon for 100% reliable bundling
 const poseImageModules = import.meta.glob('/src/assets/batchuocnhanhcohoilon/*.png', { eager: true, import: 'default' });
@@ -130,7 +130,11 @@ const POSE_PRESETS_20 = Array.from({ length: 20 }, (_, i) => {
 });
 
 export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose, lessonTitle, title }) {
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
+  const fileInputRef = useRef(null);
+  const [loadedQuestions, setLoadedQuestions] = useState(null);
+  const activeQuestionsList = loadedQuestions || questions;
+
+  const safeQuestions = (Array.isArray(activeQuestionsList) && activeQuestionsList.length > 0) ? activeQuestionsList : [
     {
       question: 'Chất mùn trong đất có vai trò quan trọng nhất là gì?',
       options: ['Giữ nước', 'Làm cho đất tơi xốp', 'Cung cấp thức ăn cho cây trồng'],
@@ -147,6 +151,26 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
       correct: 'A'
     }
   ];
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setLoadedQuestions(parsed);
+        setCurrentQIndex(0);
+        try { SoundFX.correct(); } catch(err) {}
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!`);
+      } else {
+        alert('Không tìm thấy câu hỏi hợp lệ trong file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi đọc file câu hỏi: ' + err.message);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // Screen Mode: 'intro' | 'playing'
   const [screenMode, setScreenMode] = useState('intro');
@@ -668,6 +692,21 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
 
         {/* Right Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".xlsx, .xls, .docx, .doc, .txt"
+            style={{ display: 'none' }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{ padding: '6px 12px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38bdf8', color: '#38bdf8', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+            title="Nhập file câu hỏi"
+          >
+            <Upload size={14} /> Nhập File
+          </button>
+
           <div style={{ background: '#3b82f6', color: '#fff', fontWeight: 900, padding: '4px 14px', borderRadius: '16px', fontSize: '0.88rem' }}>
             {currentQIndex + 1}/{safeQuestions.length}
           </div>
@@ -692,6 +731,12 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
               ✕ {wrongCount}
             </span>
           </div>
+
+          {onClose && (
+            <button onClick={onClose} style={{ padding: '6px 12px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <LogOut size={14} /> Thoát
+            </button>
+          )}
         </div>
       </div>
 

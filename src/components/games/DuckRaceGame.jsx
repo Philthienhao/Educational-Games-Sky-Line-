@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trophy, RotateCcw, Volume2, VolumeX, Maximize, Settings, ArrowLeft, Edit3, X, Check } from 'lucide-react';
+import { Trophy, RotateCcw, Volume2, VolumeX, Maximize, Settings, ArrowLeft, Edit3, X, Check, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { parseStudentRosterFile } from '../../utils/universalParser';
 
 // Pre-defined student rosters for quick classroom selection
 const DEFAULT_STUDENT_ROSTERS = {
@@ -246,7 +247,26 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
     }
   };
 
-  const primaryWinner = allRankings[0];
+  const primaryWinner = (Array.isArray(allRankings) && allRankings.length > 0) ? allRankings[0] : null;
+
+  const handleRosterFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseStudentRosterFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const names = parsed.map(s => (typeof s === 'object' && s !== null) ? (s.name || s.studentName || 'Học sinh') : String(s || ''));
+        setFullRosterList(names);
+        setStudentList(names);
+        setCustomRosterText(names.join('\n'));
+        setSelectedRosterName(`Tệp tải lên (${names.length} HS)`);
+        try { SoundFX.correct(); } catch(e) {}
+        alert(`Đã nhập thành công ${names.length} học sinh từ tệp ${file.name}!`);
+      }
+    } catch(err) {
+      alert(err.message || 'Lỗi khi nhập tệp danh sách học sinh.');
+    }
+  };
 
   return (
     <div style={{
@@ -378,6 +398,26 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
             >
               <Edit3 size={14} /> Sửa HS ({studentList.length})
             </button>
+
+            <label
+              style={{
+                padding: '5px 10px',
+                borderRadius: '14px',
+                background: 'rgba(56, 189, 248, 0.25)',
+                border: '1px solid #0284c7',
+                color: '#7dd3fc',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="Tải danh sách học sinh từ file Excel (.xlsx) hoặc Word (.docx)"
+            >
+              <Upload size={14} /> Tải tệp HS
+              <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleRosterFileUpload} style={{ display: 'none' }} />
+            </label>
           </div>
 
           {/* Right Action Icons */}

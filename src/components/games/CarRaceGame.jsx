@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Flag, Trophy, RotateCcw, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Flag, Trophy, RotateCcw, Sparkles, CheckCircle2, ChevronRight, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_CAR_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: 'Trái Đất quay quanh Mặt Trời, đúng hay sai?', options: ['Đúng', 'Sai', 'Không xác định', 'Cả hai sai'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function CarRaceGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const activeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_CAR_QUESTIONS);
+
   // Correct answers count per team
   const [teamCorrectCounts, setTeamCorrectCounts] = useState(teams.map(() => 0));
   const [selectedOption, setSelectedOption] = useState(null);
@@ -20,11 +32,31 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
   const [timeLeft, setTimeLeft] = useState(20);
 
   const carIcons = ['🏎️', '🚘', '🏎️', '🚕', '🚗', '🏎️', '🚙', '🚓'];
-  const totalQuestions = questions.length || 10;
+  const totalQuestions = activeQuestions.length || 10;
   // Dynamic percentage per correct question (e.g. 10 questions = 10% per correct answer)
   const percentPerCorrect = Math.round((100 / totalQuestions) * 10) / 10;
 
-  const currentQ = questions[currentQIndex] || questions[0];
+  const currentQ = activeQuestions[currentQIndex] || activeQuestions[0] || { question: '', options: ['A','B','C','D'], correct: 'A' };
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setCurrentQIndex(0);
+        setTotalAnsweredCount(0);
+        setTeamCorrectCounts(teams.map(() => 0));
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi từ tệp!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   // Timer per question
   useEffect(() => {
@@ -56,7 +88,7 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
       setAnswerState('correct');
       try { SoundFX.correct(); } catch(e) {}
       confetti({ particleCount: 70, spread: 60 });
-      onAddPoints(activeTeamIndex, 100);
+      if (onAddPoints) onAddPoints(activeTeamIndex, 100);
 
       // Increment team's correct answer count
       const updatedCounts = [...teamCorrectCounts];
@@ -68,7 +100,7 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
 
       // Early victory if team reaches 100% before all questions end
       if (teamPercent >= 100) {
-        const winner = teams[activeTeamIndex];
+        const winner = teams[activeTeamIndex] || { name: `Đội ${activeTeamIndex + 1}` };
         setWinnerTeam(winner);
         setWinReason(`Đã xuất sắc trả lời đúng ${updatedCounts[activeTeamIndex]}/${totalQuestions} câu và cán đích 100% sớm nhất!`);
         try { SoundFX.fanfare(); } catch(e) {}
@@ -94,12 +126,20 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
       return;
     }
 
-    setActiveTeamIndex(prev => (prev + 1) % teams.length);
+    if (setActiveTeamIndex && teams.length > 0) {
+      setActiveTeamIndex(prev => (prev + 1) % teams.length);
+    }
     setCurrentQIndex(prev => (prev + 1) % totalQuestions);
   };
 
   // Determine Leading Team Win after all N questions are completed
   const evaluateFinalWinner = () => {
+    if (!teams || teams.length === 0) {
+      setWinnerTeam({ name: 'Đội 1' });
+      setWinReason('Cuộc đua hoàn thành!');
+      return;
+    }
+
     // Compute positions for all teams
     const teamStats = teams.map((team, idx) => {
       const correctCount = teamCorrectCounts[idx] || 0;
@@ -115,10 +155,10 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
 
     // Sort by percentage desc, then by score desc
     teamStats.sort((a, b) => b.percent - a.percent || b.score - a.score);
-    const topStat = teamStats[0];
+    const topStat = (teamStats && teamStats.length > 0) ? teamStats[0] : { team: teams[0] || { name: 'Đội 1' }, percent: 0, correctCount: 0 };
 
     setWinnerTeam(topStat.team);
-    setWinReason(`Sau tất cả ${totalQuestions} câu hỏi, ${topStat.team.name} đang dẫn đầu cuộc đua với ${topStat.percent}% đường đua (${topStat.correctCount}/${totalQuestions} câu đúng)!`);
+    setWinReason(`Sau tất cả ${totalQuestions} câu hỏi, ${topStat.team?.name || 'Đội chơi'} đang dẫn đầu cuộc đua với ${topStat.percent}% đường đua (${topStat.correctCount}/${totalQuestions} câu đúng)!`);
     try { SoundFX.fanfare(); } catch(e) {}
     confetti({ particleCount: 180, spread: 110 });
   };
@@ -139,13 +179,49 @@ export function CarRaceGame({ questions = [], teams = [], onAddPoints, activeTea
       
       {/* Header Banner */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '10px',
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                fontWeight: 700
+              }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
           <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#facc15', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             🏎️ Đua Xe Kiến Thức ({totalQuestions} Câu — {percentPerCorrect}%/Câu Đúng)
           </h2>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label style={{
+            padding: '6px 14px',
+            borderRadius: '12px',
+            background: 'rgba(16, 185, 129, 0.2)',
+            border: '1px solid #10b981',
+            color: '#6ee7b7',
+            fontWeight: 800,
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           <button
             onClick={handleResetRace}
             style={{

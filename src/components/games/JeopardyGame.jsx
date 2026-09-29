@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Volume2, VolumeX, RotateCcw, HelpCircle, Award, Zap, Bomb, Sparkles, Flame, Check, X, ShieldAlert, ArrowRight, Trophy } from 'lucide-react';
+import { Volume2, VolumeX, RotateCcw, HelpCircle, Award, Zap, Bomb, Sparkles, Flame, Check, X, ShieldAlert, ArrowRight, Trophy, Upload, LogOut } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
 // Default Jeopardy Categories matching teacher screenshot
 const DEFAULT_CATEGORIES = [
@@ -376,7 +376,29 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
 /**
  * Main Jeopardy Game Component
  */
-export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, setActiveTeamIndex, onAddPoints, title = '', subtitle = '' }) {
+export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, setActiveTeamIndex, onAddPoints, title = '', subtitle = '', onClose }) {
+  const fileInputRef = useRef(null);
+  const [loadedQuestions, setLoadedQuestions] = useState(null);
+  const activeQuestionsList = loadedQuestions || questions;
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setLoadedQuestions(parsed);
+        try { SoundFX.correct(); } catch(err) {}
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!`);
+      } else {
+        alert('Không tìm thấy câu hỏi hợp lệ trong file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi đọc file câu hỏi: ' + err.message);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [showRules, setShowRules] = useState(false);
   const [activeTile, setActiveTile] = useState(null);
@@ -407,7 +429,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
     categories.forEach((cat, colIdx) => {
       pointLevels.forEach((pts, rowIdx) => {
         const tileCode = `${cat.code}${rowIdx + 1}`;
-        const qObj = questions[questionIdx] || {
+        const qObj = activeQuestionsList[questionIdx] || {
           question: `Câu hỏi ${tileCode}: Kiến thức tổng hợp môn học liên quan đến ${cat.name}?`,
           options: ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
           correct: 'A',
@@ -584,6 +606,21 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
 
         {/* Top Header Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".xlsx, .xls, .docx, .doc, .txt"
+            style={{ display: 'none' }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="btn btn-secondary btn-sm"
+            style={{ borderRadius: '12px', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38bdf8', color: '#7dd3fc', fontSize: '0.82rem', fontWeight: 700 }}
+          >
+            <Upload size={16} /> Nhập File
+          </button>
+
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
             className="btn btn-secondary btn-sm"
@@ -608,6 +645,16 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
           >
             <RotateCcw size={16} /> Chơi lại
           </button>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="btn btn-secondary btn-sm"
+              style={{ borderRadius: '12px', background: 'rgba(239, 68, 68, 0.3)', border: '1px solid #ef4444', color: '#fca5a5', fontSize: '0.82rem', fontWeight: 700 }}
+            >
+              <LogOut size={16} /> Thoát Game
+            </button>
+          )}
         </div>
       </div>
 

@@ -91,8 +91,8 @@ export function JungleRescueGame({ questions = [], teams, onAddPoints, onClose }
 
     let rawCorrect = String(q.correct || 'A').trim().toUpperCase();
     let correctChar = 'A';
-    if (['A', 'B', 'C', 'D'].includes(rawCorrect[0])) {
-      correctChar = rawCorrect[0];
+    if (rawCorrect && ['A', 'B', 'C', 'D'].includes(rawCorrect.charAt(0))) {
+      correctChar = rawCorrect.charAt(0);
     }
 
     return {

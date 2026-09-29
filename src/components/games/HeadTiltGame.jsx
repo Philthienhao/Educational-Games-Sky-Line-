@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Edit3, Plus, Minus, Trash2 } from 'lucide-react';
+import { Volume2, VolumeX, Maximize, RotateCcw, Trophy, Settings, Camera, CheckCircle2, XCircle, Clock, ArrowLeft, HelpCircle, Users, Award, Edit3, Plus, Minus, Trash2, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
+import { parseUploadedFile } from '../../utils/universalParser';
 
 export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPoints, onRenameTeam, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
+  const fileInputRef = useRef(null);
+  const [loadedQuestions, setLoadedQuestions] = useState(null);
+  const activeQuestionsList = loadedQuestions || questions;
+
+  const safeQuestions = (Array.isArray(activeQuestionsList) && activeQuestionsList.length > 0) ? activeQuestionsList : [
     {
       question: 'Thủ đô của Nhật Bản là thành phố nào?',
       options: ['Osaka', 'Tokyo'],
@@ -23,6 +28,26 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
       correct: 'A'
     }
   ];
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setLoadedQuestions(parsed);
+        setCurrentQIndex(0);
+        try { SoundFX.correct(); } catch(err) {}
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!`);
+      } else {
+        alert('Không tìm thấy câu hỏi hợp lệ trong file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi đọc file câu hỏi: ' + err.message);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const [isGameStarted, setIsGameStarted] = useState(false);
 
@@ -878,6 +903,35 @@ export function HeadTiltGame({ questions, teams: initialTeams, setTeams, onAddPo
             }}
           >
             🔄 {isDirectionInverted ? 'Đang Đảo Chiều' : 'Hướng Chuẩn'}
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".xlsx, .xls, .docx, .doc, .txt"
+            style={{ display: 'none' }}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            title="Nhập file câu hỏi (.xlsx, .docx, .txt)"
+            style={{
+              background: '#e0f2fe',
+              border: '1.5px solid #0284c7',
+              borderRadius: '20px',
+              padding: '6px 14px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              color: '#0369a1',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            <Upload size={16} />
+            <span>Nhập File</span>
           </button>
 
           <button

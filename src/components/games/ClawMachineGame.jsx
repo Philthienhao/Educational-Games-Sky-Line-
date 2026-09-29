@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Sparkles, RefreshCw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, RotateCcw, Zap, Smile } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Sparkles, RefreshCw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, RotateCcw, Zap, Smile, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StorageService } from '../../services/storage';
+import { parseStudentRosterFile } from '../../utils/universalParser';
 
 // Pre-defined student rosters for quick classroom selection
 const DEFAULT_STUDENT_ROSTERS = {
@@ -320,6 +321,32 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
       setCustomRosterText(names.join('\n'));
       setSelectedRosterName(presetName);
     }
+  };
+
+  const rosterFileInputRef = useRef(null);
+
+  const handleRosterFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const names = await parseStudentRosterFile(file);
+      if (Array.isArray(names) && names.length > 0) {
+        setFullRosterNames(names);
+        setRawStudentNames(names);
+        setCustomRosterText(names.join('\n'));
+        setSelectedRosterName(`File ${file.name} (${names.length} HS)`);
+        setShowRosterModal(false);
+        setClawState('idle');
+        try { SoundFX.correct(); } catch(err) {}
+        alert(`Đã tải thành công ${names.length} học sinh từ file!`);
+      } else {
+        alert('Không tìm thấy danh sách học sinh hợp lệ trong file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi đọc file danh sách: ' + err.message);
+    }
+    if (rosterFileInputRef.current) rosterFileInputRef.current.value = '';
   };
 
   // Save Custom Edited Roster
@@ -754,22 +781,41 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
               />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <button
-                onClick={() => setShowRosterModal(false)}
-                className="btn btn-secondary"
-                style={{ padding: '10px 20px', borderRadius: '12px' }}
-              >
-                Hủy
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+              <div>
+                <input
+                  type="file"
+                  ref={rosterFileInputRef}
+                  onChange={handleRosterFileUpload}
+                  accept=".xlsx, .xls, .docx, .doc, .txt"
+                  style={{ display: 'none' }}
+                />
+                <button
+                  onClick={() => rosterFileInputRef.current?.click()}
+                  className="btn btn-secondary"
+                  style={{ padding: '10px 16px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38bdf8', color: '#7dd3fc', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, fontSize: '0.88rem' }}
+                >
+                  <Upload size={16} /> Nhập File Excel/Word
+                </button>
+              </div>
 
-              <button
-                onClick={handleSaveCustomRosterText}
-                className="btn btn-primary"
-                style={{ padding: '10px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Check size={18} /> Lưu Danh Sách
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => setShowRosterModal(false)}
+                  className="btn btn-secondary"
+                  style={{ padding: '10px 20px', borderRadius: '12px' }}
+                >
+                  Hủy
+                </button>
+
+                <button
+                  onClick={handleSaveCustomRosterText}
+                  className="btn btn-primary"
+                  style={{ padding: '10px 24px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Check size={18} /> Lưu Danh Sách
+                </button>
+              </div>
             </div>
           </div>
         </div>

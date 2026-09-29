@@ -397,6 +397,8 @@ export async function parseUniversalFile(file) {
   throw new Error(`Định dạng tệp "${file.name}" chưa được hỗ trợ. Vui lòng tải file Excel, Word, PDF hoặc TXT.`);
 }
 
+export const parseUploadedFile = parseUniversalFile;
+
 /**
  * Generate official Homeroom Student Roster Sample Excel File (.xlsx)
  */

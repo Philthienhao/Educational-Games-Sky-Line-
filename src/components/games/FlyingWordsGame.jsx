@@ -1,18 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Plane, Sparkles, CheckCircle2, RotateCcw, Plus, Settings, Volume2 } from 'lucide-react';
+import { Plane, Sparkles, CheckCircle2, RotateCcw, Plus, Settings, Volume2, Upload, X, LogOut, FileText } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
+import { parseUploadedFile } from '../../utils/universalParser';
 
-export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
+export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
+  const fileInputRef = useRef(null);
+  const [loadedQuestions, setLoadedQuestions] = useState(null);
+
+  const activeQuestionsList = loadedQuestions || questions;
+  const safeQuestions = (Array.isArray(activeQuestionsList) && activeQuestionsList.length > 0) ? activeQuestionsList : [
     {
       question: 'Học đi đôi với hành',
       options: ['Học đi đôi với hành', 'Học rèn luyện', 'Học vui vẻ', 'Học Chăm chỉ'],
       correct: 'A'
     }
   ];
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setLoadedQuestions(parsed);
+        setCurrentQIndex(0);
+        try { SoundFX.correct(); } catch(err) {}
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!`);
+      } else {
+        alert('Không tìm thấy câu hỏi hợp lệ trong file.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi khi đọc file câu hỏi: ' + err.message);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
@@ -193,12 +218,27 @@ export function FlyingWordsGame({ questions, teams, onAddPoints, activeTeamIndex
               ⏱️ {timeLeft}s
             </span>
           )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".xlsx, .xls, .docx, .doc, .txt"
+            style={{ display: 'none' }}
+          />
+          <button className="btn btn-secondary btn-sm" onClick={() => fileInputRef.current?.click()} style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38bdf8', color: '#7dd3fc' }}>
+            <Upload size={16} /> Nhập File Câu Hỏi
+          </button>
           <button className="btn btn-secondary btn-sm" onClick={() => setShowInputModal(true)} style={{ background: 'rgba(167, 139, 250, 0.2)', border: '1px solid #a78bfa', color: '#c4b5fd' }}>
             <Plus size={16} /> Cài Đặt Câu Nhanh
           </button>
           <button className="btn btn-secondary btn-sm" onClick={handleResetCurrentSentence}>
             <RotateCcw size={16} /> Đặt Lại Câu
           </button>
+          {onClose && (
+            <button className="btn btn-secondary btn-sm" onClick={onClose} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5' }}>
+              <LogOut size={16} /> Thoát Game
+            </button>
+          )}
         </div>
       </div>
 

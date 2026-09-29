@@ -1,21 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Shield, Flame, RotateCcw, Sparkles, Heart } from 'lucide-react';
+import { Shield, Flame, RotateCcw, Sparkles, Heart, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function MinesweeperGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_MINESWEEPER_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function MinesweeperGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [lives, setLives] = useState(3);
   const [clearedTiles, setClearedTiles] = useState([]);
   const [activeTileIndex, setActiveTileIndex] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_MINESWEEPER_QUESTIONS);
 
   const totalTiles = 12;
-  const currentQ = activeTileIndex !== null ? (questions[activeTileIndex % questions.length] || questions[0]) : null;
+  const currentQ = activeTileIndex !== null ? (safeQuestions[activeTileIndex % safeQuestions.length] || safeQuestions[0]) : null;
   const [timeLeft, setTimeLeft] = useState(20);
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setClearedTiles([]);
+        setActiveTileIndex(null);
+        setLives(3);
+        setIsGameOver(false);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Dò Mìn!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   useEffect(() => {
     if (activeTileIndex === null || answerState) return;
@@ -88,16 +119,32 @@ export function MinesweeperGame({ questions, teams, onAddPoints, activeTeamIndex
       
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-            💣 Dò Mìn Phiêu Lưu - Vượt Bãi Mìn
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Chọn ô an toàn và giải đố để vượt qua bãi mìn. Bạn có 3 mạng sống!
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+              💣 Dò Mìn Phiêu Lưu - Vượt Bãi Mìn
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+              Chọn ô an toàn và giải đố để vượt qua bãi mìn. Bạn có 3 mạng sống!
+            </p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', cursor: 'pointer' }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           {/* Hearts Lives */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.15)', padding: '6px 14px', borderRadius: '12px', border: '1px solid #ef4444' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fca5a5', marginRight: '4px' }}>Mạng:</span>

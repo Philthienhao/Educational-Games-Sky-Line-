@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Sparkles, Zap, Trophy, RotateCcw, Volume2, CheckCircle2, XCircle, Clock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, Zap, Trophy, RotateCcw, Volume2, CheckCircle2, XCircle, Clock, ArrowRight, ShieldCheck, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
+import { parseUploadedFile } from '../../utils/universalParser';
 
-export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
+export function FruitNinjaGame({ questions: propQuestions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const defaultQs = [
     {
       question: 'Tỉnh/Thành phố nào thuộc khu vực Đông Nam Bộ Việt Nam?',
       correct: 'Bình Dương',
@@ -24,6 +27,8 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
     }
   ];
 
+  const safeQuestions = customQuestions || (Array.isArray(propQuestions) && propQuestions.length > 0 ? propQuestions : defaultQs);
+
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [answerState, setAnswerState] = useState(null); // 'correct' | 'wrong' | 'timeout'
@@ -36,17 +41,33 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
   const animFrameRef = useRef(null);
   const [targets, setTargets] = useState([]);
 
-  const currentQ = safeQuestions[currentQIndex % safeQuestions.length];
+  const currentQ = safeQuestions[currentQIndex % safeQuestions.length] || safeQuestions[0];
 
-  // Infer exact correct answer text
+  // Infer exact correct answer text with 100% null safety
   const correctAnswerText = useMemo(() => {
+    if (!currentQ) return 'Đáp án đúng';
     if (currentQ.correctAnswer) return String(currentQ.correctAnswer).trim();
-    if (currentQ.correct && currentQ.options && ['A', 'B', 'C', 'D'].includes(String(currentQ.correct).toUpperCase())) {
+    if (currentQ.correct && currentQ.options && Array.isArray(currentQ.options) && ['A', 'B', 'C', 'D'].includes(String(currentQ.correct).toUpperCase())) {
       const idx = ['A', 'B', 'C', 'D'].indexOf(String(currentQ.correct).toUpperCase());
-      return String(currentQ.options[idx] || currentQ.options[0]).trim();
+      return String(currentQ.options[idx] || currentQ.options[0] || currentQ.correct).trim();
     }
     return String(currentQ.correct || currentQ.answer || 'Đáp án đúng').trim();
   }, [currentQ]);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        try { SoundFX.correct(); } catch(e) {}
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi từ tệp ${file.name}!`);
+      }
+    } catch(err) {
+      alert(err.message || 'Lỗi khi nhập tệp câu hỏi.');
+    }
+  };
 
   // 3D Spherical Fruit & Balloon Themes
   const THEMES = [
@@ -65,6 +86,7 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
 
   // Initialize targets with random positions and bouncing velocity vectors
   useEffect(() => {
+    if (!currentQ) return;
     let distractorsList = [];
     if (Array.isArray(currentQ.distractors) && currentQ.distractors.length > 0) {
       distractorsList = currentQ.distractors;
@@ -93,49 +115,40 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
     const newTargets = shuffled.map((cand, idx) => {
       const theme = THEMES[idx % THEMES.length];
       
-      // Randomize initial positions cleanly spread across arena
-      const initialX = Math.floor(Math.random() * (arenaWidth - 220)) + 20;
+      const initialX = Math.floor(Math.random() * Math.max(100, (arenaWidth - 220))) + 20;
       const initialY = Math.floor(Math.random() * (arenaHeight - 120)) + 20;
       
-      // Randomize bouncing velocities (between 1.2 and 2.4 px/frame)
-      const dirX = Math.random() > 0.5 ? 1 : -1;
-      const dirY = Math.random() > 0.5 ? 1 : -1;
-      const vx = (1.2 + Math.random() * 1.2) * dirX;
-      const vy = (1.1 + Math.random() * 1.2) * dirY;
+      const vx = (Math.random() > 0.5 ? 1 : -1) * (1.2 + Math.random() * 1.2);
+      const vy = (Math.random() > 0.5 ? 1 : -1) * (1.2 + Math.random() * 1.2);
 
       return {
-        id: `target_${idx}_${Date.now()}`,
+        id: `target_${currentQIndex}_${idx}`,
         text: cand.text,
         isCorrect: cand.isCorrect,
-        fruit: theme.fruit,
-        gradient: theme.gradient,
-        borderColor: theme.border,
+        theme,
         x: initialX,
         y: initialY,
-        vx: vx,
-        vy: vy,
-        rotation: (Math.random() * 16 - 8),
-        vRot: (Math.random() * 0.4 - 0.2)
+        vx,
+        vy
       };
     });
 
     setTargets(newTargets);
-    setAnswerState(null);
     setPoppedIds(new Set());
+    setAnswerState(null);
     setSlashedItem(null);
     setSlashPos(null);
-  }, [currentQIndex, safeQuestions, correctAnswerText]);
+    setTimeLeft(20);
+  }, [currentQIndex, currentQ, isGameStarted]);
 
-  // 2D Bouncing Physics Engine (Wall Collision Bouncing Loop)
+  // Smooth Wall-Bouncing Animation Loop
   useEffect(() => {
-    if (answerState === 'correct' || answerState === 'timeout') {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-      return;
-    }
+    if (!isGameStarted || answerState) return;
 
     const updatePhysics = () => {
-      const arenaW = arenaRef.current ? arenaRef.current.clientWidth : 920;
-      const arenaH = 440;
+      const arenaWidth = arenaRef.current ? arenaRef.current.clientWidth : 920;
+      const arenaHeight = 440;
+      const radius = 68; // Fruit/Balloon radius (136px width / 2)
 
       setTargets(prevTargets => {
         return prevTargets.map(t => {
@@ -143,38 +156,24 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
           let newY = t.y + t.vy;
           let newVx = t.vx;
           let newVy = t.vy;
-          let newRot = t.rotation + t.vRot;
 
-          // Estimate target pill width & height dynamically
-          const estimatedW = Math.max(150, Math.min(240, t.text.length * 11 + 75));
-          const estimatedH = 65;
-
-          // Bounce off Left & Right walls
-          if (newX <= 12) {
-            newX = 12;
+          if (newX <= 10) {
+            newX = 10;
             newVx = Math.abs(t.vx);
-          } else if (newX >= arenaW - estimatedW - 12) {
-            newX = arenaW - estimatedW - 12;
+          } else if (newX >= arenaWidth - radius * 2 - 10) {
+            newX = arenaWidth - radius * 2 - 10;
             newVx = -Math.abs(t.vx);
           }
 
-          // Bounce off Top & Bottom walls
-          if (newY <= 12) {
-            newY = 12;
+          if (newY <= 10) {
+            newY = 10;
             newVy = Math.abs(t.vy);
-          } else if (newY >= arenaH - estimatedH - 12) {
-            newY = arenaH - estimatedH - 12;
+          } else if (newY >= arenaHeight - radius * 2 - 10) {
+            newY = arenaHeight - radius * 2 - 10;
             newVy = -Math.abs(t.vy);
           }
 
-          return {
-            ...t,
-            x: newX,
-            y: newY,
-            vx: newVx,
-            vy: newVy,
-            rotation: newRot
-          };
+          return { ...t, x: newX, y: newY, vx: newVx, vy: newVy };
         });
       });
 
@@ -186,37 +185,41 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [answerState]);
+  }, [isGameStarted, answerState]);
 
-  // 20-Second Countdown Timer
+  // 20-second Timer Loop
   useEffect(() => {
     if (!isGameStarted || answerState) return;
-    setTimeLeft(20);
 
-    const interval = setInterval(() => {
+    const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          clearInterval(interval);
+          clearInterval(timer);
           setAnswerState('timeout');
           try { SoundFX.wrong(); } catch (e) {}
           return 0;
+        }
+        if (prev <= 5) {
+          try { SoundFX.timerTick(); } catch (e) {}
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isGameStarted, currentQIndex, activeTeamIndex, answerState]);
+    return () => clearInterval(timer);
+  }, [isGameStarted, answerState]);
 
-  // Handle Slash / Click on Bouncing Target
-  const handleSlashTarget = (e, item) => {
-    if (answerState === 'correct' || answerState === 'timeout' || poppedIds.has(item.id)) return;
+  const handleSlashItem = (e, item) => {
+    if (answerState || poppedIds.has(item.id)) return;
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    setSlashPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setSlashedItem(item);
+    const rect = arenaRef.current?.getBoundingClientRect();
+    const clickX = e.clientX - (rect ? rect.left : 0);
+    const clickY = e.clientY - (rect ? rect.top : 0);
+
+    setSlashPos({ x: clickX, y: clickY });
 
     if (item.isCorrect) {
+      setSlashedItem(item);
       setAnswerState('correct');
       try { SoundFX.correct(); } catch (e) {}
       try { confetti({ particleCount: 130, spread: 100, origin: { y: 0.55 } }); } catch (e) {}
@@ -238,7 +241,7 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
     }
   };
 
-  const activeTeam = teams && teams[activeTeamIndex] ? teams[activeTeamIndex] : { name: `Đội ${activeTeamIndex + 1}`, color: '#0d9488' };
+  const activeTeam = (teams && teams[activeTeamIndex]) ? teams[activeTeamIndex] : { name: `Đội ${activeTeamIndex + 1}`, color: '#0d9488' };
 
   return ReactDOM.createPortal(
     <div style={{
@@ -281,17 +284,34 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
 
       {/* Header Info Bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-            🍉 Trò Chơi Chém Hoa Quả / Bắt Bong Bóng Va Thành Tường
-          </h2>
-          <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
-            Bong bóng & Trái cây 3D lơ lửng đập qua lại thành tường! Nhanh mắt chém đúng 1 đáp án chuẩn!
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="btn btn-secondary btn-sm"
+              style={{ borderRadius: '14px', padding: '8px 16px', background: 'rgba(255, 255, 255, 0.15)', color: '#ffffff', border: '1px solid rgba(255, 255, 255, 0.25)', fontWeight: 800 }}
+            >
+              <ArrowLeft size={18} /> Quay lại
+            </button>
+          )}
+
+          <div>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              🍉 Trò Chơi Chém Hoa Quả / Bắt Bong Bóng Va Thành Tường
+            </h2>
+            <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: '2px 0 0 0' }}>
+              Bong bóng & Trái cây 3D lơ lửng đập qua lại thành tường! Nhanh mắt chém đúng 1 đáp án chuẩn!
+            </p>
+          </div>
         </div>
 
-        {/* Team & Timer Controls */}
+        {/* Team & Timer & File Upload Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', borderRadius: '14px', padding: '8px 14px', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #0284c7', color: '#7dd3fc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Upload size={16} /> Tải câu hỏi (Excel/Word)
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           {/* Active Team Indicator */}
           <div style={{
             background: 'rgba(15, 23, 42, 0.85)',
@@ -330,218 +350,182 @@ export function FruitNinjaGame({ questions, teams, onAddPoints, activeTeamIndex 
         </div>
       </div>
 
-      {/* Main Question Display Box */}
       {!isGameStarted ? (
         <StartGameOverlay
-          title="Chém Hoa Quả Tri Thức"
+          title="Chém Hoa Quả"
           icon="🍉"
           onStart={() => setIsGameStarted(true)}
         />
       ) : (
-        <>
-          <div style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            border: '3px solid #0d9488',
-            borderRadius: '28px',
-            padding: '28px 36px',
-            width: '100%',
-            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.5), 0 0 25px rgba(13, 148, 136, 0.3)',
-            textAlign: 'center',
-            position: 'relative'
-          }}>
-            {currentQ.image && (
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <img 
-                  src={currentQ.image} 
-                  alt="Câu hỏi" 
-                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '18px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
-                />
-              </div>
-            )}
-            <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#5eead4', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '10px' }}>
-              CÂU HỎI {currentQIndex + 1} / {safeQuestions.length}
-            </div>
-            <h3 style={{ fontSize: '2.4rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.4, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}>
-              {currentQ.question}
-            </h3>
-          </div>
-
-      {/* 2D WALL-BOUNCING ARENA CONTAINER */}
-      <div 
-        ref={arenaRef}
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '460px',
-          background: 'radial-gradient(circle at center, #0b1a28 0%, #030910 100%)',
-          borderRadius: '24px',
-          border: '3px solid rgba(13, 148, 136, 0.5)',
-          overflow: 'hidden',
-          boxShadow: 'inset 0 0 50px rgba(0,0,0,0.8), 0 12px 35px rgba(0,168,150,0.2)'
-        }}
-      >
-        {/* Arena Wall Boundary Decor */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '16px' }}>
+        
+        {/* Main Question Card */}
         <div style={{
-          position: 'absolute',
-          inset: '8px',
-          pointerEvents: 'none',
-          border: '1.5px dashed rgba(94, 234, 212, 0.25)',
-          borderRadius: '20px'
-        }} />
+          width: '100%',
+          maxWidth: '920px',
+          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)',
+          border: '2px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '24px',
+          padding: '20px 28px',
+          boxShadow: '0 15px 35px rgba(0, 0, 0, 0.4)',
+          textAlign: 'center'
+        }}>
+          <span className="badge" style={{ background: 'rgba(56, 189, 248, 0.2)', color: '#7dd3fc', border: '1px solid #0284c7', fontWeight: 800, padding: '4px 12px', borderRadius: '10px', fontSize: '0.8rem', marginBottom: '8px', display: 'inline-block' }}>
+            CÂU HỎI {currentQIndex + 1} / {safeQuestions.length}
+          </span>
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#ffffff', margin: '4px 0 0 0', lineHeight: 1.35 }}>
+            {currentQ?.question || 'Câu hỏi...'}
+          </h2>
+        </div>
 
-        {/* Dynamic Bouncing 3D Spherical Fruit & Balloon Targets */}
-        {targets.map(item => {
-          const isPopped = poppedIds.has(item.id);
-          if (isPopped) return null;
+        {/* Wall Bouncing Fruit Arena Container */}
+        <div 
+          ref={arenaRef}
+          style={{
+            width: '100%',
+            maxWidth: '920px',
+            height: '440px',
+            background: 'radial-gradient(ellipse at 50% 50%, #1e293b 0%, #0f172a 100%)',
+            border: '4px solid #334155',
+            borderRadius: '28px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: 'inset 0 0 60px rgba(0,0,0,0.8), 0 20px 50px rgba(0,0,0,0.5)'
+          }}
+        >
 
-          const isAnswered = answerState === 'correct' || answerState === 'timeout';
-          const isWinnerTarget = item.isCorrect && isAnswered;
-
-          return (
-            <div
-              key={item.id}
-              onClick={(e) => handleSlashTarget(e, item)}
-              style={{
-                position: 'absolute',
-                left: `${item.x}px`,
-                top: `${item.y}px`,
-                transform: `rotate(${item.rotation}deg)`,
-                background: isWinnerTarget 
-                  ? 'radial-gradient(circle at 35% 35%, #4ade80 0%, #16a34a 65%, #14532d 100%)' 
-                  : item.gradient,
-                borderRadius: '50px', // 3D Capsule Pill Shape
-                padding: '12px 24px 12px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-                border: isWinnerTarget ? '3.5px solid #fde047' : `2px solid ${item.borderColor}`,
-                boxShadow: isWinnerTarget 
-                  ? '0 0 45px #fde047, 0 10px 35px rgba(0,0,0,0.6)' 
-                  : '0 10px 25px rgba(0, 0, 0, 0.45), inset 0 3px 6px rgba(255,255,255,0.45)',
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '1.25rem',
-                cursor: isAnswered ? 'default' : 'pointer',
-                userSelect: 'none',
-                zIndex: isWinnerTarget ? 40 : 10,
-                animation: isWinnerTarget ? 'goldGlowPulse 1.5s infinite' : 'none',
-                transition: isAnswered ? 'transform 0.4s ease' : 'none',
-                backdropFilter: 'blur(4px)'
-              }}
-            >
-              {/* 3D Circular Fruit Emblem */}
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.28)',
-                backdropFilter: 'blur(6px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.85rem',
-                boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.7), 0 3px 8px rgba(0,0,0,0.2)',
-                flexShrink: 0
-              }}>
-                {item.fruit}
-              </div>
-
-              {/* Glassmorphic Answer Text */}
-              <span style={{
-                whiteSpace: 'nowrap',
-                textShadow: '0 2px 6px rgba(0, 0, 0, 0.85)',
-                letterSpacing: '0.3px',
-                fontWeight: 900
-              }}>
-                {item.text}
-              </span>
-            </div>
-          );
-        })}
-
-        {/* Blade Slash Cut Line Overlay */}
-        {slashPos && (
+          {/* Grid Background Lines */}
           <div style={{
             position: 'absolute',
-            left: slashPos.x - 80,
-            top: slashPos.y - 10,
-            height: '18px',
-            background: 'linear-gradient(90deg, transparent, #ffffff, #5eead4, transparent)',
-            borderRadius: '10px',
-            boxShadow: '0 0 25px #5eead4',
-            animation: 'bladeCutLine 0.35s ease-out forwards',
-            pointerEvents: 'none',
-            zIndex: 60
+            inset: 0,
+            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0)',
+            backgroundSize: '24px 24px',
+            pointerEvents: 'none'
           }} />
-        )}
-      </div>
 
-      {/* REVEAL CORRECT ANSWER BANNER AT BOTTOM */}
-      {answerState && (
-        <div style={{
-          width: '100%',
-          background: answerState === 'correct' 
-            ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' 
-            : answerState === 'timeout'
-              ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)'
-              : 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-          borderRadius: '20px',
-          padding: '20px 24px',
-          color: '#ffffff',
-          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.25)',
-          border: '2px solid rgba(255, 255, 255, 0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px'
-        }}>
-          <div>
-            <div style={{ fontSize: '0.82rem', fontWeight: 900, letterSpacing: '1px', textTransform: 'uppercase', color: '#fde047', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {answerState === 'correct' ? (
-                <> <CheckCircle2 size={18} /> ĐÃ CHÉM CHÍNH XÁC! (+100 ĐIỂM) </>
-              ) : answerState === 'timeout' ? (
-                <> <Clock size={18} /> ĐÃ HẾT GIỜ (20 GIÂY) </>
-              ) : (
-                <> <XCircle size={18} /> CHƯA ĐÚNG </>
-              )}
-            </div>
+          {/* Blade Slash Laser FX Trail */}
+          {slashPos && (
+            <div style={{
+              position: 'absolute',
+              left: `${slashPos.x - 100}px`,
+              top: `${slashPos.y - 10}px`,
+              height: '20px',
+              background: 'linear-gradient(90deg, transparent 0%, #fde047 30%, #ffffff 50%, #fde047 70%, transparent 100%)',
+              boxShadow: '0 0 25px #fde047, 0 0 50px #ffffff',
+              borderRadius: '10px',
+              animation: 'bladeCutLine 0.4s ease-out forwards',
+              zIndex: 30,
+              pointerEvents: 'none'
+            }} />
+          )}
 
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, lineHeight: 1.3 }}>
-              ✨ ĐÁP ÁN ĐÚNG LÀ: <span style={{ color: '#fde047', textDecoration: 'underline' }}>{correctAnswerText}</span>
-            </div>
+          {/* Floating Bouncing Spherical Targets */}
+          {targets.map((item) => {
+            const isPopped = poppedIds.has(item.id);
+            if (isPopped) return null;
 
-            {currentQ.explanation && (
-              <p style={{ fontSize: '0.85rem', color: '#f1f5f9', marginTop: '6px', margin: '6px 0 0 0' }}>
-                💡 Gợi ý / Giải thích: {currentQ.explanation}
-              </p>
-            )}
-          </div>
+            const isWinnerItem = answerState === 'correct' && item.isCorrect;
 
-          <button
-            onClick={handleNextQuestion}
-            style={{
-              padding: '12px 24px',
-              borderRadius: '14px',
-              background: '#ffffff',
-              color: '#0f172a',
-              fontWeight: 900,
-              fontSize: '0.95rem',
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+            return (
+              <div
+                key={item.id}
+                onClick={(e) => handleSlashItem(e, item)}
+                style={{
+                  position: 'absolute',
+                  left: `${item.x}px`,
+                  top: `${item.y}px`,
+                  width: '136px',
+                  height: '136px',
+                  borderRadius: '50%',
+                  background: item.theme.gradient,
+                  border: `3px solid ${item.theme.border}`,
+                  boxShadow: isWinnerItem ? '0 0 50px #fde047, 0 10px 30px rgba(0,0,0,0.5)' : '0 10px 25px rgba(0,0,0,0.35)',
+                  cursor: answerState ? 'default' : 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '10px',
+                  textAlign: 'center',
+                  color: '#ffffff',
+                  userSelect: 'none',
+                  zIndex: isWinnerItem ? 25 : 10,
+                  transition: isWinnerItem ? 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                  animation: isWinnerItem ? 'goldGlowPulse 1.2s infinite' : 'none'
+                }}
+              >
+                <div style={{ fontSize: '2rem', lineHeight: 1, marginBottom: '2px', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' }}>
+                  {item.theme.fruit}
+                </div>
+                <div style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 900,
+                  lineHeight: 1.2,
+                  textShadow: '0 2px 6px rgba(0,0,0,0.8)',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden'
+                }}>
+                  {item.text}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Answer Outcome Banner */}
+          {answerState && (
+            <div style={{
+              position: 'absolute',
+              bottom: '24px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: answerState === 'correct' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)',
+              backdropFilter: 'blur(10px)',
+              padding: '14px 28px',
+              borderRadius: '20px',
+              border: answerState === 'correct' ? '2px solid #6ee7b7' : '2px solid #fca5a5',
+              boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s'
-            }}
-          >
-            <span>Câu Tiếp Theo</span>
-            <ArrowRight size={18} />
-          </button>
+              gap: '16px',
+              zIndex: 40,
+              maxWidth: '85%'
+            }}>
+              <div style={{ color: '#ffffff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {answerState === 'correct' ? <CheckCircle2 size={28} /> : <XCircle size={28} />}
+                <div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900 }}>
+                    {answerState === 'correct' ? `🎉 CHÍNH XÁC! CỘNG +100 ĐIỂM DÀNH CHO ${activeTeam.name}!` : `❌ HẾT GIỜ / CHƯA ĐÚNG!`}
+                  </div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.95, marginTop: '2px' }}>
+                    Đáp án đúng: <strong>{correctAnswerText}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleNextQuestion}
+                className="btn btn-primary"
+                style={{
+                  background: '#ffffff',
+                  color: answerState === 'correct' ? '#047857' : '#b91c1c',
+                  border: 'none',
+                  fontWeight: 900,
+                  padding: '10px 20px',
+                  borderRadius: '14px',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                  fontSize: '0.95rem'
+                }}
+              >
+                Câu Tiếp <ArrowRight size={16} />
+              </button>
+            </div>
+          )}
+
         </div>
-      )}
-        </>
+      </div>
       )}
 
     </div>,

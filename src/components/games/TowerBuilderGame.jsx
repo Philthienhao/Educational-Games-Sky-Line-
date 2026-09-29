@@ -423,7 +423,9 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     if (b.floors !== a.floors) return b.floors - a.floors;
     return b.score - a.score;
   });
-  const winner = sortedTeams[0];
+  const winner = (Array.isArray(sortedTeams) && sortedTeams.length > 0) 
+    ? sortedTeams[0] 
+    : { name: 'Đội Vô Địch', score: 0, color: '#f59e0b', floors: 1 };
 
   return (
     <div 

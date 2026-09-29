@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { KeyRound, CheckCircle2, XCircle, Sparkles } from 'lucide-react';
+import { KeyRound, CheckCircle2, XCircle, Sparkles, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
 // Helper function to extract exact text of correct answer
 function getCorrectAnswerText(q) {
@@ -43,11 +43,40 @@ function getCorrectAnswerText(q) {
   return String(q.options?.[0] || 'DAP AN').trim();
 }
 
-export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_CROSSWORD_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam?', options: ['Hà Nội', 'Huế', 'Đà Nẵng'], correct: 'A' },
+  { question: 'Thành phố lớn nhất nước ta?', options: ['Hồ Chí Minh', 'Hải Phòng', 'Cần Thơ'], correct: 'A' }
+];
+
+export function CrosswordGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [solvedRows, setSolvedRows] = useState([]);
   const [activeRowIndex, setActiveRowIndex] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null);
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_CROSSWORD_QUESTIONS);
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setSolvedRows([]);
+        setActiveRowIndex(null);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Ô Chữ!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
   const [timeLeft, setTimeLeft] = useState(20);
 
   useEffect(() => {
@@ -67,14 +96,6 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
     }, 1000);
     return () => clearInterval(interval);
   }, [activeRowIndex, answerState]);
-
-  const safeQuestions = (Array.isArray(questions) && questions.length > 0) ? questions : [
-    {
-      question: 'Việt Nam nằm ở khu vực nào của Châu Á?',
-      options: ['Đông Á', 'Đông Nam Á', 'Nam Á', 'Tây Nam Á'],
-      correct: 'B'
-    }
-  ];
 
   const rows = safeQuestions.slice(0, 8).map((q, idx) => {
     const rawAnswer = getCorrectAnswerText(q);
@@ -102,7 +123,7 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
   const unlockedKeyLetters = solvedRows.map(rIdx => {
     const row = rows[rIdx];
     if (!row || !row.answerText) return null;
-    const char = row.answerText[row.highlightCol] || row.answerText[0] || '?';
+    const char = row.answerText[row.highlightCol] || row.answerText.charAt(0) || '?';
     return { rIdx, char };
   }).filter(item => item && item.char !== ' ');
 
@@ -151,17 +172,35 @@ export function CrosswordGame({ questions, teams, onAddPoints, activeTeamIndex =
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '20px', maxWidth: '950px', margin: '0 auto', width: '100%' }}>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-            🧩 Ô Chữ Bí Mật - Giải Mã Từ Khóa
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Mỗi câu hỏi có đúng số lượng ô tương ứng với từng chữ cái trong đáp án.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+              🧩 Ô Chữ Bí Mật - Giải Mã Từ Khóa
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+              Mỗi câu hỏi có đúng số lượng ô tương ứng với từng chữ cái trong đáp án.
+            </p>
+          </div>
         </div>
 
-        <div className="badge badge-accent" style={{ fontSize: '0.9rem', padding: '8px 16px' }}>
-          🔑 ĐÃ GIẢI: {solvedRows.length} / {rows.length} Ô
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', cursor: 'pointer' }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
+          <div className="badge badge-accent" style={{ fontSize: '0.9rem', padding: '8px 16px' }}>
+            🔑 ĐÃ GIẢI: {solvedRows.length} / {rows.length} Ô
+          </div>
         </div>
       </div>
 

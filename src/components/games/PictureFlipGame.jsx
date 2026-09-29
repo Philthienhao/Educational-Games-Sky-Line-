@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Eye, CheckCircle2, XCircle, Sparkles, Image as ImageIcon, Upload } from 'lucide-react';
+import { Eye, CheckCircle2, XCircle, Sparkles, Image as ImageIcon, Upload, ArrowLeft } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
-import { isOptionValidForQuestion } from '../../utils/universalParser';
+import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-export function PictureFlipGame({ questions, teams, onAddPoints, game, secretImage, activeTeamIndex = 0, setActiveTeamIndex }) {
+const DEFAULT_FLIP_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function PictureFlipGame({ questions: propQuestions = [], teams = [], onAddPoints, game, secretImage, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [revealedTiles, setRevealedTiles] = useState([]);
   const [activeTileIndex, setActiveTileIndex] = useState(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -13,12 +18,17 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
   const [guessText, setGuessText] = useState('');
   const [isPictureRevealed, setIsPictureRevealed] = useState(false);
   const [customImage, setCustomImage] = useState('');
+  const [customQuestions, setCustomQuestions] = useState(null);
+
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_FLIP_QUESTIONS);
 
   // Turn management
   const [localTeam, setLocalTeam] = useState(0);
   const currentTeamIdx = setActiveTeamIndex !== undefined ? activeTeamIndex : localTeam;
   const setTurnTeam = (newIdx) => {
-    if (setActiveTeamIndex) setActiveTeamIndex(newIdx);
+    if (setActiveTeamIndex && teams.length > 0) setActiveTeamIndex(newIdx);
     else setLocalTeam(newIdx);
   };
 
@@ -26,10 +36,29 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
   const bgImageUrl = customImage || secretImage || game?.secretImage || game?.bgImageUrl || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=1000&auto=format&fit=crop';
   
   // Dynamic puzzle grid matching ALL uploaded questions (unlimited)
-  const totalTiles = Math.max(6, questions?.length || 9);
+  const totalTiles = Math.max(6, safeQuestions?.length || 9);
 
-  const currentQ = activeTileIndex !== null ? (questions[activeTileIndex % questions.length] || questions[0]) : null;
+  const currentQ = activeTileIndex !== null ? (safeQuestions[activeTileIndex % safeQuestions.length] || safeQuestions[0]) : null;
   const [timeLeft, setTimeLeft] = useState(20);
+
+  // Question File Upload Handler
+  const handleQuestionFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setRevealedTiles([]);
+        setActiveTileIndex(null);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Lật Ô Vuông!`);
+        try { SoundFX.correct(); } catch(e) {}
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      try { SoundFX.wrong(); } catch(e) {}
+    }
+  };
 
   useEffect(() => {
     if (activeTileIndex === null || answerState) return;
@@ -106,16 +135,31 @@ export function PictureFlipGame({ questions, teams, onAddPoints, game, secretIma
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px', padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-            🖼️ Lật Ô Vuông - Đoán Bức Ảnh Bí Mật
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Trả lời đúng từng ô để mở dần bức tranh chìa khóa đằng sau.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+              🖼️ Lật Ô Vuông - Đoán Bức Ảnh Bí Mật
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+              Trả lời đúng từng ô để mở dần bức tranh chìa khóa đằng sau.
+            </p>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label className="btn btn-secondary" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', cursor: 'pointer' }}>
+            <Upload size={16} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleQuestionFileUpload} style={{ display: 'none' }} />
+          </label>
           {/* Quick Change Secret Image Button */}
           <input 
             type="file" 

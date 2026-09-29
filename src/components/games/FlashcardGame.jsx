@@ -1,15 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { RotateCw, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { RotateCw, CheckCircle2, ChevronRight, ChevronLeft, Sparkles, ArrowLeft, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
+import { parseUploadedFile } from '../../utils/universalParser';
 
-export function FlashcardGame({ questions, teams, onAddPoints }) {
+const DEFAULT_FLASHCARD_QUESTIONS = [
+  { question: 'Thủ đô của Việt Nam là thành phố nào?', options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'], correct: 'A' },
+  { question: '2 + 2 x 3 = ?', options: ['8', '12', '10', '16'], correct: 'A' }
+];
+
+export function FlashcardGame({ questions: propQuestions = [], teams = [], onAddPoints, onClose }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [masteredCards, setMasteredCards] = useState([]);
+  const [customQuestions, setCustomQuestions] = useState(null);
 
-  const currentQ = questions[currentIndex % questions.length] || questions[0];
+  const safeQuestions = (Array.isArray(customQuestions) && customQuestions.length > 0)
+    ? customQuestions
+    : ((Array.isArray(propQuestions) && propQuestions.length > 0) ? propQuestions : DEFAULT_FLASHCARD_QUESTIONS);
+
+  const currentQ = safeQuestions[currentIndex % safeQuestions.length] || safeQuestions[0];
+
+  // File Upload Handler
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (parsed && parsed.length > 0) {
+        setCustomQuestions(parsed);
+        setCurrentIndex(0);
+        setMasteredCards([]);
+        setIsFlipped(false);
+        alert(`Đã nhập thành công ${parsed.length} câu hỏi vào Flashcard!`);
+        SoundFX.correct();
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi tải tệp câu hỏi');
+      SoundFX.wrong();
+    }
+  };
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -18,12 +49,12 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
 
   const handleNext = () => {
     setIsFlipped(false);
-    setCurrentIndex(prev => (prev + 1) % questions.length);
+    setCurrentIndex(prev => (prev + 1) % safeQuestions.length);
   };
 
   const handlePrev = () => {
     setIsFlipped(false);
-    setCurrentIndex(prev => (prev - 1 + questions.length) % questions.length);
+    setCurrentIndex(prev => (prev - 1 + safeQuestions.length) % safeQuestions.length);
   };
 
   const handleMarkMastered = () => {
@@ -31,7 +62,7 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
       setMasteredCards([...masteredCards, currentIndex]);
       SoundFX.correct();
       confetti({ particleCount: 50, spread: 60 });
-      onAddPoints(0, 50);
+      if (onAddPoints) onAddPoints(0, 50);
     }
     handleNext();
   };
@@ -55,17 +86,35 @@ export function FlashcardGame({ questions, teams, onAddPoints }) {
     }}>
       
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)' }}>
-            🎴 Thẻ Ghi Nhớ Flashcard - Ôn Tập Kiến Thức
-          </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Bấm vào thẻ để lật xem đáp án và lời giải chi tiết.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onClose && (
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={onClose}
+              style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}
+            >
+              <ArrowLeft size={16} /> Quay lại
+            </button>
+          )}
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-bright)', margin: 0 }}>
+              🎴 Thẻ Ghi Nhớ Flashcard - Ôn Tập Kiến Thức
+            </h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0 }}>
+              Bấm vào thẻ để lật xem đáp án và lời giải chi tiết.
+            </p>
+          </div>
         </div>
 
-        <div className="badge badge-custom" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-          ⭐ ĐÃ THUỘC: {masteredCards.length} / {questions.length} THẺ
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <label className="btn btn-secondary btn-sm" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', cursor: 'pointer' }}>
+            <Upload size={14} /> Nhập File Câu Hỏi
+            <input type="file" accept=".xlsx,.xls,.docx,.doc,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
+          <div className="badge badge-custom" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            ⭐ ĐÃ THUỘC: {masteredCards.length} / {safeQuestions.length} THẺ
+          </div>
         </div>
       </div>
 

@@ -162,7 +162,8 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     onAddPoints: handleAddPoints,
     onRenameTeam: handleRenameTeam,
     activeTeamIndex,
-    setActiveTeamIndex
+    setActiveTeamIndex,
+    onClose
   };
 
   const renderGameEngine = () => {
