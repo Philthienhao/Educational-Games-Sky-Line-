@@ -202,6 +202,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Hệ thống giáo dục Sky-Line',
     createdAt: '2026-09-28'
+  },
+  {
+    id: 'user_hong_yen',
+    username: 'hongyen',
+    password: '123456',
+    name: 'Hồng Yến',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường THCS Xã Đăk Môn',
+    createdAt: '2026-09-29'
   }
 ];
 
