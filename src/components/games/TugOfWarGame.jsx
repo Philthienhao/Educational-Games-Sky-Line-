@@ -111,7 +111,7 @@ export function TugOfWarGame({ questions: propQuestions = [], teams = [], onAddP
     const nextIdx = currentTurnTeam === 0 ? 1 : 0;
     setCurrentTurnTeam(nextIdx);
     if (setActiveTeamIndex) setActiveTeamIndex(nextIdx);
-    setCurrentQIndex(prev => (prev + 1) % questions.length);
+    setCurrentQIndex(prev => (prev + 1) % (activeQuestions.length || 1));
   };
 
   return (
@@ -336,7 +336,7 @@ export function TugOfWarGame({ questions: propQuestions = [], teams = [], onAddP
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <span className="badge badge-teacher" style={{ fontSize: '1.2rem', padding: '8px 18px' }}>
-                ⚔️ KÉO CO - CÂU HỎI {currentQIndex + 1} / {questions.length}
+                ⚔️ KÉO CO - CÂU HỎI {currentQIndex + 1} / {activeQuestions.length}
               </span>
 
               {!answerState && (

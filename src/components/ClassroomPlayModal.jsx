@@ -28,6 +28,7 @@ import { MagicGrimoireGame } from './games/MagicGrimoireGame';
 import { TowerBuilderGame } from './games/TowerBuilderGame';
 import { MarioRaceGame } from './games/MarioRaceGame';
 import { IndoorPEDanceGame } from './games/IndoorPEDanceGame';
+import { GeoExperimentsView } from './GeoExperimentsView';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
@@ -238,6 +239,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'indoor-pe-dance':
         component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;
         break;
+      case 'geo-3d-model':
+        component = <GeoExperimentsView currentUser={currentUser} onClose={onClose} />;
+        break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
         break;
@@ -250,7 +254,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -287,8 +291,14 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
             <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
           ) : engineType === 'mario-race' ? (
             <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : (
+          ) : engineType === 'indoor-pe-dance' ? (
+            <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />
+          ) : engineType === 'jungle-rescue' ? (
             <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'geo-3d-model' ? (
+            <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
+          ) : (
+            renderGameEngine()
           )}
         </div>
       </GameErrorBoundary>,

@@ -306,7 +306,8 @@ export function TowerBuilderGame({ game, onClose, currentUser }) {
     if (!isMuted) SoundFX.click();
 
     setSelectedMaterial(materialType);
-    const q = questions[questionIdx % questions.length];
+    const safeQs = (questions && questions.length > 0) ? questions : DEFAULT_QUESTIONS;
+    const q = safeQs[questionIdx % safeQs.length] || safeQs[0];
     setActiveQuestion(q);
     setSelectedAnswer(null);
     setIsAnswerSubmitted(false);

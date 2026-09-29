@@ -118,7 +118,7 @@ export function MillionaireGame({ questions: propQuestions = [], teams = [], onA
     setHiddenOptions([]);
     setAudiencePoll(null);
     setSelectedOption(null);
-    setCurrentLevel(prev => (prev + 1) % questions.length);
+    setCurrentLevel(prev => (prev + 1) % (activeQuestions.length || 1));
   };
 
   // Answer selection
