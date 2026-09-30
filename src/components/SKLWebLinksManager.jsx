@@ -441,10 +441,33 @@ export function SKLWebLinksManager({ currentUser }) {
   const [toastMessage, setToastMessage] = useState('');
   const [fileInputRef, setFileInputRef] = useState(null);
 
-  // Load links per user on mount & currentUser change
+  // Load links per user on mount & currentUser change with multi-tier async recovery
   useEffect(() => {
-    const loaded = StorageService.getSKLWebLinks(currentUser?.id);
-    setWebLinks(loaded);
+    let isMounted = true;
+    const loadLinks = async () => {
+      // 1. Initial synchronous load from LocalStorage
+      const loaded = StorageService.getSKLWebLinks(currentUser?.id);
+      if (isMounted) setWebLinks(loaded);
+
+      // 2. Async IDB & Cloud KV recovery
+      if (currentUser?.id) {
+        try {
+          await StorageService.syncWithIndexedDB(currentUser.id);
+          const synced = StorageService.getSKLWebLinks(currentUser.id);
+          if (isMounted && Array.isArray(synced)) {
+            setWebLinks(synced);
+          }
+        } catch (e) {
+          console.warn("SKLWebLinksManager async load error:", e);
+        }
+      }
+    };
+
+    loadLinks();
+
+    return () => {
+      isMounted = false;
+    };
   }, [currentUser]);
 
   const triggerToast = (msg) => {

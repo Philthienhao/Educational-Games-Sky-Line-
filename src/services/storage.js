@@ -1258,6 +1258,18 @@ export const StorageService = {
     }
 
     if (effectiveUserId) {
+      // Sync SKL Web Links from IDB to LocalStorage if missing in LocalStorage
+      try {
+        const webLinksKey = `gvd_user_web_links_${effectiveUserId}`;
+        const idbWebLinks = await IDBStorageService.getItem(webLinksKey);
+        if (Array.isArray(idbWebLinks) && idbWebLinks.length > 0) {
+          const localStr = localStorage.getItem(webLinksKey);
+          if (!localStr) {
+            localStorage.setItem(webLinksKey, JSON.stringify(idbWebLinks));
+          }
+        }
+      } catch (e) {}
+
       try {
         await StorageService.syncAllUserDataFromCloud(effectiveUserId);
       } catch (e) {}
@@ -1359,6 +1371,23 @@ export const StorageService = {
           try {
             localStorage.setItem(key, JSON.stringify(cloudFolders));
             IDBStorageService.setItem(key, cloudFolders).catch(() => {});
+          } catch (e) {}
+        }
+      }
+
+      // 5. SKL Web Links
+      const cloudWebLinks = await CloudStorageService.getUserPrivateCloudData(userId, 'web_links');
+      if (Array.isArray(cloudWebLinks) && cloudWebLinks.length > 0) {
+        const key = `gvd_user_web_links_${userId}`;
+        const localStr = localStorage.getItem(key);
+        let localCount = 0;
+        if (localStr) {
+          try { localCount = (JSON.parse(localStr) || []).length; } catch (e) {}
+        }
+        if (cloudWebLinks.length >= localCount) {
+          try {
+            localStorage.setItem(key, JSON.stringify(cloudWebLinks));
+            IDBStorageService.setItem(key, cloudWebLinks).catch(() => {});
           } catch (e) {}
         }
       }
@@ -2614,6 +2643,8 @@ export const StorageService = {
         if (uClass) CloudStorageService.saveUserPrivateCloudData(uId, 'homeroom', uClass).catch(() => {});
         const uSlides = StorageService.getLectureSlides(uId);
         if (uSlides.length > 0) CloudStorageService.saveUserPrivateCloudData(uId, 'slides', uSlides).catch(() => {});
+        const uLinks = StorageService.getSKLWebLinks(uId);
+        if (uLinks.length > 0) CloudStorageService.saveUserPrivateCloudData(uId, 'web_links', uLinks).catch(() => {});
       }
 
       return { success: true, message: 'Khôi phục toàn bộ 100% dữ liệu hệ thống thành công!' };
