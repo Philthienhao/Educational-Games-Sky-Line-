@@ -288,18 +288,41 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
   };
 
-  // Reset Homeroom Data
+  // Reset Homeroom Data & Monthly Competition Points
   const executeResetClass = (mode) => {
     if (isReadOnlyAdmin) return;
+    try { SoundFX.click(); } catch(e) {}
+
     const resetData = StorageService.resetTeacherHomeroom(teacherId, mode);
     setClassData(resetData);
-    try { SoundFX.click(); } catch(e) {}
     setShowResetModal(false);
-    setStatusMsg({
-      type: 'success',
-      text: mode === 'clear' ? '🧹 Đã xóa sạch danh sách học sinh (Lớp trống 0 học sinh)!' : '🔄 Đã khôi phục danh sách học sinh mẫu ban đầu!'
-    });
-    setTimeout(() => setStatusMsg({ type: '', text: '' }), 3500);
+
+    if (mode === 'points_zero') {
+      try { SoundFX.fanfare(); } catch(e) {}
+      try { confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } }); } catch(e) {}
+      setStatusMsg({
+        type: 'success',
+        text: '🌟 Đã reset điểm thi đua tháng mới! Tất cả học sinh đã về 0 điểm và làm mới Bảng Tuyên Dương!'
+      });
+    } else if (mode === 'points_100') {
+      try { SoundFX.correct(); } catch(e) {}
+      setStatusMsg({
+        type: 'success',
+        text: '💯 Đã reset điểm nề nếp của tất cả học sinh về 100 điểm chuẩn!'
+      });
+    } else if (mode === 'clear') {
+      setStatusMsg({
+        type: 'success',
+        text: '🧹 Đã xóa sạch danh sách học sinh (Lớp trống 0 học sinh)!'
+      });
+    } else {
+      setStatusMsg({
+        type: 'success',
+        text: '🔄 Đã khôi phục danh sách học sinh mẫu ban đầu!'
+      });
+    }
+
+    setTimeout(() => setStatusMsg({ type: '', text: '' }), 4000);
   };
 
   // Background Image Upload with Auto-Compression
@@ -1201,7 +1224,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
               </p>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(15, 23, 42, 0.8)', padding: '6px 12px', borderRadius: '16px', border: '1px solid rgba(245, 158, 11, 0.4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(15, 23, 42, 0.8)', padding: '6px 12px', borderRadius: '16px', border: '1px solid rgba(245, 158, 11, 0.4)', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fbbf24' }}>Mốc Tuyên Dương:</span>
               <button
                 className={`btn btn-sm ${honorsPeriod === 'week' ? 'btn-warning' : 'btn-secondary'}`}
@@ -1239,6 +1262,30 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
               >
                 Học Kỳ
               </button>
+
+              {!isReadOnlyAdmin && (
+                <button
+                  className="btn btn-sm"
+                  onClick={() => setShowResetModal(true)}
+                  style={{
+                    fontWeight: 900,
+                    fontSize: '0.85rem',
+                    borderRadius: '12px',
+                    padding: '6px 14px',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    marginLeft: '8px'
+                  }}
+                  title="Reset Bảng Tuyên Dương & Điểm thi đua của tất cả học sinh về 0 điểm cho tháng mới"
+                >
+                  <RefreshCw size={14} /> 🌟 Reset Thi Đua Tháng Mới (Về 0đ)
+                </button>
+              )}
             </div>
           </div>
 
@@ -1905,7 +1952,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.85)',
+          background: 'rgba(0, 0, 0, 0.85)',
           backdropFilter: 'blur(10px)',
           zIndex: 2000,
           display: 'flex',
@@ -1913,24 +1960,187 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
           justifyContent: 'center',
           padding: '20px'
         }}>
-          <div className="glass-modal" style={{ width: '100%', maxWidth: '480px', padding: '24px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#fff', marginBottom: '12px' }}>
-              🔄 Reset Dữ Liệu Lớp Chủ Nhiệm
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
-              Bạn muốn xóa toàn bộ học sinh để làm mới hay khôi phục danh sách mẫu?
-            </p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-              <button className="btn btn-danger" onClick={() => executeResetClass('clear')}>
-                🧹 Xóa Hết (0 Học Sinh)
-              </button>
-              <button className="btn btn-primary" onClick={() => executeResetClass('default')}>
-                🔄 Khôi Phục Mẫu
-              </button>
-              <button className="btn btn-secondary" onClick={() => setShowResetModal(false)}>
-                Hủy
+          <div className="glass-modal" style={{ width: '100%', maxWidth: '580px', padding: '28px', borderRadius: '24px', border: '1.5px solid rgba(255, 255, 255, 0.15)' }}>
+            
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#fde047', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+                <RefreshCw size={24} color="#fde047" /> Reset & Làm Mới Lớp Chủ Nhiệm
+              </h3>
+              <button 
+                onClick={() => setShowResetModal(false)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
               </button>
             </div>
+
+            <p style={{ fontSize: '0.9rem', color: '#cbd5e1', marginBottom: '20px', lineHeight: '1.5' }}>
+              Vui lòng chọn tùy chọn reset phù hợp với nhu cầu quản lý nề nếp và thi đua của lớp:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+              
+              {/* Option 1: Reset Points to 0 for New Competition Month */}
+              <div style={{
+                padding: '16px 20px',
+                borderRadius: '16px',
+                background: 'rgba(245, 158, 11, 0.12)',
+                border: '1.5px solid #f59e0b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px'
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 900, color: '#fbbf24', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    🌟 Reset Thi Đua Tháng Mới (Tất cả về 0đ)
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#e2e8f0', marginTop: '4px' }}>
+                    Đặt lại điểm của tất cả học sinh về 0đ, xóa điểm khen thưởng/vi phạm tháng cũ và làm mới Bảng Tuyên Dương.
+                  </div>
+                </div>
+                <button
+                  className="btn"
+                  onClick={() => executeResetClass('points_zero')}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    fontWeight: 900,
+                    fontSize: '0.85rem',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    color: '#ffffff',
+                    whiteSpace: 'nowrap',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)'
+                  }}
+                >
+                  ⚡ Reset Về 0đ
+                </button>
+              </div>
+
+              {/* Option 2: Reset Points to 100 (Standard Conduct Score) */}
+              <div style={{
+                padding: '16px 20px',
+                borderRadius: '16px',
+                background: 'rgba(14, 165, 233, 0.12)',
+                border: '1.5px solid #0ea5e9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px'
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 900, color: '#38bdf8', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    💯 Reset Nề Nếp Standard (Tất cả về 100đ)
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#e2e8f0', marginTop: '4px' }}>
+                    Đặt lại điểm nề nếp chuẩn 100 điểm ban đầu cho tất cả học sinh trong lớp.
+                  </div>
+                </div>
+                <button
+                  className="btn"
+                  onClick={() => executeResetClass('points_100')}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    fontWeight: 900,
+                    fontSize: '0.85rem',
+                    background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                    color: '#ffffff',
+                    whiteSpace: 'nowrap',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(14, 165, 233, 0.4)'
+                  }}
+                >
+                  🔄 Reset Về 100đ
+                </button>
+              </div>
+
+              {/* Option 3: Clear All Students */}
+              <div style={{
+                padding: '14px 20px',
+                borderRadius: '16px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px'
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 800, color: '#fca5a5', fontSize: '0.92rem' }}>
+                    🧹 Xóa Sạch Học Sinh (Lớp trống 0 học sinh)
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                    Xóa toàn bộ danh sách học sinh hiện tại để nhập file Excel/Word mới.
+                  </div>
+                </div>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => executeResetClass('clear')}
+                  style={{ fontWeight: 800, borderRadius: '10px', whiteSpace: 'nowrap' }}
+                >
+                  🧹 Xóa Hết
+                </button>
+              </div>
+
+              {/* Option 4: Restore Sample Class */}
+              <div style={{
+                padding: '14px 20px',
+                borderRadius: '16px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px'
+              }}>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 800, color: '#e2e8f0', fontSize: '0.92rem' }}>
+                    🏫 Khôi Phục Danh Sách Mẫu
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                    Khôi phục lại danh sách học sinh lớp mẫu mặc định ban đầu.
+                  </div>
+                </div>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => executeResetClass('default')}
+                  style={{ fontWeight: 800, borderRadius: '10px', whiteSpace: 'nowrap' }}
+                >
+                  🔄 Khôi Phục Mẫu
+                </button>
+              </div>
+
+            </div>
+
+            {/* Bottom Actions: Backup & Cancel */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '16px' }}>
+              <button
+                className="btn btn-sm"
+                onClick={handleExportHomeroomBackup}
+                style={{
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  borderRadius: '10px',
+                  background: 'rgba(14, 165, 233, 0.15)',
+                  color: '#38bdf8',
+                  border: '1px solid #0ea5e9'
+                }}
+                title="Tải tệp JSON sao lưu dữ liệu lớp trước khi reset"
+              >
+                📥 Tải Sao Lưu JSON Tháng Cũ
+              </button>
+
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setShowResetModal(false)}
+                style={{ fontWeight: 800, borderRadius: '10px', padding: '6px 18px' }}
+              >
+                Hủy Bỏ
+              </button>
+            </div>
+
           </div>
         </div>
       )}

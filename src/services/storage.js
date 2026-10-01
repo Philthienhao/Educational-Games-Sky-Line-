@@ -2408,6 +2408,32 @@ export const StorageService = {
       return emptyClass;
     }
 
+    if (mode === 'points_zero' || mode === 'points_100') {
+      const currentClass = StorageService.getTeacherHomeroom(effectiveId);
+      const targetBasePoints = mode === 'points_zero' ? 0 : 100;
+      const updatedStudents = (currentClass?.students || []).map(st => ({
+        ...st,
+        basePoints: targetBasePoints,
+        points: targetBasePoints,
+        rewards: [],
+        violations: []
+      }));
+      const updatedClass = {
+        ...currentClass,
+        pointRules: {
+          ...(currentClass?.pointRules || { rewardBonus: 10, violationDeduction: 5, topHonorsCount: 3 }),
+          basePoints: targetBasePoints
+        },
+        students: updatedStudents,
+        isCustomized: true,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(key, JSON.stringify(updatedClass));
+      IDBStorageService.setItem(key, updatedClass).catch(() => {});
+      CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', updatedClass).catch(() => {});
+      return updatedClass;
+    }
+
     localStorage.removeItem(key);
     return StorageService.getTeacherHomeroom(userId);
   },
