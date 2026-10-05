@@ -905,6 +905,66 @@ const INITIAL_SAVED_GAMES = [
       { question: 'Việt Nam thuộc khu vực nào?', options: ['Đông Nam Á', 'Đông Á'], correct: 'A' }
     ],
     updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_bouncing_words',
+    userId: 'user_admin',
+    baseGameId: 'bouncing-words-game',
+    title: 'Từ Ơi, Đứng Lại! - Xếp Thẻ Từ Bay',
+    lessonTitle: 'Từ Ơi, Đứng Lại! - Xếp Thẻ Từ Bay',
+    subject: 'Ngữ Văn / Tiếng Anh',
+    gradient: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)',
+    icon: '☁️',
+    engineType: 'bouncing-words',
+    thumbnail: '/thumbnails/thumb_bouncing_words.jpg',
+    description: 'Các thẻ từ vựng di chuyển bay lơ lửng liên tục trên màn hình. Học sinh quan sát nhanh và nhấp chọn hoặc gõ thành câu hoàn chỉnh!',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_math_sack',
+    userId: 'user_admin',
+    baseGameId: 'math-sack-race-game',
+    title: 'Đua Nhảy Bao Bố Toán Học - Bàn Phím Số Numpad',
+    lessonTitle: 'Đua Nhảy Bao Bố Toán Học - Bàn Phím Số Numpad',
+    subject: 'Toán Học',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    icon: '🦘',
+    engineType: 'math-sack-race',
+    thumbnail: '/thumbnails/thumb_math_sack_race.jpg',
+    description: 'Hai bàn phím số Numpad cảm ứng 2 bên cho 2 học sinh thi đấu tính nhẩm nhảy bao bố về đích!',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_pirate_ship',
+    userId: 'user_admin',
+    baseGameId: 'pirate-ship-battle-game',
+    title: 'Đại Chiến Tàu Cướp Biển - Bắn Đại Bác Biển',
+    lessonTitle: 'Đại Chiến Tàu Cướp Biển - Bắn Đại Bác Biển',
+    subject: 'Tổng Hợp',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+    icon: '🏴‍☠️',
+    engineType: 'pirate-ship-battle',
+    thumbnail: '/thumbnails/thumb_pirate_ship_battle.jpg',
+    description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_classroom_timer',
+    userId: 'user_admin',
+    baseGameId: 'classroom-timer-game',
+    title: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
+    lessonTitle: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
+    subject: 'Công Cụ Lớp Học',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+    icon: '⏳',
+    engineType: 'classroom-timer',
+    thumbnail: '/thumbnails/thumb_classroom_timer.jpg',
+    description: 'Bộ 5 giao diện đồng hồ đếm ngược lớp học kèm âm thanh tích tắc và chuông báo hết giờ chuyên nghiệp cho giáo viên!',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
   }
 ];
 
@@ -1985,6 +2045,29 @@ export const StorageService = {
       }
     });
 
+    // Auto-repair missing/corrupted engineTypes or thumbnails on existing cached items
+    runtimeSavedGamesCache.forEach(g => {
+      if (!g) return;
+      const t = String(g.title || g.lessonTitle || g.name || g.id || '').toLowerCase();
+      if (t.includes('bao bố') || t.includes('nhảy bao') || (g.id && g.id.includes('math-sack'))) {
+        g.engineType = 'math-sack-race';
+        g.thumbnail = '/thumbnails/thumb_math_sack_race.jpg';
+        g.icon = '🦘';
+      } else if (t.includes('cướp biển') || t.includes('tàu cướp') || (g.id && g.id.includes('pirate-ship'))) {
+        g.engineType = 'pirate-ship-battle';
+        g.thumbnail = '/thumbnails/thumb_pirate_ship_battle.jpg';
+        g.icon = '🏴‍☠️';
+      } else if (t.includes('đồng hồ') || t.includes('đếm ngược') || (g.id && g.id.includes('classroom-timer'))) {
+        g.engineType = 'classroom-timer';
+        g.thumbnail = '/thumbnails/thumb_classroom_timer.jpg';
+        g.icon = '⏳';
+      } else if (t.includes('từ ơi') || t.includes('đứng lại') || (g.id && g.id.includes('bouncing-words'))) {
+        g.engineType = 'bouncing-words';
+        g.thumbnail = '/thumbnails/thumb_bouncing_words.jpg';
+        g.icon = '☁️';
+      }
+    });
+
     // Clean up any corrupt entries and exclude blacklisted deleted game IDs
     const cleanSaved = runtimeSavedGamesCache.filter(g =>
       g && typeof g === 'object' && !Array.isArray(g) && (g.title || g.lessonTitle || g.name || g.id) && !deletedIds.includes(g.id)
@@ -2045,7 +2128,11 @@ export const StorageService = {
     const rawTitleStr = String(rawGameData.title || rawGameData.lessonTitle || '').toLowerCase();
     const rawIdStr = String(rawGameData.baseGameId || rawGameData.id || '').toLowerCase();
     let resolvedEngineType = rawGameData.engineType;
-    if (rawTitleStr.includes('bắt chước')) resolvedEngineType = 'pose-imitation';
+    if (rawTitleStr.includes('từ ơi') || rawTitleStr.includes('đứng lại') || rawIdStr.includes('bouncing-words')) resolvedEngineType = 'bouncing-words';
+    else if (rawTitleStr.includes('bao bố') || rawTitleStr.includes('nhảy bao') || rawIdStr.includes('math-sack')) resolvedEngineType = 'math-sack-race';
+    else if (rawTitleStr.includes('cướp biển') || rawTitleStr.includes('tàu cướp') || rawIdStr.includes('pirate-ship')) resolvedEngineType = 'pirate-ship-battle';
+    else if (rawTitleStr.includes('đồng hồ') || rawTitleStr.includes('đếm ngược') || rawIdStr.includes('classroom-timer')) resolvedEngineType = 'classroom-timer';
+    else if (rawTitleStr.includes('bắt chước')) resolvedEngineType = 'pose-imitation';
     else if (rawTitleStr.includes('nghiêng đầu')) resolvedEngineType = 'head-tilt';
     else if (rawTitleStr.includes('kéo co đôi') || rawTitleStr.includes('kéo co kiến thức')) resolvedEngineType = 'tug-of-war-dual';
     else if (rawTitleStr.includes('kéo co')) resolvedEngineType = 'tug-of-war';
