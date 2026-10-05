@@ -4991,56 +4991,862 @@ function GeoWaterCycleSim({ onLog }) {
 }
 
 // 6. Structure of Earth Interior Simulator
+// 6. Structure of Earth Interior 3D Simulator (Interactive Cutaway Model)
 function GeoEarthStructureSim({ onLog }) {
+  const containerRef = useRef(null);
   const [activeLayer, setActiveLayer] = useState('crust');
+  const [sliceMode, setSliceMode] = useState('cut90'); // 'cut90', 'cut180', 'full'
+  const [isExploded, setIsExploded] = useState(false);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [hoveredLayerName, setHoveredLayerName] = useState(null);
 
   const layersInfo = {
-    crust: { name: 'Vỏ Trái Đất', depth: '5 - 70 km', temp: '0 - 1000°C', state: 'Rắn cứng', desc: 'Lớp ngoài cùng mỏng nhất, nơi con người & các sinh vật sinh sống.', color: '#38bdf8' },
-    mantle: { name: 'Lớp Manti', depth: '2.900 km', temp: '1.500 - 4.700°C', state: 'Dẻo quánh đến rắn', desc: 'Chiếm 80% thể tích Trái Đất, nơi xảy ra dòng đối lưu magma gây động đất núi lửa.', color: '#f59e0b' },
-    outerCore: { name: 'Nhân Ngoài', depth: '2.200 km', temp: '5.000°C', state: 'Kim loại lỏng (Fe, Ni)', desc: 'Chuyển động kim loại lỏng tạo nên Từ trường Trái Đất.', color: '#ef4444' },
-    innerCore: { name: 'Nhân Trong (Tâm Trái Đất)', depth: '1.250 km', temp: '5.500 - 6.000°C', state: 'Rắn (Hợp kim sắt nickel)', desc: 'Áp suất cực lớn giữ kim loại ở dạng rắn dù nhiệt độ nóng bằng bề mặt Mặt Trời!', color: '#ffffff' }
+    crust: {
+      key: 'crust',
+      name: 'Vỏ Trái Đất',
+      enName: 'Earth Crust',
+      depth: '5 - 70 km',
+      thickness: 'Khoảng 5 - 70 km',
+      temp: '0°C - 1.000°C',
+      state: 'Rắn cứng (Đá granit & basal)',
+      volume: '< 1% thể tích',
+      mass: '< 0.5% khối lượng',
+      desc: 'Lớp ngoài cùng mỏng nhất nhưng quan trọng nhất đối với sự sống. Là nơi hình thành bề mặt đại dương, các lục địa, dãy núi và là nơi sinh sống của con người cùng muôn loài.',
+      details: [
+        'Vỏ lục địa: Dày 35-70 km, cấu tạo chủ yếu từ đá granit nhẹ hơn.',
+        'Vỏ đại dương: Dày 5-10 km, cấu tạo chủ yếu từ đá basal nặng.',
+        'Nhiệt độ tăng dần theo chiều sâu (trung bình cứ xuống sâu 100m tăng thêm ~3°C).'
+      ],
+      color: '#38bdf8',
+      emissive: '#0284c7',
+      radius: 2.8
+    },
+    mantle: {
+      key: 'mantle',
+      name: 'Lớp Manti',
+      enName: 'Mantle Layer',
+      depth: '70 - 2.900 km',
+      thickness: 'Khoảng 2.830 km',
+      temp: '1.500°C - 4.700°C',
+      state: 'Dẻo quánh đến rắn',
+      volume: '80% thể tích',
+      mass: '68% khối lượng',
+      desc: 'Lớp chiếm thể tích lớn nhất Trái Đất. Nơi xảy ra các dòng đối lưu magma cực mạnh thúc đẩy các mảng kiến tạo dịch chuyển, gây ra hiện tượng động đất, phun trào núi lửa và tạo núi.',
+      details: [
+        'Manti trên (70-700km): Trạng thái dẻo quánh (Asthenosphere), nơi tích tụ dòng magma nóng chảy.',
+        'Manti dưới (700-2900km): Áp suất cực lớn nén vật chất chuyển sang trạng thái rắn dẻo.',
+        'Dòng đối lưu Manti đóng vai trò là động cơ chính của thuyết Kiến Tạo Mảng.'
+      ],
+      color: '#f59e0b',
+      emissive: '#d97706',
+      radius: 2.5
+    },
+    outerCore: {
+      key: 'outerCore',
+      name: 'Nhân Ngoài (Lõi Ngoài)',
+      enName: 'Outer Core',
+      depth: '2.900 - 5.100 km',
+      thickness: 'Khoảng 2.200 km',
+      temp: '4.400°C - 5.000°C',
+      state: 'Kim loại lỏng (Sắt & Nickel)',
+      volume: '15% thể tích',
+      mass: '30% khối lượng',
+      desc: 'Lớp hợp kim kim loại lỏng cuộn xoáy dữ dội do sự chênh lệch nhiệt độ cực đại. Chuyển động kim loại lỏng tạo ra dòng điện khổng lồ, hình thành TỪ TRƯỜNG TRÁI ĐẤT bảo vệ sự sống khỏi bức xạ vũ trụ.',
+      details: [
+        'Thành phần: Hợp kim Sắt (80%) và Nickel (5%) nóng chảy cùng lưu huỳnh/oxy.',
+        'Sự tự quay của Trái Đất kết hợp dòng đối lưu sinh ra hiệu ứng Dynamo từ trường.',
+        'Nếu không có lớp Nhân Ngoài tạo từ trường, bầu khí quyển Trái Đất sẽ bị gió Mặt Trời thổi bay.'
+      ],
+      color: '#ef4444',
+      emissive: '#b91c1c',
+      radius: 1.6
+    },
+    innerCore: {
+      key: 'innerCore',
+      name: 'Nhân Trong (Tâm Trái Đất)',
+      enName: 'Inner Core',
+      depth: '5.100 - 6.371 km',
+      thickness: 'Bán kính ~1.271 km',
+      temp: '5.500°C - 6.000°C (Nóng như Mặt Trời)',
+      state: 'Rắn đặc (Hợp kim sắt-nickel)',
+      volume: '0.7% thể tích',
+      mass: '1.7% khối lượng',
+      desc: 'Khối cầu kim loại nằm tại tâm Trái Đất. Dù có nhiệt độ nóng khủng khiếp bằng bề mặt Mặt Trời, áp suất cực đại (3,3-3,6 triệu atm) nén chặt các nguyên tử kim loại, giữ Nhân Trong ở trạng thái RẮN ĐẶC.',
+      details: [
+        'Áp suất cực đại tại tâm: 330 đến 360 Gigapascal (GPa).',
+        'Tốc độ tự quay của Nhân Trong nhanh hơn bề mặt Trái Đất khoảng 0.3 - 0.5 độ/năm.',
+        'Được bao bọc và cách nhiệt bởi lớp kim loại lỏng sôi sục của Nhân Ngoài.'
+      ],
+      color: '#fef08a',
+      emissive: '#ca8a04',
+      radius: 0.9
+    }
+  };
+
+  const activeInfo = layersInfo[activeLayer] || layersInfo.crust;
+
+  const sceneRef = useRef(null);
+  const controlsRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
+  const layerMeshesRef = useRef({});
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const mouseRef = useRef(new THREE.Vector2());
+
+  // Procedural Textures Creation
+  const generateProceduralTextures = () => {
+    // 1. Earth Crust Texture
+    const crustCanvas = document.createElement('canvas');
+    crustCanvas.width = 1024;
+    crustCanvas.height = 512;
+    const cctx = crustCanvas.getContext('2d');
+
+    const oceanGrad = cctx.createLinearGradient(0, 0, 0, 512);
+    oceanGrad.addColorStop(0, '#0c4a6e');
+    oceanGrad.addColorStop(0.5, '#0284c7');
+    oceanGrad.addColorStop(1, '#075985');
+    cctx.fillStyle = oceanGrad;
+    cctx.fillRect(0, 0, 1024, 512);
+
+    cctx.fillStyle = '#15803d';
+    cctx.beginPath();
+    cctx.ellipse(300, 200, 180, 110, 0.2, 0, Math.PI * 2);
+    cctx.ellipse(700, 250, 160, 120, -0.3, 0, Math.PI * 2);
+    cctx.ellipse(450, 320, 120, 90, 0.5, 0, Math.PI * 2);
+    cctx.fill();
+
+    cctx.fillStyle = '#a16207';
+    cctx.beginPath();
+    cctx.ellipse(320, 180, 100, 50, 0.3, 0, Math.PI * 2);
+    cctx.ellipse(680, 220, 90, 40, -0.2, 0, Math.PI * 2);
+    cctx.fill();
+
+    cctx.fillStyle = '#f8fafc';
+    cctx.fillRect(0, 0, 1024, 40);
+    cctx.fillRect(0, 470, 1024, 42);
+
+    const crustTex = new THREE.CanvasTexture(crustCanvas);
+
+    // 2. Mantle Magma Texture
+    const mantleCanvas = document.createElement('canvas');
+    mantleCanvas.width = 512;
+    mantleCanvas.height = 256;
+    const mctx = mantleCanvas.getContext('2d');
+    const mGrad = mctx.createLinearGradient(0, 0, 512, 256);
+    mGrad.addColorStop(0, '#7c2d12');
+    mGrad.addColorStop(0.5, '#ea580c');
+    mGrad.addColorStop(1, '#9a3412');
+    mctx.fillStyle = mGrad;
+    mctx.fillRect(0, 0, 512, 256);
+
+    mctx.fillStyle = '#fde047';
+    for (let i = 0; i < 40; i++) {
+      mctx.beginPath();
+      mctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 12 + 4, 0, Math.PI * 2);
+      mctx.fill();
+    }
+    const mantleTex = new THREE.CanvasTexture(mantleCanvas);
+
+    // 3. Outer Core Texture
+    const ocCanvas = document.createElement('canvas');
+    ocCanvas.width = 512;
+    ocCanvas.height = 256;
+    const octx = ocCanvas.getContext('2d');
+    const ocGrad = octx.createRadialGradient(256, 128, 20, 256, 128, 200);
+    ocGrad.addColorStop(0, '#f97316');
+    ocGrad.addColorStop(0.6, '#ef4444');
+    ocGrad.addColorStop(1, '#7f1d1d');
+    octx.fillStyle = ocGrad;
+    octx.fillRect(0, 0, 512, 256);
+    const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
+
+    // 4. Inner Core Texture
+    const icCanvas = document.createElement('canvas');
+    icCanvas.width = 256;
+    icCanvas.height = 256;
+    const ictx = icCanvas.getContext('2d');
+    const icGrad = ictx.createRadialGradient(128, 128, 10, 128, 128, 120);
+    icGrad.addColorStop(0, '#ffffff');
+    icGrad.addColorStop(0.4, '#fef08a');
+    icGrad.addColorStop(0.8, '#eab308');
+    icGrad.addColorStop(1, '#ca8a04');
+    ictx.fillStyle = icGrad;
+    ictx.fillRect(0, 0, 256, 256);
+    const innerCoreTex = new THREE.CanvasTexture(icCanvas);
+
+    return { crustTex, mantleTex, outerCoreTex, innerCoreTex };
+  };
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const width = containerRef.current.clientWidth;
+    const height = containerRef.current.clientHeight;
+
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(3.5, 3.2, 7.5);
+    cameraRef.current = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    rendererRef.current = renderer;
+
+    containerRef.current.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 3.2;
+    controls.maxDistance = 14;
+    controls.autoRotate = autoRotate;
+    controls.autoRotateSpeed = 1.2;
+    controlsRef.current = controls;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
+    dirLight1.position.set(8, 10, 8);
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.2);
+    dirLight2.position.set(-8, -6, -8);
+    scene.add(dirLight2);
+
+    const coreLight = new THREE.PointLight(0xfde047, 4.0, 10);
+    coreLight.position.set(0, 0, 0);
+    scene.add(coreLight);
+
+    // Starfield Background Particles
+    const starsGeo = new THREE.BufferGeometry();
+    const starCoords = [];
+    for (let i = 0; i < 600; i++) {
+      starCoords.push(
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80
+      );
+    }
+    starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+    const starsMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.25, transparent: true, opacity: 0.7 });
+    const starField = new THREE.Points(starsGeo, starsMat);
+    scene.add(starField);
+
+    const textures = generateProceduralTextures();
+
+    const earthGroup = new THREE.Group();
+    scene.add(earthGroup);
+
+    const getPhiLength = (mode) => {
+      if (mode === 'cut180') return Math.PI;
+      if (mode === 'full') return Math.PI * 2;
+      return Math.PI * 1.55;
+    };
+
+    const phiLen = getPhiLength(sliceMode);
+
+    // Crust
+    const crustGeo = new THREE.SphereGeometry(2.6, 64, 64, 0, phiLen, 0, Math.PI);
+    const crustMat = new THREE.MeshStandardMaterial({
+      map: textures.crustTex,
+      roughness: 0.45,
+      metalness: 0.1,
+      side: THREE.DoubleSide
+    });
+    const crustMesh = new THREE.Mesh(crustGeo, crustMat);
+    crustMesh.userData = { key: 'crust', name: 'Vỏ Trái Đất' };
+    earthGroup.add(crustMesh);
+
+    // Mantle
+    const mantleGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
+    const mantleMat = new THREE.MeshStandardMaterial({
+      map: textures.mantleTex,
+      emissive: 0xd97706,
+      emissiveIntensity: 0.35,
+      roughness: 0.4,
+      side: THREE.DoubleSide
+    });
+    const mantleMesh = new THREE.Mesh(mantleGeo, mantleMat);
+    mantleMesh.userData = { key: 'mantle', name: 'Lớp Manti' };
+    earthGroup.add(mantleMesh);
+
+    // Outer Core
+    const ocGeo = new THREE.SphereGeometry(1.5, 64, 64, 0, phiLen, 0, Math.PI);
+    const ocMat = new THREE.MeshStandardMaterial({
+      map: textures.outerCoreTex,
+      emissive: 0xef4444,
+      emissiveIntensity: 0.5,
+      roughness: 0.3,
+      metalness: 0.6,
+      side: THREE.DoubleSide
+    });
+    const ocMesh = new THREE.Mesh(ocGeo, ocMat);
+    ocMesh.userData = { key: 'outerCore', name: 'Nhân Ngoài' };
+    earthGroup.add(ocMesh);
+
+    // Inner Core
+    const icGeo = new THREE.SphereGeometry(0.85, 48, 48);
+    const icMat = new THREE.MeshStandardMaterial({
+      map: textures.innerCoreTex,
+      emissive: 0xfde047,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+      metalness: 0.8
+    });
+    const icMesh = new THREE.Mesh(icGeo, icMat);
+    icMesh.userData = { key: 'innerCore', name: 'Nhân Trong' };
+    earthGroup.add(icMesh);
+
+    layerMeshesRef.current = {
+      crust: crustMesh,
+      mantle: mantleMesh,
+      outerCore: ocMesh,
+      innerCore: icMesh
+    };
+
+    const handleResize = () => {
+      if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
+      cameraRef.current.aspect = w / h;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(w, h);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    let animId;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+
+      if (controlsRef.current) {
+        controlsRef.current.autoRotate = autoRotate;
+        controlsRef.current.update();
+      }
+
+      const targetOffset = isExploded ? 1.0 : 0.0;
+      
+      const cM = layerMeshesRef.current.crust;
+      const mM = layerMeshesRef.current.mantle;
+      const ocM = layerMeshesRef.current.outerCore;
+      const icM = layerMeshesRef.current.innerCore;
+
+      if (cM && mM && ocM && icM) {
+        const curExp = cM.position.x;
+        const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.5, 0.08);
+
+        cM.position.x = nextExp * 1.6;
+        cM.position.z = nextExp * 0.8;
+
+        mM.position.x = nextExp * 1.1;
+        mM.position.z = nextExp * 0.55;
+
+        ocM.position.x = nextExp * 0.6;
+        ocM.position.z = nextExp * 0.3;
+
+        icM.position.x = 0;
+        icM.position.z = 0;
+      }
+
+      if (icM) {
+        icM.rotation.y += 0.005;
+      }
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      if (rendererRef.current && rendererRef.current.domElement) {
+        rendererRef.current.domElement.remove();
+      }
+      renderer.dispose();
+    };
+  }, [sliceMode, isExploded]);
+
+  const handlePointerDown = (event) => {
+    if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    mouseRef.current.set(x, y);
+    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+
+    const meshes = Object.values(layerMeshesRef.current);
+    const intersects = raycasterRef.current.intersectObjects(meshes, true);
+
+    if (intersects.length > 0) {
+      const hitObj = intersects[0].object;
+      const key = hitObj.userData?.key;
+      if (key && layersInfo[key]) {
+        setActiveLayer(key);
+        if (onLog) {
+          onLog(`🔍 Nhấp xem cấu tạo 3D ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Nhiệt độ ${layersInfo[key].temp}.`);
+        }
+      }
+    }
+  };
+
+  const handlePointerMove = (event) => {
+    if (!containerRef.current || !cameraRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    mouseRef.current.set(x, y);
+    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+
+    const meshes = Object.values(layerMeshesRef.current);
+    const intersects = raycasterRef.current.intersectObjects(meshes, true);
+
+    if (intersects.length > 0) {
+      const hitObj = intersects[0].object;
+      setHoveredLayerName(hitObj.userData?.name || null);
+      if (containerRef.current) containerRef.current.style.cursor = 'pointer';
+    } else {
+      setHoveredLayerName(null);
+      if (containerRef.current) containerRef.current.style.cursor = 'grab';
+    }
   };
 
   const handleSelectLayer = (key) => {
     setActiveLayer(key);
-    onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Nhiệt độ ${layersInfo[key].temp}.`);
+    if (onLog) {
+      onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Nhiệt độ ${layersInfo[key].temp}.`);
+    }
+  };
+
+  const handleZoom = (delta) => {
+    if (!cameraRef.current || !controlsRef.current) return;
+    const dist = cameraRef.current.position.length();
+    const newDist = THREE.MathUtils.clamp(dist + delta, 3.2, 14);
+    cameraRef.current.position.multiplyScalar(newDist / dist);
+    controlsRef.current.update();
+  };
+
+  const handleResetCamera = () => {
+    if (!cameraRef.current || !controlsRef.current) return;
+    cameraRef.current.position.set(3.5, 3.2, 7.5);
+    controlsRef.current.target.set(0, 0, 0);
+    controlsRef.current.update();
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
-      <div style={{ flex: 1, background: '#09131d', borderRadius: '16px', border: '1px solid rgba(13, 148, 136, 0.3)', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-          {/* Concentric Circles */}
-          <svg width="260" height="260" viewBox="0 0 260 260">
-            <circle cx="130" cy="130" r="120" fill="#38bdf8" onClick={() => handleSelectLayer('crust')} style={{ cursor: 'pointer' }} />
-            <circle cx="130" cy="130" r="110" fill="#d97706" onClick={() => handleSelectLayer('mantle')} style={{ cursor: 'pointer' }} />
-            <circle cx="130" cy="130" r="70" fill="#ef4444" onClick={() => handleSelectLayer('outerCore')} style={{ cursor: 'pointer' }} />
-            <circle cx="130" cy="130" r="35" fill="#ffffff" onClick={() => handleSelectLayer('innerCore')} style={{ cursor: 'pointer' }} />
-          </svg>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', userSelect: 'none' }}>
+      
+      {/* Main Container: Left 3D Viewport + Right Specs Panel */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '16px',
+        minHeight: '440px',
+        position: 'relative'
+      }}>
+        
+        {/* 3D Viewport Canvas Container */}
+        <div 
+          ref={containerRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          style={{
+            flex: 1.3,
+            background: 'radial-gradient(circle at 50% 50%, #0b1d33 0%, #030712 100%)',
+            borderRadius: '20px',
+            border: '1.5px solid rgba(56, 189, 248, 0.35)',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(56, 189, 248, 0.1)',
+            position: 'relative',
+            overflow: 'hidden',
+            cursor: 'grab'
+          }}
+        >
+          {/* Top-Left Viewport Header Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            left: '16px',
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            padding: '8px 14px',
+            borderRadius: '14px'
+          }}>
+            <Sparkles size={18} color="#38bdf8" />
+            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f8fafc' }}>
+              Mô Hình 3D Xoay Chiều Bóc Tách
+            </span>
+          </div>
 
-          {/* Info Card */}
-          <div style={{ maxWidth: '320px', background: 'rgba(15, 23, 42, 0.9)', padding: '16px 20px', borderRadius: '16px', border: `2px solid ${layersInfo[activeLayer].color}` }}>
-            <h4 style={{ fontSize: '1rem', fontWeight: 900, color: layersInfo[activeLayer].color, margin: '0 0 8px 0' }}>
-              {layersInfo[activeLayer].name}
-            </h4>
-            <div style={{ fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.6 }}>
-              <div>• Độ sâu: <b>{layersInfo[activeLayer].depth}</b></div>
-              <div>• Nhiệt độ: <b>{layersInfo[activeLayer].temp}</b></div>
-              <div>• Trạng thái: <b>{layersInfo[activeLayer].state}</b></div>
-              <p style={{ marginTop: '8px', fontSize: '0.78rem', color: '#94a3b8', margin: '8px 0 0 0' }}>
-                {layersInfo[activeLayer].desc}
+          {/* Hover Pointer Tooltip Indicator */}
+          {hoveredLayerName && (
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10,
+              background: 'rgba(2, 132, 199, 0.95)',
+              color: '#ffffff',
+              padding: '6px 16px',
+              borderRadius: '20px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              boxShadow: '0 4px 20px rgba(2, 132, 199, 0.5)',
+              border: '1px solid rgba(255, 255, 255, 0.4)',
+              pointerEvents: 'none'
+            }}>
+              👆 Nhấp chuột để xem chi tiết: <b>{hoveredLayerName}</b>
+            </div>
+          )}
+
+          {/* Floating Toolbar Controls */}
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {/* Auto Rotate Toggle */}
+            <button
+              onClick={() => setAutoRotate(!autoRotate)}
+              title="Bật/Tắt xoay tự động 3D"
+              style={{
+                background: autoRotate ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(15, 23, 42, 0.85)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              }}
+            >
+              🔄 {autoRotate ? 'Xoay 3D: Bật' : 'Xoay 3D: Tắt'}
+            </button>
+
+            {/* Slice Mode Selector */}
+            <div style={{
+              background: 'rgba(15, 23, 42, 0.85)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              padding: '4px',
+              display: 'flex',
+              gap: '4px'
+            }}>
+              <button
+                onClick={() => setSliceMode('cut90')}
+                style={{
+                  background: sliceMode === 'cut90' ? '#38bdf8' : 'transparent',
+                  color: sliceMode === 'cut90' ? '#0f172a' : '#94a3b8',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '5px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  cursor: 'pointer'
+                }}
+              >
+                🔪 Cắt 90°
+              </button>
+              <button
+                onClick={() => setSliceMode('cut180')}
+                style={{
+                  background: sliceMode === 'cut180' ? '#38bdf8' : 'transparent',
+                  color: sliceMode === 'cut180' ? '#0f172a' : '#94a3b8',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '5px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  cursor: 'pointer'
+                }}
+              >
+                🌓 Nửa Quả 180°
+              </button>
+              <button
+                onClick={() => setSliceMode('full')}
+                style={{
+                  background: sliceMode === 'full' ? '#38bdf8' : 'transparent',
+                  color: sliceMode === 'full' ? '#0f172a' : '#94a3b8',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '5px 10px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  cursor: 'pointer'
+                }}
+              >
+                🌍 Nguyên Khối
+              </button>
+            </div>
+
+            {/* Explode Mode Button */}
+            <button
+              onClick={() => setIsExploded(!isExploded)}
+              style={{
+                background: isExploded ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'rgba(15, 23, 42, 0.85)',
+                color: isExploded ? '#000000' : '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              }}
+            >
+              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 4 Lớp 3D'}
+            </button>
+
+            {/* Zoom / Reset Navigation Bar */}
+            <div style={{ display: 'flex', gap: '6px' }}>
+              <button
+                onClick={() => handleZoom(-1.5)}
+                title="Phóng to"
+                style={{
+                  flex: 1,
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                ➕
+              </button>
+              <button
+                onClick={() => handleZoom(1.5)}
+                title="Thu nhỏ"
+                style={{
+                  flex: 1,
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                ➖
+              </button>
+              <button
+                onClick={handleResetCamera}
+                title="Đặt lại vị trí góc nhìn ban đầu"
+                style={{
+                  flex: 1,
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  color: '#fff',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  fontWeight: 900,
+                  fontSize: '0.8rem',
+                  cursor: 'pointer'
+                }}
+              >
+                🏠
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Info Specs Panel */}
+        <div style={{
+          flex: 1,
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+          borderRadius: '20px',
+          border: `2px solid ${activeInfo.color}`,
+          boxShadow: `0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px ${activeInfo.color}20`,
+          padding: '22px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          overflowY: 'auto'
+        }}>
+          <div>
+            {/* Layer Title Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div>
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  textTransform: 'uppercase',
+                  color: activeInfo.color,
+                  letterSpacing: '1px',
+                  background: `${activeInfo.color}25`,
+                  padding: '3px 10px',
+                  borderRadius: '20px',
+                  border: `1px solid ${activeInfo.color}50`
+                }}>
+                  {activeInfo.enName}
+                </span>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffffff', margin: '6px 0 0 0' }}>
+                  {activeInfo.name}
+                </h3>
+              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: activeInfo.color,
+                boxShadow: `0 0 16px ${activeInfo.color}`
+              }} />
+            </div>
+
+            {/* Quick Metrics Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>📏 Độ sâu:</div>
+                <div style={{ fontSize: '0.95rem', color: activeInfo.color, fontWeight: 900, marginTop: '2px' }}>
+                  {activeInfo.depth}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>🌡️ Nhiệt độ:</div>
+                <div style={{ fontSize: '0.95rem', color: '#fde047', fontWeight: 900, marginTop: '2px' }}>
+                  {activeInfo.temp}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>🧊 Trạng thái:</div>
+                <div style={{ fontSize: '0.85rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>
+                  {activeInfo.state}
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>📊 Thể tích & Khối lượng:</div>
+                <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: 800, marginTop: '2px' }}>
+                  V: {activeInfo.volume}
+                </div>
+              </div>
+            </div>
+
+            {/* General Overview Description */}
+            <div style={{
+              background: 'rgba(0, 0, 0, 0.3)',
+              padding: '12px 14px',
+              borderRadius: '14px',
+              borderLeft: `4px solid ${activeInfo.color}`,
+              marginBottom: '14px'
+            }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.55 }}>
+                {activeInfo.desc}
               </p>
             </div>
+
+            {/* Detail Bullet Points */}
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {activeInfo.details.map((item, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                  <span style={{ color: activeInfo.color, fontWeight: 900 }}>•</span>
+                  <span style={{ color: '#e2e8f0', lineHeight: 1.45 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Instruction Note */}
+          <div style={{
+            marginTop: '16px',
+            padding: '10px 14px',
+            background: 'rgba(56, 189, 248, 0.1)',
+            borderRadius: '12px',
+            border: '1px stroke rgba(56, 189, 248, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '1.1rem' }}>💡</span>
+            <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: 600 }}>
+              Dùng chuột/tay kéo để xoay 3D | Lăn chuột để Zoom | Nhấp chuột vào bất kỳ lớp nào trên mô hình để xem chi tiết!
+            </span>
           </div>
         </div>
       </div>
 
-      <div style={{ background: 'rgba(15, 23, 42, 0.95)', padding: '16px', borderRadius: '16px', display: 'flex', gap: '8px' }}>
-        {Object.keys(layersInfo).map(key => (
-          <button key={key} onClick={() => handleSelectLayer(key)} style={{ background: activeLayer === key ? layersInfo[key].color : '#1e293b', color: activeLayer === key ? '#000' : '#fff', border: 'none', borderRadius: '8px', padding: '8px 14px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
-            {layersInfo[key].name}
-          </button>
-        ))}
+      {/* Bottom Layer Selector Button Bar */}
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.95)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        padding: '12px 16px',
+        borderRadius: '16px',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '10px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#94a3b8', marginRight: '6px' }}>
+            📍 Chọn Lớp Quan Sát:
+          </span>
+          {Object.keys(layersInfo).map(key => {
+            const item = layersInfo[key];
+            const isSelected = activeLayer === key;
+            return (
+              <button
+                key={key}
+                onClick={() => handleSelectLayer(key)}
+                style={{
+                  background: isSelected ? item.color : '#1e293b',
+                  color: isSelected ? '#000000' : '#ffffff',
+                  border: isSelected ? `2px solid ${item.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '10px',
+                  padding: '8px 16px',
+                  fontWeight: 900,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: isSelected ? `0 4px 16px ${item.color}60` : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isSelected ? '#000' : item.color }} />
+                {item.name} ({item.depth})
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
