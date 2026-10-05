@@ -381,9 +381,11 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
               }}>
                 <div style={{
                   fontSize: '2.5rem',
-                  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))'
+                  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}>
-                  🦘🔴
+                  <span style={{ transform: 'scaleX(-1)', display: 'inline-block' }}>🦘</span>🔴
                 </div>
                 <span style={{
                   background: '#ef4444',
@@ -416,9 +418,11 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
               }}>
                 <div style={{
                   fontSize: '2.5rem',
-                  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))'
+                  filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))',
+                  display: 'flex',
+                  alignItems: 'center'
                 }}>
-                  🦘🔵
+                  <span style={{ transform: 'scaleX(-1)', display: 'inline-block' }}>🦘</span>🔵
                 </div>
                 <span style={{
                   background: '#3b82f6',
