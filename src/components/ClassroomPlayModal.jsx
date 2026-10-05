@@ -28,6 +28,10 @@ import { MagicGrimoireGame } from './games/MagicGrimoireGame';
 import { TowerBuilderGame } from './games/TowerBuilderGame';
 import { MarioRaceGame } from './games/MarioRaceGame';
 import { IndoorPEDanceGame } from './games/IndoorPEDanceGame';
+import { BouncingWordsGame } from './games/BouncingWordsGame';
+import { MathSackRaceGame } from './games/MathSackRaceGame';
+import { PirateShipBattleGame } from './games/PirateShipBattleGame';
+import { ClassroomTimerGame } from './games/ClassroomTimerGame';
 import { GeoExperimentsView } from './GeoExperimentsView';
 
 const TEAM_COLORS = [
@@ -239,6 +243,18 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'indoor-pe-dance':
         component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;
         break;
+      case 'bouncing-words':
+        component = <BouncingWordsGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'math-sack-race':
+        component = <MathSackRaceGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'pirate-ship-battle':
+        component = <PirateShipBattleGame {...commonProps} onClose={onClose} />;
+        break;
+      case 'classroom-timer':
+        component = <ClassroomTimerGame onClose={onClose} />;
+        break;
       case 'geo-3d-model':
         component = <GeoExperimentsView currentUser={currentUser} onClose={onClose} />;
         break;
@@ -254,7 +270,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -295,6 +311,14 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
             <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />
           ) : engineType === 'jungle-rescue' ? (
             <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'bouncing-words' ? (
+            <BouncingWordsGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'math-sack-race' ? (
+            <MathSackRaceGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'pirate-ship-battle' ? (
+            <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />
+          ) : engineType === 'classroom-timer' ? (
+            <ClassroomTimerGame onClose={onClose} />
           ) : engineType === 'geo-3d-model' ? (
             <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
           ) : (

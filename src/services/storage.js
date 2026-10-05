@@ -690,6 +690,54 @@ const INITIAL_BASE_GAMES = [
     engineType: 'geo-3d-model',
     playsCount: 0,
     defaultQuestions: []
+  },
+  {
+    id: 'bouncing-words-game',
+    title: 'Từ Ơi, Đứng Lại!',
+    subtitle: 'Thẻ Từ Vựng Bay & Ghép Câu Hoàn Chỉnh',
+    category: 'Ôn tập Từ vựng',
+    icon: '☁️',
+    gradient: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)',
+    description: 'Các thẻ từ vựng di chuyển bay lơ lửng liên tục trên màn hình. Học sinh quan sát nhanh và nhấp chọn hoặc gõ thành câu hoàn chỉnh!',
+    engineType: 'bouncing-words',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
+    id: 'math-sack-race-game',
+    title: 'Đua Nhảy Bao Bố Toán Học',
+    subtitle: 'Thi Đấu Numpad 2 Người Song Song Trực Tiếp Trên Bảng Tương Tác',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🏃‍♂️',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+    description: 'Hai bàn phím số Numpad cảm ứng 2 bên cho 2 học sinh thi đấu tính nhẩm nhảy bao bố về đích!',
+    engineType: 'math-sack-race',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
+    id: 'pirate-ship-battle-game',
+    title: 'Đại Chiến Tàu Cướp Biển',
+    subtitle: 'Bắn Đại Bác Bán Tùy Biến Giảm Máu Tàu Đối Phương',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🏴‍☠️',
+    gradient: 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)',
+    description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
+    engineType: 'pirate-ship-battle',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
+    id: 'classroom-timer-game',
+    title: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
+    subtitle: 'Bộ 5 Chủ Đề Đồng Hồ Trực Quan: Cát, Nến, Báo Thức, LED & Vòng Tròn',
+    category: 'Công cụ Lớp học',
+    icon: '⏳',
+    gradient: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
+    description: 'Bộ 5 giao diện đồng hồ đếm ngược lớp học kèm âm thanh tích tắc và chuông báo hết giờ chuyên nghiệp cho giáo viên!',
+    engineType: 'classroom-timer',
+    playsCount: 0,
+    defaultQuestions: []
   }
 ];
 
