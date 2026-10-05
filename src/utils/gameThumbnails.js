@@ -24,7 +24,11 @@ export const GAME_THUMBNAILS = {
   'magic-grimoire': '/thumbnails/thumb_magic_grimoire.jpg',
   'jungle-rescue': '/thumbnails/thumb_jungle_rescue.jpg',
   'jeopardy': '/thumbnails/thumb_jeopardy.jpg',
-  'geo-3d-model': '/thumbnails/thumb_geo_3d_model.jpg'
+  'geo-3d-model': '/thumbnails/thumb_geo_3d_model.jpg',
+  'bouncing-words': '/thumbnails/thumb_bouncing_words.jpg',
+  'math-sack-race': '/thumbnails/thumb_math_sack_race.jpg',
+  'pirate-ship-battle': '/thumbnails/thumb_pirate_ship_battle.jpg',
+  'classroom-timer': '/thumbnails/thumb_classroom_timer.jpg'
 };
 
 export function getGameThumbnail(game) {
