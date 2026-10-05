@@ -2993,13 +2993,13 @@ export const StorageService = {
       const parsed = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
       const data = Array.isArray(parsed.data) ? parsed.data : (Array.isArray(parsed) ? parsed : []);
       if (!Array.isArray(data)) {
-        throw new Error('Định dạng tệp sao lưu Địa chỉ web SKL không hợp lệ!');
+        throw new Error('Định dạng tệp sao lưu Địa chỉ web không hợp lệ!');
       }
       const effectiveId = StorageService.getEffectiveUserId(userId);
       StorageService.saveSKLWebLinks(effectiveId, data);
-      return { success: true, message: `Khôi phục thành công ${data.length} Địa chỉ web SKL!` };
+      return { success: true, message: `Khôi phục thành công ${data.length} Địa chỉ web!` };
     } catch (e) {
-      return { success: false, message: e.message || 'Lỗi đọc tệp JSON Địa chỉ web SKL!' };
+      return { success: false, message: e.message || 'Lỗi đọc tệp JSON Địa chỉ web!' };
     }
   },
 

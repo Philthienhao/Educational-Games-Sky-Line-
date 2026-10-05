@@ -172,7 +172,7 @@ export function AICoPilotWidget({ activeTab, onOpenAISettings, onApplyAIGameQues
         return [
           '🌐 Hướng dẫn lưu trang web dạy học cá nhân',
           '📌 Đề xuất các trang web học liệu chuẩn cho giáo viên',
-          '📥 Cách sao lưu danh sách địa chỉ web SKL'
+          '📥 Cách sao lưu danh sách địa chỉ web'
         ];
       case 'textbook-download':
         return [

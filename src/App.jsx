@@ -655,7 +655,7 @@ export function App() {
           <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
         )}
 
-        {/* View 6.2: Địa Chỉ Web SKL (Per-User Web Bookmarks Manager) */}
+        {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager) */}
         {activeTab === 'skl-web-links' && (
           <SKLWebLinksManager currentUser={currentUser} />
         )}

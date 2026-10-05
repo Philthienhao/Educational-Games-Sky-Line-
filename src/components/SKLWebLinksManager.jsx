@@ -541,7 +541,7 @@ export function SKLWebLinksManager({ currentUser }) {
   // Export JSON Backup
   const handleExportJSON = () => {
     StorageService.exportSKLWebLinksBackup(currentUser?.id);
-    triggerToast('📥 Đã xuất tệp sao lưu địa chỉ web SKL!');
+    triggerToast('📥 Đã xuất tệp sao lưu địa chỉ web!');
   };
 
   // Import JSON Backup
@@ -647,7 +647,7 @@ export function SKLWebLinksManager({ currentUser }) {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <h1 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 900, color: '#ffffff' }}>
-                Địa chỉ web SKL
+                Địa chỉ web
               </h1>
               <span style={{
                 background: 'rgba(59, 130, 246, 0.2)',
