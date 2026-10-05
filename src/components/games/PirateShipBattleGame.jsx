@@ -267,9 +267,49 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
         alignItems: 'flex-end',
         justifyContent: 'space-between',
         padding: '0 80px 40px 80px',
-        transform: screenShake ? 'translate(4px, -4px)' : 'none',
+        transform: screenShake ? 'translate(6px, -6px)' : 'none',
         transition: 'transform 0.05s ease'
       }}>
+        {/* Floating Victory Announcement Banner in Sea Arena */}
+        {winner && (
+          <div style={{
+            position: 'absolute',
+            top: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: winner === 1 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+            color: '#fff',
+            padding: '12px 32px',
+            borderRadius: '24px',
+            boxShadow: '0 12px 35px rgba(0,0,0,0.4)',
+            fontWeight: 900,
+            fontSize: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            border: '3px solid #ffffff',
+            zIndex: 100
+          }}>
+            <span>🏆 TÀU ĐỘI {winner} CHIẾN THẮNG! TÀU ĐỘI {winner === 1 ? 2 : 1} ĐÃ BỊ ĐÁNH CHÌM!</span>
+            <button
+              onClick={resetBattle}
+              style={{
+                background: '#ffffff',
+                color: winner === 1 ? '#b91c1c' : '#1d4ed8',
+                border: 'none',
+                padding: '8px 20px',
+                borderRadius: '14px',
+                fontWeight: 900,
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+              }}
+            >
+              🔄 Chơi Lại Trận Mới
+            </button>
+          </div>
+        )}
+
         {/* Clouds & Sun */}
         <div style={{
           position: 'absolute',
@@ -295,12 +335,24 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          transition: 'transform 1s ease',
-          transform: p1Hp === 0 ? 'rotate(35deg) translateY(80px)' : 'none'
+          transition: 'transform 2.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 2.5s ease',
+          transform: p1Hp === 0 ? 'rotate(70deg) translateY(260px) scale(0.5)' : 'none',
+          opacity: p1Hp === 0 ? 0.3 : 1
         }}>
+          {p1Hp === 0 && (
+            <div style={{
+              position: 'absolute',
+              top: '-40px',
+              fontSize: '3.5rem',
+              zIndex: 20
+            }}>
+              💥🔥🌊
+            </div>
+          )}
+
           {/* Hearts HP Bar */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'rgba(15, 23, 42, 0.85)',
             padding: '6px 14px',
             borderRadius: '16px',
             marginBottom: '12px',
@@ -352,13 +404,26 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          transition: 'transform 1s ease',
-          transform: p2Hp === 0 ? 'rotate(-35deg) translateY(80px)' : 'scaleX(-1)'
+          transition: 'transform 2.5s cubic-bezier(0.55, 0.085, 0.68, 0.53), opacity 2.5s ease',
+          transform: p2Hp === 0 ? 'scaleX(-1) rotate(70deg) translateY(260px) scale(0.5)' : 'scaleX(-1)',
+          opacity: p2Hp === 0 ? 0.3 : 1
         }}>
+          {p2Hp === 0 && (
+            <div style={{
+              position: 'absolute',
+              top: '-40px',
+              fontSize: '3.5rem',
+              transform: 'scaleX(-1)',
+              zIndex: 20
+            }}>
+              💥🔥🌊
+            </div>
+          )}
+
           {/* Hearts HP Bar (Flipped back for readability) */}
           <div style={{
             transform: 'scaleX(-1)',
-            background: 'rgba(15, 23, 42, 0.8)',
+            background: 'rgba(15, 23, 42, 0.85)',
             padding: '6px 14px',
             borderRadius: '16px',
             marginBottom: '12px',
@@ -482,57 +547,6 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           </div>
         </div>
       </div>
-
-      {/* Winner Banner Modal */}
-      {winner && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.75)',
-          backdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: '#1e293b',
-            borderRadius: '28px',
-            padding: '40px 60px',
-            textAlign: 'center',
-            color: '#fff',
-            border: `3px solid ${winner === 1 ? '#ef4444' : '#3b82f6'}`,
-            boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
-            maxWidth: '500px'
-          }}>
-            <div style={{ fontSize: '4rem', marginBottom: '12px' }}>🏴‍☠️🏆</div>
-            <h2 style={{ fontSize: '2rem', fontWeight: 900, color: winner === 1 ? '#ef4444' : '#3b82f6' }}>
-              TÀU ĐỘI {winner} CHIẾN THẮNG!
-            </h2>
-            <p style={{ margin: '16px 0 24px', fontSize: '1.1rem', color: '#94a3b8', fontWeight: 700 }}>
-              Thuyền cướp biển Đội {winner} đã xuất sắc bắn hạ tàu đối phương!
-            </p>
-            <button
-              onClick={resetBattle}
-              style={{
-                padding: '14px 32px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 900,
-                fontSize: '1.1rem',
-                cursor: 'pointer'
-              }}
-            >
-              🔄 Chơi Lại Trận Mới
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
