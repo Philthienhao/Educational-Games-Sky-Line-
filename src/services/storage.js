@@ -222,6 +222,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường THCS Kim Đồng',
     createdAt: '2026-10-04'
+  },
+  {
+    id: 'user_co_quynh',
+    username: 'coquynh',
+    password: '123456',
+    name: 'Cô Quỳnh',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường PTDTBT-THCS Co Mạ',
+    createdAt: '2026-10-05'
   }
 ];
 
