@@ -232,6 +232,26 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường PTDTBT-THCS Co Mạ',
     createdAt: '2026-10-05'
+  },
+  {
+    id: 'user_thanh_phat',
+    username: 'thanhphat',
+    password: '123456',
+    name: 'Bùi Thanh Phát',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường Phan Thành Tài',
+    createdAt: '2026-10-05'
+  },
+  {
+    id: 'user_thu_huyen',
+    username: 'thuhuyen',
+    password: '123456',
+    name: 'Đặng Thị Thu Huyền',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường Phổ thông Chất lượng cao Hùng Vương',
+    createdAt: '2026-10-05'
   }
 ];
 
