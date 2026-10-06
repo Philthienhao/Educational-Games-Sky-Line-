@@ -251,7 +251,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         component = <MathSackRaceGame {...commonProps} onClose={onClose} />;
         break;
       case 'pirate-ship-battle':
-        component = <PirateShipBattleGame {...commonProps} onClose={onClose} />;
+        component = <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />;
         break;
       case 'classroom-timer':
         component = <ClassroomTimerGame onClose={onClose} />;
