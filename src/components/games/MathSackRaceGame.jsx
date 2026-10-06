@@ -111,7 +111,7 @@ export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddP
 
   // Player 2 State
   const [p2Score, setP2Score] = useState(0);
-  const [p2QIndex, setP2QIndex] = useState(1);
+  const [p2QIndex, setP2QIndex] = useState(0);
   const [p2Selected, setP2Selected] = useState(null);
   const [p2Jump, setP2Jump] = useState(false);
 
@@ -151,7 +151,7 @@ export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddP
 
     setTimeout(() => {
       setP1Selected(null);
-      setP1QIndex(prev => prev + 2);
+      setP1QIndex(prev => prev + 1);
     }, 800);
   };
 
@@ -186,7 +186,7 @@ export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddP
 
     setTimeout(() => {
       setP2Selected(null);
-      setP2QIndex(prev => prev + 2);
+      setP2QIndex(prev => prev + 1);
     }, 800);
   };
 
@@ -194,7 +194,7 @@ export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddP
     setP1Score(0);
     setP2Score(0);
     setP1QIndex(0);
-    setP2QIndex(1);
+    setP2QIndex(0);
     setP1Selected(null);
     setP2Selected(null);
     setWinner(null);

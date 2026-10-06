@@ -395,7 +395,7 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
     setEditingTeamId(null);
   };
 
-  const TOTAL_STEPS = 10; // Total track length to reach Castle
+  const TOTAL_STEPS = (questions && Array.isArray(questions) && questions.length > 0) ? questions.length : 10; // Dynamic track length based on uploaded questions count
   const [currentTurnIdx, setCurrentTurnIdx] = useState(0);
   const [questionIdx, setQuestionIdx] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(null);

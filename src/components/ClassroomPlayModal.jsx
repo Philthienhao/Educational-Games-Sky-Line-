@@ -245,10 +245,10 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;
         break;
       case 'bouncing-words':
-        component = <BouncingWordsGame {...commonProps} onClose={onClose} />;
+        component = <BouncingWordsGame {...commonProps} game={game} onClose={onClose} />;
         break;
       case 'math-sack-race':
-        component = <MathSackRaceGame {...commonProps} onClose={onClose} />;
+        component = <MathSackRaceGame {...commonProps} game={game} onClose={onClose} />;
         break;
       case 'pirate-ship-battle':
         component = <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />;
