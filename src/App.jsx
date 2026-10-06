@@ -304,7 +304,7 @@ export function App() {
     setIsRoleSwitcherOpen(false);
   };
 
-  // Filter Categories by Game Themes & Formats
+  // Filter Categories by Game Themes & Formats (Educational games only)
   const categories = [
     'Tất cả',
     'Đối kháng Đội nhóm',
@@ -314,12 +314,25 @@ export function App() {
     'Tư duy từ ngữ',
     'Ghi nhớ & Ghép cặp',
     'Hành động & Phản xạ',
-    'Tương tác & Quay số',
-    'Thử thách phiêu lưu'
+    'Thử thách phiêu lưu',
+    'Khám phá 3D'
   ];
 
   const filteredBaseGames = (baseGames || []).filter(game => {
     if (!game || typeof game !== 'object') return false;
+
+    // Filter out student-calling games and classroom tools from main educational game catalog
+    const isPickerGame = game.isStudentPicker || 
+                         game.category === 'Kho game gọi tên học sinh' || 
+                         game.category === 'Tương tác & Quay số' ||
+                         ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
+    
+    const isToolGame = game.isClassroomTool || 
+                       game.category === 'Công cụ Lớp học' || 
+                       game.engineType === 'classroom-timer';
+
+    if (isPickerGame || isToolGame) return false;
+
     const gCategory = game.category || '';
     const gSubject = game.subject || '';
     const matchesCategory = selectedCategory === 'Tất cả' || 
