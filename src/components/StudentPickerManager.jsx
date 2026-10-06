@@ -84,6 +84,17 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     engineType: 'magic-grimoire'
   };
 
+  const studentGroupDividerGame = baseGames.find(g => g.engineType === 'student-group-divider' || g.id === 'student-group-divider-quiz') || {
+    id: 'student-group-divider-quiz',
+    title: 'Game Chia Nhóm Học Sinh — Phân Đội Bí Mật',
+    subtitle: 'Chia Nhóm Tự Động / Hồi Hộp Bí Mật & Hào Hứng Cho Học Sinh',
+    category: 'Tương tác & Quay số',
+    icon: '🧩',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    description: 'Chia nhóm học sinh tùy chọn số nhóm đầu ra (2-8 nhóm). Giao diện bóc thăm bí mật hồi hộp với nhạc nền kịch tính, thẻ bí mật, tráo lại nhóm và sao chép/xuất kết quả!',
+    engineType: 'student-group-divider'
+  };
+
   const studentsList = homeroomData?.students || [];
   const [remainingQuickStudents, setRemainingQuickStudents] = useState([]);
 
@@ -321,6 +332,76 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
           gap: '24px'
         }}>
+          {/* Card 0: Game Chia Nhóm Học Sinh (Featured) */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.05) 100%)',
+            border: '2px solid rgba(245, 158, 11, 0.5)',
+            borderRadius: '24px',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+            boxShadow: '0 10px 30px rgba(245, 158, 11, 0.15)',
+            position: 'relative',
+            gridColumn: '1 / -1'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2.2rem',
+                  boxShadow: '0 8px 20px rgba(245, 158, 11, 0.4)'
+                }}>
+                  🧩
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span className="badge" style={{ background: '#f59e0b', color: '#000000', fontWeight: 900, fontSize: '0.78rem' }}>
+                      🔥 MỚI NÂNG CẤP
+                    </span>
+                    <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#d97706', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 800 }}>
+                      Tùy Chọn 2-12 Nhóm
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
+                    {studentGroupDividerGame.title}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onPlay && onPlay(studentGroupDividerGame)}
+                className="btn btn-primary"
+                style={{
+                  padding: '14px 28px',
+                  borderRadius: '16px',
+                  fontSize: '1.05rem',
+                  fontWeight: 900,
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: '#000000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Play size={22} fill="#000000" />
+                Mở Game Chia Nhóm Ngay!
+              </button>
+            </div>
+
+            <p style={{ color: '#334155', fontSize: '0.96rem', lineHeight: 1.6, margin: 0, fontWeight: 600 }}>
+              {studentGroupDividerGame.description}
+            </p>
+          </div>
           {/* Card 1: Đua Vịt Gọi Tên */}
           <div style={{
             background: '#ffffff',

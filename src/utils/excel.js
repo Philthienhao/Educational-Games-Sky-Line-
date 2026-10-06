@@ -162,9 +162,11 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType
   // Game Đua Vịt, Game Đua Rùa, Gắp Thú, Phi Hành Gia, Mũ Ma Thuật, Cổ Thư -> Student Name List Template
   if (
     normEngine === 'duck-race' || normEngine === 'turtle-race' || normEngine === 'claw-machine' ||
-    normEngine === 'astronaut-explorer' || normEngine === 'magic-hat' || normEngine === 'magic-grimoire' || normEngine === 'racing' ||
+    normEngine === 'astronaut-explorer' || normEngine === 'magic-hat' || normEngine === 'magic-grimoire' ||
+    normEngine === 'student-group-divider' || normEngine === 'racing' ||
     normTitle.includes('dua vit') || normTitle.includes('dua rua') || normTitle.includes('gap thu') ||
-    normTitle.includes('phi hanh gia') || normTitle.includes('chiec mu') || normTitle.includes('co thu')
+    normTitle.includes('phi hanh gia') || normTitle.includes('chiec mu') || normTitle.includes('co thu') ||
+    normTitle.includes('chia nhom')
   ) {
     return downloadStudentListExcelTemplate(gameTitle);
   }

@@ -639,6 +639,18 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
+    id: 'student-group-divider-quiz',
+    title: 'Game Chia Nhóm Học Sinh — Phân Đội Bí Mật',
+    subtitle: 'Chia Nhóm Tự Động / Hồi Hộp Bí Mật & Hào Hứng Cho Học Sinh',
+    category: 'Tương tác & Quay số',
+    icon: '🧩',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    description: 'Chia nhóm học sinh tùy chọn số nhóm đầu ra (2-8 nhóm). Giao diện bóc thăm bí mật hồi hộp với nhạc nền kịch tính, thẻ bí mật, tráo lại nhóm và sao chép/xuất kết quả!',
+    engineType: 'student-group-divider',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'astronaut-quiz',
     title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
     subtitle: 'Lái Phi Thuyền Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
