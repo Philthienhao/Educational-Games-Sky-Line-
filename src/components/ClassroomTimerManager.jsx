@@ -206,6 +206,40 @@ export default function ClassroomTimerManager({ currentUser, onPlay }) {
         </button>
       </div>
 
+      {/* Multi-Theme Fullscreen Presentation Game Card Section (Prominent Top Placement) */}
+      <div style={{
+        background: '#ffffff',
+        border: '2px solid rgba(139, 92, 246, 0.35)',
+        borderRadius: '24px',
+        padding: '24px 28px',
+        boxShadow: '0 8px 24px rgba(139, 92, 246, 0.12)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span className="badge" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', color: '#ffffff', padding: '4px 12px', borderRadius: '12px', fontWeight: 800, fontSize: '0.78rem' }}>
+                GAME TRÌNH CHIẾU MULTI-THEME
+              </span>
+            </div>
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Sparkles size={22} color="#8b5cf6" />
+              Đồng Hồ Đếm Ngược Lớp Học Multi-Theme
+            </h3>
+            <p style={{ color: '#475569', fontSize: '0.92rem', margin: '4px 0 0 0', fontWeight: 600 }}>
+              Bộ 5 giao diện đếm ngược trực quan: Đồng Hồ Cát, Nến Cháy, Chuông Báo Thức Retro, Đèn LED & Vòng Tròn Đếm Ngược kèm hiệu ứng pháo hoa khi hết giờ!
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 380px))', gap: '20px' }}>
+          <GameCard 
+            game={classroomTimerGame}
+            currentUser={currentUser}
+            onPlay={onPlay}
+          />
+        </div>
+      </div>
+
       {/* Main Giant Clock Display Card */}
       <div style={{
         background: isFinished ? 'rgba(239, 68, 68, 0.15)' : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
@@ -472,29 +506,6 @@ export default function ClassroomTimerManager({ currentUser, onPlay }) {
           </form>
         </div>
 
-      </div>
-
-      {/* Multi-Theme Fullscreen Presentation Game Card Section */}
-      <div style={{ marginTop: '12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Sparkles size={22} color="#8b5cf6" />
-              Game Đồng Hồ Đếm Ngược Multi-Theme (Trình Chiếu Đầy Màn Hình)
-            </h3>
-            <p style={{ color: '#475569', fontSize: '0.92rem', margin: '4px 0 0 0', fontWeight: 600 }}>
-              Bộ 5 giao diện hoạt hình tuyệt đẹp: Đồng Hồ Cát, Nến Cháy, Chuông Báo Thức Retro, Đèn LED & Vòng Tròn Đếm Ngược!
-            </p>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 420px))', gap: '24px' }}>
-          <GameCard 
-            game={classroomTimerGame}
-            currentUser={currentUser}
-            onPlay={onPlay}
-          />
-        </div>
       </div>
     </div>
   );
