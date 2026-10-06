@@ -130,7 +130,7 @@ export function Navbar({
               style={{ background: activeTab === 'call-student' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : undefined, fontWeight: 800 }}
             >
               <UserPlus size={18} />
-              Kho Game Gọi tên học sinh
+              Gọi tên và chia nhóm
             </button>
 
             <button 

@@ -76,6 +76,7 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
 
       // Filter out student-calling games and classroom tools from teacher's personal quiz game library
       const isPicker = g.isStudentPicker || 
+                       g.category === 'Gọi tên và chia nhóm' || 
                        g.category === 'Kho game gọi tên học sinh' || 
                        g.category === 'Tương tác & Quay số' ||
                        ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 

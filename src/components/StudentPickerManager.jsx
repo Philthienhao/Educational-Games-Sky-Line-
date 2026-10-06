@@ -23,7 +23,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'duck-race-quiz',
     title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
     subtitle: 'Cuộc Đua Vịt Gọi Tên / Chọn Học Sinh Nhận Thưởng',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🦆',
     gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
@@ -35,7 +35,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'turtle-race-quiz',
     title: 'Đua Rùa Gọi Tên — Học Sinh May Mắn',
     subtitle: 'Cuộc Đua Rùa Chọn Học Sinh May Mắn Nhận Thưởng',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🐢',
     gradient: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
@@ -47,7 +47,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'claw-machine-quiz',
     title: 'Gắp Thú Gọi Tên — Siêu Thị Gấu Bông',
     subtitle: 'Gắp Thú Bông Ngẫu Nhiên Chọn Học Sinh May Mắn',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🧸',
     gradient: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
@@ -59,7 +59,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'astronaut-quiz',
     title: 'Phi Hành Gia / Thám Hiểm May Mắn',
     subtitle: 'Vũ Trụ Không Gian Hạ Cánh Chọn Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🚀',
     gradient: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
@@ -71,7 +71,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'magic-hat-quiz',
     title: 'Chiếc Mũ Ma Thuật / Hộp Quà Bí Mật',
     subtitle: 'Mũ Ảo Thuật Biến Phép Triệu Hồi Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🎩',
     gradient: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
@@ -83,7 +83,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'magic-grimoire-quiz',
     title: 'Cổ Thư Triệu Hồi (AI Gesture Camera)',
     subtitle: 'Nhận Diện Cử Chỉ Vẫy Tay Triệu Hồi Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '📜',
     gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
@@ -95,7 +95,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     id: 'student-group-divider-quiz',
     title: 'Game Chia Nhóm Học Sinh — Phân Đội Bí Mật',
     subtitle: 'Chia Nhóm Tự Động / Hồi Hộp Bí Mật & Hào Hứng Cho Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🧩',
     gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -200,7 +200,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                Gọi Tên Học Sinh
+                Gọi Tên Và Chia Nhóm
               </h2>
               <span className="badge" style={{ background: '#0d9488', color: '#ffffff', fontWeight: 800, padding: '4px 12px', borderRadius: '12px', fontSize: '0.78rem' }}>
                 Chức Năng Độc Lập
@@ -344,14 +344,14 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
           <div>
             <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
               <Sparkles size={22} color="#0d9488" />
-              Kho Game Gọi Tên Học Sinh Tương Tác
+              Kho Game Gọi Tên Và Chia Nhóm Tương Tác
             </h3>
             <p style={{ color: '#475569', fontSize: '0.92rem', margin: '4px 0 0 0', fontWeight: 600 }}>
               Tập hợp các trò chơi đua vịt, đua rùa, gắp thú, thám hiểm vũ trụ, chiếc mũ ma thuật, cổ thư AI nhận diện cử chỉ tay & chia nhóm học sinh!
             </p>
           </div>
           <span className="badge" style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#ffffff', padding: '8px 16px', borderRadius: '16px', fontWeight: 800, fontSize: '0.85rem' }}>
-            {studentPickerGames.length} Trò Chơi Gọi Tên
+            {studentPickerGames.length} Game Gọi Tên & Chia Nhóm
           </span>
         </div>
 

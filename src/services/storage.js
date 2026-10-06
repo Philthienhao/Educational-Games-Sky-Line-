@@ -606,7 +606,7 @@ const INITIAL_BASE_GAMES = [
     id: 'duck-race-quiz',
     title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
     subtitle: 'Cuộc Đua Vịt Gọi Tên / Chọn Học Sinh Nhận Thưởng',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🦆',
     gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
@@ -619,7 +619,7 @@ const INITIAL_BASE_GAMES = [
     id: 'turtle-race-quiz',
     title: 'Đua Rùa Gọi Tên — Học Sinh May Mắn',
     subtitle: 'Cuộc Đua Rùa Chọn Học Sinh May Mắn Nhận Thưởng',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🐢',
     gradient: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
@@ -632,7 +632,7 @@ const INITIAL_BASE_GAMES = [
     id: 'claw-machine-quiz',
     title: 'Gắp Thú Gọi Tên — Siêu Thị Gấu Bông',
     subtitle: 'Gắp Thú Bông Ngẫu Nhiên Chọn Học Sinh May Mắn',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🧸',
     gradient: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
@@ -645,7 +645,7 @@ const INITIAL_BASE_GAMES = [
     id: 'student-group-divider-quiz',
     title: 'Game Chia Nhóm Học Sinh — Phân Đội Bí Mật',
     subtitle: 'Chia Nhóm Tự Động / Hồi Hộp Bí Mật & Hào Hứng Cho Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🧩',
     gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
@@ -658,7 +658,7 @@ const INITIAL_BASE_GAMES = [
     id: 'astronaut-quiz',
     title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
     subtitle: 'Lái Phi Thuyền Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🚀',
     gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
@@ -671,7 +671,7 @@ const INITIAL_BASE_GAMES = [
     id: 'magic-hat-quiz',
     title: 'Chiếc Mũ Ma Thuật — Hộp Quà Bí Mật',
     subtitle: 'Mũ Ảo Thuật Gia Triệu Hồi Học Sinh Bất Ngờ',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '🎩',
     gradient: 'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
@@ -684,7 +684,7 @@ const INITIAL_BASE_GAMES = [
     id: 'magic-grimoire-quiz',
     title: 'Cổ Thư Triệu Hồi — AI Nhận Diện Cử Chỉ Tay',
     subtitle: 'Vẫy Tay Trước Camera AI Triệu Hồi Học Sinh',
-    category: 'Kho game gọi tên học sinh',
+    category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
     icon: '📜',
     gradient: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
@@ -1316,8 +1316,8 @@ export const StorageService = {
                              ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
                              ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
             if (isPicker) {
-              if (g.category !== 'Kho game gọi tên học sinh' || !g.isStudentPicker) {
-                g.category = 'Kho game gọi tên học sinh';
+              if (g.category !== 'Gọi tên và chia nhóm' || !g.isStudentPicker) {
+                g.category = 'Gọi tên và chia nhóm';
                 g.isStudentPicker = true;
                 updated = true;
               }
@@ -1989,7 +1989,7 @@ export const StorageService = {
                        ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
                        ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
       if (isPicker) {
-        return { ...g, category: 'Kho game gọi tên học sinh', isStudentPicker: true };
+        return { ...g, category: 'Gọi tên và chia nhóm', isStudentPicker: true };
       }
 
       const isTool = g.isClassroomTool || 

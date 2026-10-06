@@ -307,7 +307,7 @@ export function App() {
   // Filter Categories by Game Themes & Formats
   const categories = [
     'Tất cả',
-    'Kho game gọi tên học sinh',
+    'Gọi tên và chia nhóm',
     'Đối kháng Đội nhóm',
     'Trắc nghiệm kịch tính',
     'Bất ngờ & May mắn',
@@ -323,6 +323,7 @@ export function App() {
     if (!game || typeof game !== 'object') return false;
 
     const isPickerGame = game.isStudentPicker || 
+                         game.category === 'Gọi tên và chia nhóm' || 
                          game.category === 'Kho game gọi tên học sinh' || 
                          ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
 
@@ -333,7 +334,7 @@ export function App() {
     if (isToolGame) return false;
 
     // Filter out picker games if user selected a specific non-picker category
-    if (isPickerGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Kho game gọi tên học sinh') {
+    if (isPickerGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Gọi tên và chia nhóm' && selectedCategory !== 'Kho game gọi tên học sinh') {
       return false;
     }
 
