@@ -70,10 +70,26 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
 
   const filteredGames = useMemo(() => {
     const term = (searchTerm || '').toLowerCase().normalize('NFC').trim();
-    if (!term) return savedGames;
 
     return (savedGames || []).filter(g => {
       if (!g) return false;
+
+      // Filter out student-calling games and classroom tools from teacher's personal quiz game library
+      const isPicker = g.isStudentPicker || 
+                       g.category === 'Kho game gọi tên học sinh' || 
+                       g.category === 'Tương tác & Quay số' ||
+                       ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                       ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId);
+      
+      const isTool = g.isClassroomTool || 
+                     g.category === 'Công cụ Lớp học' || 
+                     g.engineType === 'classroom-timer' || 
+                     g.baseGameId === 'classroom-timer-game';
+
+      if (isPicker || isTool) return false;
+
+      if (!term) return true;
+
       const t = (g.title || '').toLowerCase().normalize('NFC');
       const l = (g.lessonTitle || '').toLowerCase().normalize('NFC');
       const s = (g.subject || '').toLowerCase().normalize('NFC');

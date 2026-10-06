@@ -1296,8 +1296,31 @@ export const StorageService = {
             }
           });
 
-          // Reset all dummy playsCount numbers to 0 & update system game title
+          // Reset all dummy playsCount numbers to 0 & update system game categories
           storedGames.forEach(g => {
+            if (!g || typeof g !== 'object') return;
+            const isPicker = g.isStudentPicker || 
+                             ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                             ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
+            if (isPicker) {
+              if (g.category !== 'Kho game gọi tên học sinh' || !g.isStudentPicker) {
+                g.category = 'Kho game gọi tên học sinh';
+                g.isStudentPicker = true;
+                updated = true;
+              }
+            }
+
+            const isTool = g.isClassroomTool || 
+                           g.engineType === 'classroom-timer' || 
+                           g.id === 'classroom-timer-game';
+            if (isTool) {
+              if (g.category !== 'Công cụ Lớp học' || !g.isClassroomTool) {
+                g.category = 'Công cụ Lớp học';
+                g.isClassroomTool = true;
+                updated = true;
+              }
+            }
+
             if (g.id === 'indoor-pe-dance-game' || g.engineType === 'indoor-pe-dance') {
               if (g.title !== 'Thử thách thể dục') {
                 g.title = 'Thử thách thể dục';
@@ -1944,6 +1967,26 @@ export const StorageService = {
         games.push(bg);
         updated = true;
       }
+    });
+
+    // Ensure category and flags are synchronized with system definitions
+    games = games.map(g => {
+      if (!g || typeof g !== 'object') return g;
+      const isPicker = g.isStudentPicker || 
+                       ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                       ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
+      if (isPicker) {
+        return { ...g, category: 'Kho game gọi tên học sinh', isStudentPicker: true };
+      }
+
+      const isTool = g.isClassroomTool || 
+                     g.engineType === 'classroom-timer' || 
+                     g.id === 'classroom-timer-game';
+      if (isTool) {
+        return { ...g, category: 'Công cụ Lớp học', isClassroomTool: true };
+      }
+
+      return g;
     });
 
     if (updated || games.length === 0) {
