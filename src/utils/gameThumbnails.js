@@ -28,7 +28,9 @@ export const GAME_THUMBNAILS = {
   'bouncing-words': '/thumbnails/thumb_bouncing_words.jpg',
   'math-sack-race': '/thumbnails/thumb_math_sack_race.jpg',
   'pirate-ship-battle': '/thumbnails/thumb_pirate_ship_battle.jpg',
-  'classroom-timer': '/thumbnails/thumb_classroom_timer.jpg'
+  'classroom-timer': '/thumbnails/thumb_classroom_timer.jpg',
+  'student-group-divider': '/thumbnails/thumb_student_group_divider.jpg',
+  'student-group-divider-quiz': '/thumbnails/thumb_student_group_divider.jpg'
 };
 
 export function getGameThumbnail(game) {

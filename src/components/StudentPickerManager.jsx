@@ -99,6 +99,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     isStudentPicker: true,
     icon: '🧩',
     gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+    thumbnail: '/thumbnails/thumb_student_group_divider.jpg',
     description: 'Chia nhóm học sinh tùy chọn số nhóm đầu ra (2-8 nhóm). Giao diện bóc thăm bí mật hồi hộp với nhạc nền kịch tính, thẻ bí mật, tráo lại nhóm và sao chép/xuất kết quả!',
     engineType: 'student-group-divider'
   };
