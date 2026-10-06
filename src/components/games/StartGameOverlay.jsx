@@ -1,8 +1,8 @@
 import React from 'react';
-import { Play } from 'lucide-react';
+import { Play, Upload } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
-export function StartGameOverlay({ title, icon = '🎮', description, onStart }) {
+export function StartGameOverlay({ title, icon = '🎮', subtitle, description, onStart, onUpload }) {
   return (
     <div style={{
       width: '100%',
@@ -17,7 +17,8 @@ export function StartGameOverlay({ title, icon = '🎮', description, onStart })
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '22px'
+      gap: '22px',
+      zIndex: 1000
     }}>
       <div style={{ fontSize: '4.8rem', lineHeight: 1 }}>
         {icon}
@@ -25,35 +26,65 @@ export function StartGameOverlay({ title, icon = '🎮', description, onStart })
       <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: '#ffffff', margin: 0, letterSpacing: '-0.5px' }}>
         {title ? `SẴN SÀNG CHƠI: ${title.toUpperCase()}` : 'SẴN SÀNG BẮT ĐẦU VÁN CHƠI'}
       </h2>
-      <p style={{ color: '#cbd5e1', fontSize: '1.05rem', maxWidth: '580px', lineHeight: 1.65, margin: 0, fontWeight: 600 }}>
-        {description || 'Thầy cô thiết lập danh sách học sinh / đội chơi bên trên. Khi lớp học đã sẵn sàng, hãy bấm nút dưới đây để chính thức tính thời gian!'}
-      </p>
+      {(subtitle || description) && (
+        <p style={{ color: '#cbd5e1', fontSize: '1.05rem', maxWidth: '580px', lineHeight: 1.65, margin: 0, fontWeight: 600 }}>
+          {subtitle || description}
+        </p>
+      )}
 
-      <button 
-        onClick={() => {
-          if (onStart) onStart();
-          try { SoundFX.fanfare(); } catch(e) {}
-        }}
-        style={{
-          fontSize: '1.3rem',
-          fontWeight: 900,
-          padding: '18px 48px',
-          borderRadius: '24px',
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          boxShadow: '0 12px 35px rgba(16, 185, 129, 0.4)',
-          border: 'none',
-          color: '#fff',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          transition: 'transform 0.2s ease, boxShadow 0.2s ease'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-      >
-        <Play size={26} fill="#fff" /> 🚀 BẮT ĐẦU CHƠI
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '10px' }}>
+        <button 
+          onClick={() => {
+            if (onStart) onStart();
+            try { SoundFX.fanfare(); } catch(e) {}
+          }}
+          style={{
+            fontSize: '1.3rem',
+            fontWeight: 900,
+            padding: '18px 48px',
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            boxShadow: '0 12px 35px rgba(16, 185, 129, 0.4)',
+            border: 'none',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            transition: 'transform 0.2s ease, boxShadow 0.2s ease'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <Play size={26} fill="#fff" /> 🚀 BẮT ĐẦU CHƠI
+        </button>
+
+        {onUpload && (
+          <label style={{
+            fontSize: '1.1rem',
+            fontWeight: 800,
+            padding: '16px 32px',
+            borderRadius: '24px',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+            boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)',
+            border: 'none',
+            color: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            transition: 'transform 0.2s ease'
+          }}>
+            <Upload size={22} /> 📂 Tải File Excel Câu Hỏi
+            <input 
+              type="file" 
+              accept=".xlsx,.xls,.doc,.docx,.txt" 
+              onChange={onUpload} 
+              style={{ display: 'none' }} 
+            />
+          </label>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import { Heart, RefreshCw, Volume2, Sparkles, Zap, Check, X } from 'lucide-react';
+import { Heart, RefreshCw, Volume2, Sparkles, Zap, Check, X, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
 import { parseUploadedFile } from '../../utils/universalParser';
 
-export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoints, onClose }) {
+export function PirateShipBattleGame({ questions: propQuestions, game, teams, onAddPoints, onClose }) {
   const [customQuestions, setCustomQuestions] = useState(null);
 
   const defaultQs = [
@@ -36,24 +36,59 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
     }
   ];
 
-  const safeQuestions = useMemo(() => {
-    if (customQuestions && customQuestions.length > 0) return customQuestions;
+  const activeQuestionsList = useMemo(() => {
+    if (customQuestions && Array.isArray(customQuestions) && customQuestions.length > 0) {
+      return customQuestions;
+    }
     if (Array.isArray(propQuestions) && propQuestions.length > 0) {
-      return propQuestions.map((q, idx) => {
-        let opts = q.options && q.options.length === 4 
-          ? q.options 
-          : ['A. ' + (q.options?.[0] || 'Đáp án A'), 'B. ' + (q.options?.[1] || 'Đáp án B'), 'C. ' + (q.options?.[2] || 'Đáp án C'), 'D. ' + (q.options?.[3] || 'Đáp án D')];
-        let corrLetter = q.correct ? String(q.correct).toUpperCase() : 'A';
-        return {
-          id: `ps_prop_${idx}`,
-          question: q.question || `Câu ${idx + 1}`,
-          options: opts,
-          correct: corrLetter
-        };
-      });
+      return propQuestions;
+    }
+    if (game?.questions && Array.isArray(game.questions) && game.questions.length > 0) {
+      return game.questions;
+    }
+    if (game?.defaultQuestions && Array.isArray(game.defaultQuestions) && game.defaultQuestions.length > 0) {
+      return game.defaultQuestions;
     }
     return defaultQs;
-  }, [propQuestions, customQuestions]);
+  }, [customQuestions, propQuestions, game]);
+
+  const safeQuestions = useMemo(() => {
+    return activeQuestionsList.map((q, idx) => {
+      let qText = q.question || q.questionText || q.title || q.content || `Câu ${idx + 1}`;
+      let opts = [];
+      if (Array.isArray(q.options) && q.options.length >= 2) {
+        opts = q.options;
+      } else if (Array.isArray(q.choices) && q.choices.length >= 2) {
+        opts = q.choices;
+      } else if (Array.isArray(q.answers) && q.answers.length >= 2) {
+        opts = q.answers;
+      } else {
+        opts = ['A. Đáp án A', 'B. Đáp án B', 'C. Đáp án C', 'D. Đáp án D'];
+      }
+
+      let corr = q.correct ?? q.answer ?? q.correctAnswer ?? 'A';
+      if (typeof corr === 'number') {
+        corr = ['A', 'B', 'C', 'D'][corr] || 'A';
+      } else {
+        corr = String(corr).trim().toUpperCase();
+        if (!['A', 'B', 'C', 'D'].includes(corr)) {
+          const foundIdx = opts.findIndex(o => String(o).trim().toLowerCase() === String(q.correct || '').trim().toLowerCase());
+          if (foundIdx !== -1) {
+            corr = ['A', 'B', 'C', 'D'][foundIdx];
+          } else {
+            corr = 'A';
+          }
+        }
+      }
+
+      return {
+        id: q.id || `ps_q_${idx}`,
+        question: qText,
+        options: opts,
+        correct: corr
+      };
+    });
+  }, [activeQuestionsList]);
 
   const maxHp = safeQuestions.length > 0 ? safeQuestions.length : 10;
 
@@ -248,6 +283,22 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <label style={{
+            padding: '8px 16px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            border: 'none',
+            color: '#fff',
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <Upload size={16} /> 📂 Tải File Excel
+            <input type="file" accept=".xlsx,.xls,.doc,.docx,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           <button
             onClick={resetBattle}
             style={{
