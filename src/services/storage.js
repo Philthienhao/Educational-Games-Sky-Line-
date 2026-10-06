@@ -738,13 +738,13 @@ const INITIAL_BASE_GAMES = [
   },
   {
     id: 'math-sack-race-game',
-    title: 'Đua Nhảy Bao Bố Toán Học',
-    subtitle: 'Thi Đấu Numpad 2 Người Song Song Trực Tiếp Trên Bảng Tương Tác',
+    title: 'Đua Nhảy Bao Bố Trắc Nghiệm',
+    subtitle: 'Thi Đấu Trắc Nghiệm 2 Đội Nhảy Bao Bố Về Đích',
     category: 'Đối kháng Đội nhóm',
     icon: '🦘',
     gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
     thumbnail: '/thumbnails/thumb_math_sack_race.jpg',
-    description: 'Hai bàn phím số Numpad cảm ứng 2 bên cho 2 học sinh thi đấu tính nhẩm nhảy bao bố về đích!',
+    description: 'Hai đội chơi thi đấu chọn đáp án trắc nghiệm A, B, C, D để nhảy bao bố tiến về đích!',
     engineType: 'math-sack-race',
     playsCount: 0,
     defaultQuestions: []

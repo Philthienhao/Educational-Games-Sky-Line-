@@ -1,138 +1,193 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Trophy, RefreshCw, Volume2, Sparkles, ArrowRight, Zap, Check, X } from 'lucide-react';
+import { Trophy, RefreshCw, Volume2, Sparkles, ArrowRight, Zap, Check, X, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StartGameOverlay } from './StartGameOverlay';
 import { parseUploadedFile } from '../../utils/universalParser';
 
-export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints, onClose }) {
+export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddPoints, onClose }) {
   const [customQuestions, setCustomQuestions] = useState(null);
 
-  // Default Math Questions palette
+  // Default Multiple-Choice Questions
   const defaultQs = [
-    { question: '9 × 8 = ?', answer: 72 },
-    { question: '5 × 8 = ?', answer: 40 },
-    { question: '7 × 6 = ?', answer: 42 },
-    { question: '9 × 9 = ?', answer: 81 },
-    { question: '8 × 4 = ?', answer: 32 },
-    { question: '6 × 8 = ?', answer: 48 },
-    { question: '7 × 9 = ?', answer: 63 },
-    { question: '12 × 5 = ?', answer: 60 },
-    { question: '15 × 4 = ?', answer: 60 },
-    { question: '14 + 28 = ?', answer: 42 },
-    { question: '100 - 37 = ?', answer: 63 },
-    { question: '45 ÷ 5 = ?', answer: 9 }
+    {
+      question: 'Hệ Mặt Trời của chúng ta bao gồm bao nhiêu hành tinh quay quanh Mặt Trời?',
+      options: ['8 hành tinh', '9 hành tinh', '7 hành tinh', '10 hành tinh'],
+      correct: 'A'
+    },
+    {
+      question: 'Hành tinh nào nằm ở vị trí gần Mặt Trời nhất trong Hệ Mặt Trời?',
+      options: ['Sao Thủy (Mercury)', 'Sao Kim (Venus)', 'Trái Đất (Earth)', 'Sao Hỏa (Mars)'],
+      correct: 'A'
+    },
+    {
+      question: 'Từ nào sau đây viết đúng chính tả?',
+      options: ['Sắp xếp', 'Xắp xếp', 'Sắp xết', 'Xắp xết'],
+      correct: 'A'
+    },
+    {
+      question: 'Sông Cửu Long chảy ra biển qua bao nhiêu cửa sông?',
+      options: ['9 cửa', '7 cửa', '5 cửa', '12 cửa'],
+      correct: 'A'
+    },
+    {
+      question: '9 × 8 bằng bao nhiêu?',
+      options: ['72', '64', '81', '76'],
+      correct: 'A'
+    },
+    {
+      question: 'Thủ đô của Việt Nam là thành phố nào?',
+      options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ'],
+      correct: 'A'
+    }
   ];
 
-  const safeQuestions = useMemo(() => {
-    if (customQuestions && customQuestions.length > 0) return customQuestions;
+  const activeQuestionsList = useMemo(() => {
+    if (customQuestions && Array.isArray(customQuestions) && customQuestions.length > 0) {
+      return customQuestions;
+    }
     if (Array.isArray(propQuestions) && propQuestions.length > 0) {
-      return propQuestions.map((q, idx) => {
-        let ansText = q.correctAnswer || (q.options ? q.options[0] : '10');
-        let numAns = parseInt(ansText, 10);
-        if (isNaN(numAns)) numAns = 10;
-        return {
-          question: q.question || `Câu ${idx + 1}`,
-          answer: numAns
-        };
-      });
+      return propQuestions;
+    }
+    if (game?.questions && Array.isArray(game.questions) && game.questions.length > 0) {
+      return game.questions;
+    }
+    if (game?.defaultQuestions && Array.isArray(game.defaultQuestions) && game.defaultQuestions.length > 0) {
+      return game.defaultQuestions;
     }
     return defaultQs;
-  }, [propQuestions, customQuestions]);
+  }, [customQuestions, propQuestions, game]);
+
+  const safeQuestions = useMemo(() => {
+    return activeQuestionsList.map((q, idx) => {
+      let qText = q.question || q.questionText || q.title || q.content || `Câu ${idx + 1}`;
+      let opts = [];
+      if (Array.isArray(q.options) && q.options.length >= 2) {
+        opts = q.options;
+      } else if (Array.isArray(q.choices) && q.choices.length >= 2) {
+        opts = q.choices;
+      } else if (Array.isArray(q.answers) && q.answers.length >= 2) {
+        opts = q.answers;
+      } else {
+        opts = ['A. Đáp án A', 'B. Đáp án B', 'C. Đáp án C', 'D. Đáp án D'];
+      }
+
+      let corr = q.correct ?? q.answer ?? q.correctAnswer ?? 'A';
+      if (typeof corr === 'number') {
+        corr = ['A', 'B', 'C', 'D'][corr] || 'A';
+      } else {
+        corr = String(corr).trim().toUpperCase();
+        if (!['A', 'B', 'C', 'D'].includes(corr)) {
+          const foundIdx = opts.findIndex(o => String(o).trim().toLowerCase() === String(q.correct || '').trim().toLowerCase());
+          if (foundIdx !== -1) {
+            corr = ['A', 'B', 'C', 'D'][foundIdx];
+          } else {
+            corr = 'A';
+          }
+        }
+      }
+
+      return {
+        id: q.id || `sack_q_${idx}`,
+        question: qText,
+        options: opts,
+        correct: corr
+      };
+    });
+  }, [activeQuestionsList]);
 
   const [isStarted, setIsStarted] = useState(false);
   const [winner, setWinner] = useState(null); // 1 | 2 | null
 
+  const team1Name = teams?.[0]?.name || 'Đội 1';
+  const team2Name = teams?.[1]?.name || 'Đội 2';
+
   // Player 1 State
   const [p1Score, setP1Score] = useState(0);
   const [p1QIndex, setP1QIndex] = useState(0);
-  const [p1Input, setP1Input] = useState('');
+  const [p1Selected, setP1Selected] = useState(null);
   const [p1Jump, setP1Jump] = useState(false);
 
   // Player 2 State
   const [p2Score, setP2Score] = useState(0);
   const [p2QIndex, setP2QIndex] = useState(1);
-  const [p2Input, setP2Input] = useState('');
+  const [p2Selected, setP2Selected] = useState(null);
   const [p2Jump, setP2Jump] = useState(false);
 
   const p1CurrentQ = safeQuestions[p1QIndex % safeQuestions.length];
   const p2CurrentQ = safeQuestions[p2QIndex % safeQuestions.length];
 
-  const TARGET_SCORE = 10; // 10 jumps to finish line
+  const TARGET_SCORE = safeQuestions.length > 0 ? Math.min(10, safeQuestions.length) : 10;
 
-  const handleP1Numpad = (val) => {
-    if (winner) return;
-    SoundFX.click();
-    if (val === 'C') {
-      setP1Input('');
-    } else if (val === 'Go') {
-      submitP1();
-    } else {
-      if (p1Input.length < 5) setP1Input(prev => prev + val);
-    }
-  };
+  const handleP1Answer = (optIndex, optValue) => {
+    if (winner || p1Selected !== null) return;
+    setP1Selected(optIndex);
 
-  const submitP1 = () => {
-    if (!p1Input) return;
-    const userVal = parseInt(p1Input, 10);
-    if (userVal === p1CurrentQ.answer) {
+    let isRight = false;
+    if (p1CurrentQ.correct === 'A' && optIndex === 0) isRight = true;
+    else if (p1CurrentQ.correct === 'B' && optIndex === 1) isRight = true;
+    else if (p1CurrentQ.correct === 'C' && optIndex === 2) isRight = true;
+    else if (p1CurrentQ.correct === 'D' && optIndex === 3) isRight = true;
+    else if (String(optValue).trim().toLowerCase() === String(p1CurrentQ.correct).trim().toLowerCase()) isRight = true;
+
+    if (isRight) {
       SoundFX.correct();
       setP1Jump(true);
       setTimeout(() => setP1Jump(false), 400);
 
       const nextScore = p1Score + 1;
       setP1Score(nextScore);
-      setP1Input('');
-      setP1QIndex(prev => prev + 2);
       if (onAddPoints) onAddPoints(0, 10);
 
       if (nextScore >= TARGET_SCORE) {
         setWinner(1);
         SoundFX.fanfare();
-        confetti({ particleCount: 100, spread: 80, origin: { x: 0.2, y: 0.6 } });
+        confetti({ particleCount: 120, spread: 90, origin: { x: 0.2, y: 0.6 } });
       }
     } else {
       SoundFX.wrong();
-      setP1Input('');
     }
+
+    setTimeout(() => {
+      setP1Selected(null);
+      setP1QIndex(prev => prev + 2);
+    }, 800);
   };
 
-  const handleP2Numpad = (val) => {
-    if (winner) return;
-    SoundFX.click();
-    if (val === 'C') {
-      setP2Input('');
-    } else if (val === 'Go') {
-      submitP2();
-    } else {
-      if (p2Input.length < 5) setP2Input(prev => prev + val);
-    }
-  };
+  const handleP2Answer = (optIndex, optValue) => {
+    if (winner || p2Selected !== null) return;
+    setP2Selected(optIndex);
 
-  const submitP2 = () => {
-    if (!p2Input) return;
-    const userVal = parseInt(p2Input, 10);
-    if (userVal === p2CurrentQ.answer) {
+    let isRight = false;
+    if (p2CurrentQ.correct === 'A' && optIndex === 0) isRight = true;
+    else if (p2CurrentQ.correct === 'B' && optIndex === 1) isRight = true;
+    else if (p2CurrentQ.correct === 'C' && optIndex === 2) isRight = true;
+    else if (p2CurrentQ.correct === 'D' && optIndex === 3) isRight = true;
+    else if (String(optValue).trim().toLowerCase() === String(p2CurrentQ.correct).trim().toLowerCase()) isRight = true;
+
+    if (isRight) {
       SoundFX.correct();
       setP2Jump(true);
       setTimeout(() => setP2Jump(false), 400);
 
       const nextScore = p2Score + 1;
       setP2Score(nextScore);
-      setP2Input('');
-      setP2QIndex(prev => prev + 2);
       if (onAddPoints) onAddPoints(1, 10);
 
       if (nextScore >= TARGET_SCORE) {
         setWinner(2);
         SoundFX.fanfare();
-        confetti({ particleCount: 100, spread: 80, origin: { x: 0.8, y: 0.6 } });
+        confetti({ particleCount: 120, spread: 90, origin: { x: 0.8, y: 0.6 } });
       }
     } else {
       SoundFX.wrong();
-      setP2Input('');
     }
+
+    setTimeout(() => {
+      setP2Selected(null);
+      setP2QIndex(prev => prev + 2);
+    }, 800);
   };
 
   const resetGame = () => {
@@ -140,8 +195,8 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
     setP2Score(0);
     setP1QIndex(0);
     setP2QIndex(1);
-    setP1Input('');
-    setP2Input('');
+    setP1Selected(null);
+    setP2Selected(null);
     setWinner(null);
   };
 
@@ -151,13 +206,9 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
     try {
       const parsed = await parseUploadedFile(file);
       if (parsed && parsed.length > 0) {
-        const mathQs = parsed.map(q => ({
-          question: q.question || 'Câu hỏi',
-          answer: parseInt(q.correctAnswer || q.options?.[0] || '0', 10)
-        }));
-        setCustomQuestions(mathQs);
+        setCustomQuestions(parsed);
         resetGame();
-        alert(`Đã tải lên ${mathQs.length} câu toán thành công!`);
+        alert(`Đã tải lên ${parsed.length} câu hỏi trắc nghiệm thành công!`);
       }
     } catch (err) {
       alert('Lỗi đọc file: ' + err.message);
@@ -178,9 +229,9 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
     }}>
       {!isStarted && (
         <StartGameOverlay
-          title="ĐUA NHẢY BAO BỐ TOÁN HỌC"
-          subtitle="Thi Đấu Bàn Phím Số Numpad 2 Người Chơi Trực Tiếp Trên Bảng Tương Tác"
-          icon="🏃‍♂️"
+          title="ĐUA NHẢY BAO BỐ TRẮC NGHIỆM"
+          subtitle="Thi Đấu Trắc Nghiệm 2 Đội Chọn Đáp Án A, B, C, D Nhảy Bao Bố Tiến Về Đích"
+          icon="🦘"
           gradient="linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)"
           onStart={() => setIsStarted(true)}
           onUpload={handleFileUpload}
@@ -203,11 +254,27 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
           </button>
           <span style={{ fontSize: '1.4rem' }}>🦘</span>
           <span style={{ fontWeight: 900, fontSize: '1.2rem', color: '#38bdf8', letterSpacing: '-0.5px' }}>
-            ĐUA NHẢY BAO BỐ TOÁN HỌC
+            ĐUA NHẢY BAO BỐ TRẮC NGHIỆM
           </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <label style={{
+            padding: '8px 16px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            border: 'none',
+            color: '#fff',
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <Upload size={16} /> 📂 Tải File Excel
+            <input type="file" accept=".xlsx,.xls,.doc,.docx,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+          </label>
+
           <button
             onClick={resetGame}
             style={{
@@ -228,90 +295,100 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
         </div>
       </div>
 
-      {/* Main Dual Numpad & Arena Grid */}
+      {/* Main Dual Multiple Choice Workspace */}
       <div style={{
         flex: 1,
         display: 'grid',
-        gridTemplateColumns: '280px 1fr 280px',
+        gridTemplateColumns: '380px 1fr 380px',
         gap: '20px',
         padding: '20px',
         alignItems: 'center'
       }}>
-        {/* Left Controller: Player 1 (Red) */}
+        {/* Left Controller: Player 1 (Red Team) */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '24px',
-          padding: '18px',
+          padding: '20px',
           boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          border: '4px solid #ef4444'
+          justifyContent: 'space-between',
+          gap: '16px',
+          border: '4px solid #ef4444',
+          height: '100%',
+          maxHeight: '560px'
         }}>
-          {/* Question Box */}
+          {/* Team Header */}
           <div style={{
-            background: '#4c1d95',
+            background: '#ef4444',
             color: '#fff',
             borderRadius: '16px',
-            padding: '14px',
-            textAlign: 'center',
+            padding: '10px 16px',
             fontWeight: 900,
-            fontSize: '1.4rem'
+            fontSize: '1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>🔴 {team1Name}</span>
+            <span style={{ background: 'rgba(0,0,0,0.2)', padding: '2px 10px', borderRadius: '10px' }}>
+              {p1Score} / {TARGET_SCORE} bước
+            </span>
+          </div>
+
+          {/* Question Box */}
+          <div style={{
+            background: '#1e293b',
+            color: '#fff',
+            borderRadius: '18px',
+            padding: '18px',
+            textAlign: 'center',
+            fontWeight: 800,
+            fontSize: '1.15rem',
+            lineHeight: 1.5,
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.3)'
           }}>
             {p1CurrentQ.question}
           </div>
 
-          {/* LCD Screen Display */}
-          <div style={{
-            background: '#f8fafc',
-            border: '2px solid #cbd5e1',
-            borderRadius: '14px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.6rem',
-            fontWeight: 900,
-            color: '#ef4444',
-            letterSpacing: '2px'
-          }}>
-            {p1Input || '_'}
-          </div>
-
-          {/* 3x4 Numpad */}
+          {/* Option Buttons */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '8px'
+            gridTemplateColumns: p1CurrentQ.options.length > 2 ? '1fr 1fr' : '1fr',
+            gap: '10px'
           }}>
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'Go'].map((val) => (
-              <button
-                key={val}
-                onClick={() => handleP1Numpad(val)}
-                style={{
-                  height: '52px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: val === 'C' ? '#ef4444' : val === 'Go' ? '#3b82f6' : '#f1f5f9',
-                  color: (val === 'C' || val === 'Go') ? '#fff' : '#0f172a',
-                  fontWeight: 900,
-                  fontSize: '1.2rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 0 rgba(0,0,0,0.1)',
-                  transition: 'transform 0.1s active'
-                }}
-              >
-                {val}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ textAlign: 'center', fontWeight: 900, color: '#ef4444', fontSize: '0.95rem' }}>
-            🔴 Đội 1: {p1Score} / {TARGET_SCORE} bước
+            {p1CurrentQ.options.map((opt, idx) => {
+              const isSelected = p1Selected === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleP1Answer(idx, opt)}
+                  style={{
+                    padding: '14px 12px',
+                    borderRadius: '16px',
+                    border: '2px solid #cbd5e1',
+                    background: isSelected ? '#ef4444' : '#f8fafc',
+                    color: isSelected ? '#fff' : '#0f172a',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Center Race Track Arena */}
+        {/* Center Arena */}
         <div style={{
           height: '100%',
           display: 'flex',
@@ -321,16 +398,17 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
           position: 'relative'
         }}>
           <h2 style={{
-            fontSize: '1.5rem',
+            fontSize: '1.6rem',
             fontWeight: 900,
             textShadow: '0 2px 10px rgba(0,0,0,0.3)',
             marginBottom: '16px',
-            letterSpacing: '1px'
+            letterSpacing: '1px',
+            color: '#fff'
           }}>
-            BALAP KARUNG MATEMATIKA
+            🦘 ĐUA NHẢY BAO BỐ TRẮC NGHIỆM
           </h2>
 
-          {/* Race Track Canvas Container */}
+          {/* Race Track */}
           <div style={{
             width: '100%',
             height: '240px',
@@ -396,7 +474,7 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
                   borderRadius: '10px',
                   marginTop: '-6px'
                 }}>
-                  Đội 1
+                  {team1Name}
                 </span>
               </div>
             </div>
@@ -433,88 +511,98 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
                   borderRadius: '10px',
                   marginTop: '-6px'
                 }}>
-                  Đội 2
+                  {team2Name}
                 </span>
               </div>
             </div>
           </div>
 
-          <p style={{ marginTop: '16px', fontSize: '0.9rem', opacity: 0.9, fontWeight: 700 }}>
-            Nhập kết quả đúng để nhảy tiến về đích! (Cần {TARGET_SCORE} bước để chiến thắng)
+          <p style={{ marginTop: '16px', fontSize: '0.95rem', opacity: 0.95, fontWeight: 700, color: '#fff' }}>
+            Chọn đáp án đúng để nhảy tiến về đích! (Cần {TARGET_SCORE} bước nhảy để chiến thắng)
           </p>
         </div>
 
-        {/* Right Controller: Player 2 (Blue) */}
+        {/* Right Panel: Team 2 (Blue Team) */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '24px',
-          padding: '18px',
+          padding: '20px',
           boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
-          border: '4px solid #3b82f6'
+          justifyContent: 'space-between',
+          gap: '16px',
+          border: '4px solid #3b82f6',
+          maxHeight: '560px',
+          height: '100%'
         }}>
-          {/* Question Box */}
+          {/* Team Header */}
           <div style={{
-            background: '#b91c1c',
+            background: '#3b82f6',
             color: '#fff',
             borderRadius: '16px',
-            padding: '14px',
-            textAlign: 'center',
+            padding: '10px 16px',
             fontWeight: 900,
-            fontSize: '1.4rem'
+            fontSize: '1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span>🔵 {team2Name}</span>
+            <span style={{ background: 'rgba(0,0,0,0.2)', padding: '2px 10px', borderRadius: '10px' }}>
+              {p2Score} / {TARGET_SCORE} bước
+            </span>
+          </div>
+
+          {/* Question Box */}
+          <div style={{
+            background: '#1e293b',
+            color: '#fff',
+            borderRadius: '18px',
+            padding: '18px',
+            textAlign: 'center',
+            fontWeight: 800,
+            fontSize: '1.15rem',
+            lineHeight: 1.5,
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.3)'
           }}>
             {p2CurrentQ.question}
           </div>
 
-          {/* LCD Screen Display */}
-          <div style={{
-            background: '#f8fafc',
-            border: '2px solid #cbd5e1',
-            borderRadius: '14px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.6rem',
-            fontWeight: 900,
-            color: '#3b82f6',
-            letterSpacing: '2px'
-          }}>
-            {p2Input || '_'}
-          </div>
-
-          {/* 3x4 Numpad */}
+          {/* Options Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '8px'
+            gridTemplateColumns: p2CurrentQ.options.length > 2 ? '1fr 1fr' : '1fr',
+            gap: '10px'
           }}>
-            {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', 'Go'].map((val) => (
-              <button
-                key={val}
-                onClick={() => handleP2Numpad(val)}
-                style={{
-                  height: '52px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: val === 'C' ? '#ef4444' : val === 'Go' ? '#3b82f6' : '#f1f5f9',
-                  color: (val === 'C' || val === 'Go') ? '#fff' : '#0f172a',
-                  fontWeight: 900,
-                  fontSize: '1.2rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 0 rgba(0,0,0,0.1)',
-                  transition: 'transform 0.1s active'
-                }}
-              >
-                {val}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ textAlign: 'center', fontWeight: 900, color: '#3b82f6', fontSize: '0.95rem' }}>
-            🔵 Đội 2: {p2Score} / {TARGET_SCORE} bước
+            {p2CurrentQ.options.map((opt, idx) => {
+              const isSelected = p2Selected === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleP2Answer(idx, opt)}
+                  style={{
+                    padding: '14px 12px',
+                    borderRadius: '16px',
+                    border: '2px solid #cbd5e1',
+                    background: isSelected ? '#3b82f6' : '#f8fafc',
+                    color: isSelected ? '#fff' : '#0f172a',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -527,7 +615,7 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
+          background: 'rgba(0,0,0,0.75)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
@@ -541,25 +629,25 @@ export function MathSackRaceGame({ questions: propQuestions, teams, onAddPoints,
             textAlign: 'center',
             color: '#0f172a',
             boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
-            maxWidth: '500px'
+            maxWidth: '520px'
           }}>
-            <div style={{ fontSize: '4rem', marginBottom: '12px' }}>🏆</div>
-            <h2 style={{ fontSize: '2rem', fontWeight: 900, color: winner === 1 ? '#ef4444' : '#3b82f6' }}>
-              ĐỘI {winner} CHIẾN THẮNG!
+            <div style={{ fontSize: '4.5rem', marginBottom: '12px' }}>🏆</div>
+            <h2 style={{ fontSize: '2.1rem', fontWeight: 900, color: winner === 1 ? '#ef4444' : '#3b82f6' }}>
+              {winner === 1 ? team1Name : team2Name} CHIẾN THẮNG!
             </h2>
             <p style={{ margin: '16px 0 24px', fontSize: '1.1rem', color: '#64748b', fontWeight: 700 }}>
-              Chúc mừng Đội {winner} đã xuất sắc hoàn thành {TARGET_SCORE} bước nhảy về đích đầu tiên!
+              Chúc mừng {winner === 1 ? team1Name : team2Name} đã xuất sắc hoàn thành {TARGET_SCORE} bước nhảy bao bố về đích đầu tiên!
             </p>
             <button
               onClick={resetGame}
               style={{
-                padding: '14px 32px',
+                padding: '14px 36px',
                 borderRadius: '16px',
                 background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: '#fff',
                 border: 'none',
                 fontWeight: 900,
-                fontSize: '1.1rem',
+                fontSize: '1.15rem',
                 cursor: 'pointer',
                 boxShadow: '0 8px 20px rgba(16,185,129,0.3)'
               }}
