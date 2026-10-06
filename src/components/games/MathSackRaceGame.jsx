@@ -118,7 +118,7 @@ export function MathSackRaceGame({ questions: propQuestions, game, teams, onAddP
   const p1CurrentQ = safeQuestions[p1QIndex % safeQuestions.length];
   const p2CurrentQ = safeQuestions[p2QIndex % safeQuestions.length];
 
-  const TARGET_SCORE = safeQuestions.length > 0 ? Math.min(10, safeQuestions.length) : 10;
+  const TARGET_SCORE = safeQuestions.length > 0 ? safeQuestions.length : 10;
 
   const handleP1Answer = (optIndex, optValue) => {
     if (winner || p1Selected !== null) return;
