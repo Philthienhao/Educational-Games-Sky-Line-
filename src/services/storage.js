@@ -1288,11 +1288,24 @@ export const StorageService = {
           const storedIds = new Set(storedGames.map(g => g.id));
           let updated = false;
 
-          // ONLY add NEW base games that don't exist yet in user's localStorage
+          // Add NEW base games or sync system properties for existing base games
           INITIAL_BASE_GAMES.forEach(bg => {
-            if (!storedIds.has(bg.id)) {
+            const idx = storedGames.findIndex(g => g && g.id === bg.id);
+            if (idx === -1) {
               storedGames.push(bg);
               updated = true;
+            } else {
+              const existing = storedGames[idx];
+              if (
+                existing.category !== bg.category ||
+                existing.isStudentPicker !== bg.isStudentPicker ||
+                existing.title !== bg.title ||
+                existing.description !== bg.description ||
+                existing.engineType !== bg.engineType
+              ) {
+                storedGames[idx] = { ...existing, ...bg };
+                updated = true;
+              }
             }
           });
 
