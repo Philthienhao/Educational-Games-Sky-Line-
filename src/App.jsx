@@ -308,6 +308,7 @@ export function App() {
   const categories = [
     'Tất cả',
     'Gọi tên và chia nhóm',
+    'Công cụ Lớp học',
     'Đối kháng Đội nhóm',
     'Trắc nghiệm kịch tính',
     'Bất ngờ & May mắn',
@@ -329,9 +330,13 @@ export function App() {
 
     const isToolGame = game.isClassroomTool || 
                        game.category === 'Công cụ Lớp học' || 
-                       game.engineType === 'classroom-timer';
+                       game.engineType === 'classroom-timer' || 
+                       game.id === 'classroom-timer-game';
 
-    if (isToolGame) return false;
+    // Filter out tool games if user selected a specific non-tool category
+    if (isToolGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Công cụ Lớp học') {
+      return false;
+    }
 
     // Filter out picker games if user selected a specific non-picker category
     if (isPickerGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Gọi tên và chia nhóm' && selectedCategory !== 'Kho game gọi tên học sinh') {
@@ -612,7 +617,14 @@ export function App() {
 
         {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
         {activeTab === 'timer' && (
-          <ClassroomTimerManager />
+          <ClassroomTimerManager 
+            currentUser={currentUser}
+            onPlay={(game) => {
+              StorageService.incrementPlayCount(game.id, false);
+              setBaseGames(StorageService.getBaseGames());
+              setPlayingGame(game);
+            }}
+          />
         )}
 
         {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}

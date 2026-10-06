@@ -2,8 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, Plus, Minus, Bell, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../utils/sound';
+import { GameCard } from './GameCard';
+import { StorageService } from '../services/storage';
 
-export default function ClassroomTimerManager() {
+export default function ClassroomTimerManager({ currentUser, onPlay }) {
+  const baseGames = StorageService.getBaseGames();
+  const classroomTimerGame = baseGames.find(g => g.engineType === 'classroom-timer' || g.id === 'classroom-timer-game') || {
+    id: 'classroom-timer-game',
+    title: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
+    subtitle: 'Bộ 5 Chủ Đề Đồng Hồ Trực Quan: Cát, Nến, Báo Thức, LED & Vòng Tròn',
+    category: 'Công cụ Lớp học',
+    isClassroomTool: true,
+    icon: '⏳',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+    thumbnail: '/thumbnails/thumb_classroom_timer.jpg',
+    description: 'Bộ 5 giao diện đồng hồ đếm ngược lớp học kèm âm thanh tích tắc và chuông báo hết giờ chuyên nghiệp cho giáo viên!',
+    engineType: 'classroom-timer',
+    questions: [],
+    defaultQuestions: []
+  };
   const [totalSeconds, setTotalSeconds] = useState(180); // Default 3 minutes
   const [timeLeft, setTimeLeft] = useState(180);
   const [isRunning, setIsRunning] = useState(false);
@@ -455,6 +472,29 @@ export default function ClassroomTimerManager() {
           </form>
         </div>
 
+      </div>
+
+      {/* Multi-Theme Fullscreen Presentation Game Card Section */}
+      <div style={{ marginTop: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Sparkles size={22} color="#8b5cf6" />
+              Game Đồng Hồ Đếm Ngược Multi-Theme (Trình Chiếu Đầy Màn Hình)
+            </h3>
+            <p style={{ color: '#475569', fontSize: '0.92rem', margin: '4px 0 0 0', fontWeight: 600 }}>
+              Bộ 5 giao diện hoạt hình tuyệt đẹp: Đồng Hồ Cát, Nến Cháy, Chuông Báo Thức Retro, Đèn LED & Vòng Tròn Đếm Ngược!
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 420px))', gap: '24px' }}>
+          <GameCard 
+            game={classroomTimerGame}
+            currentUser={currentUser}
+            onPlay={onPlay}
+          />
+        </div>
       </div>
     </div>
   );
