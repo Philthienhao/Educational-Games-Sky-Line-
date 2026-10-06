@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserCheck, Sparkles, Play, Users, Settings, Dices, Award, RefreshCw } from 'lucide-react';
 import { StorageService } from '../services/storage';
+import { GameCard } from './GameCard';
 
 export default function StudentPickerManager({ currentUser, onPlay, onCustomize, onNavigateToHomeroom }) {
   const [baseGames, setBaseGames] = useState([]);
@@ -101,6 +102,16 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     description: 'Chia nhóm học sinh tùy chọn số nhóm đầu ra (2-8 nhóm). Giao diện bóc thăm bí mật hồi hộp với nhạc nền kịch tính, thẻ bí mật, tráo lại nhóm và sao chép/xuất kết quả!',
     engineType: 'student-group-divider'
   };
+
+  const studentPickerGames = [
+    duckRaceGame,
+    turtleRaceGame,
+    clawMachineGame,
+    astronautExplorerGame,
+    magicHatGame,
+    magicGrimoireGame,
+    studentGroupDividerGame
+  ];
 
   const studentsList = homeroomData?.students || [];
   const [remainingQuickStudents, setRemainingQuickStudents] = useState([]);
@@ -327,579 +338,38 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
         </div>
       </div>
 
-      {/* Main Feature Cards Grid: Duck Race & Turtle Race */}
+      {/* Main Feature Cards Grid using standard HD GameCard UI */}
       <div>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Sparkles size={20} color="#0d9488" />
-          Các Trò Chơi Cuộc Đua Gọi Tên Học Sinh
-        </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Sparkles size={22} color="#0d9488" />
+              Kho Game Gọi Tên Học Sinh Tương Tác
+            </h3>
+            <p style={{ color: '#475569', fontSize: '0.92rem', margin: '4px 0 0 0', fontWeight: 600 }}>
+              Tập hợp các trò chơi đua vịt, đua rùa, gắp thú, thám hiểm vũ trụ, chiếc mũ ma thuật, cổ thư AI nhận diện cử chỉ tay & chia nhóm học sinh!
+            </p>
+          </div>
+          <span className="badge" style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#ffffff', padding: '8px 16px', borderRadius: '16px', fontWeight: 800, fontSize: '0.85rem' }}>
+            {studentPickerGames.length} Trò Chơi Gọi Tên
+          </span>
+        </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '24px'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '24px',
+          width: '100%'
         }}>
-          {/* Card 0: Game Chia Nhóm Học Sinh (Featured) */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.05) 100%)',
-            border: '2px solid rgba(245, 158, 11, 0.5)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(245, 158, 11, 0.15)',
-            position: 'relative',
-            gridColumn: '1 / -1'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{
-                  width: '64px',
-                  height: '64px',
-                  borderRadius: '20px',
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2.2rem',
-                  boxShadow: '0 8px 20px rgba(245, 158, 11, 0.4)'
-                }}>
-                  🧩
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span className="badge" style={{ background: '#f59e0b', color: '#000000', fontWeight: 900, fontSize: '0.78rem' }}>
-                      🔥 MỚI NÂNG CẤP
-                    </span>
-                    <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#d97706', border: '1px solid rgba(245, 158, 11, 0.3)', fontWeight: 800 }}>
-                      Tùy Chọn 2-12 Nhóm
-                    </span>
-                  </div>
-                  <h3 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                    {studentGroupDividerGame.title}
-                  </h3>
-                </div>
-              </div>
-
-              <button
-                onClick={() => onPlay && onPlay(studentGroupDividerGame)}
-                className="btn btn-primary"
-                style={{
-                  padding: '14px 28px',
-                  borderRadius: '16px',
-                  fontSize: '1.05rem',
-                  fontWeight: 900,
-                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                  color: '#000000',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
-                  cursor: 'pointer'
-                }}
-              >
-                <Play size={22} fill="#000000" />
-                Mở Game Chia Nhóm Ngay!
-              </button>
-            </div>
-
-            <p style={{ color: '#334155', fontSize: '0.96rem', lineHeight: 1.6, margin: 0, fontWeight: 600 }}>
-              {studentGroupDividerGame.description}
-            </p>
-          </div>
-          {/* Card 1: Đua Vịt Gọi Tên */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(2, 132, 199, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(2, 132, 199, 0.35)'
-                }}>
-                  🦆
-                </div>
-                <span className="badge" style={{ background: 'rgba(2, 132, 199, 0.12)', color: '#0284c7', border: '1px solid rgba(2, 132, 199, 0.3)', fontWeight: 800 }}>
-                  Đua Bơi Trên Sông
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {duckRaceGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {duckRaceGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(duckRaceGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(2, 132, 199, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Đua Vịt Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(duckRaceGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
-
-          {/* Card 2: Đua Rùa Gọi Tên */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(16, 185, 129, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(16, 185, 129, 0.35)'
-                }}>
-                  🐢
-                </div>
-                <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#059669', border: '1px solid rgba(16, 185, 129, 0.3)', fontWeight: 800 }}>
-                  Đua Bò Về Đích
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {turtleRaceGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {turtleRaceGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(turtleRaceGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Đua Rùa Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(turtleRaceGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
-
-          {/* Card 3: Gắp Thú Gọi Tên */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(168, 85, 247, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(168, 85, 247, 0.35)'
-                }}>
-                  🧸
-                </div>
-                <span className="badge" style={{ background: 'rgba(168, 85, 247, 0.12)', color: '#7e22ce', border: '1px solid rgba(168, 85, 247, 0.3)', fontWeight: 800 }}>
-                  Máy Gắp Arcade
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {clawMachineGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {clawMachineGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(clawMachineGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(168, 85, 247, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Gắp Thú Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(clawMachineGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
-
-          {/* Card 4: Phi Hành Gia / Thám Hiểm May Mắn */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(99, 102, 241, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)'
-                }}>
-                  🚀
-                </div>
-                <span className="badge" style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#4338ca', border: '1px solid rgba(99, 102, 241, 0.3)', fontWeight: 800 }}>
-                  Vũ Trụ Không Gian
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {astronautExplorerGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {astronautExplorerGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(astronautExplorerGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Phi Hành Gia Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(astronautExplorerGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
-
-          {/* Card 5: Chiếc Mũ Ma Thuật */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(236, 72, 153, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(236, 72, 153, 0.35)'
-                }}>
-                  🎩
-                </div>
-                <span className="badge" style={{ background: 'rgba(236, 72, 153, 0.12)', color: '#be185d', border: '1px solid rgba(236, 72, 153, 0.3)', fontWeight: 800 }}>
-                  Mũ Ảo Thuật
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {magicHatGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {magicHatGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(magicHatGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(236, 72, 153, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Mũ Ma Thuật Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(magicHatGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
-
-          {/* Card 6: Cổ Thư Triệu Hồi (AI Gesture Camera) */}
-          <div style={{
-            background: '#ffffff',
-            border: '1.5px solid rgba(217, 119, 6, 0.3)',
-            borderRadius: '24px',
-            padding: '24px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '20px',
-            boxShadow: '0 10px 30px rgba(15, 23, 42, 0.07)'
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '18px',
-                  background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  boxShadow: '0 6px 16px rgba(217, 119, 6, 0.35)'
-                }}>
-                  📜
-                </div>
-                <span className="badge" style={{ background: 'rgba(217, 119, 6, 0.12)', color: '#b45309', border: '1px solid rgba(217, 119, 6, 0.3)', fontWeight: 800 }}>
-                  AI Camera Gesture
-                </span>
-              </div>
-
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                {magicGrimoireGame.title}
-              </h3>
-              <p style={{ color: '#334155', fontSize: '0.92rem', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
-                {magicGrimoireGame.description}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => onPlay && onPlay(magicGrimoireGame)}
-                className="btn btn-primary"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '1rem',
-                  fontWeight: 800,
-                  background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 16px rgba(217, 119, 6, 0.35)'
-                }}
-              >
-                <Play size={20} fill="#ffffff" />
-                Mở Cổ Thư Chơi Ngay
-              </button>
-
-              <button
-                onClick={() => onCustomize && onCustomize(magicGrimoireGame)}
-                className="btn btn-secondary"
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '12px',
-                  fontSize: '0.88rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Settings size={16} />
-                Tùy Chỉnh Danh Sách Học Sinh / Tải Excel
-              </button>
-            </div>
-          </div>
+          {studentPickerGames.map(game => (
+            <GameCard 
+              key={game.id}
+              game={game}
+              currentUser={currentUser}
+              onPlay={onPlay}
+              onCustomize={onCustomize}
+            />
+          ))}
         </div>
       </div>
     </div>
