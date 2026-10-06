@@ -55,9 +55,20 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
     return defaultQs;
   }, [propQuestions, customQuestions]);
 
+  const maxHp = safeQuestions.length > 0 ? safeQuestions.length : 10;
+
   const [isStarted, setIsStarted] = useState(false);
-  const [p1Hp, setP1Hp] = useState(9); // 9 Hearts
-  const [p2Hp, setP2Hp] = useState(9); // 9 Hearts
+  const [p1Hp, setP1Hp] = useState(maxHp);
+  const [p2Hp, setP2Hp] = useState(maxHp);
+
+  const team1Name = teams?.[0]?.name || 'Đội 1';
+  const team2Name = teams?.[1]?.name || 'Đội 2';
+
+  // Sync HP when safeQuestions or maxHp changes (e.g. custom upload or prop questions change)
+  useEffect(() => {
+    setP1Hp(maxHp);
+    setP2Hp(maxHp);
+  }, [maxHp]);
 
   const [p1QIndex, setP1QIndex] = useState(0);
   const [p2QIndex, setP2QIndex] = useState(1);
@@ -168,8 +179,8 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
   };
 
   const resetBattle = () => {
-    setP1Hp(9);
-    setP2Hp(9);
+    setP1Hp(maxHp);
+    setP2Hp(maxHp);
     setP1QIndex(0);
     setP2QIndex(1);
     setP1Selected(null);
@@ -208,7 +219,7 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
       {!isStarted && (
         <StartGameOverlay
           title="ĐẠI CHIẾN TÀU CƯỚP BIỂN"
-          subtitle="Bắn Đại Bác Bán Tùy Biến Giảm Máu Tàu Đối Phương Trên Biển"
+          subtitle="Bắn Đại Bác Giảm Máu Tàu Đối Phương TRÊN BIỂN - Máu Tương Ứng Số Câu Hỏi"
           icon="🏴‍☠️"
           gradient="linear-gradient(135deg, #0284c7 0%, #0369a1 100%)"
           onStart={() => setIsStarted(true)}
@@ -232,7 +243,7 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           </button>
           <span style={{ fontSize: '1.4rem' }}>🏴‍☠️</span>
           <span style={{ fontWeight: 900, fontSize: '1.2rem', color: '#38bdf8' }}>
-            ĐẠI CHIẾN TÀU CƯỚP BIỂN
+            ĐẠI CHIẾN TÀU CƯỚP BIỂN ({maxHp} CÂU HỎI = {maxHp} ❤️)
           </span>
         </div>
 
@@ -290,7 +301,7 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
             border: '3px solid #ffffff',
             zIndex: 100
           }}>
-            <span>🏆 TÀU ĐỘI {winner} CHIẾN THẮNG! TÀU ĐỘI {winner === 1 ? 2 : 1} ĐÃ BỊ ĐÁNH CHÌM!</span>
+            <span>🏆 TÀU {winner === 1 ? team1Name : team2Name} CHIẾN THẮNG! TÀU {winner === 1 ? team2Name : team1Name} ĐÃ BỊ ĐÁNH CHÌM!</span>
             <button
               onClick={resetBattle}
               style={{
@@ -352,26 +363,37 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
 
           {/* Hearts HP Bar */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.85)',
-            padding: '6px 14px',
+            background: 'rgba(15, 23, 42, 0.9)',
+            padding: '8px 14px',
             borderRadius: '16px',
             marginBottom: '12px',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            border: '2px solid #ef4444'
+            border: '2px solid #ef4444',
+            maxWidth: '320px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
           }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 900, marginRight: '4px', color: '#ef4444' }}>
-              Đội 1:
-            </span>
-            {Array.from({ length: 9 }).map((_, i) => (
-              <Heart
-                key={i}
-                size={16}
-                fill={i < p1Hp ? '#ef4444' : 'transparent'}
-                color={i < p1Hp ? '#ef4444' : '#64748b'}
-              />
-            ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#ef4444' }}>
+                🔴 {team1Name}
+              </span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fff', background: '#ef4444', padding: '2px 8px', borderRadius: '10px' }}>
+                {p1Hp}/{maxHp} ❤️
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '3px', marginTop: '2px' }}>
+              {Array.from({ length: maxHp }).map((_, i) => (
+                <Heart
+                  key={i}
+                  size={maxHp > 20 ? 12 : maxHp > 12 ? 14 : 16}
+                  fill={i < p1Hp ? '#ef4444' : 'transparent'}
+                  color={i < p1Hp ? '#ef4444' : '#64748b'}
+                  style={{ transition: 'all 0.3s ease' }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Ship Graphic */}
@@ -423,26 +445,37 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           {/* Hearts HP Bar (Flipped back for readability) */}
           <div style={{
             transform: 'scaleX(-1)',
-            background: 'rgba(15, 23, 42, 0.85)',
-            padding: '6px 14px',
+            background: 'rgba(15, 23, 42, 0.9)',
+            padding: '8px 14px',
             borderRadius: '16px',
             marginBottom: '12px',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
-            border: '2px solid #3b82f6'
+            border: '2px solid #3b82f6',
+            maxWidth: '320px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
           }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 900, marginRight: '4px', color: '#3b82f6' }}>
-              Đội 2:
-            </span>
-            {Array.from({ length: 9 }).map((_, i) => (
-              <Heart
-                key={i}
-                size={16}
-                fill={i < p2Hp ? '#3b82f6' : 'transparent'}
-                color={i < p2Hp ? '#3b82f6' : '#64748b'}
-              />
-            ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#3b82f6' }}>
+                🔵 {team2Name}
+              </span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#fff', background: '#3b82f6', padding: '2px 8px', borderRadius: '10px' }}>
+                {p2Hp}/{maxHp} ❤️
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '3px', marginTop: '2px' }}>
+              {Array.from({ length: maxHp }).map((_, i) => (
+                <Heart
+                  key={i}
+                  size={maxHp > 20 ? 12 : maxHp > 12 ? 14 : 16}
+                  fill={i < p2Hp ? '#3b82f6' : 'transparent'}
+                  color={i < p2Hp ? '#3b82f6' : '#64748b'}
+                  style={{ transition: 'all 0.3s ease' }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Ship Graphic */}
@@ -484,7 +517,7 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           justifyContent: 'space-between'
         }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc' }}>
-            🔴 Đội 1: {p1CurrentQ.question}
+            🔴 {team1Name}: {p1CurrentQ.question}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
@@ -521,7 +554,7 @@ export function PirateShipBattleGame({ questions: propQuestions, teams, onAddPoi
           justifyContent: 'space-between'
         }}>
           <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc' }}>
-            🔵 Đội 2: {p2CurrentQ.question}
+            🔵 {team2Name}: {p2CurrentQ.question}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
