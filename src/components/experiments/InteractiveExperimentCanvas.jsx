@@ -5228,58 +5228,83 @@ function GeoEarthStructureSim({ onLog }) {
     }
     const cloudTex = new THREE.CanvasTexture(cloudCanvas);
 
-    // 3. Cutaway Cross-Section Cap Texture (Solid Concentric Ring Map for 5 Layers)
+    // 3. Cutaway Cross-Section Cap Texture (Radial Striation Cap Map matching reference image)
     const capCanvas = document.createElement('canvas');
     capCanvas.width = 1024;
     capCanvas.height = 1024;
     const capCtx = capCanvas.getContext('2d');
     const cx = 512, cy = 512;
 
-    // Outer Ocean/Atmosphere Rim (R = 510)
-    capCtx.fillStyle = '#0284c7';
+    // Outer Crust Thin Rim (R = 490 to 510)
+    capCtx.fillStyle = '#0f172a';
     capCtx.beginPath(); capCtx.arc(cx, cy, 510, 0, Math.PI * 2); capCtx.fill();
+    capCtx.fillStyle = '#b45309'; // Thin granitic/basaltic crust rim
+    capCtx.beginPath(); capCtx.arc(cx, cy, 495, 0, Math.PI * 2); capCtx.fill();
 
-    // Crust Basalt/Rock Rim (R = 490)
-    capCtx.fillStyle = '#334155';
-    capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.fill();
+    // Mantle Layer Radial Fiery Striations (R = 250 to 485)
+    const mantleGrad = capCtx.createRadialGradient(cx, cy, 250, cx, cy, 485);
+    mantleGrad.addColorStop(0, '#f97316');
+    mantleGrad.addColorStop(0.3, '#dc2626');
+    mantleGrad.addColorStop(0.7, '#ea580c');
+    mantleGrad.addColorStop(1, '#9a3412');
+    capCtx.fillStyle = mantleGrad;
+    capCtx.beginPath(); capCtx.arc(cx, cy, 485, 0, Math.PI * 2); capCtx.fill();
 
-    // Upper Mantle (R = 430)
-    const umGrad = capCtx.createRadialGradient(cx, cy, 330, cx, cy, 430);
-    umGrad.addColorStop(0, '#c2410c');
-    umGrad.addColorStop(0.5, '#ea580c');
-    umGrad.addColorStop(1, '#f97316');
-    capCtx.fillStyle = umGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 430, 0, Math.PI * 2); capCtx.fill();
+    // Draw 360 radial fiery striation lines matching reference image!
+    for (let angle = 0; angle < Math.PI * 2; angle += 0.012) {
+      const innerR = 250 + Math.random() * 5;
+      const outerR = 485 - Math.random() * 5;
+      const x1 = cx + Math.cos(angle) * innerR;
+      const y1 = cy + Math.sin(angle) * innerR;
+      const x2 = cx + Math.cos(angle) * outerR;
+      const y2 = cy + Math.sin(angle) * outerR;
 
-    // Lower Mantle (R = 330)
-    const lmGrad = capCtx.createRadialGradient(cx, cy, 240, cx, cy, 330);
-    lmGrad.addColorStop(0, '#7f1d1d');
-    lmGrad.addColorStop(0.5, '#dc2626');
-    lmGrad.addColorStop(1, '#ef4444');
-    capCtx.fillStyle = lmGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 330, 0, Math.PI * 2); capCtx.fill();
+      capCtx.strokeStyle = Math.random() > 0.4 ? '#f97316' : (Math.random() > 0.5 ? '#fde047' : '#991b1b');
+      capCtx.lineWidth = Math.random() * 2.5 + 1;
+      capCtx.beginPath();
+      capCtx.moveTo(x1, y1);
+      capCtx.lineTo(x2, y2);
+      capCtx.stroke();
+    }
 
-    // Outer Core (R = 240)
-    const ocGrad = capCtx.createRadialGradient(cx, cy, 140, cx, cy, 240);
-    ocGrad.addColorStop(0, '#b45309');
-    ocGrad.addColorStop(0.5, '#f59e0b');
-    ocGrad.addColorStop(1, '#fbbf24');
+    // Outer Core Layer Radial Beige-Gold Striations (R = 135 to 250)
+    const ocGrad = capCtx.createRadialGradient(cx, cy, 135, cx, cy, 250);
+    ocGrad.addColorStop(0, '#fef08a');
+    ocGrad.addColorStop(0.5, '#fde047');
+    ocGrad.addColorStop(1, '#d97706');
     capCtx.fillStyle = ocGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 240, 0, Math.PI * 2); capCtx.fill();
+    capCtx.beginPath(); capCtx.arc(cx, cy, 250, 0, Math.PI * 2); capCtx.fill();
 
-    // Inner Core (R = 140)
-    const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 140);
+    // Draw radial beige/golden striations
+    for (let angle = 0; angle < Math.PI * 2; angle += 0.018) {
+      const innerR = 135 + Math.random() * 3;
+      const outerR = 250 - Math.random() * 3;
+      const x1 = cx + Math.cos(angle) * innerR;
+      const y1 = cy + Math.sin(angle) * innerR;
+      const x2 = cx + Math.cos(angle) * outerR;
+      const y2 = cy + Math.sin(angle) * outerR;
+
+      capCtx.strokeStyle = Math.random() > 0.5 ? '#fef08a' : '#ca8a04';
+      capCtx.lineWidth = Math.random() * 2 + 1;
+      capCtx.beginPath();
+      capCtx.moveTo(x1, y1);
+      capCtx.lineTo(x2, y2);
+      capCtx.stroke();
+    }
+
+    // Inner Core Sphere Cross-Section (R = 0 to 135)
+    const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 135);
     icGrad.addColorStop(0, '#ffffff');
     icGrad.addColorStop(0.3, '#fef08a');
-    icGrad.addColorStop(0.7, '#eab308');
-    icGrad.addColorStop(1, '#ca8a04');
+    icGrad.addColorStop(0.7, '#fde047');
+    icGrad.addColorStop(1, '#eab308');
     capCtx.fillStyle = icGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.fill();
+    capCtx.beginPath(); capCtx.arc(cx, cy, 135, 0, Math.PI * 2); capCtx.fill();
 
-    // Concentric Boundary Rings & Specks
-    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
-    capCtx.lineWidth = 4;
-    [490, 430, 330, 240, 140].forEach(r => {
+    // Concentric Boundary Ring Dividers
+    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    capCtx.lineWidth = 3;
+    [485, 250, 135].forEach(r => {
       capCtx.beginPath(); capCtx.arc(cx, cy, r, 0, Math.PI * 2); capCtx.stroke();
     });
 
