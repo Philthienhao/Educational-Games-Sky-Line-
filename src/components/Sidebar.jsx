@@ -24,7 +24,8 @@ import {
   Sparkles,
   User,
   Award,
-  Activity
+  Activity,
+  KeyRound
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -37,6 +38,7 @@ export function Sidebar({
   onOpenRoleSwitcher, 
   onOpenAdminCreateGame, 
   onOpenUserManagement,
+  onOpenChangePassword,
   onLogout,
   myGamesCount,
   isMobileOpen,
@@ -353,6 +355,21 @@ export function Sidebar({
                 </div>
               </div>
             </div>
+
+            <button 
+              onClick={onOpenChangePassword}
+              className="sidebar-logout-icon-btn"
+              title="Đổi mật khẩu tài khoản"
+              style={{
+                background: 'rgba(2, 132, 199, 0.12)',
+                color: '#0284c7',
+                border: '1px solid rgba(2, 132, 199, 0.25)',
+                marginRight: '4px'
+              }}
+            >
+              <KeyRound size={15} />
+              <span>Mật khẩu</span>
+            </button>
 
             <button 
               onClick={onLogout}

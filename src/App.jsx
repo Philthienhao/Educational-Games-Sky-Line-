@@ -38,6 +38,7 @@ import { GeoExperimentsView } from './components/GeoExperimentsView';
 import { ParentMeetingSupport } from './components/ParentMeetingSupport';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
+import { ChangePasswordModal } from './components/ChangePasswordModal';
 import StudentPickerManager from './components/StudentPickerManager';
 import ClassroomTimerManager from './components/ClassroomTimerManager';
 import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
@@ -93,6 +94,7 @@ export function App() {
   const [isRoleSwitcherOpen, setIsRoleSwitcherOpen] = useState(false);
   const [isAdminCreateGameOpen, setIsAdminCreateGameOpen] = useState(false);
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
@@ -376,6 +378,7 @@ export function App() {
         onOpenRoleSwitcher={() => setIsRoleSwitcherOpen(true)}
         onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
         onOpenUserManagement={() => setIsUserManagementOpen(true)}
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         onLogout={handleLogout}
         myGamesCount={savedGames.length}
         isMobileOpen={isMobileOpen}
@@ -728,6 +731,13 @@ export function App() {
         isOpen={isUserManagementOpen}
         onClose={() => setIsUserManagementOpen(false)}
         currentUser={currentUser}
+      />
+
+      <ChangePasswordModal 
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        currentUser={currentUser}
+        onUserUpdated={(updatedUser) => setCurrentUser(updatedUser)}
       />
 
       {playingGame && (
