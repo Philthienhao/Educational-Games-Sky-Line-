@@ -19,7 +19,8 @@ import {
   Clock,
   User,
   LogOut,
-  LogIn
+  LogIn,
+  KeyRound
 } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { GameCard } from './components/GameCard';
@@ -931,6 +932,30 @@ export function App() {
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => {
+                  setIsMobileAccountOpen(false);
+                  setIsChangePasswordOpen(true);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  fontSize: '0.92rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)'
+                }}
+              >
+                <KeyRound size={18} /> Đổi Mật Khẩu Cá Nhân
+              </button>
               <button
                 onClick={() => {
                   setIsMobileAccountOpen(false);

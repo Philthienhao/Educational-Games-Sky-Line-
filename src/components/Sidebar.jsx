@@ -231,6 +231,31 @@ export function Sidebar({
             })}
           </nav>
 
+          {/* ACCOUNT & SECURITY SECTION */}
+          <div style={{ marginTop: '16px', borderTop: '1px dashed rgba(0, 0, 0, 0.08)', paddingTop: '14px' }}>
+            <div style={{
+              fontSize: '0.72rem',
+              fontWeight: 900,
+              color: '#0284c7',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '6px'
+            }}>
+              TÀI KHOẢN CÁ NHÂN
+            </div>
+            <div className="sidebar-vertical-nav">
+              <button 
+                className="sidebar-menu-btn"
+                onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
+                style={{ background: 'rgba(2, 132, 199, 0.08)', border: '1px solid rgba(2, 132, 199, 0.2)' }}
+              >
+                <KeyRound size={19} className="menu-icon" color="#0284c7" />
+                <span className="menu-label" style={{ fontWeight: 800, color: '#0284c7' }}>🔑 Đổi Mật Khẩu Cá Nhân</span>
+              </button>
+            </div>
+          </div>
+
           {/* ADMIN MANAGEMENT SECTION */}
           {isAdmin && (
             <div style={{ marginTop: '18px' }}>
@@ -318,8 +343,8 @@ export function Sidebar({
           </div>
 
           {/* USER PROFILE & LOGOUT FOOTER - FIXED AT VERY BOTTOM */}
-          <div className="sidebar-user-footer">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+          <div className="sidebar-user-footer" style={{ flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
               <div 
                 onClick={onOpenRoleSwitcher}
                 style={{
@@ -356,29 +381,55 @@ export function Sidebar({
               </div>
             </div>
 
-            <button 
-              onClick={onOpenChangePassword}
-              className="sidebar-logout-icon-btn"
-              title="Đổi mật khẩu tài khoản"
-              style={{
-                background: 'rgba(2, 132, 199, 0.12)',
-                color: '#0284c7',
-                border: '1px solid rgba(2, 132, 199, 0.25)',
-                marginRight: '4px'
-              }}
-            >
-              <KeyRound size={15} />
-              <span>Mật khẩu</span>
-            </button>
+            <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
+              <button 
+                onClick={onOpenChangePassword}
+                title="Đổi mật khẩu tài khoản"
+                style={{
+                  flex: 1,
+                  background: 'rgba(2, 132, 199, 0.12)',
+                  color: '#0284c7',
+                  border: '1px solid rgba(2, 132, 199, 0.25)',
+                  borderRadius: '10px',
+                  padding: '7px 8px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <KeyRound size={14} />
+                <span>Đổi Mật Khẩu</span>
+              </button>
 
-            <button 
-              onClick={onLogout}
-              className="sidebar-logout-icon-btn"
-              title="Đăng xuất khỏi hệ thống"
-            >
-              <LogOut size={16} />
-              <span>Đăng xuất</span>
-            </button>
+              <button 
+                onClick={onLogout}
+                title="Đăng xuất khỏi hệ thống"
+                style={{
+                  flex: 1,
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '10px',
+                  padding: '7px 8px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <LogOut size={14} />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
           </div>
 
         </div>
