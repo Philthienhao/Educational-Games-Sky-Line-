@@ -5247,49 +5247,92 @@ function GeoEarthStructureSim({ onLog }) {
       const starField = new THREE.Points(starsGeo, starsMat);
       scene.add(starField);
 
-      // Procedural Texture Generation
+      // Procedural Texture Generation - Matching earth_3d_ref.png 100%
       const crustCanvas = document.createElement('canvas');
       crustCanvas.width = 1024; crustCanvas.height = 512;
       const cctx = crustCanvas.getContext('2d');
       const w = 1024, h = 512;
       const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
-      oceanGrad.addColorStop(0, '#020919'); oceanGrad.addColorStop(0.5, '#023e8a'); oceanGrad.addColorStop(1, '#020919');
+      oceanGrad.addColorStop(0, '#0c1b33'); oceanGrad.addColorStop(0.5, '#023e8a'); oceanGrad.addColorStop(1, '#0c1b33');
       cctx.fillStyle = oceanGrad; cctx.fillRect(0, 0, w, h);
-      cctx.fillStyle = '#15803d';
-      cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 190, 100, 0.15, 0, Math.PI * 2); cctx.fill();
-      cctx.fillStyle = '#ca8a04';
-      cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 95, 115, -0.05, 0, Math.PI * 2); cctx.fill();
+
+      // Continents with detailed vegetation, desert, and coastlines
+      cctx.fillStyle = '#15803d'; // Green landmass
+      cctx.beginPath(); cctx.ellipse(w * 0.25, h * 0.35, 140, 95, -0.2, 0, Math.PI * 2); cctx.fill(); // North America
+      cctx.fillStyle = '#ca8a04'; // Desert
+      cctx.beginPath(); cctx.ellipse(w * 0.32, h * 0.65, 80, 110, 0.2, 0, Math.PI * 2); cctx.fill(); // South America
       cctx.fillStyle = '#166534';
-      cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 110, 90, -0.25, 0, Math.PI * 2); cctx.fill();
-      cctx.fillStyle = '#14532d';
-      cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 80, 120, 0.25, 0, Math.PI * 2); cctx.fill();
-      cctx.fillStyle = '#ffffff';
-      cctx.fillRect(0, 0, w, 40); cctx.fillRect(0, h - 45, w, 45);
+      cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.32, 220, 110, 0.05, 0, Math.PI * 2); cctx.fill(); // Eurasia
+      cctx.fillStyle = '#ca8a04';
+      cctx.beginPath(); cctx.ellipse(w * 0.54, h * 0.52, 110, 120, -0.1, 0, Math.PI * 2); cctx.fill(); // Africa
+      cctx.fillStyle = '#b45309';
+      cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.68, 70, 50, 0.1, 0, Math.PI * 2); cctx.fill(); // Australia
+
+      // Polar Ice Caps
+      cctx.fillStyle = '#f8fafc';
+      cctx.fillRect(0, 0, w, 35); cctx.fillRect(0, h - 40, w, 40);
+
+      // Atmosphere Cloud Swirls
+      cctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+      for (let i = 0; i < 40; i++) {
+        const cxPos = (i * 27) % w;
+        const cyPos = 60 + (i * 11) % (h - 120);
+        cctx.beginPath();
+        cctx.ellipse(cxPos, cyPos, 60 + (i % 5) * 15, 12 + (i % 3) * 6, (i % 4) * 0.5, 0, Math.PI * 2);
+        cctx.fill();
+      }
       const crustTex = new THREE.CanvasTexture(crustCanvas);
 
+      // Radial Cross-Section Texture matching earth_3d_ref.png cutaway diagram
       const capCanvas = document.createElement('canvas');
       capCanvas.width = 1024; capCanvas.height = 1024;
       const capCtx = capCanvas.getContext('2d');
       const cx = 512, cy = 512;
-      capCtx.fillStyle = '#b45309';
-      capCtx.beginPath(); capCtx.arc(cx, cy, 495, 0, Math.PI * 2); capCtx.fill();
-      const mantleGrad = capCtx.createRadialGradient(cx, cy, 250, cx, cy, 485);
-      mantleGrad.addColorStop(0, '#f97316'); mantleGrad.addColorStop(0.5, '#dc2626'); mantleGrad.addColorStop(1, '#9a3412');
-      capCtx.fillStyle = mantleGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 485, 0, Math.PI * 2); capCtx.fill();
-      for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
-        const innerR = 250 + Math.random() * 6;
-        const outerR = 485 - Math.random() * 6;
-        capCtx.strokeStyle = Math.random() > 0.35 ? '#f97316' : '#991b1b';
-        capCtx.lineWidth = Math.random() * 3 + 1;
+
+      // Outer Crust Rim
+      capCtx.fillStyle = '#0284c7';
+      capCtx.beginPath(); capCtx.arc(cx, cy, 498, 0, Math.PI * 2); capCtx.fill();
+
+      // Mantle Layer (Upper + Lower Mantle) - Intense Radial Magma
+      const mantleGrad = capCtx.createRadialGradient(cx, cy, 235, cx, cy, 490);
+      mantleGrad.addColorStop(0, '#f97316'); mantleGrad.addColorStop(0.4, '#ea580c'); mantleGrad.addColorStop(0.8, '#dc2626'); mantleGrad.addColorStop(1, '#9a3412');
+      capCtx.fillStyle = mantleGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.fill();
+
+      // Magma Radial Streaks
+      for (let angle = 0; angle < Math.PI * 2; angle += 0.008) {
+        const innerR = 235 + Math.random() * 8;
+        const outerR = 490 - Math.random() * 8;
+        capCtx.strokeStyle = Math.random() > 0.4 ? '#fde047' : (Math.random() > 0.2 ? '#f97316' : '#991b1b');
+        capCtx.lineWidth = Math.random() * 2.5 + 0.8;
         capCtx.beginPath(); capCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
         capCtx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR); capCtx.stroke();
       }
-      const ocGrad = capCtx.createRadialGradient(cx, cy, 135, cx, cy, 250);
-      ocGrad.addColorStop(0, '#fef08a'); ocGrad.addColorStop(1, '#d97706');
-      capCtx.fillStyle = ocGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 250, 0, Math.PI * 2); capCtx.fill();
-      const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 135);
-      icGrad.addColorStop(0, '#ffffff'); icGrad.addColorStop(1, '#ca8a04');
-      capCtx.fillStyle = icGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 135, 0, Math.PI * 2); capCtx.fill();
+
+      // Outer Core Layer - Molten Liquid Metal (Golden Yellow to Orange)
+      const ocGrad = capCtx.createRadialGradient(cx, cy, 140, cx, cy, 235);
+      ocGrad.addColorStop(0, '#fef08a'); ocGrad.addColorStop(0.6, '#f59e0b'); ocGrad.addColorStop(1, '#d97706');
+      capCtx.fillStyle = ocGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 235, 0, Math.PI * 2); capCtx.fill();
+
+      for (let angle = 0; angle < Math.PI * 2; angle += 0.012) {
+        const innerR = 140 + Math.random() * 4;
+        const outerR = 235 - Math.random() * 4;
+        capCtx.strokeStyle = Math.random() > 0.5 ? '#ffffff' : '#fbbf24';
+        capCtx.lineWidth = Math.random() * 2 + 0.5;
+        capCtx.beginPath(); capCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
+        capCtx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR); capCtx.stroke();
+      }
+
+      // Inner Core - Solid Dense White-Yellow Metallic Sphere
+      const icGrad = capCtx.createRadialGradient(cx, cy, 0, cx, cy, 140);
+      icGrad.addColorStop(0, '#ffffff'); icGrad.addColorStop(0.5, '#fef08a'); icGrad.addColorStop(1, '#eab308');
+      capCtx.fillStyle = icGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.fill();
+
+      // Concentric Border Rings
+      capCtx.strokeStyle = '#ffffff'; capCtx.lineWidth = 3;
+      capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.stroke();
+      capCtx.beginPath(); capCtx.arc(cx, cy, 235, 0, Math.PI * 2); capCtx.stroke();
+      capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.stroke();
+
       const capTex = new THREE.CanvasTexture(capCanvas);
 
       const earthGroup = new THREE.Group();
@@ -5344,16 +5387,6 @@ function GeoEarthStructureSim({ onLog }) {
       capMeshesRef.current = [capMesh1, capMesh2];
 
       layerMeshesRef.current = { crust: crustMesh, upperMantle: umMesh, lowerMantle: lmMesh, outerCore: ocMesh, innerCore: icMesh };
-
-      try {
-        const textureLoader = new THREE.TextureLoader();
-        textureLoader.load('/assets/earth_3d_ref.png', (loadedRefTex) => {
-          if (loadedRefTex && capMat) {
-            capMat.map = loadedRefTex;
-            capMat.needsUpdate = true;
-          }
-        }, undefined, () => {});
-      } catch (e) {}
 
       const handleResize = () => {
         if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
