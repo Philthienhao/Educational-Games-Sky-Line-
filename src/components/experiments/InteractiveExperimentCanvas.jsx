@@ -3863,8 +3863,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       domElement.removeEventListener('pointerdown', handlePointerDown);
       domElement.removeEventListener('pointerup', handlePointerUp);
       domElement.removeEventListener('pointermove', handlePointerMove);
-      controls.dispose();
-      renderer.dispose();
+      if (controls) { try { controls.dispose(); } catch (e) {} }
+      if (renderer) { try { renderer.dispose(); } catch (e) {} }
       if (container) {
         container.innerHTML = '';
       }
@@ -5709,85 +5709,96 @@ function GeoEarthStructureSim({ onLog }) {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', handleResize);
-      if (rendererRef.current && rendererRef.current.domElement) {
-        rendererRef.current.domElement.remove();
+      if (rendererRef.current) {
+        try {
+          if (rendererRef.current.domElement && rendererRef.current.domElement.parentNode) {
+            rendererRef.current.domElement.parentNode.removeChild(rendererRef.current.domElement);
+          }
+          rendererRef.current.dispose();
+        } catch (e) {}
+        rendererRef.current = null;
       }
-      renderer.dispose();
     };
   }, [sliceMode, isExploded]);
 
   // Handle Layer Highlight & Focus Opacity Modifications
   useEffect(() => {
-    Object.keys(layerMeshesRef.current).forEach(key => {
-      const mesh = layerMeshesRef.current[key];
-      if (!mesh || !mesh.material) return;
-      if (key === activeLayer) {
-        mesh.material.transparent = false;
-        mesh.material.opacity = 1.0;
-        if (mesh.material.emissiveIntensity !== undefined) {
-          mesh.material.emissiveIntensity = 0.65;
+    try {
+      Object.keys(layerMeshesRef.current).forEach(key => {
+        const mesh = layerMeshesRef.current[key];
+        if (!mesh || !mesh.material) return;
+        if (key === activeLayer) {
+          mesh.material.transparent = false;
+          mesh.material.opacity = 1.0;
+          if (mesh.material.emissiveIntensity !== undefined) {
+            mesh.material.emissiveIntensity = 0.65;
+          }
+        } else if (isFocusIsolated) {
+          mesh.material.transparent = true;
+          mesh.material.opacity = 0.22;
+          if (mesh.material.emissiveIntensity !== undefined) {
+            mesh.material.emissiveIntensity = 0.05;
+          }
+        } else {
+          mesh.material.transparent = false;
+          mesh.material.opacity = 1.0;
+          if (mesh.material.emissiveIntensity !== undefined) {
+            mesh.material.emissiveIntensity = 0.35;
+          }
         }
-      } else if (isFocusIsolated) {
-        mesh.material.transparent = true;
-        mesh.material.opacity = 0.22;
-        if (mesh.material.emissiveIntensity !== undefined) {
-          mesh.material.emissiveIntensity = 0.05;
-        }
-      } else {
-        mesh.material.transparent = false;
-        mesh.material.opacity = 1.0;
-        if (mesh.material.emissiveIntensity !== undefined) {
-          mesh.material.emissiveIntensity = 0.35;
-        }
-      }
-    });
+      });
+    } catch (e) {}
   }, [activeLayer, isFocusIsolated]);
 
   const handlePointerDown = (event) => {
-    if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    try {
+      if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    mouseRef.current.set(x, y);
-    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+      mouseRef.current.set(x, y);
+      raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
 
-    const meshes = Object.values(layerMeshesRef.current);
-    const intersects = raycasterRef.current.intersectObjects(meshes, true);
+      const meshes = Object.values(layerMeshesRef.current);
+      const intersects = raycasterRef.current.intersectObjects(meshes, true);
 
-    if (intersects.length > 0) {
-      const hitObj = intersects[0].object;
-      const key = hitObj.userData?.key;
-      if (key && layersInfo[key]) {
-        setActiveLayer(key);
-        setShowDetailCard(true);
-        if (onLog) {
-          onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
+      if (intersects.length > 0) {
+        const hitObj = intersects[0].object;
+        const key = hitObj.userData?.key;
+        if (key && layersInfo[key]) {
+          setActiveLayer(key);
+          setShowDetailCard(true);
+          if (onLog) {
+            onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
+          }
         }
       }
-    }
+    } catch (e) {}
   };
 
   const handlePointerMove = (event) => {
-    if (!containerRef.current || !cameraRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    try {
+      if (!containerRef.current || !cameraRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    mouseRef.current.set(x, y);
-    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+      mouseRef.current.set(x, y);
+      raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
 
-    const meshes = Object.values(layerMeshesRef.current);
-    const intersects = raycasterRef.current.intersectObjects(meshes, true);
+      const meshes = Object.values(layerMeshesRef.current);
+      const intersects = raycasterRef.current.intersectObjects(meshes, true);
 
-    if (intersects.length > 0) {
-      const hitObj = intersects[0].object;
-      setHoveredLayerName(hitObj.userData?.name || null);
-      if (containerRef.current) containerRef.current.style.cursor = 'pointer';
-    } else {
-      setHoveredLayerName(null);
-      if (containerRef.current) containerRef.current.style.cursor = 'grab';
-    }
+      if (intersects.length > 0) {
+        const hitObj = intersects[0].object;
+        setHoveredLayerName(hitObj.userData?.name || null);
+        if (containerRef.current) containerRef.current.style.cursor = 'pointer';
+      } else {
+        setHoveredLayerName(null);
+        if (containerRef.current) containerRef.current.style.cursor = 'grab';
+      }
+    } catch (e) {}
   };
 
   const handleSelectLayer = (key) => {
@@ -9392,6 +9403,24 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       default: {
         const detectedType = detectExperimentInteractiveType(experiment);
+        if (detectedType === 'geo_earth_structure') {
+          return <GeoEarthStructureSim onLog={addLog} />;
+        }
+        if (detectedType === 'geo_solar_system') {
+          return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'geo_volcano') {
+          return <GeoVolcanoSim onLog={addLog} />;
+        }
+        if (detectedType === 'geo_earthquake') {
+          return <GeoEarthquakeSim onLog={addLog} />;
+        }
+        if (detectedType === 'geo_water_cycle') {
+          return <GeoWaterCycleSim onLog={addLog} />;
+        }
+        if (detectedType === 'geo_plate_tectonics') {
+          return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
         if (detectedType === 'chem_water_oxygen_separation') {
           return <ChemWaterOxygenSeparationSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
         }
