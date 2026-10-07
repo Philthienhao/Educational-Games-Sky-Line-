@@ -101,7 +101,8 @@ export function Sidebar({
     { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskRound, color: '#0d9488' },
     { id: 'timer', label: 'Đồng hồ bấm giờ', icon: Clock, color: '#8b5cf6' },
     { id: 'skl-web-links', label: 'Địa chỉ web', icon: Globe, color: '#3b82f6' },
-    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' }
+    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' },
+    { id: 'change-password', label: '🔑 Đổi Mật Khẩu Tài Khoản', icon: KeyRound, color: '#0284c7' }
   ];
 
   return (
@@ -202,7 +203,11 @@ export function Sidebar({
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id);
+                    if (item.id === 'change-password') {
+                      if (onOpenChangePassword) onOpenChangePassword();
+                    } else {
+                      setActiveTab(item.id);
+                    }
                     setIsMobileOpen(false);
                   }}
                   className={`sidebar-menu-btn ${isActive ? 'active' : ''}`}

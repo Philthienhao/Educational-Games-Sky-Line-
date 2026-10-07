@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, UserPlus, FlaskRound, Clock, HeartHandshake, Globe, Beaker } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, UserPlus, FlaskRound, Clock, HeartHandshake, Globe, Beaker, KeyRound } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -12,6 +12,7 @@ export function Navbar({
   onOpenRoleSwitcher, 
   onOpenAdminCreateGame, 
   onOpenUserManagement,
+  onOpenChangePassword,
   onLogout,
   myGamesCount 
 }) {
@@ -359,6 +360,28 @@ export function Navbar({
                 </div>
               </div>
             </div>
+
+            {/* Change Password Button */}
+            <button
+              onClick={onOpenChangePassword}
+              className="btn btn-secondary btn-sm"
+              title="Đổi mật khẩu tài khoản"
+              style={{
+                background: 'rgba(2, 132, 199, 0.15)',
+                color: '#38bdf8',
+                border: '1px solid rgba(2, 132, 199, 0.35)',
+                padding: '6px 12px',
+                borderRadius: '20px',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <KeyRound size={15} />
+              Đổi Mật Khẩu
+            </button>
 
             {/* Logout Button */}
             <button
