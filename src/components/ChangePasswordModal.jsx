@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyRound, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, X, ShieldCheck } from 'lucide-react';
+import { KeyRound, Eye, EyeOff, Lock, CheckCircle2, AlertCircle, X } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
 export function ChangePasswordModal({ isOpen, onClose, currentUser, onUserUpdated }) {
@@ -314,21 +314,6 @@ export function ChangePasswordModal({ isOpen, onClose, currentUser, onUserUpdate
             />
           </div>
 
-          <div style={{
-            background: 'rgba(2, 132, 199, 0.08)',
-            border: '1px solid rgba(2, 132, 199, 0.2)',
-            borderRadius: '12px',
-            padding: '10px 12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '0.78rem',
-            color: '#38bdf8'
-          }}>
-            <ShieldCheck size={16} style={{ flexShrink: 0 }} />
-            <span>Mật khẩu đổi sẽ được lưu vĩnh viễn trên Cloud DB & cập nhật tức thì tới Admin hệ thống.</span>
-          </div>
-
           {/* Action Buttons */}
           <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
             <button
@@ -367,7 +352,7 @@ export function ChangePasswordModal({ isOpen, onClose, currentUser, onUserUpdate
                 opacity: isSubmitting ? 0.7 : 1
               }}
             >
-              {isSubmitting ? 'Đang cập nhật...' : '💾 Lừu Mật Khẩu Mới'}
+              {isSubmitting ? 'Đang cập nhật...' : '💾 Lưu Mật Khẩu Mới'}
             </button>
           </div>
 
