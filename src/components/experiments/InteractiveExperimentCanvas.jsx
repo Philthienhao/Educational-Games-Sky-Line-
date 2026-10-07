@@ -5132,110 +5132,204 @@ function GeoEarthStructureSim({ onLog }) {
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
 
-  // Procedural Textures Creation for 5 Layers
-  const generateProceduralTextures = () => {
-    // 1. Earth Crust Texture (Ocean + Landmass + Polar caps)
+  // High-Definition Photorealistic Procedural Texture Generator
+  const generatePhotorealisticEarthTextures = () => {
+    // 1. Photorealistic 2048x1024 Earth Satellite Surface Map
     const crustCanvas = document.createElement('canvas');
-    crustCanvas.width = 1024;
-    crustCanvas.height = 512;
+    crustCanvas.width = 2048;
+    crustCanvas.height = 1024;
     const cctx = crustCanvas.getContext('2d');
+    const w = 2048;
+    const h = 1024;
 
-    const oceanGrad = cctx.createLinearGradient(0, 0, 0, 512);
-    oceanGrad.addColorStop(0, '#0c4a6e');
-    oceanGrad.addColorStop(0.5, '#0284c7');
-    oceanGrad.addColorStop(1, '#075985');
+    // Ocean gradient with realistic depth shading
+    const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
+    oceanGrad.addColorStop(0, '#041026');
+    oceanGrad.addColorStop(0.2, '#062046');
+    oceanGrad.addColorStop(0.5, '#023e8a');
+    oceanGrad.addColorStop(0.8, '#0077b6');
+    oceanGrad.addColorStop(1, '#03045e');
     cctx.fillStyle = oceanGrad;
-    cctx.fillRect(0, 0, 1024, 512);
+    cctx.fillRect(0, 0, w, h);
 
+    // Shallow ocean shelf turquoise glow around landmasses
+    cctx.fillStyle = 'rgba(6, 182, 212, 0.35)';
+    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 360, 200, 0.15, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 190, 230, -0.05, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 210, 180, -0.25, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 160, 240, 0.25, 0, Math.PI * 2); cctx.fill();
+
+    // Eurasia Rainforests & Woodlands
     cctx.fillStyle = '#15803d';
-    cctx.beginPath();
-    cctx.ellipse(300, 200, 180, 110, 0.2, 0, Math.PI * 2);
-    cctx.ellipse(700, 250, 160, 120, -0.3, 0, Math.PI * 2);
-    cctx.ellipse(450, 320, 120, 90, 0.5, 0, Math.PI * 2);
-    cctx.ellipse(180, 360, 100, 70, -0.4, 0, Math.PI * 2);
-    cctx.ellipse(850, 160, 110, 60, 0.1, 0, Math.PI * 2);
-    cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 340, 180, 0.15, 0, Math.PI * 2); cctx.fill();
 
+    // Africa Savanna & Sahara Desert
+    cctx.fillStyle = '#ca8a04';
+    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 170, 210, -0.05, 0, Math.PI * 2); cctx.fill();
     cctx.fillStyle = '#a16207';
-    cctx.beginPath();
-    cctx.ellipse(320, 180, 100, 50, 0.3, 0, Math.PI * 2);
-    cctx.ellipse(680, 220, 90, 40, -0.2, 0, Math.PI * 2);
-    cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.51, h * 0.46, 140, 90, 0.05, 0, Math.PI * 2); cctx.fill();
 
-    cctx.fillStyle = '#f8fafc';
-    cctx.fillRect(0, 0, 1024, 40);
-    cctx.fillRect(0, 470, 1024, 42);
+    // North America Forest & Plains
+    cctx.fillStyle = '#166534';
+    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 190, 160, -0.25, 0, Math.PI * 2); cctx.fill();
+
+    // South America Amazon Rainforest
+    cctx.fillStyle = '#14532d';
+    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 140, 220, 0.25, 0, Math.PI * 2); cctx.fill();
+
+    // Australia Outback & SE Asia
+    cctx.fillStyle = '#b45309';
+    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.72, 120, 85, 0.1, 0, Math.PI * 2); cctx.fill();
+
+    // SE Asia & Vietnam peninsula
+    cctx.fillStyle = '#15803d';
+    cctx.beginPath(); cctx.ellipse(w * 0.74, h * 0.45, 60, 45, 0.3, 0, Math.PI * 2); cctx.fill();
+
+    // Mountain Ranges (Himalayas, Andes, Rockies)
+    cctx.fillStyle = '#58402c';
+    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 120, 35, -0.2, 0, Math.PI * 2); cctx.fill(); // Himalayas
+    cctx.beginPath(); cctx.ellipse(w * 0.24, h * 0.68, 25, 180, 0.3, 0, Math.PI * 2); cctx.fill();   // Andes
+    cctx.beginPath(); cctx.ellipse(w * 0.19, h * 0.30, 30, 130, -0.3, 0, Math.PI * 2); cctx.fill();  // Rockies
+
+    // Snow Mountain Peaks
+    cctx.fillStyle = '#ffffff';
+    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 85, 18, -0.2, 0, Math.PI * 2); cctx.fill();
+
+    // Polar Ice Caps (Arctic & Antarctica)
+    cctx.fillStyle = '#ffffff';
+    cctx.fillRect(0, 0, w, 75);
+    cctx.fillRect(0, h - 85, w, 85);
+
+    // Subtle glacial blue ice cracks
+    cctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+    for (let i = 0; i < 45; i++) {
+      cctx.fillRect(Math.random() * w, Math.random() * 70, Math.random() * 40 + 10, 2);
+      cctx.fillRect(Math.random() * w, h - 80 + Math.random() * 70, Math.random() * 40 + 10, 2);
+    }
 
     const crustTex = new THREE.CanvasTexture(crustCanvas);
 
-    // 2. Upper Mantle Magma Silicate Texture
-    const umCanvas = document.createElement('canvas');
-    umCanvas.width = 512;
-    umCanvas.height = 256;
-    const umctx = umCanvas.getContext('2d');
-    const umGrad = umctx.createLinearGradient(0, 0, 512, 256);
-    umGrad.addColorStop(0, '#9a3412');
-    umGrad.addColorStop(0.5, '#ea580c');
-    umGrad.addColorStop(1, '#c2410c');
-    umctx.fillStyle = umGrad;
-    umctx.fillRect(0, 0, 512, 256);
+    // 2. Realistic Swirling Cloud Texture Map
+    const cloudCanvas = document.createElement('canvas');
+    cloudCanvas.width = 1024;
+    cloudCanvas.height = 512;
+    const clctx = cloudCanvas.getContext('2d');
+    clctx.clearRect(0, 0, 1024, 512);
 
-    umctx.fillStyle = '#fde047';
-    for (let i = 0; i < 45; i++) {
-      umctx.beginPath();
-      umctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 10 + 3, 0, Math.PI * 2);
-      umctx.fill();
+    clctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    for (let i = 0; i < 120; i++) {
+      const cx = Math.random() * 1024;
+      const cy = Math.random() * 420 + 46;
+      const rx = Math.random() * 110 + 25;
+      const ry = Math.random() * 18 + 5;
+      clctx.beginPath();
+      clctx.ellipse(cx, cy, rx, ry, Math.random() * 0.6 - 0.3, 0, Math.PI * 2);
+      clctx.fill();
     }
-    const upperMantleTex = new THREE.CanvasTexture(umCanvas);
+    const cloudTex = new THREE.CanvasTexture(cloudCanvas);
 
-    // 3. Lower Mantle Dense High-Pressure Rock Texture
-    const lmCanvas = document.createElement('canvas');
-    lmCanvas.width = 512;
-    lmCanvas.height = 256;
-    const lmctx = lmCanvas.getContext('2d');
-    const lmGrad = lmctx.createLinearGradient(0, 0, 512, 256);
+    // 3. Cutaway Cross-Section Cap Texture (Solid Concentric Ring Map for 5 Layers)
+    const capCanvas = document.createElement('canvas');
+    capCanvas.width = 1024;
+    capCanvas.height = 1024;
+    const capCtx = capCanvas.getContext('2d');
+    const cx = 512, cy = 512;
+
+    // Outer Ocean/Atmosphere Rim (R = 510)
+    capCtx.fillStyle = '#0284c7';
+    capCtx.beginPath(); capCtx.arc(cx, cy, 510, 0, Math.PI * 2); capCtx.fill();
+
+    // Crust Basalt/Rock Rim (R = 490)
+    capCtx.fillStyle = '#334155';
+    capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.fill();
+
+    // Upper Mantle (R = 430)
+    const umGrad = capCtx.createRadialGradient(cx, cy, 330, cx, cy, 430);
+    umGrad.addColorStop(0, '#c2410c');
+    umGrad.addColorStop(0.5, '#ea580c');
+    umGrad.addColorStop(1, '#f97316');
+    capCtx.fillStyle = umGrad;
+    capCtx.beginPath(); capCtx.arc(cx, cy, 430, 0, Math.PI * 2); capCtx.fill();
+
+    // Lower Mantle (R = 330)
+    const lmGrad = capCtx.createRadialGradient(cx, cy, 240, cx, cy, 330);
     lmGrad.addColorStop(0, '#7f1d1d');
     lmGrad.addColorStop(0.5, '#dc2626');
-    lmGrad.addColorStop(1, '#991b1b');
-    lmctx.fillStyle = lmGrad;
-    lmctx.fillRect(0, 0, 512, 256);
+    lmGrad.addColorStop(1, '#ef4444');
+    capCtx.fillStyle = lmGrad;
+    capCtx.beginPath(); capCtx.arc(cx, cy, 330, 0, Math.PI * 2); capCtx.fill();
 
-    lmctx.fillStyle = '#fbbf24';
-    for (let i = 0; i < 35; i++) {
-      lmctx.beginPath();
-      lmctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 8 + 2, 0, Math.PI * 2);
-      lmctx.fill();
-    }
-    const lowerMantleTex = new THREE.CanvasTexture(lmCanvas);
-
-    // 4. Outer Core Liquid Lava Swirling Texture
-    const ocCanvas = document.createElement('canvas');
-    ocCanvas.width = 512;
-    ocCanvas.height = 256;
-    const octx = ocCanvas.getContext('2d');
-    const ocGrad = octx.createRadialGradient(256, 128, 20, 256, 128, 200);
-    ocGrad.addColorStop(0, '#fbbf24');
+    // Outer Core (R = 240)
+    const ocGrad = capCtx.createRadialGradient(cx, cy, 140, cx, cy, 240);
+    ocGrad.addColorStop(0, '#b45309');
     ocGrad.addColorStop(0.5, '#f59e0b');
-    ocGrad.addColorStop(1, '#b45309');
-    octx.fillStyle = ocGrad;
-    octx.fillRect(0, 0, 512, 256);
-    const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
+    ocGrad.addColorStop(1, '#fbbf24');
+    capCtx.fillStyle = ocGrad;
+    capCtx.beginPath(); capCtx.arc(cx, cy, 240, 0, Math.PI * 2); capCtx.fill();
 
-    // 5. Inner Core White-Yellow Metallic Glowing Core Texture
-    const icCanvas = document.createElement('canvas');
-    icCanvas.width = 256;
-    icCanvas.height = 256;
-    const ictx = icCanvas.getContext('2d');
-    const icGrad = ictx.createRadialGradient(128, 128, 5, 128, 128, 120);
+    // Inner Core (R = 140)
+    const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 140);
     icGrad.addColorStop(0, '#ffffff');
     icGrad.addColorStop(0.3, '#fef08a');
     icGrad.addColorStop(0.7, '#eab308');
     icGrad.addColorStop(1, '#ca8a04');
-    ictx.fillStyle = icGrad;
-    ictx.fillRect(0, 0, 256, 256);
+    capCtx.fillStyle = icGrad;
+    capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.fill();
+
+    // Concentric Boundary Rings & Specks
+    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+    capCtx.lineWidth = 4;
+    [490, 430, 330, 240, 140].forEach(r => {
+      capCtx.beginPath(); capCtx.arc(cx, cy, r, 0, Math.PI * 2); capCtx.stroke();
+    });
+
+    const capTex = new THREE.CanvasTexture(capCanvas);
+
+    // 4. Upper Mantle 3D Texture
+    const umCanvas = document.createElement('canvas');
+    umCanvas.width = 512; umCanvas.height = 256;
+    const umctx = umCanvas.getContext('2d');
+    const umG = umctx.createLinearGradient(0, 0, 512, 256);
+    umG.addColorStop(0, '#9a3412'); umG.addColorStop(0.5, '#ea580c'); umG.addColorStop(1, '#c2410c');
+    umctx.fillStyle = umG; umctx.fillRect(0, 0, 512, 256);
+    umctx.fillStyle = '#fde047';
+    for (let i = 0; i < 50; i++) {
+      umctx.beginPath(); umctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 8 + 2, 0, Math.PI * 2); umctx.fill();
+    }
+    const upperMantleTex = new THREE.CanvasTexture(umCanvas);
+
+    // 5. Lower Mantle 3D Texture
+    const lmCanvas = document.createElement('canvas');
+    lmCanvas.width = 512; lmCanvas.height = 256;
+    const lmctx = lmCanvas.getContext('2d');
+    const lmG = lmctx.createLinearGradient(0, 0, 512, 256);
+    lmG.addColorStop(0, '#7f1d1d'); lmG.addColorStop(0.5, '#dc2626'); lmG.addColorStop(1, '#991b1b');
+    lmctx.fillStyle = lmG; lmctx.fillRect(0, 0, 512, 256);
+    lmctx.fillStyle = '#fbbf24';
+    for (let i = 0; i < 40; i++) {
+      lmctx.beginPath(); lmctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 7 + 2, 0, Math.PI * 2); lmctx.fill();
+    }
+    const lowerMantleTex = new THREE.CanvasTexture(lmCanvas);
+
+    // 6. Outer Core 3D Swirling Lava Texture
+    const ocCanvas = document.createElement('canvas');
+    ocCanvas.width = 512; ocCanvas.height = 256;
+    const octx = ocCanvas.getContext('2d');
+    const ocG = octx.createRadialGradient(256, 128, 10, 256, 128, 200);
+    ocG.addColorStop(0, '#fbbf24'); ocG.addColorStop(0.5, '#f59e0b'); ocG.addColorStop(1, '#b45309');
+    octx.fillStyle = ocG; octx.fillRect(0, 0, 512, 256);
+    const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
+
+    // 7. Inner Core Metallic Core Texture
+    const icCanvas = document.createElement('canvas');
+    icCanvas.width = 256; icCanvas.height = 256;
+    const ictx = icCanvas.getContext('2d');
+    const icG = ictx.createRadialGradient(128, 128, 5, 128, 128, 120);
+    icG.addColorStop(0, '#ffffff'); icG.addColorStop(0.3, '#fef08a'); icG.addColorStop(0.7, '#eab308'); icG.addColorStop(1, '#ca8a04');
+    ictx.fillStyle = icG; ictx.fillRect(0, 0, 256, 256);
     const innerCoreTex = new THREE.CanvasTexture(icCanvas);
 
-    return { crustTex, upperMantleTex, lowerMantleTex, outerCoreTex, innerCoreTex };
+    return { crustTex, cloudTex, capTex, upperMantleTex, lowerMantleTex, outerCoreTex, innerCoreTex };
   };
 
   useEffect(() => {
@@ -5254,7 +5348,7 @@ function GeoEarthStructureSim({ onLog }) {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.3;
     rendererRef.current = renderer;
 
     containerRef.current.appendChild(renderer.domElement);
@@ -5268,37 +5362,38 @@ function GeoEarthStructureSim({ onLog }) {
     controls.autoRotateSpeed = 1.2;
     controlsRef.current = controls;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    // Realistic Space Lighting Setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.4);
-    dirLight1.position.set(8, 10, 8);
-    scene.add(dirLight1);
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.8);
+    sunLight.position.set(12, 10, 8);
+    scene.add(sunLight);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.3);
-    dirLight2.position.set(-8, -6, -8);
-    scene.add(dirLight2);
+    const spaceRimLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
+    spaceRimLight.position.set(-10, -8, -10);
+    scene.add(spaceRimLight);
 
-    const coreLight = new THREE.PointLight(0xfde047, 4.5, 12);
-    coreLight.position.set(0, 0, 0);
-    scene.add(coreLight);
+    const corePointLight = new THREE.PointLight(0xfde047, 5.0, 15);
+    corePointLight.position.set(0, 0, 0);
+    scene.add(corePointLight);
 
-    // Starfield Background Particles
+    // Deep Space Starfield Background
     const starsGeo = new THREE.BufferGeometry();
     const starCoords = [];
-    for (let i = 0; i < 650; i++) {
+    for (let i = 0; i < 800; i++) {
       starCoords.push(
-        (Math.random() - 0.5) * 85,
-        (Math.random() - 0.5) * 85,
-        (Math.random() - 0.5) * 85
+        (Math.random() - 0.5) * 90,
+        (Math.random() - 0.5) * 90,
+        (Math.random() - 0.5) * 90
       );
     }
     starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-    const starsMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.25, transparent: true, opacity: 0.75 });
+    const starsMat = new THREE.PointsMaterial({ color: 0xcbd5e1, size: 0.25, transparent: true, opacity: 0.8 });
     const starField = new THREE.Points(starsGeo, starsMat);
     scene.add(starField);
 
-    const textures = generateProceduralTextures();
+    const textures = generatePhotorealisticEarthTextures();
 
     const earthGroup = new THREE.Group();
     scene.add(earthGroup);
@@ -5311,11 +5406,11 @@ function GeoEarthStructureSim({ onLog }) {
 
     const phiLen = getPhiLength(sliceMode);
 
-    // 1. Crust Mesh
+    // 1. Earth Crust Sphere Mesh
     const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
     const crustMat = new THREE.MeshStandardMaterial({
       map: textures.crustTex,
-      roughness: 0.45,
+      roughness: 0.4,
       metalness: 0.1,
       side: THREE.DoubleSide
     });
@@ -5323,7 +5418,31 @@ function GeoEarthStructureSim({ onLog }) {
     crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
     earthGroup.add(crustMesh);
 
-    // 2. Upper Mantle Mesh
+    // 2. Realistic Cloud Layer Mesh
+    const cloudGeo = new THREE.SphereGeometry(2.68, 64, 64, 0, phiLen, 0, Math.PI);
+    const cloudMat = new THREE.MeshStandardMaterial({
+      map: textures.cloudTex,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    earthGroup.add(cloudMesh);
+
+    // 3. Atmosphere Outer Glow Rim Mesh
+    const atmosGeo = new THREE.SphereGeometry(2.74, 32, 32);
+    const atmosMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.25,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending
+    });
+    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+    earthGroup.add(atmosMesh);
+
+    // 4. Upper Mantle Sphere Mesh
     const umGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
     const umMat = new THREE.MeshStandardMaterial({
       map: textures.upperMantleTex,
@@ -5336,7 +5455,7 @@ function GeoEarthStructureSim({ onLog }) {
     umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
     earthGroup.add(umMesh);
 
-    // 3. Lower Mantle Mesh
+    // 5. Lower Mantle Sphere Mesh
     const lmGeo = new THREE.SphereGeometry(1.75, 64, 64, 0, phiLen, 0, Math.PI);
     const lmMat = new THREE.MeshStandardMaterial({
       map: textures.lowerMantleTex,
@@ -5349,7 +5468,7 @@ function GeoEarthStructureSim({ onLog }) {
     lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
     earthGroup.add(lmMesh);
 
-    // 4. Outer Core Mesh
+    // 6. Outer Core Sphere Mesh
     const ocGeo = new THREE.SphereGeometry(1.25, 64, 64, 0, phiLen, 0, Math.PI);
     const ocMat = new THREE.MeshStandardMaterial({
       map: textures.outerCoreTex,
@@ -5363,7 +5482,7 @@ function GeoEarthStructureSim({ onLog }) {
     ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
     earthGroup.add(ocMesh);
 
-    // 5. Inner Core Mesh
+    // 7. Inner Core Sphere Mesh
     const icGeo = new THREE.SphereGeometry(0.75, 48, 48);
     const icMat = new THREE.MeshStandardMaterial({
       map: textures.innerCoreTex,
@@ -5375,6 +5494,32 @@ function GeoEarthStructureSim({ onLog }) {
     const icMesh = new THREE.Mesh(icGeo, icMat);
     icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
     earthGroup.add(icMesh);
+
+    // 8. Solid 3D Cutaway Cross-Section Cap Planes
+    const capMeshes = [];
+    if (sliceMode === 'cut90') {
+      const capMat = new THREE.MeshStandardMaterial({
+        map: textures.capTex,
+        side: THREE.DoubleSide,
+        roughness: 0.35,
+        metalness: 0.1
+      });
+
+      // Face 1 (Z-axis cut plane)
+      const capGeo1 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
+      const capMesh1 = new THREE.Mesh(capGeo1, capMat);
+      capMesh1.rotation.y = Math.PI / 2;
+      earthGroup.add(capMesh1);
+      capMeshes.push(capMesh1);
+
+      // Face 2 (X-axis cut plane)
+      const capGeo2 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
+      const capMesh2 = new THREE.Mesh(capGeo2, capMat);
+      capMesh2.rotation.y = Math.PI * 1.55;
+      earthGroup.add(capMesh2);
+      capMeshes.push(capMesh2);
+    }
+    capMeshesRef.current = capMeshes;
 
     layerMeshesRef.current = {
       crust: crustMesh,
@@ -5419,6 +5564,10 @@ function GeoEarthStructureSim({ onLog }) {
 
         cM.position.x = nextExp * 1.8;
         cM.position.z = nextExp * 0.9;
+        if (cloudMesh) {
+          cloudMesh.position.x = cM.position.x;
+          cloudMesh.position.z = cM.position.z;
+        }
 
         umM.position.x = nextExp * 1.35;
         umM.position.z = nextExp * 0.65;
@@ -5431,33 +5580,58 @@ function GeoEarthStructureSim({ onLog }) {
 
         icM.position.x = 0;
         icM.position.z = 0;
+
+        // Cap visibility during explode
+        capMeshesRef.current.forEach(m => {
+          m.visible = !isExploded && sliceMode === 'cut90';
+        });
       }
 
-      if (icM) {
-        icM.rotation.y += 0.005;
-      }
+      // Natural Cloud Drift & Core rotation
+      if (cloudMesh) cloudMesh.rotation.y += 0.0008;
+      if (icM) icM.rotation.y += 0.005;
 
-      // Update 3D Tag Overlay Screen Positions
+      // Smart 3D Tag Overlay Projection with Anti-Collision Vertical Spacing
       if (cameraRef.current && containerRef.current) {
         const width = containerRef.current.clientWidth;
         const height = containerRef.current.clientHeight;
 
+        const computedScreenPos = [];
         Object.keys(layersInfo).forEach(key => {
-          const tagEl = tagRefs.current[key];
-          if (!tagEl) return;
           const layerMesh = layerMeshesRef.current[key];
-          if (!layerMesh) return;
-
           const anchorWorld = layersInfo[key].anchorPos.clone();
-          anchorWorld.add(layerMesh.position);
+          if (layerMesh) {
+            anchorWorld.add(layerMesh.position);
+          }
           anchorWorld.project(cameraRef.current);
 
           const x = (anchorWorld.x * 0.5 + 0.5) * width;
           const y = (-(anchorWorld.y * 0.5) + 0.5) * height;
+          const visible = anchorWorld.z < 1 && x >= 30 && x <= width - 30 && y >= 30 && y <= height - 30;
 
-          if (anchorWorld.z < 1 && x >= 20 && x <= width - 20 && y >= 20 && y <= height - 20) {
+          computedScreenPos.push({ key, x, y, visible });
+        });
+
+        // Anti-collision sorting & vertical spacing algorithm
+        computedScreenPos.sort((a, b) => a.y - b.y);
+        const minSpacingY = 38;
+        for (let i = 1; i < computedScreenPos.length; i++) {
+          const prev = computedScreenPos[i - 1];
+          const curr = computedScreenPos[i];
+          if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
+            if (curr.y - prev.y < minSpacingY) {
+              curr.y = prev.y + minSpacingY;
+            }
+          }
+        }
+
+        // Apply 3D transforms to DOM refs
+        computedScreenPos.forEach(item => {
+          const tagEl = tagRefs.current[item.key];
+          if (!tagEl) return;
+          if (item.visible) {
             tagEl.style.display = 'flex';
-            tagEl.style.transform = `translate3d(${x}px, ${y}px, 0px) translate(-50%, -50%)`;
+            tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
           } else {
             tagEl.style.display = 'none';
           }
