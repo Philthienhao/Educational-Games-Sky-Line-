@@ -262,6 +262,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường tiểu học & thcs Xuy Xá',
     createdAt: '2026-10-07'
+  },
+  {
+    id: 'user_co_thu_hoa',
+    username: 'cothuhoa',
+    password: '123456',
+    name: 'Cô Thu',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'THPT Hạ Hoà',
+    createdAt: '2026-10-07'
   }
 ];
 
