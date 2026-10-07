@@ -255,7 +255,11 @@ export const CloudStorageService = {
           let localUsers = JSON.parse(localStorage.getItem('gvd_users') || '[]');
           const existsIdx = localUsers.findIndex(u => u && u.username && String(u.username).trim().toLowerCase() === cleanUser);
           if (existsIdx >= 0) {
-            localUsers[existsIdx] = { ...localUsers[existsIdx], ...matched };
+            const localTime = localUsers[existsIdx].updatedAt ? new Date(localUsers[existsIdx].updatedAt).getTime() : 0;
+            const cloudTime = matched.updatedAt ? new Date(matched.updatedAt).getTime() : 0;
+            if (cloudTime >= localTime) {
+              localUsers[existsIdx] = { ...localUsers[existsIdx], ...matched };
+            }
           } else {
             localUsers.push(matched);
           }

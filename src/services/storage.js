@@ -1278,7 +1278,10 @@ export const StorageService = {
                   updated = true;
                 } else {
                   const existing = currentUsers[idx];
-                  if (existing.password !== cu.password || existing.name !== cu.name) {
+                  const existingTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+                  const cloudTime = cu.updatedAt ? new Date(cu.updatedAt).getTime() : 0;
+                  // Only update from cloud if cloud data has a strictly newer timestamp
+                  if (cloudTime > existingTime) {
                     currentUsers[idx] = { ...existing, ...cu };
                     updated = true;
                   }
@@ -1637,11 +1640,11 @@ export const StorageService = {
     }
   },
 
-  // Authenticate User - Safe String & Password Validation (Local Sync & Seed Priority)
+  // Authenticate User - Safe String & Strict Password Validation against active user database
   authenticateUser: (username, password) => {
     StorageService.init();
     const cleanUser = username ? String(username).trim().toLowerCase() : '';
-    const cleanPass = password ? String(password).trim() : '';
+    const cleanPass = password !== undefined && password !== null ? String(password).trim() : '';
 
     if (!cleanUser || !cleanPass) return null;
 
@@ -1661,43 +1664,24 @@ export const StorageService = {
 
     const targetNorm = normalizeKey(cleanUser);
 
-    // 1. Priority Check: Built-in System Seed Accounts (Guaranteed 100% login on all devices/browsers)
-    const seedUser = INITIAL_USERS.find(iu => {
-      if (!iu || !iu.username) return false;
-      const iuId = iu.id;
-      const iuName = String(iu.username).trim().toLowerCase();
-      if (deletedUserIds.includes(iuId) || deletedUserIds.includes(iuName)) return false;
-
-      const iuPass = String(iu.password).trim();
-      const iuNormName = normalizeKey(iu.username);
-      const iuNormFullName = normalizeKey(iu.name);
-
-      const usernameMatches = iuName === cleanUser || iuNormName === targetNorm || (iuNormFullName && iuNormFullName === targetNorm);
-      const passwordMatches = iuPass === cleanPass || cleanPass === '1234' || cleanPass === '123456' || cleanUser === 'annatran';
-
-      return usernameMatches && passwordMatches;
-    });
-
-    if (seedUser) {
-      if (seedUser.username === 'philthienhao' || seedUser.id === 'user_admin') {
-        seedUser.role = 'admin';
-      }
-      return seedUser;
-    }
-
-    // 2. Active Users Check (LocalStorage & IndexedDB synced users)
+    // Active Users Check (LocalStorage & IndexedDB synced users containing preserved custom passwords)
     const users = StorageService.getUsers();
     let found = users.find(u => {
       if (!u || !u.username) return false;
       const uName = String(u.username).trim().toLowerCase();
-      const uPass = u.password !== undefined && u.password !== null ? String(u.password).trim() : '';
+      const uId = u.id ? String(u.id).trim().toLowerCase() : '';
+      if (deletedUserIds.includes(uId) || deletedUserIds.includes(uName)) return false;
+
       const uNormName = normalizeKey(u.username);
       const uNormFullName = normalizeKey(u.name);
 
       const usernameMatches = uName === cleanUser || uNormName === targetNorm || (uNormFullName && uNormFullName === targetNorm);
-      const passwordMatches = uPass === cleanPass || cleanPass === '1234' || cleanPass === '123456';
+      if (!usernameMatches) return false;
 
-      return usernameMatches && passwordMatches;
+      const uPass = u.password !== undefined && u.password !== null ? String(u.password).trim() : '';
+      
+      // Strict password check against stored active user record
+      return uPass === cleanPass;
     });
 
     if (found && (found.username === 'philthienhao' || found.id === 'user_admin')) {
@@ -1938,21 +1922,40 @@ export const StorageService = {
 
   updateUser: (userId, updatedData) => {
     let users = StorageService.getUsers();
+    let updatedUser = null;
+    const cleanId = String(userId).trim().toLowerCase();
+
     users = users.map(u => {
-      if (u.id === userId) {
-        const merged = { ...u, ...updatedData };
+      if (!u) return u;
+      const uId = u.id ? String(u.id).trim().toLowerCase() : '';
+      const uName = u.username ? String(u.username).trim().toLowerCase() : '';
+
+      if (uId === cleanId || uName === cleanId) {
+        const merged = { ...u, ...updatedData, updatedAt: new Date().toISOString() };
         if (merged.username) merged.username = String(merged.username).trim().toLowerCase();
         if (merged.password !== undefined && merged.password !== null) merged.password = String(merged.password).trim();
+        updatedUser = merged;
         return merged;
       }
       return u;
     });
+
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
     IDBStorageService.clearAndSaveAllUsers(users).catch(() => {});
-    const updatedUser = users.find(u => u.id === userId);
+
     if (updatedUser) {
       CloudStorageService.createOrUpdateCloudUser(updatedUser).catch(() => {});
+
+      // Synchronize active user session if current user changed password or info
+      const curr = StorageService.getCurrentUser();
+      if (curr && (curr.id === updatedUser.id || (curr.username && String(curr.username).trim().toLowerCase() === updatedUser.username))) {
+        const newCurr = { ...curr, ...updatedUser };
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newCurr));
+        IDBStorageService.setItem(CURRENT_USER_KEY, newCurr).catch(() => {});
+      }
     }
+
+    return updatedUser;
   },
 
   deleteUser: (userId) => {
