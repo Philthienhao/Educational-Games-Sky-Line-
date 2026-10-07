@@ -5002,6 +5002,7 @@ function GeoEarthStructureSim({ onLog }) {
   const [showDetailCard, setShowDetailCard] = useState(true);
   const [autoRotate, setAutoRotate] = useState(true);
   const [hoveredLayerName, setHoveredLayerName] = useState(null);
+  const [showRefModal, setShowRefModal] = useState(false);
 
   // 5 Distinct Layers Matching Vietnamese Textbook Standard & Yoobook Video
   const layersInfo = {
@@ -5026,7 +5027,7 @@ function GeoEarthStructureSim({ onLog }) {
       color: '#38bdf8',
       emissive: '#0284c7',
       radius: 2.65,
-      anchorPos: new THREE.Vector3(2.4, 0.7, 0.5)
+      anchorPos: new THREE.Vector3(-2.4, 1.4, 0.8)
     },
     upperMantle: {
       key: 'upperMantle',
@@ -5049,7 +5050,7 @@ function GeoEarthStructureSim({ onLog }) {
       color: '#f97316',
       emissive: '#ea580c',
       radius: 2.25,
-      anchorPos: new THREE.Vector3(2.0, -0.4, 0.6)
+      anchorPos: new THREE.Vector3(-2.5, 0.1, 0.6)
     },
     lowerMantle: {
       key: 'lowerMantle',
@@ -5072,7 +5073,7 @@ function GeoEarthStructureSim({ onLog }) {
       color: '#ef4444',
       emissive: '#dc2626',
       radius: 1.75,
-      anchorPos: new THREE.Vector3(1.5, 0.6, 0.5)
+      anchorPos: new THREE.Vector3(-2.0, -1.2, 0.7)
     },
     outerCore: {
       key: 'outerCore',
@@ -5095,7 +5096,7 @@ function GeoEarthStructureSim({ onLog }) {
       color: '#fbbf24',
       emissive: '#d97706',
       radius: 1.25,
-      anchorPos: new THREE.Vector3(1.0, -0.5, 0.4)
+      anchorPos: new THREE.Vector3(1.4, 1.0, 0.8)
     },
     innerCore: {
       key: 'innerCore',
@@ -5118,7 +5119,7 @@ function GeoEarthStructureSim({ onLog }) {
       color: '#fef08a',
       emissive: '#ca8a04',
       radius: 0.75,
-      anchorPos: new THREE.Vector3(0.1, 0.1, 0.1)
+      anchorPos: new THREE.Vector3(0.0, -0.2, 1.2)
     }
   };
 
@@ -5142,72 +5143,75 @@ function GeoEarthStructureSim({ onLog }) {
     const w = 2048;
     const h = 1024;
 
-    // Ocean gradient with realistic depth shading
+    // Ocean gradient with realistic deep depth shading
     const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
-    oceanGrad.addColorStop(0, '#041026');
-    oceanGrad.addColorStop(0.2, '#062046');
-    oceanGrad.addColorStop(0.5, '#023e8a');
-    oceanGrad.addColorStop(0.8, '#0077b6');
-    oceanGrad.addColorStop(1, '#03045e');
+    oceanGrad.addColorStop(0, '#020919');
+    oceanGrad.addColorStop(0.18, '#031b3e');
+    oceanGrad.addColorStop(0.45, '#023e8a');
+    oceanGrad.addColorStop(0.7, '#0077b6');
+    oceanGrad.addColorStop(0.85, '#031b3e');
+    oceanGrad.addColorStop(1, '#020919');
     cctx.fillStyle = oceanGrad;
     cctx.fillRect(0, 0, w, h);
 
-    // Shallow ocean shelf turquoise glow around landmasses
-    cctx.fillStyle = 'rgba(6, 182, 212, 0.35)';
-    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 360, 200, 0.15, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 190, 230, -0.05, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 210, 180, -0.25, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 160, 240, 0.25, 0, Math.PI * 2); cctx.fill();
+    // Shallow ocean coastal shelf turquoise glow around landmasses
+    cctx.fillStyle = 'rgba(6, 182, 212, 0.45)';
+    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 420, 240, 0.15, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 230, 270, -0.05, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 260, 220, -0.25, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 200, 280, 0.25, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.70, 160, 120, 0.1, 0, Math.PI * 2); cctx.fill();
 
     // Eurasia Rainforests & Woodlands
     cctx.fillStyle = '#15803d';
-    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 340, 180, 0.15, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 380, 200, 0.15, 0, Math.PI * 2); cctx.fill();
 
     // Africa Savanna & Sahara Desert
     cctx.fillStyle = '#ca8a04';
-    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 170, 210, -0.05, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 190, 230, -0.05, 0, Math.PI * 2); cctx.fill();
     cctx.fillStyle = '#a16207';
-    cctx.beginPath(); cctx.ellipse(w * 0.51, h * 0.46, 140, 90, 0.05, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.51, h * 0.46, 160, 100, 0.05, 0, Math.PI * 2); cctx.fill();
 
     // North America Forest & Plains
     cctx.fillStyle = '#166534';
-    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 190, 160, -0.25, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 220, 180, -0.25, 0, Math.PI * 2); cctx.fill();
 
     // South America Amazon Rainforest
     cctx.fillStyle = '#14532d';
-    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 140, 220, 0.25, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 160, 240, 0.25, 0, Math.PI * 2); cctx.fill();
 
     // Australia Outback & SE Asia
     cctx.fillStyle = '#b45309';
-    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.72, 120, 85, 0.1, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.72, 140, 95, 0.1, 0, Math.PI * 2); cctx.fill();
 
     // SE Asia & Vietnam peninsula
-    cctx.fillStyle = '#15803d';
-    cctx.beginPath(); cctx.ellipse(w * 0.74, h * 0.45, 60, 45, 0.3, 0, Math.PI * 2); cctx.fill();
+    cctx.fillStyle = '#22c55e';
+    cctx.beginPath(); cctx.ellipse(w * 0.74, h * 0.45, 70, 50, 0.3, 0, Math.PI * 2); cctx.fill();
 
     // Mountain Ranges (Himalayas, Andes, Rockies)
-    cctx.fillStyle = '#58402c';
-    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 120, 35, -0.2, 0, Math.PI * 2); cctx.fill(); // Himalayas
-    cctx.beginPath(); cctx.ellipse(w * 0.24, h * 0.68, 25, 180, 0.3, 0, Math.PI * 2); cctx.fill();   // Andes
-    cctx.beginPath(); cctx.ellipse(w * 0.19, h * 0.30, 30, 130, -0.3, 0, Math.PI * 2); cctx.fill();  // Rockies
+    cctx.fillStyle = '#78350f';
+    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 140, 40, -0.2, 0, Math.PI * 2); cctx.fill(); // Himalayas
+    cctx.beginPath(); cctx.ellipse(w * 0.24, h * 0.68, 30, 200, 0.3, 0, Math.PI * 2); cctx.fill();   // Andes
+    cctx.beginPath(); cctx.ellipse(w * 0.19, h * 0.30, 35, 150, -0.3, 0, Math.PI * 2); cctx.fill();  // Rockies
 
     // Snow Mountain Peaks
     cctx.fillStyle = '#ffffff';
-    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 85, 18, -0.2, 0, Math.PI * 2); cctx.fill();
+    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 100, 22, -0.2, 0, Math.PI * 2); cctx.fill();
 
     // Polar Ice Caps (Arctic & Antarctica)
     cctx.fillStyle = '#ffffff';
-    cctx.fillRect(0, 0, w, 75);
-    cctx.fillRect(0, h - 85, w, 85);
+    cctx.fillRect(0, 0, w, 85);
+    cctx.fillRect(0, h - 95, w, 95);
 
     // Subtle glacial blue ice cracks
-    cctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
-    for (let i = 0; i < 45; i++) {
-      cctx.fillRect(Math.random() * w, Math.random() * 70, Math.random() * 40 + 10, 2);
-      cctx.fillRect(Math.random() * w, h - 80 + Math.random() * 70, Math.random() * 40 + 10, 2);
+    cctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+    for (let i = 0; i < 50; i++) {
+      cctx.fillRect(Math.random() * w, Math.random() * 80, Math.random() * 50 + 10, 2);
+      cctx.fillRect(Math.random() * w, h - 90 + Math.random() * 80, Math.random() * 50 + 10, 2);
     }
 
     const crustTex = new THREE.CanvasTexture(crustCanvas);
+    crustTex.needsUpdate = true;
 
     // 2. Realistic Swirling Cloud Texture Map
     const cloudCanvas = document.createElement('canvas');
@@ -5216,19 +5220,20 @@ function GeoEarthStructureSim({ onLog }) {
     const clctx = cloudCanvas.getContext('2d');
     clctx.clearRect(0, 0, 1024, 512);
 
-    clctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    for (let i = 0; i < 120; i++) {
+    clctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+    for (let i = 0; i < 140; i++) {
       const cx = Math.random() * 1024;
-      const cy = Math.random() * 420 + 46;
-      const rx = Math.random() * 110 + 25;
-      const ry = Math.random() * 18 + 5;
+      const cy = Math.random() * 440 + 36;
+      const rx = Math.random() * 120 + 30;
+      const ry = Math.random() * 20 + 6;
       clctx.beginPath();
       clctx.ellipse(cx, cy, rx, ry, Math.random() * 0.6 - 0.3, 0, Math.PI * 2);
       clctx.fill();
     }
     const cloudTex = new THREE.CanvasTexture(cloudCanvas);
+    cloudTex.needsUpdate = true;
 
-    // 3. Cutaway Cross-Section Cap Texture (Radial Striation Cap Map matching reference image)
+    // 3. Cutaway Cross-Section Cap Texture (Radial Striation Cap Map matching reference image 100%)
     const capCanvas = document.createElement('canvas');
     capCanvas.width = 1024;
     capCanvas.height = 1024;
@@ -5250,17 +5255,17 @@ function GeoEarthStructureSim({ onLog }) {
     capCtx.fillStyle = mantleGrad;
     capCtx.beginPath(); capCtx.arc(cx, cy, 485, 0, Math.PI * 2); capCtx.fill();
 
-    // Draw 360 radial fiery striation lines matching reference image!
-    for (let angle = 0; angle < Math.PI * 2; angle += 0.012) {
-      const innerR = 250 + Math.random() * 5;
-      const outerR = 485 - Math.random() * 5;
+    // Draw 360 radial fiery striation lines matching reference image earth_3d_ref.png!
+    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
+      const innerR = 250 + Math.random() * 6;
+      const outerR = 485 - Math.random() * 6;
       const x1 = cx + Math.cos(angle) * innerR;
       const y1 = cy + Math.sin(angle) * innerR;
       const x2 = cx + Math.cos(angle) * outerR;
       const y2 = cy + Math.sin(angle) * outerR;
 
-      capCtx.strokeStyle = Math.random() > 0.4 ? '#f97316' : (Math.random() > 0.5 ? '#fde047' : '#991b1b');
-      capCtx.lineWidth = Math.random() * 2.5 + 1;
+      capCtx.strokeStyle = Math.random() > 0.35 ? '#f97316' : (Math.random() > 0.45 ? '#fde047' : '#991b1b');
+      capCtx.lineWidth = Math.random() * 3 + 1;
       capCtx.beginPath();
       capCtx.moveTo(x1, y1);
       capCtx.lineTo(x2, y2);
@@ -5276,16 +5281,16 @@ function GeoEarthStructureSim({ onLog }) {
     capCtx.beginPath(); capCtx.arc(cx, cy, 250, 0, Math.PI * 2); capCtx.fill();
 
     // Draw radial beige/golden striations
-    for (let angle = 0; angle < Math.PI * 2; angle += 0.018) {
-      const innerR = 135 + Math.random() * 3;
-      const outerR = 250 - Math.random() * 3;
+    for (let angle = 0; angle < Math.PI * 2; angle += 0.015) {
+      const innerR = 135 + Math.random() * 4;
+      const outerR = 250 - Math.random() * 4;
       const x1 = cx + Math.cos(angle) * innerR;
       const y1 = cy + Math.sin(angle) * innerR;
       const x2 = cx + Math.cos(angle) * outerR;
       const y2 = cy + Math.sin(angle) * outerR;
 
       capCtx.strokeStyle = Math.random() > 0.5 ? '#fef08a' : '#ca8a04';
-      capCtx.lineWidth = Math.random() * 2 + 1;
+      capCtx.lineWidth = Math.random() * 2.5 + 1;
       capCtx.beginPath();
       capCtx.moveTo(x1, y1);
       capCtx.lineTo(x2, y2);
@@ -5302,57 +5307,66 @@ function GeoEarthStructureSim({ onLog }) {
     capCtx.beginPath(); capCtx.arc(cx, cy, 135, 0, Math.PI * 2); capCtx.fill();
 
     // Concentric Boundary Ring Dividers
-    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    capCtx.lineWidth = 3;
+    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    capCtx.lineWidth = 3.5;
     [485, 250, 135].forEach(r => {
       capCtx.beginPath(); capCtx.arc(cx, cy, r, 0, Math.PI * 2); capCtx.stroke();
     });
 
     const capTex = new THREE.CanvasTexture(capCanvas);
+    capTex.needsUpdate = true;
 
-    // 4. Upper Mantle 3D Texture
+    // 4. Upper Mantle 3D Lava Texture
     const umCanvas = document.createElement('canvas');
-    umCanvas.width = 512; umCanvas.height = 256;
+    umCanvas.width = 1024; umCanvas.height = 512;
     const umctx = umCanvas.getContext('2d');
-    const umG = umctx.createLinearGradient(0, 0, 512, 256);
+    const umG = umctx.createLinearGradient(0, 0, 1024, 512);
     umG.addColorStop(0, '#9a3412'); umG.addColorStop(0.5, '#ea580c'); umG.addColorStop(1, '#c2410c');
-    umctx.fillStyle = umG; umctx.fillRect(0, 0, 512, 256);
-    umctx.fillStyle = '#fde047';
-    for (let i = 0; i < 50; i++) {
-      umctx.beginPath(); umctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 8 + 2, 0, Math.PI * 2); umctx.fill();
+    umctx.fillStyle = umG; umctx.fillRect(0, 0, 1024, 512);
+    umctx.strokeStyle = '#fde047';
+    umctx.lineWidth = 2;
+    for (let i = 0; i < 80; i++) {
+      const x = Math.random() * 1024; const y = Math.random() * 512;
+      umctx.beginPath(); umctx.moveTo(x, y); umctx.lineTo(x + (Math.random() - 0.5) * 80, y + (Math.random() - 0.5) * 80); umctx.stroke();
     }
     const upperMantleTex = new THREE.CanvasTexture(umCanvas);
+    upperMantleTex.needsUpdate = true;
 
-    // 5. Lower Mantle 3D Texture
+    // 5. Lower Mantle 3D Magma Texture
     const lmCanvas = document.createElement('canvas');
-    lmCanvas.width = 512; lmCanvas.height = 256;
+    lmCanvas.width = 1024; lmCanvas.height = 512;
     const lmctx = lmCanvas.getContext('2d');
-    const lmG = lmctx.createLinearGradient(0, 0, 512, 256);
+    const lmG = lmctx.createLinearGradient(0, 0, 1024, 512);
     lmG.addColorStop(0, '#7f1d1d'); lmG.addColorStop(0.5, '#dc2626'); lmG.addColorStop(1, '#991b1b');
-    lmctx.fillStyle = lmG; lmctx.fillRect(0, 0, 512, 256);
-    lmctx.fillStyle = '#fbbf24';
-    for (let i = 0; i < 40; i++) {
-      lmctx.beginPath(); lmctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 7 + 2, 0, Math.PI * 2); lmctx.fill();
+    lmctx.fillStyle = lmG; lmctx.fillRect(0, 0, 1024, 512);
+    lmctx.strokeStyle = '#fbbf24';
+    lmctx.lineWidth = 2.5;
+    for (let i = 0; i < 90; i++) {
+      const x = Math.random() * 1024; const y = Math.random() * 512;
+      lmctx.beginPath(); lmctx.moveTo(x, y); lmctx.lineTo(x + (Math.random() - 0.5) * 90, y + (Math.random() - 0.5) * 90); lmctx.stroke();
     }
     const lowerMantleTex = new THREE.CanvasTexture(lmCanvas);
+    lowerMantleTex.needsUpdate = true;
 
     // 6. Outer Core 3D Swirling Lava Texture
     const ocCanvas = document.createElement('canvas');
-    ocCanvas.width = 512; ocCanvas.height = 256;
+    ocCanvas.width = 1024; ocCanvas.height = 512;
     const octx = ocCanvas.getContext('2d');
-    const ocG = octx.createRadialGradient(256, 128, 10, 256, 128, 200);
-    ocG.addColorStop(0, '#fbbf24'); ocG.addColorStop(0.5, '#f59e0b'); ocG.addColorStop(1, '#b45309');
-    octx.fillStyle = ocG; octx.fillRect(0, 0, 512, 256);
+    const ocG = octx.createRadialGradient(512, 256, 20, 512, 256, 400);
+    ocG.addColorStop(0, '#fef08a'); ocG.addColorStop(0.5, '#f59e0b'); ocG.addColorStop(1, '#b45309');
+    octx.fillStyle = ocG; octx.fillRect(0, 0, 1024, 512);
     const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
+    outerCoreTex.needsUpdate = true;
 
     // 7. Inner Core Metallic Core Texture
     const icCanvas = document.createElement('canvas');
-    icCanvas.width = 256; icCanvas.height = 256;
+    icCanvas.width = 512; icCanvas.height = 512;
     const ictx = icCanvas.getContext('2d');
-    const icG = ictx.createRadialGradient(128, 128, 5, 128, 128, 120);
+    const icG = ictx.createRadialGradient(256, 256, 10, 256, 256, 240);
     icG.addColorStop(0, '#ffffff'); icG.addColorStop(0.3, '#fef08a'); icG.addColorStop(0.7, '#eab308'); icG.addColorStop(1, '#ca8a04');
-    ictx.fillStyle = icG; ictx.fillRect(0, 0, 256, 256);
+    ictx.fillStyle = icG; ictx.fillRect(0, 0, 512, 512);
     const innerCoreTex = new THREE.CanvasTexture(icCanvas);
+    innerCoreTex.needsUpdate = true;
 
     return { crustTex, cloudTex, capTex, upperMantleTex, lowerMantleTex, outerCoreTex, innerCoreTex };
   };
@@ -6174,6 +6188,28 @@ function GeoEarthStructureSim({ onLog }) {
               👁️ {isFocusIsolated ? 'Tắt Cô Lập Lớp' : 'Bật Cô Lập 3D'}
             </button>
 
+            {/* View Textbook Reference Image Button */}
+            <button
+              onClick={() => setShowRefModal(true)}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
+              }}
+            >
+              🖼️ Ảnh Sơ Đồ SGK (earth_3d_ref)
+            </button>
+
             {/* Zoom / Reset Navigation Bar */}
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
@@ -6229,6 +6265,75 @@ function GeoEarthStructureSim({ onLog }) {
               </button>
             </div>
           </div>
+
+          {/* Textbook Reference Image Modal Popup */}
+          {showRefModal && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 99999,
+              background: 'rgba(3, 7, 18, 0.88)',
+              backdropFilter: 'blur(12px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px'
+            }} onClick={() => setShowRefModal(false)}>
+              <div style={{
+                position: 'relative',
+                background: '#0f172a',
+                border: '2px solid #38bdf8',
+                borderRadius: '24px',
+                padding: '20px',
+                maxWidth: '900px',
+                width: '100%',
+                maxHeight: '90vh',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                overflow: 'hidden'
+              }} onClick={(e) => e.stopPropagation()}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={20} color="#38bdf8" />
+                    <h3 style={{ margin: 0, color: '#f8fafc', fontSize: '1.2rem', fontWeight: 900 }}>
+                      Sơ Đồ Chuẩn Cấu Tạo Trái Đất (SGK Địa Lý)
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setShowRefModal(false)}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      border: 'none',
+                      color: '#ffffff',
+                      borderRadius: '50%',
+                      width: '32px',
+                      height: '32px',
+                      fontSize: '1rem',
+                      fontWeight: 900,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div style={{ flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#000000', borderRadius: '16px', padding: '12px' }}>
+                  <img
+                    src="/assets/earth_3d_ref.png"
+                    alt="Sơ đồ 3D Cấu tạo Trái Đất chuẩn SGK"
+                    style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: '12px' }}
+                  />
+                </div>
+                <div style={{ fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>
+                  💡 Hình ảnh minh họa chuẩn SGK Địa lý mô tả 5 lớp cấu tạo Trái đất: Vỏ Trái Đất, Manti trên, Manti dưới, Nhân ngoài và Nhân trong.
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Info Specs Panel */}
