@@ -178,6 +178,69 @@ export function Sidebar({
               Mẹ Têrêsa Calcutta
             </div>
           </div>
+
+          {/* PROMINENT QUICK USER ACCOUNT BANNER WITH ĐỔI PASS BUTTON */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(13, 148, 136, 0.08) 100%)',
+            border: '1.5px solid rgba(2, 132, 199, 0.35)',
+            borderRadius: '16px',
+            padding: '12px 14px',
+            marginTop: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '10px',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.12)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 3px 8px rgba(13, 148, 136, 0.3)'
+              }}>
+                {currentUser?.name?.charAt(0) || '👤'}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: '0.84rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {currentUser?.name || 'Giáo Viên'}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 800 }}>
+                  @{currentUser?.username}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '8px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.4)',
+                flexShrink: 0
+              }}
+            >
+              <KeyRound size={15} />
+              <span>Đổi Pass</span>
+            </button>
+          </div>
         </div>
 
         {/* 2. MAIN MENU SECTION (DANH MỤC CHÍNH) - FULL VERTICAL LIST NO SCROLL */}
