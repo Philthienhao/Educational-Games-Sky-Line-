@@ -257,7 +257,12 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         component = <ClassroomTimerGame onClose={onClose} />;
         break;
       case 'geo-3d-model':
-        component = <GeoExperimentsView currentUser={currentUser} onClose={onClose} />;
+        if (game?.interactiveType || game?.id === 'exp_geo_6_06' || game?.baseGameId === 'geo-earth-structure-game' || (game?.title && (game.title.includes('Cấu Tạo') || game.title.includes('Trái Đất')))) {
+          const exp = { ...game, interactiveType: game.interactiveType || 'geo_earth_structure', isGeo: true };
+          component = <InteractiveExperimentCanvas experiment={exp} onClose={onClose} />;
+        } else {
+          component = <GeoExperimentsView currentUser={currentUser} onClose={onClose} />;
+        }
         break;
       case 'student-group-divider':
         component = <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />;

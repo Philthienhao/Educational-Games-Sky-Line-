@@ -572,10 +572,6 @@ export function App() {
                   game={game}
                   currentUser={currentUser}
                   onPlay={(template) => {
-                    if (template.engineType === 'geo-3d-model' || template.id === 'geo-3d-experiments-game') {
-                      setActiveTab('geo-experiments');
-                      return;
-                    }
                     StorageService.incrementPlayCount(template.id, false);
                     setBaseGames(StorageService.getBaseGames());
                     setPlayingGame(template);
@@ -602,10 +598,6 @@ export function App() {
           <StudentPickerManager 
             currentUser={currentUser} 
             onPlay={(game) => {
-              if (game.engineType === 'geo-3d-model' || game.id === 'geo-3d-experiments-game') {
-                setActiveTab('geo-experiments');
-                return;
-              }
               StorageService.incrementPlayCount(game.id, false);
               setBaseGames(StorageService.getBaseGames());
               setPlayingGame(game);
@@ -643,10 +635,6 @@ export function App() {
             savedGames={savedGames}
             currentUser={currentUser}
             onPlayGame={(savedGame) => {
-              if (savedGame.engineType === 'geo-3d-model' || savedGame.baseGameId === 'geo-3d-experiments-game') {
-                setActiveTab('geo-experiments');
-                return;
-              }
               StorageService.incrementPlayCount(savedGame.id, true);
               setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
               setPlayingGame(savedGame);

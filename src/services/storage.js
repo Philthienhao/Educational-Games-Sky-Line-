@@ -718,6 +718,20 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
+    id: 'geo-earth-structure-game',
+    title: '🌍 Mô Hình 3D Bóc Tách Cấu Tạo Bên Trong Trái Đất',
+    subtitle: 'Bóc Tách 5 Lớp SGK: Vỏ Trái Đất, Manti Trên, Manti Dưới, Nhân Ngoài & Nhân Trong',
+    category: 'Khám phá 3D',
+    subject: 'Địa Lý',
+    icon: '🌍',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+    description: 'Mô hình 3D bóc tách 5 lớp cấu tạo Trái Đất theo chuẩn SGK Địa lý 6 & GDPT 2018 với 360 tia hướng tâm chân thực, bảng thông số nhiệt độ & áp suất từng lớp.',
+    engineType: 'geo-3d-model',
+    interactiveType: 'geo_earth_structure',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
     id: 'geo-3d-experiments-game',
     title: '🌐 Mô Hình 3D Địa Lý — Lái Phi Thuyền Vũ Trụ',
     subtitle: 'Khám Phá 3D Hệ Mặt Trời, Trái Đất, Núi Lửa & Lái Phi Thuyền',
@@ -774,6 +788,21 @@ const INITIAL_BASE_GAMES = [
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
+  {
+    id: 'saved_sample_geo_earth_structure',
+    userId: 'user_admin',
+    baseGameId: 'geo-earth-structure-game',
+    title: '🌍 Mô Hình 3D Bóc Tách Cấu Tạo Bên Trong Trái Đất',
+    lessonTitle: '🌍 Mô Hình 3D Bóc Tách Cấu Tạo Bên Trong Trái Đất',
+    subject: 'Địa Lý',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+    icon: '🌍',
+    engineType: 'geo-3d-model',
+    interactiveType: 'geo_earth_structure',
+    description: 'Mô hình 3D bóc tách 5 lớp cấu tạo Trái Đất theo chuẩn SGK Địa lý 6 & GDPT 2018 với 360 tia hướng tâm chân thực, bảng thông số nhiệt độ & áp suất từng lớp.',
+    questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
   {
     id: 'saved_sample_indoor_pe',
     userId: 'user_admin',
