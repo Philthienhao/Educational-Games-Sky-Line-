@@ -4990,96 +4990,135 @@ function GeoWaterCycleSim({ onLog }) {
   );
 }
 
-// 6. Structure of Earth Interior Simulator
-// 6. Structure of Earth Interior 3D Simulator (Interactive Cutaway Model)
+// 6. Structure of Earth Interior 3D Simulator (Interactive 5-Layer Cutaway Model)
 function GeoEarthStructureSim({ onLog }) {
   const containerRef = useRef(null);
+  const tagRefs = useRef({});
+
   const [activeLayer, setActiveLayer] = useState('crust');
   const [sliceMode, setSliceMode] = useState('cut90'); // 'cut90', 'cut180', 'full'
   const [isExploded, setIsExploded] = useState(false);
+  const [isFocusIsolated, setIsFocusIsolated] = useState(false);
+  const [showDetailCard, setShowDetailCard] = useState(true);
   const [autoRotate, setAutoRotate] = useState(true);
   const [hoveredLayerName, setHoveredLayerName] = useState(null);
 
+  // 5 Distinct Layers Matching Vietnamese Textbook Standard & Yoobook Video
   const layersInfo = {
     crust: {
       key: 'crust',
-      name: 'Vỏ Trái Đất',
+      name: 'Vỏ Trái đất',
       enName: 'Earth Crust',
       depth: '5 - 70 km',
       thickness: 'Khoảng 5 - 70 km',
       temp: '0°C - 1.000°C',
-      state: 'Rắn cứng (Đá granit & basal)',
+      state: 'Rắn',
+      composition: 'Vỏ lục địa & Vỏ đại dương',
       volume: '< 1% thể tích',
       mass: '< 0.5% khối lượng',
-      desc: 'Lớp ngoài cùng mỏng nhất nhưng quan trọng nhất đối với sự sống. Là nơi hình thành bề mặt đại dương, các lục địa, dãy núi và là nơi sinh sống của con người cùng muôn loài.',
+      desc: 'Là lớp ngoài cùng của Trái đất, trạng thái Rắn, dày khoảng 5 - 70km, gồm Vỏ lục địa và Vỏ đại dương.',
       details: [
-        'Vỏ lục địa: Dày 35-70 km, cấu tạo chủ yếu từ đá granit nhẹ hơn.',
-        'Vỏ đại dương: Dày 5-10 km, cấu tạo chủ yếu từ đá basal nặng.',
-        'Nhiệt độ tăng dần theo chiều sâu (trung bình cứ xuống sâu 100m tăng thêm ~3°C).'
+        'Độ sâu: Khoảng 5 - 70 km',
+        'Trạng thái: Rắn',
+        'Cấu tạo: Vỏ lục địa (dày 35-70km, đá granit nhẹ) và Vỏ đại dương (dày 5-10km, đá basal nặng).',
+        'Là lớp ngoài cùng mỏng nhất nhưng là nơi diễn ra toàn bộ hoạt động sinh sống của con người và sinh vật.'
       ],
       color: '#38bdf8',
       emissive: '#0284c7',
-      radius: 2.8
+      radius: 2.65,
+      anchorPos: new THREE.Vector3(2.4, 0.7, 0.5)
     },
-    mantle: {
-      key: 'mantle',
-      name: 'Lớp Manti',
-      enName: 'Mantle Layer',
-      depth: '70 - 2.900 km',
-      thickness: 'Khoảng 2.830 km',
-      temp: '1.500°C - 4.700°C',
-      state: 'Dẻo quánh đến rắn',
-      volume: '80% thể tích',
-      mass: '68% khối lượng',
-      desc: 'Lớp chiếm thể tích lớn nhất Trái Đất. Nơi xảy ra các dòng đối lưu magma cực mạnh thúc đẩy các mảng kiến tạo dịch chuyển, gây ra hiện tượng động đất, phun trào núi lửa và tạo núi.',
+    upperMantle: {
+      key: 'upperMantle',
+      name: 'Manti trên',
+      enName: 'Upper Mantle',
+      depth: 'Dưới vỏ - 660 km',
+      thickness: 'Khoảng 600 km',
+      temp: '1.000°C - 2.200°C',
+      state: 'Dẻo / Rắn',
+      composition: 'Đá silicat nóng',
+      volume: '~15% thể tích',
+      mass: '~18% khối lượng',
+      desc: 'Nằm ngay dưới vỏ Trái đất, kéo dài đến độ sâu khoảng 660km, chủ yếu là đá silicat nóng, phần lớn ở trạng thái rắn nhưng có thể biến dạng và chuyển động chậm.',
       details: [
-        'Manti trên (70-700km): Trạng thái dẻo quánh (Asthenosphere), nơi tích tụ dòng magma nóng chảy.',
-        'Manti dưới (700-2900km): Áp suất cực lớn nén vật chất chuyển sang trạng thái rắn dẻo.',
-        'Dòng đối lưu Manti đóng vai trò là động cơ chính của thuyết Kiến Tạo Mảng.'
+        'Độ sâu: Nằm ngay dưới vỏ Trái đất, kéo dài đến độ sâu khoảng 660 km',
+        'Trạng thái: Dẻo / Rắn',
+        'Thành phần: Chủ yếu là đá silicat nóng (bao gồm tầng bao mềm Asthenosphere).',
+        'Tính chất: Có thể biến dạng và chuyển động chậm, hình thành các dòng đối lưu magma thúc đẩy sự dịch chuyển mảng kiến tạo.'
       ],
-      color: '#f59e0b',
-      emissive: '#d97706',
-      radius: 2.5
+      color: '#f97316',
+      emissive: '#ea580c',
+      radius: 2.25,
+      anchorPos: new THREE.Vector3(2.0, -0.4, 0.6)
+    },
+    lowerMantle: {
+      key: 'lowerMantle',
+      name: 'Manti dưới',
+      enName: 'Lower Mantle',
+      depth: '660 - 2.900 km',
+      thickness: 'Khoảng 2.240 km',
+      temp: '2.200°C - 4.000°C',
+      state: 'Rắn',
+      composition: 'Khoáng vật silicat cao áp',
+      volume: '~67% thể tích',
+      mass: '~49% khối lượng',
+      desc: 'Nằm ở độ sâu khoảng 660 - 2.900 km, nhiệt độ và áp suất rất cao, vật chất chủ yếu ở trạng thái rắn.',
+      details: [
+        'Độ sâu: Nằm ở độ sâu khoảng 660 - 2.900 km',
+        'Trạng thái: Rắn',
+        'Nhiệt độ & Áp suất: Nhiệt độ và áp suất rất cao nén giữ vật chất ở trạng thái rắn nén đặc.',
+        'Chiếm khối lượng và thể tích lớn nhất trong toàn bộ khối vỏ nội tại Trái Đất.'
+      ],
+      color: '#ef4444',
+      emissive: '#dc2626',
+      radius: 1.75,
+      anchorPos: new THREE.Vector3(1.5, 0.6, 0.5)
     },
     outerCore: {
       key: 'outerCore',
-      name: 'Nhân Ngoài (Lõi Ngoài)',
+      name: 'Nhân ngoài',
       enName: 'Outer Core',
       depth: '2.900 - 5.100 km',
       thickness: 'Khoảng 2.200 km',
       temp: '4.400°C - 5.000°C',
-      state: 'Kim loại lỏng (Sắt & Nickel)',
-      volume: '15% thể tích',
-      mass: '30% khối lượng',
-      desc: 'Lớp hợp kim kim loại lỏng cuộn xoáy dữ dội do sự chênh lệch nhiệt độ cực đại. Chuyển động kim loại lỏng tạo ra dòng điện khổng lồ, hình thành TỪ TRƯỜNG TRÁI ĐẤT bảo vệ sự sống khỏi bức xạ vũ trụ.',
+      state: 'Lỏng',
+      composition: 'Hợp kim Sắt và Niken nóng chảy',
+      volume: '~15% thể tích',
+      mass: '~30% khối lượng',
+      desc: 'Độ sâu khoảng 2.900 - 5.100 km, trạng thái lỏng, gồm hợp kim sắt và niken nóng chảy, chuyển động tạo ra từ trường Trái Đất.',
       details: [
-        'Thành phần: Hợp kim Sắt (80%) và Nickel (5%) nóng chảy cùng lưu huỳnh/oxy.',
-        'Sự tự quay của Trái Đất kết hợp dòng đối lưu sinh ra hiệu ứng Dynamo từ trường.',
-        'Nếu không có lớp Nhân Ngoài tạo từ trường, bầu khí quyển Trái Đất sẽ bị gió Mặt Trời thổi bay.'
+        'Độ sâu: Khoảng 2.900 - 5.100 km',
+        'Trạng thái: Lỏng',
+        'Thành phần: Gồm hợp kim sắt và niken nóng chảy sôi sục cuộn xoáy.',
+        'Sự chuyển động của dòng kim loại lỏng sinh ra hiệu ứng Dynamo tạo nên từ trường Trái Đất bảo vệ bầu khí quyển.'
       ],
-      color: '#ef4444',
-      emissive: '#b91c1c',
-      radius: 1.6
+      color: '#fbbf24',
+      emissive: '#d97706',
+      radius: 1.25,
+      anchorPos: new THREE.Vector3(1.0, -0.5, 0.4)
     },
     innerCore: {
       key: 'innerCore',
-      name: 'Nhân Trong (Tâm Trái Đất)',
+      name: 'Nhân trong',
       enName: 'Inner Core',
       depth: '5.100 - 6.371 km',
       thickness: 'Bán kính ~1.271 km',
-      temp: '5.500°C - 6.000°C (Nóng như Mặt Trời)',
-      state: 'Rắn đặc (Hợp kim sắt-nickel)',
+      temp: '5.000°C - 6.000°C',
+      state: 'Rắn',
+      composition: 'Sắt và Niken tinh thể nén cực đại',
       volume: '0.7% thể tích',
       mass: '1.7% khối lượng',
-      desc: 'Khối cầu kim loại nằm tại tâm Trái Đất. Dù có nhiệt độ nóng khủng khiếp bằng bề mặt Mặt Trời, áp suất cực đại (3,3-3,6 triệu atm) nén chặt các nguyên tử kim loại, giữ Nhân Trong ở trạng thái RẮN ĐẶC.',
+      desc: 'Nằm ở trung tâm Trái Đất, chủ yếu gồm sắt và niken, trạng thái rắn do áp suất rất lớn, nhiệt độ khoảng 5.000–6.000°C.',
       details: [
-        'Áp suất cực đại tại tâm: 330 đến 360 Gigapascal (GPa).',
-        'Tốc độ tự quay của Nhân Trong nhanh hơn bề mặt Trái Đất khoảng 0.3 - 0.5 độ/năm.',
-        'Được bao bọc và cách nhiệt bởi lớp kim loại lỏng sôi sục của Nhân Ngoài.'
+        'Độ sâu: Nằm ở trung tâm Trái Đất (5.100 - 6.371 km)',
+        'Trạng thái: Rắn',
+        'Nhiệt độ & Áp suất: Khoảng 5.000 - 6.000°C (tương đương nhiệt độ bề mặt Mặt Trời), áp suất cực đại nén chặt các hạt kim loại.',
+        'Khối cầu kim loại đặc rắn cách nhiệt tại tâm hành tinh.'
       ],
       color: '#fef08a',
       emissive: '#ca8a04',
-      radius: 0.9
+      radius: 0.75,
+      anchorPos: new THREE.Vector3(0.1, 0.1, 0.1)
     }
   };
 
@@ -5093,9 +5132,9 @@ function GeoEarthStructureSim({ onLog }) {
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
 
-  // Procedural Textures Creation
+  // Procedural Textures Creation for 5 Layers
   const generateProceduralTextures = () => {
-    // 1. Earth Crust Texture
+    // 1. Earth Crust Texture (Ocean + Landmass + Polar caps)
     const crustCanvas = document.createElement('canvas');
     crustCanvas.width = 1024;
     crustCanvas.height = 512;
@@ -5113,6 +5152,8 @@ function GeoEarthStructureSim({ onLog }) {
     cctx.ellipse(300, 200, 180, 110, 0.2, 0, Math.PI * 2);
     cctx.ellipse(700, 250, 160, 120, -0.3, 0, Math.PI * 2);
     cctx.ellipse(450, 320, 120, 90, 0.5, 0, Math.PI * 2);
+    cctx.ellipse(180, 360, 100, 70, -0.4, 0, Math.PI * 2);
+    cctx.ellipse(850, 160, 110, 60, 0.1, 0, Math.PI * 2);
     cctx.fill();
 
     cctx.fillStyle = '#a16207';
@@ -5127,54 +5168,74 @@ function GeoEarthStructureSim({ onLog }) {
 
     const crustTex = new THREE.CanvasTexture(crustCanvas);
 
-    // 2. Mantle Magma Texture
-    const mantleCanvas = document.createElement('canvas');
-    mantleCanvas.width = 512;
-    mantleCanvas.height = 256;
-    const mctx = mantleCanvas.getContext('2d');
-    const mGrad = mctx.createLinearGradient(0, 0, 512, 256);
-    mGrad.addColorStop(0, '#7c2d12');
-    mGrad.addColorStop(0.5, '#ea580c');
-    mGrad.addColorStop(1, '#9a3412');
-    mctx.fillStyle = mGrad;
-    mctx.fillRect(0, 0, 512, 256);
+    // 2. Upper Mantle Magma Silicate Texture
+    const umCanvas = document.createElement('canvas');
+    umCanvas.width = 512;
+    umCanvas.height = 256;
+    const umctx = umCanvas.getContext('2d');
+    const umGrad = umctx.createLinearGradient(0, 0, 512, 256);
+    umGrad.addColorStop(0, '#9a3412');
+    umGrad.addColorStop(0.5, '#ea580c');
+    umGrad.addColorStop(1, '#c2410c');
+    umctx.fillStyle = umGrad;
+    umctx.fillRect(0, 0, 512, 256);
 
-    mctx.fillStyle = '#fde047';
-    for (let i = 0; i < 40; i++) {
-      mctx.beginPath();
-      mctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 12 + 4, 0, Math.PI * 2);
-      mctx.fill();
+    umctx.fillStyle = '#fde047';
+    for (let i = 0; i < 45; i++) {
+      umctx.beginPath();
+      umctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 10 + 3, 0, Math.PI * 2);
+      umctx.fill();
     }
-    const mantleTex = new THREE.CanvasTexture(mantleCanvas);
+    const upperMantleTex = new THREE.CanvasTexture(umCanvas);
 
-    // 3. Outer Core Texture
+    // 3. Lower Mantle Dense High-Pressure Rock Texture
+    const lmCanvas = document.createElement('canvas');
+    lmCanvas.width = 512;
+    lmCanvas.height = 256;
+    const lmctx = lmCanvas.getContext('2d');
+    const lmGrad = lmctx.createLinearGradient(0, 0, 512, 256);
+    lmGrad.addColorStop(0, '#7f1d1d');
+    lmGrad.addColorStop(0.5, '#dc2626');
+    lmGrad.addColorStop(1, '#991b1b');
+    lmctx.fillStyle = lmGrad;
+    lmctx.fillRect(0, 0, 512, 256);
+
+    lmctx.fillStyle = '#fbbf24';
+    for (let i = 0; i < 35; i++) {
+      lmctx.beginPath();
+      lmctx.arc(Math.random() * 512, Math.random() * 256, Math.random() * 8 + 2, 0, Math.PI * 2);
+      lmctx.fill();
+    }
+    const lowerMantleTex = new THREE.CanvasTexture(lmCanvas);
+
+    // 4. Outer Core Liquid Lava Swirling Texture
     const ocCanvas = document.createElement('canvas');
     ocCanvas.width = 512;
     ocCanvas.height = 256;
     const octx = ocCanvas.getContext('2d');
     const ocGrad = octx.createRadialGradient(256, 128, 20, 256, 128, 200);
-    ocGrad.addColorStop(0, '#f97316');
-    ocGrad.addColorStop(0.6, '#ef4444');
-    ocGrad.addColorStop(1, '#7f1d1d');
+    ocGrad.addColorStop(0, '#fbbf24');
+    ocGrad.addColorStop(0.5, '#f59e0b');
+    ocGrad.addColorStop(1, '#b45309');
     octx.fillStyle = ocGrad;
     octx.fillRect(0, 0, 512, 256);
     const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
 
-    // 4. Inner Core Texture
+    // 5. Inner Core White-Yellow Metallic Glowing Core Texture
     const icCanvas = document.createElement('canvas');
     icCanvas.width = 256;
     icCanvas.height = 256;
     const ictx = icCanvas.getContext('2d');
-    const icGrad = ictx.createRadialGradient(128, 128, 10, 128, 128, 120);
+    const icGrad = ictx.createRadialGradient(128, 128, 5, 128, 128, 120);
     icGrad.addColorStop(0, '#ffffff');
-    icGrad.addColorStop(0.4, '#fef08a');
-    icGrad.addColorStop(0.8, '#eab308');
+    icGrad.addColorStop(0.3, '#fef08a');
+    icGrad.addColorStop(0.7, '#eab308');
     icGrad.addColorStop(1, '#ca8a04');
     ictx.fillStyle = icGrad;
     ictx.fillRect(0, 0, 256, 256);
     const innerCoreTex = new THREE.CanvasTexture(icCanvas);
 
-    return { crustTex, mantleTex, outerCoreTex, innerCoreTex };
+    return { crustTex, upperMantleTex, lowerMantleTex, outerCoreTex, innerCoreTex };
   };
 
   useEffect(() => {
@@ -5186,14 +5247,14 @@ function GeoEarthStructureSim({ onLog }) {
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(3.5, 3.2, 7.5);
+    camera.position.set(3.8, 3.2, 7.8);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.25;
     rendererRef.current = renderer;
 
     containerRef.current.appendChild(renderer.domElement);
@@ -5202,38 +5263,38 @@ function GeoEarthStructureSim({ onLog }) {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 3.2;
-    controls.maxDistance = 14;
+    controls.maxDistance = 15;
     controls.autoRotate = autoRotate;
     controls.autoRotateSpeed = 1.2;
     controlsRef.current = controls;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     scene.add(ambientLight);
 
-    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.4);
     dirLight1.position.set(8, 10, 8);
     scene.add(dirLight1);
 
-    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.2);
+    const dirLight2 = new THREE.DirectionalLight(0x38bdf8, 1.3);
     dirLight2.position.set(-8, -6, -8);
     scene.add(dirLight2);
 
-    const coreLight = new THREE.PointLight(0xfde047, 4.0, 10);
+    const coreLight = new THREE.PointLight(0xfde047, 4.5, 12);
     coreLight.position.set(0, 0, 0);
     scene.add(coreLight);
 
     // Starfield Background Particles
     const starsGeo = new THREE.BufferGeometry();
     const starCoords = [];
-    for (let i = 0; i < 600; i++) {
+    for (let i = 0; i < 650; i++) {
       starCoords.push(
-        (Math.random() - 0.5) * 80,
-        (Math.random() - 0.5) * 80,
-        (Math.random() - 0.5) * 80
+        (Math.random() - 0.5) * 85,
+        (Math.random() - 0.5) * 85,
+        (Math.random() - 0.5) * 85
       );
     }
     starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-    const starsMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.25, transparent: true, opacity: 0.7 });
+    const starsMat = new THREE.PointsMaterial({ color: 0x94a3b8, size: 0.25, transparent: true, opacity: 0.75 });
     const starField = new THREE.Points(starsGeo, starsMat);
     scene.add(starField);
 
@@ -5250,8 +5311,8 @@ function GeoEarthStructureSim({ onLog }) {
 
     const phiLen = getPhiLength(sliceMode);
 
-    // Crust
-    const crustGeo = new THREE.SphereGeometry(2.6, 64, 64, 0, phiLen, 0, Math.PI);
+    // 1. Crust Mesh
+    const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
     const crustMat = new THREE.MeshStandardMaterial({
       map: textures.crustTex,
       roughness: 0.45,
@@ -5259,52 +5320,66 @@ function GeoEarthStructureSim({ onLog }) {
       side: THREE.DoubleSide
     });
     const crustMesh = new THREE.Mesh(crustGeo, crustMat);
-    crustMesh.userData = { key: 'crust', name: 'Vỏ Trái Đất' };
+    crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
     earthGroup.add(crustMesh);
 
-    // Mantle
-    const mantleGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
-    const mantleMat = new THREE.MeshStandardMaterial({
-      map: textures.mantleTex,
-      emissive: 0xd97706,
+    // 2. Upper Mantle Mesh
+    const umGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
+    const umMat = new THREE.MeshStandardMaterial({
+      map: textures.upperMantleTex,
+      emissive: 0xea580c,
       emissiveIntensity: 0.35,
       roughness: 0.4,
       side: THREE.DoubleSide
     });
-    const mantleMesh = new THREE.Mesh(mantleGeo, mantleMat);
-    mantleMesh.userData = { key: 'mantle', name: 'Lớp Manti' };
-    earthGroup.add(mantleMesh);
+    const umMesh = new THREE.Mesh(umGeo, umMat);
+    umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
+    earthGroup.add(umMesh);
 
-    // Outer Core
-    const ocGeo = new THREE.SphereGeometry(1.5, 64, 64, 0, phiLen, 0, Math.PI);
+    // 3. Lower Mantle Mesh
+    const lmGeo = new THREE.SphereGeometry(1.75, 64, 64, 0, phiLen, 0, Math.PI);
+    const lmMat = new THREE.MeshStandardMaterial({
+      map: textures.lowerMantleTex,
+      emissive: 0xdc2626,
+      emissiveIntensity: 0.4,
+      roughness: 0.35,
+      side: THREE.DoubleSide
+    });
+    const lmMesh = new THREE.Mesh(lmGeo, lmMat);
+    lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
+    earthGroup.add(lmMesh);
+
+    // 4. Outer Core Mesh
+    const ocGeo = new THREE.SphereGeometry(1.25, 64, 64, 0, phiLen, 0, Math.PI);
     const ocMat = new THREE.MeshStandardMaterial({
       map: textures.outerCoreTex,
-      emissive: 0xef4444,
+      emissive: 0xd97706,
       emissiveIntensity: 0.5,
       roughness: 0.3,
       metalness: 0.6,
       side: THREE.DoubleSide
     });
     const ocMesh = new THREE.Mesh(ocGeo, ocMat);
-    ocMesh.userData = { key: 'outerCore', name: 'Nhân Ngoài' };
+    ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
     earthGroup.add(ocMesh);
 
-    // Inner Core
-    const icGeo = new THREE.SphereGeometry(0.85, 48, 48);
+    // 5. Inner Core Mesh
+    const icGeo = new THREE.SphereGeometry(0.75, 48, 48);
     const icMat = new THREE.MeshStandardMaterial({
       map: textures.innerCoreTex,
-      emissive: 0xfde047,
-      emissiveIntensity: 0.8,
+      emissive: 0xca8a04,
+      emissiveIntensity: 0.85,
       roughness: 0.2,
-      metalness: 0.8
+      metalness: 0.85
     });
     const icMesh = new THREE.Mesh(icGeo, icMat);
-    icMesh.userData = { key: 'innerCore', name: 'Nhân Trong' };
+    icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
     earthGroup.add(icMesh);
 
     layerMeshesRef.current = {
       crust: crustMesh,
-      mantle: mantleMesh,
+      upperMantle: umMesh,
+      lowerMantle: lmMesh,
       outerCore: ocMesh,
       innerCore: icMesh
     };
@@ -5329,25 +5404,30 @@ function GeoEarthStructureSim({ onLog }) {
         controlsRef.current.update();
       }
 
+      // Smooth Lerp Exploded View Offsets
       const targetOffset = isExploded ? 1.0 : 0.0;
       
       const cM = layerMeshesRef.current.crust;
-      const mM = layerMeshesRef.current.mantle;
+      const umM = layerMeshesRef.current.upperMantle;
+      const lmM = layerMeshesRef.current.lowerMantle;
       const ocM = layerMeshesRef.current.outerCore;
       const icM = layerMeshesRef.current.innerCore;
 
-      if (cM && mM && ocM && icM) {
+      if (cM && umM && lmM && ocM && icM) {
         const curExp = cM.position.x;
-        const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.5, 0.08);
+        const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
 
-        cM.position.x = nextExp * 1.6;
-        cM.position.z = nextExp * 0.8;
+        cM.position.x = nextExp * 1.8;
+        cM.position.z = nextExp * 0.9;
 
-        mM.position.x = nextExp * 1.1;
-        mM.position.z = nextExp * 0.55;
+        umM.position.x = nextExp * 1.35;
+        umM.position.z = nextExp * 0.65;
 
-        ocM.position.x = nextExp * 0.6;
-        ocM.position.z = nextExp * 0.3;
+        lmM.position.x = nextExp * 0.9;
+        lmM.position.z = nextExp * 0.45;
+
+        ocM.position.x = nextExp * 0.45;
+        ocM.position.z = nextExp * 0.22;
 
         icM.position.x = 0;
         icM.position.z = 0;
@@ -5355,6 +5435,33 @@ function GeoEarthStructureSim({ onLog }) {
 
       if (icM) {
         icM.rotation.y += 0.005;
+      }
+
+      // Update 3D Tag Overlay Screen Positions
+      if (cameraRef.current && containerRef.current) {
+        const width = containerRef.current.clientWidth;
+        const height = containerRef.current.clientHeight;
+
+        Object.keys(layersInfo).forEach(key => {
+          const tagEl = tagRefs.current[key];
+          if (!tagEl) return;
+          const layerMesh = layerMeshesRef.current[key];
+          if (!layerMesh) return;
+
+          const anchorWorld = layersInfo[key].anchorPos.clone();
+          anchorWorld.add(layerMesh.position);
+          anchorWorld.project(cameraRef.current);
+
+          const x = (anchorWorld.x * 0.5 + 0.5) * width;
+          const y = (-(anchorWorld.y * 0.5) + 0.5) * height;
+
+          if (anchorWorld.z < 1 && x >= 20 && x <= width - 20 && y >= 20 && y <= height - 20) {
+            tagEl.style.display = 'flex';
+            tagEl.style.transform = `translate3d(${x}px, ${y}px, 0px) translate(-50%, -50%)`;
+          } else {
+            tagEl.style.display = 'none';
+          }
+        });
       }
 
       renderer.render(scene, camera);
@@ -5371,6 +5478,33 @@ function GeoEarthStructureSim({ onLog }) {
       renderer.dispose();
     };
   }, [sliceMode, isExploded]);
+
+  // Handle Layer Highlight & Focus Opacity Modifications
+  useEffect(() => {
+    Object.keys(layerMeshesRef.current).forEach(key => {
+      const mesh = layerMeshesRef.current[key];
+      if (!mesh || !mesh.material) return;
+      if (key === activeLayer) {
+        mesh.material.transparent = false;
+        mesh.material.opacity = 1.0;
+        if (mesh.material.emissiveIntensity !== undefined) {
+          mesh.material.emissiveIntensity = 0.65;
+        }
+      } else if (isFocusIsolated) {
+        mesh.material.transparent = true;
+        mesh.material.opacity = 0.22;
+        if (mesh.material.emissiveIntensity !== undefined) {
+          mesh.material.emissiveIntensity = 0.05;
+        }
+      } else {
+        mesh.material.transparent = false;
+        mesh.material.opacity = 1.0;
+        if (mesh.material.emissiveIntensity !== undefined) {
+          mesh.material.emissiveIntensity = 0.35;
+        }
+      }
+    });
+  }, [activeLayer, isFocusIsolated]);
 
   const handlePointerDown = (event) => {
     if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
@@ -5389,8 +5523,9 @@ function GeoEarthStructureSim({ onLog }) {
       const key = hitObj.userData?.key;
       if (key && layersInfo[key]) {
         setActiveLayer(key);
+        setShowDetailCard(true);
         if (onLog) {
-          onLog(`🔍 Nhấp xem cấu tạo 3D ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Nhiệt độ ${layersInfo[key].temp}.`);
+          onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
         }
       }
     }
@@ -5420,22 +5555,23 @@ function GeoEarthStructureSim({ onLog }) {
 
   const handleSelectLayer = (key) => {
     setActiveLayer(key);
+    setShowDetailCard(true);
     if (onLog) {
-      onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Nhiệt độ ${layersInfo[key].temp}.`);
+      onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
     }
   };
 
   const handleZoom = (delta) => {
     if (!cameraRef.current || !controlsRef.current) return;
     const dist = cameraRef.current.position.length();
-    const newDist = THREE.MathUtils.clamp(dist + delta, 3.2, 14);
+    const newDist = THREE.MathUtils.clamp(dist + delta, 3.2, 15);
     cameraRef.current.position.multiplyScalar(newDist / dist);
     controlsRef.current.update();
   };
 
   const handleResetCamera = () => {
     if (!cameraRef.current || !controlsRef.current) return;
-    cameraRef.current.position.set(3.5, 3.2, 7.5);
+    cameraRef.current.position.set(3.8, 3.2, 7.8);
     controlsRef.current.target.set(0, 0, 0);
     controlsRef.current.update();
   };
@@ -5443,13 +5579,13 @@ function GeoEarthStructureSim({ onLog }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', userSelect: 'none' }}>
       
-      {/* Main Container: Left 3D Viewport + Right Specs Panel */}
+      {/* Main Container: 3D Viewport with Floating Tags & Glassmorphic Detail Modal Overlay */}
       <div style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'row',
         gap: '16px',
-        minHeight: '440px',
+        minHeight: '460px',
         position: 'relative'
       }}>
         
@@ -5460,7 +5596,7 @@ function GeoEarthStructureSim({ onLog }) {
           onPointerMove={handlePointerMove}
           style={{
             flex: 1.3,
-            background: 'radial-gradient(circle at 50% 50%, #0b1d33 0%, #030712 100%)',
+            background: 'radial-gradient(circle at 50% 50%, #091a2f 0%, #030712 100%)',
             borderRadius: '20px',
             border: '1.5px solid rgba(56, 189, 248, 0.35)',
             boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(56, 189, 248, 0.1)',
@@ -5486,9 +5622,203 @@ function GeoEarthStructureSim({ onLog }) {
           }}>
             <Sparkles size={18} color="#38bdf8" />
             <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f8fafc' }}>
-              Mô Hình 3D Xoay Chiều Bóc Tách
+              Mô Hình 3D Cấu Tạo Trái Đất (5 Lớp SGK)
             </span>
           </div>
+
+          {/* 3D Floating Tag Overlay Anchored to 5 Layers */}
+          {Object.keys(layersInfo).map(key => {
+            const item = layersInfo[key];
+            const isSelected = activeLayer === key;
+            return (
+              <div
+                key={key}
+                ref={el => (tagRefs.current[key] = el)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectLayer(key);
+                }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  zIndex: 15,
+                  display: 'none',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: isSelected ? item.color : 'rgba(15, 23, 42, 0.9)',
+                  color: isSelected ? '#000000' : '#ffffff',
+                  border: `1.5px solid ${item.color}`,
+                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  boxShadow: isSelected ? `0 0 20px ${item.color}` : `0 4px 12px rgba(0,0,0,0.5)`,
+                  transition: 'background 0.2s ease, transform 0.15s ease',
+                  whiteSpace: 'nowrap',
+                  pointerEvents: 'auto'
+                }}
+              >
+                <span>{item.name}</span>
+                <span style={{
+                  background: isSelected ? 'rgba(0,0,0,0.2)' : `${item.color}40`,
+                  borderRadius: '50%',
+                  width: '16px',
+                  height: '16px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.7rem',
+                  fontWeight: 900
+                }}>
+                  +
+                </span>
+              </div>
+            );
+          })}
+
+          {/* Glassmorphic Detail Popup Card Overlay (Matching Yoobook Video) */}
+          {showDetailCard && activeInfo && (
+            <div style={{
+              position: 'absolute',
+              top: '64px',
+              left: '16px',
+              zIndex: 20,
+              width: '320px',
+              maxWidth: 'calc(100% - 32px)',
+              maxHeight: 'calc(100% - 80px)',
+              background: 'rgba(15, 23, 42, 0.92)',
+              backdropFilter: 'blur(16px)',
+              border: `2px solid ${activeInfo.color}`,
+              borderRadius: '18px',
+              boxShadow: `0 16px 40px rgba(0,0,0,0.7), 0 0 25px ${activeInfo.color}30`,
+              padding: '16px 18px',
+              color: '#ffffff',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              overflowY: 'auto'
+            }}>
+              {/* Card Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    background: activeInfo.color,
+                    boxShadow: `0 0 10px ${activeInfo.color}`
+                  }} />
+                  <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff' }}>
+                    {activeInfo.name}
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setShowDetailCard(false)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: 'none',
+                    color: '#94a3b8',
+                    borderRadius: '50%',
+                    width: '26px',
+                    height: '26px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontWeight: 900
+                  }}
+                  title="Đóng bảng chi tiết"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Quick Specs Pill Badges */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                <span style={{
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  color: '#38bdf8',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  📏 Độ sâu: {activeInfo.depth}
+                </span>
+                <span style={{
+                  background: 'rgba(251, 191, 36, 0.15)',
+                  border: '1px solid rgba(251, 191, 36, 0.3)',
+                  color: '#fbbf24',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  🧊 Trạng thái: {activeInfo.state}
+                </span>
+                <span style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  color: '#fca5a5',
+                  padding: '3px 10px',
+                  borderRadius: '12px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800
+                }}>
+                  🌡️ Nhiệt độ: {activeInfo.temp}
+                </span>
+              </div>
+
+              {/* Verbatim Textbook Description Text */}
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.35)',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                borderLeft: `3px solid ${activeInfo.color}`
+              }}>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.5 }}>
+                  {activeInfo.desc}
+                </p>
+              </div>
+
+              {/* Key Bullet Points */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                {activeInfo.details.map((detail, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '0.75rem', color: '#cbd5e1' }}>
+                    <span style={{ color: activeInfo.color, fontWeight: 900 }}>•</span>
+                    <span style={{ lineHeight: 1.4 }}>{detail}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons inside Modal */}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button
+                  onClick={() => setIsFocusIsolated(!isFocusIsolated)}
+                  style={{
+                    flex: 1,
+                    background: isFocusIsolated ? activeInfo.color : 'rgba(30, 41, 59, 0.9)',
+                    color: isFocusIsolated ? '#000000' : '#ffffff',
+                    border: `1px solid ${activeInfo.color}`,
+                    borderRadius: '10px',
+                    padding: '6px 10px',
+                    fontSize: '0.74rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  👁️ {isFocusIsolated ? 'Hiện Tất Cả Lớp' : 'Cô Lập Lớp Này'}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Hover Pointer Tooltip Indicator */}
           {hoveredLayerName && (
@@ -5620,7 +5950,29 @@ function GeoEarthStructureSim({ onLog }) {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
             >
-              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 4 Lớp 3D'}
+              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 5 Lớp 3D'}
+            </button>
+
+            {/* Focus Isolation Button */}
+            <button
+              onClick={() => setIsFocusIsolated(!isFocusIsolated)}
+              style={{
+                background: isFocusIsolated ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(15, 23, 42, 0.85)',
+                color: '#ffffff',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                padding: '8px 12px',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              }}
+            >
+              👁️ {isFocusIsolated ? 'Tắt Cô Lập Lớp' : 'Bật Cô Lập 3D'}
             </button>
 
             {/* Zoom / Reset Navigation Bar */}
@@ -5789,14 +6141,14 @@ function GeoEarthStructureSim({ onLog }) {
             padding: '10px 14px',
             background: 'rgba(56, 189, 248, 0.1)',
             borderRadius: '12px',
-            border: '1px stroke rgba(56, 189, 248, 0.3)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
           }}>
             <span style={{ fontSize: '1.1rem' }}>💡</span>
             <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: 600 }}>
-              Dùng chuột/tay kéo để xoay 3D | Lăn chuột để Zoom | Nhấp chuột vào bất kỳ lớp nào trên mô hình để xem chi tiết!
+              Nhấp vào bất kỳ thẻ nhãn 3D (+) hoặc nhấp chuột vào lớp 3D để xem chi tiết bóc tách!
             </span>
           </div>
         </div>
