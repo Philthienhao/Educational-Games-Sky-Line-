@@ -5373,13 +5373,14 @@ function GeoEarthStructureSim({ onLog }) {
 
   useEffect(() => {
     if (!containerRef.current) return;
-    const width = containerRef.current.clientWidth;
-    const height = containerRef.current.clientHeight;
+    const width = containerRef.current.clientWidth || 800;
+    const height = containerRef.current.clientHeight || 500;
+    const aspect = (width > 0 && height > 0) ? width / height : 1.6;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
     camera.position.set(3.8, 3.2, 7.8);
     cameraRef.current = camera;
 
@@ -5390,7 +5391,10 @@ function GeoEarthStructureSim({ onLog }) {
     renderer.toneMappingExposure = 1.3;
     rendererRef.current = renderer;
 
-    containerRef.current.appendChild(renderer.domElement);
+    if (containerRef.current) {
+      containerRef.current.innerHTML = '';
+      containerRef.current.appendChild(renderer.domElement);
+    }
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -5536,14 +5540,14 @@ function GeoEarthStructureSim({ onLog }) {
 
     // 8. Solid 3D Cutaway Cross-Section Cap Planes
     const capMeshes = [];
-    if (sliceMode === 'cut90') {
-      const capMat = new THREE.MeshStandardMaterial({
-        map: textures.capTex,
-        side: THREE.DoubleSide,
-        roughness: 0.35,
-        metalness: 0.1
-      });
+    const capMat = new THREE.MeshStandardMaterial({
+      map: textures.capTex,
+      side: THREE.DoubleSide,
+      roughness: 0.35,
+      metalness: 0.1
+    });
 
+    if (sliceMode === 'cut90') {
       // Face 1 (Z-axis cut plane)
       const capGeo1 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
       const capMesh1 = new THREE.Mesh(capGeo1, capMat);
@@ -5560,6 +5564,18 @@ function GeoEarthStructureSim({ onLog }) {
     }
     capMeshesRef.current = capMeshes;
 
+    // Asynchronously overlay user-provided reference diagram earth_3d_ref.png onto cutaway cap
+    try {
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('/assets/earth_3d_ref.png', (loadedRefTex) => {
+        if (loadedRefTex && capMat) {
+          loadedRefTex.needsUpdate = true;
+          capMat.map = loadedRefTex;
+          capMat.needsUpdate = true;
+        }
+      }, undefined, () => {});
+    } catch (e) {}
+
     layerMeshesRef.current = {
       crust: crustMesh,
       upperMantle: umMesh,
@@ -5570,11 +5586,13 @@ function GeoEarthStructureSim({ onLog }) {
 
     const handleResize = () => {
       if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
-      const w = containerRef.current.clientWidth;
-      const h = containerRef.current.clientHeight;
-      cameraRef.current.aspect = w / h;
-      cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(w, h);
+      const w = containerRef.current.clientWidth || 800;
+      const h = containerRef.current.clientHeight || 500;
+      if (w > 0 && h > 0) {
+        cameraRef.current.aspect = w / h;
+        cameraRef.current.updateProjectionMatrix();
+        rendererRef.current.setSize(w, h);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -5582,102 +5600,108 @@ function GeoEarthStructureSim({ onLog }) {
     let animId;
     const animate = () => {
       animId = requestAnimationFrame(animate);
-
-      if (controlsRef.current) {
-        controlsRef.current.autoRotate = autoRotate;
-        controlsRef.current.update();
-      }
-
-      // Smooth Lerp Exploded View Offsets
-      const targetOffset = isExploded ? 1.0 : 0.0;
-      
-      const cM = layerMeshesRef.current.crust;
-      const umM = layerMeshesRef.current.upperMantle;
-      const lmM = layerMeshesRef.current.lowerMantle;
-      const ocM = layerMeshesRef.current.outerCore;
-      const icM = layerMeshesRef.current.innerCore;
-
-      if (cM && umM && lmM && ocM && icM) {
-        const curExp = cM.position.x;
-        const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
-
-        cM.position.x = nextExp * 1.8;
-        cM.position.z = nextExp * 0.9;
-        if (cloudMesh) {
-          cloudMesh.position.x = cM.position.x;
-          cloudMesh.position.z = cM.position.z;
+      try {
+        if (controlsRef.current) {
+          controlsRef.current.autoRotate = autoRotate;
+          controlsRef.current.update();
         }
 
-        umM.position.x = nextExp * 1.35;
-        umM.position.z = nextExp * 0.65;
+        // Smooth Lerp Exploded View Offsets
+        const targetOffset = isExploded ? 1.0 : 0.0;
+        
+        const cM = layerMeshesRef.current.crust;
+        const umM = layerMeshesRef.current.upperMantle;
+        const lmM = layerMeshesRef.current.lowerMantle;
+        const ocM = layerMeshesRef.current.outerCore;
+        const icM = layerMeshesRef.current.innerCore;
 
-        lmM.position.x = nextExp * 0.9;
-        lmM.position.z = nextExp * 0.45;
+        if (cM && umM && lmM && ocM && icM) {
+          const curExp = cM.position.x;
+          const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
 
-        ocM.position.x = nextExp * 0.45;
-        ocM.position.z = nextExp * 0.22;
-
-        icM.position.x = 0;
-        icM.position.z = 0;
-
-        // Cap visibility during explode
-        capMeshesRef.current.forEach(m => {
-          m.visible = !isExploded && sliceMode === 'cut90';
-        });
-      }
-
-      // Natural Cloud Drift & Core rotation
-      if (cloudMesh) cloudMesh.rotation.y += 0.0008;
-      if (icM) icM.rotation.y += 0.005;
-
-      // Smart 3D Tag Overlay Projection with Anti-Collision Vertical Spacing
-      if (cameraRef.current && containerRef.current) {
-        const width = containerRef.current.clientWidth;
-        const height = containerRef.current.clientHeight;
-
-        const computedScreenPos = [];
-        Object.keys(layersInfo).forEach(key => {
-          const layerMesh = layerMeshesRef.current[key];
-          const anchorWorld = layersInfo[key].anchorPos.clone();
-          if (layerMesh) {
-            anchorWorld.add(layerMesh.position);
+          cM.position.x = nextExp * 1.8;
+          cM.position.z = nextExp * 0.9;
+          if (cloudMesh) {
+            cloudMesh.position.x = cM.position.x;
+            cloudMesh.position.z = cM.position.z;
           }
-          anchorWorld.project(cameraRef.current);
 
-          const x = (anchorWorld.x * 0.5 + 0.5) * width;
-          const y = (-(anchorWorld.y * 0.5) + 0.5) * height;
-          const visible = anchorWorld.z < 1 && x >= 30 && x <= width - 30 && y >= 30 && y <= height - 30;
+          umM.position.x = nextExp * 1.35;
+          umM.position.z = nextExp * 0.65;
 
-          computedScreenPos.push({ key, x, y, visible });
-        });
+          lmM.position.x = nextExp * 0.9;
+          lmM.position.z = nextExp * 0.45;
 
-        // Anti-collision sorting & vertical spacing algorithm
-        computedScreenPos.sort((a, b) => a.y - b.y);
-        const minSpacingY = 38;
-        for (let i = 1; i < computedScreenPos.length; i++) {
-          const prev = computedScreenPos[i - 1];
-          const curr = computedScreenPos[i];
-          if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
-            if (curr.y - prev.y < minSpacingY) {
-              curr.y = prev.y + minSpacingY;
+          ocM.position.x = nextExp * 0.45;
+          ocM.position.z = nextExp * 0.22;
+
+          icM.position.x = 0;
+          icM.position.z = 0;
+
+          // Cap visibility during explode
+          capMeshesRef.current.forEach(m => {
+            if (m) m.visible = !isExploded && sliceMode === 'cut90';
+          });
+        }
+
+        // Natural Cloud Drift & Core rotation
+        if (cloudMesh) cloudMesh.rotation.y += 0.0008;
+        if (icM) icM.rotation.y += 0.005;
+
+        // Smart 3D Tag Overlay Projection with Anti-Collision Vertical Spacing
+        if (cameraRef.current && containerRef.current) {
+          const w = containerRef.current.clientWidth || 800;
+          const h = containerRef.current.clientHeight || 500;
+
+          const computedScreenPos = [];
+          Object.keys(layersInfo).forEach(key => {
+            const layerMesh = layerMeshesRef.current[key];
+            if (!layersInfo[key] || !layersInfo[key].anchorPos) return;
+            const anchorWorld = layersInfo[key].anchorPos.clone();
+            if (layerMesh) {
+              anchorWorld.add(layerMesh.position);
+            }
+            anchorWorld.project(cameraRef.current);
+
+            const x = (anchorWorld.x * 0.5 + 0.5) * w;
+            const y = (-(anchorWorld.y * 0.5) + 0.5) * h;
+            const visible = !isNaN(x) && !isNaN(y) && anchorWorld.z < 1 && x >= 20 && x <= w - 20 && y >= 20 && y <= h - 20;
+
+            computedScreenPos.push({ key, x, y, visible });
+          });
+
+          // Anti-collision sorting & vertical spacing algorithm
+          computedScreenPos.sort((a, b) => a.y - b.y);
+          const minSpacingY = 38;
+          for (let i = 1; i < computedScreenPos.length; i++) {
+            const prev = computedScreenPos[i - 1];
+            const curr = computedScreenPos[i];
+            if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
+              if (curr.y - prev.y < minSpacingY) {
+                curr.y = prev.y + minSpacingY;
+              }
             }
           }
+
+          // Apply 3D transforms to DOM refs
+          computedScreenPos.forEach(item => {
+            const tagEl = tagRefs.current[item.key];
+            if (!tagEl) return;
+            if (item.visible) {
+              tagEl.style.display = 'flex';
+              tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
+            } else {
+              tagEl.style.display = 'none';
+            }
+          });
         }
 
-        // Apply 3D transforms to DOM refs
-        computedScreenPos.forEach(item => {
-          const tagEl = tagRefs.current[item.key];
-          if (!tagEl) return;
-          if (item.visible) {
-            tagEl.style.display = 'flex';
-            tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
-          } else {
-            tagEl.style.display = 'none';
-          }
-        });
+        if (rendererRef.current && sceneRef.current && cameraRef.current) {
+          rendererRef.current.render(sceneRef.current, cameraRef.current);
+        }
+      } catch (e) {
+        // Graceful silent frame catch
       }
-
-      renderer.render(scene, camera);
     };
 
     animate();
@@ -8734,6 +8758,30 @@ export const detectExperimentInteractiveType = (exp) => {
   const eq = Array.isArray(exp.equipment) ? exp.equipment.join(' ').toLowerCase() : String(exp.equipment || '').toLowerCase();
   const expText = String(exp.explanation || '').toLowerCase();
   const fullText = `${title} ${obj} ${eq} ${expText}`;
+
+  if (fullText.includes('cấu tạo trái đất') || fullText.includes('bóc tách') || fullText.includes('bên trong trái đất') || fullText.includes('earth_structure') || fullText.includes('geo_6_06')) {
+    return 'geo_earth_structure';
+  }
+
+  if (fullText.includes('hệ mặt trời') || fullText.includes('nhật thực') || fullText.includes('nguyệt thực') || fullText.includes('hành tinh')) {
+    return 'geo_solar_system';
+  }
+
+  if (fullText.includes('núi lửa') || fullText.includes('volcano')) {
+    return 'geo_volcano';
+  }
+
+  if (fullText.includes('động đất') || fullText.includes('earthquake')) {
+    return 'geo_earthquake';
+  }
+
+  if (fullText.includes('vòng tuần hoàn') || fullText.includes('water_cycle')) {
+    return 'geo_water_cycle';
+  }
+
+  if (fullText.includes('kiến tạo mảng') || fullText.includes('plate_tectonics')) {
+    return 'geo_plate_tectonics';
+  }
 
   if (fullText.includes('tách oxi') || fullText.includes('tách oxygen') || fullText.includes('điện phân nước') || 
       fullText.includes('thu khí oxi') || fullText.includes('chế tạo oxi') || fullText.includes('khí oxi ra khỏi nước') || 
