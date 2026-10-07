@@ -101,8 +101,7 @@ export function Sidebar({
     { id: 'virtual-lab', label: 'Mô phỏng thí nghiệm KHTN', icon: FlaskRound, color: '#0d9488' },
     { id: 'timer', label: 'Đồng hồ bấm giờ', icon: Clock, color: '#8b5cf6' },
     { id: 'skl-web-links', label: 'Địa chỉ web', icon: Globe, color: '#3b82f6' },
-    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' },
-    { id: 'change-password', label: '🔑 Đổi Mật Khẩu Tài Khoản', icon: KeyRound, color: '#0284c7' }
+    { id: 'indoor-pe-dance', label: 'Thử thách thể dục', icon: Activity, color: '#10b981' }
   ];
 
   return (
@@ -299,31 +298,6 @@ export function Sidebar({
             })}
           </nav>
 
-          {/* ACCOUNT & SECURITY SECTION */}
-          <div style={{ marginTop: '16px', borderTop: '1px dashed rgba(0, 0, 0, 0.08)', paddingTop: '14px' }}>
-            <div style={{
-              fontSize: '0.72rem',
-              fontWeight: 900,
-              color: '#0284c7',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              marginBottom: '8px',
-              paddingLeft: '6px'
-            }}>
-              TÀI KHOẢN CÁ NHÂN
-            </div>
-            <div className="sidebar-vertical-nav">
-              <button 
-                className="sidebar-menu-btn"
-                onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
-                style={{ background: 'rgba(2, 132, 199, 0.08)', border: '1px solid rgba(2, 132, 199, 0.2)' }}
-              >
-                <KeyRound size={19} className="menu-icon" color="#0284c7" />
-                <span className="menu-label" style={{ fontWeight: 800, color: '#0284c7' }}>🔑 Đổi Mật Khẩu Cá Nhân</span>
-              </button>
-            </div>
-          </div>
-
           {/* ADMIN MANAGEMENT SECTION */}
           {isAdmin && (
             <div style={{ marginTop: '18px' }}>
@@ -449,53 +423,28 @@ export function Sidebar({
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
-              <button 
-                onClick={onOpenChangePassword}
-                title="Đổi mật khẩu tài khoản"
-                style={{
-                  flex: 1,
-                  background: 'rgba(2, 132, 199, 0.12)',
-                  color: '#0284c7',
-                  border: '1px solid rgba(2, 132, 199, 0.25)',
-                  borderRadius: '10px',
-                  padding: '7px 8px',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '5px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <KeyRound size={14} />
-                <span>Đổi Mật Khẩu</span>
-              </button>
-
+            <div style={{ width: '100%' }}>
               <button 
                 onClick={onLogout}
                 title="Đăng xuất khỏi hệ thống"
                 style={{
-                  flex: 1,
+                  width: '100%',
                   background: 'rgba(239, 68, 68, 0.1)',
                   color: '#ef4444',
                   border: '1px solid rgba(239, 68, 68, 0.2)',
                   borderRadius: '10px',
-                  padding: '7px 8px',
-                  fontSize: '0.78rem',
+                  padding: '9px 12px',
+                  fontSize: '0.82rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '5px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
+                  gap: '6px',
+                  cursor: 'pointer'
                 }}
               >
-                <LogOut size={14} />
-                <span>Đăng xuất</span>
+                <LogOut size={16} />
+                <span>Đăng xuất tài khoản</span>
               </button>
             </div>
           </div>
