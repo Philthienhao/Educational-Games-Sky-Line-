@@ -5691,35 +5691,99 @@ function GeoEarthStructureSim({ onLog }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', userSelect: 'none' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none', background: themeMode === 'sgk' ? '#f8fafc' : '#030712', borderRadius: '18px', padding: '12px' }}>
       
-      {/* Main Viewport Container */}
+      {/* Top Header Mode Switcher Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '8px 16px',
+        background: themeMode === 'sgk' ? 'linear-gradient(135deg, #ffffff 0%, #edf2f7 100%)' : 'rgba(15, 23, 42, 0.95)',
+        borderRadius: '14px',
+        border: themeMode === 'sgk' ? '1.5px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        zIndex: 20
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+            color: '#ffffff',
+            width: '32px', height: '32px', borderRadius: '10px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
+          }}>
+            🌍
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#f8fafc' }}>
+              CẤU TRÚC CỦA TRÁI ĐẤT (Mô Hình 3D Bóc Tách SGK)
+            </h3>
+            <span style={{ fontSize: '0.72rem', color: themeMode === 'sgk' ? '#64748b' : '#94a3b8', fontWeight: 700 }}>
+              Địa Lý Khối 6 • Chuẩn Hình Mẫu SGK GDPT 2018
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => {
+              setThemeMode(themeMode === 'sgk' ? 'space' : 'sgk');
+              handleResetCamera();
+            }}
+            style={{
+              background: themeMode === 'sgk' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(255, 255, 255, 0.1)',
+              color: '#ffffff', border: 'none', borderRadius: '10px', padding: '6px 14px',
+              fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '6px',
+              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
+            }}
+          >
+            {themeMode === 'sgk' ? '📖 Chế Độ SGK (Đang Bật)' : '🌌 Chế Độ Vũ Trụ 3D'}
+          </button>
+
+          <button
+            onClick={() => setUseFallback2D(!useFallback2D)}
+            style={{
+              background: useFallback2D ? '#eab308' : 'rgba(15, 23, 42, 0.1)',
+              color: useFallback2D ? '#000000' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
+              border: '1px solid #cbd5e1', borderRadius: '10px', padding: '6px 12px',
+              fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            {useFallback2D ? '⚡ Thử 3D WebGL' : '⚡ Bản 2D Super-Fast'}
+          </button>
+        </div>
+      </div>
+
+      {/* Main Viewport Workspace: 3D Model on Left, SGK Leader Lines & Cards on Right */}
       <div style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'row',
         gap: '16px',
-        minHeight: '460px',
+        minHeight: '440px',
         position: 'relative'
       }}>
         
-        {/* 3D or 2D Interactive Canvas Viewport */}
+        {/* 3D Model Container */}
         <div 
           ref={containerRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           style={{
-            flex: 1.3,
-            background: 'radial-gradient(circle at 50% 50%, #091a2f 0%, #030712 100%)',
+            flex: 1.4,
+            background: themeMode === 'sgk' 
+              ? 'radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%)' 
+              : 'radial-gradient(circle at 50% 50%, #091a2f 0%, #030712 100%)',
             borderRadius: '20px',
-            border: '1.5px solid rgba(56, 189, 248, 0.35)',
-            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(56, 189, 248, 0.1)',
+            border: themeMode === 'sgk' ? '2px solid #cbd5e1' : '1.5px solid rgba(56, 189, 248, 0.35)',
+            boxShadow: themeMode === 'sgk' ? '0 10px 30px rgba(0, 0, 0, 0.08)' : '0 12px 40px rgba(0, 0, 0, 0.6)',
             position: 'relative',
             overflow: 'hidden',
             cursor: useFallback2D ? 'default' : 'grab'
           }}
         >
-          {/* Dedicated Three.js WebGL Mount Container (Zero React Children!) */}
+          {/* Dedicated Three.js WebGL Mount Container */}
           <div 
             ref={mount3dRef} 
             style={{ 
@@ -5745,212 +5809,15 @@ function GeoEarthStructureSim({ onLog }) {
             }} 
           />
 
-          {/* Top-Left Viewport Header Badge */}
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            left: '16px',
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(15, 23, 42, 0.85)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            padding: '8px 14px',
-            borderRadius: '14px'
-          }}>
-            <Sparkles size={18} color="#38bdf8" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f8fafc' }}>
-              {useFallback2D ? 'Mô Hình Interactive 2D (5 Lớp SGK)' : 'Mô Hình 3D Cấu Tạo Trái Đất (5 Lớp SGK)'}
-            </span>
-            <button
-              onClick={() => setUseFallback2D(!useFallback2D)}
-              style={{
-                marginLeft: '8px',
-                background: useFallback2D ? '#0284c7' : 'rgba(255, 255, 255, 0.1)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '3px 8px',
-                fontSize: '0.72rem',
-                fontWeight: 900,
-                cursor: 'pointer'
-              }}
-            >
-              {useFallback2D ? '⚡ Thử Lại 3D' : '⚡ Chuyển Sang 2D'}
-            </button>
-          </div>
-
-          {/* Floating Tag Badges */}
-          {!useFallback2D && Object.keys(layersInfo).map(key => {
-            const item = layersInfo[key];
-            const isSelected = activeLayer === key;
-            return (
-              <div
-                key={key}
-                ref={el => (tagRefs.current[key] = el)}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSelectLayer(key);
-                }}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  zIndex: 15,
-                  display: 'none',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: isSelected ? item.color : 'rgba(15, 23, 42, 0.9)',
-                  color: isSelected ? '#000000' : '#ffffff',
-                  border: `1.5px solid ${item.color}`,
-                  borderRadius: '20px',
-                  padding: '5px 12px',
-                  fontSize: '0.78rem',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  boxShadow: isSelected ? `0 0 20px ${item.color}` : `0 4px 12px rgba(0,0,0,0.5)`,
-                  transition: 'background 0.2s ease, transform 0.15s ease',
-                  whiteSpace: 'nowrap',
-                  pointerEvents: 'auto'
-                }}
-              >
-                <span>{item.name}</span>
-                <span style={{
-                  background: isSelected ? 'rgba(0,0,0,0.2)' : `${item.color}40`,
-                  borderRadius: '50%',
-                  width: '16px',
-                  height: '16px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '0.7rem',
-                  fontWeight: 900
-                }}>
-                  +
-                </span>
-              </div>
-            );
-          })}
-
-          {/* Glassmorphic Detail Card Overlay */}
-          {showDetailCard && activeInfo && (
-            <div style={{
-              position: 'absolute',
-              top: '64px',
-              left: '16px',
-              zIndex: 20,
-              width: '320px',
-              maxWidth: 'calc(100% - 32px)',
-              maxHeight: 'calc(100% - 80px)',
-              background: 'rgba(15, 23, 42, 0.92)',
-              backdropFilter: 'blur(16px)',
-              border: `2px solid ${activeInfo.color}`,
-              borderRadius: '18px',
-              boxShadow: `0 16px 40px rgba(0,0,0,0.7), 0 0 25px ${activeInfo.color}30`,
-              padding: '16px 18px',
-              color: '#ffffff',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              overflowY: 'auto'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{
-                    width: '12px',
-                    height: '12px',
-                    borderRadius: '50%',
-                    background: activeInfo.color,
-                    boxShadow: `0 0 10px ${activeInfo.color}`
-                  }} />
-                  <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#ffffff' }}>
-                    {activeInfo.name}
-                  </h4>
-                </div>
-                <button
-                  onClick={() => setShowDetailCard(false)}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    border: 'none',
-                    color: '#94a3b8',
-                    borderRadius: '50%',
-                    width: '26px',
-                    height: '26px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    fontWeight: 900
-                  }}
-                  title="Đóng bảng chi tiết"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                <span style={{ background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
-                  📏 Độ sâu: {activeInfo.depth}
-                </span>
-                <span style={{ background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
-                  🧊 Trạng thái: {activeInfo.state}
-                </span>
-                <span style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
-                  🌡️ Nhiệt độ: {activeInfo.temp}
-                </span>
-              </div>
-
-              <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '10px 12px', borderRadius: '12px', borderLeft: `3px solid ${activeInfo.color}` }}>
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.5 }}>
-                  {activeInfo.desc}
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                {activeInfo.details.map((detail, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '0.75rem', color: '#cbd5e1' }}>
-                    <span style={{ color: activeInfo.color, fontWeight: 900 }}>•</span>
-                    <span style={{ lineHeight: 1.4 }}>{detail}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                <button
-                  onClick={() => setIsFocusIsolated(!isFocusIsolated)}
-                  style={{
-                    flex: 1,
-                    background: isFocusIsolated ? activeInfo.color : 'rgba(30, 41, 59, 0.9)',
-                    color: isFocusIsolated ? '#000000' : '#ffffff',
-                    border: `1px solid ${activeInfo.color}`,
-                    borderRadius: '10px',
-                    padding: '6px 10px',
-                    fontSize: '0.74rem',
-                    fontWeight: 900,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  👁️ {isFocusIsolated ? 'Hiện Tất Cả Lớp' : 'Cô Lập Lớp Này'}
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Hover Pointer Tooltip */}
           {hoveredLayerName && !useFallback2D && (
             <div style={{
               position: 'absolute',
-              bottom: '20px',
+              bottom: '16px',
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 10,
-              background: 'rgba(2, 132, 199, 0.95)',
+              background: '#0284c7',
               color: '#ffffff',
               padding: '6px 16px',
               borderRadius: '20px',
@@ -5960,406 +5827,220 @@ function GeoEarthStructureSim({ onLog }) {
               border: '1px solid rgba(255, 255, 255, 0.4)',
               pointerEvents: 'none'
             }}>
-              👆 Nhấp chuột để xem chi tiết: <b>{hoveredLayerName}</b>
-            </div>
-          )}
-
-          {/* Floating Toolbar Controls */}
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            zIndex: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}>
-            <button
-              onClick={() => setAutoRotate(!autoRotate)}
-              title="Bật/Tắt xoay tự động"
-              style={{
-                background: autoRotate ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(15, 23, 42, 0.85)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                padding: '8px 12px',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-              }}
-            >
-              🔄 {autoRotate ? 'Xoay: Bật' : 'Xoay: Tắt'}
-            </button>
-
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.85)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
-              padding: '4px',
-              display: 'flex',
-              gap: '4px'
-            }}>
-              <button
-                onClick={() => setSliceMode('cut90')}
-                style={{
-                  background: sliceMode === 'cut90' ? '#38bdf8' : 'transparent',
-                  color: sliceMode === 'cut90' ? '#0f172a' : '#94a3b8',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '5px 10px',
-                  fontSize: '0.74rem',
-                  fontWeight: 900,
-                  cursor: 'pointer'
-                }}
-              >
-                🔪 Cắt 90°
-              </button>
-              <button
-                onClick={() => setSliceMode('cut180')}
-                style={{
-                  background: sliceMode === 'cut180' ? '#38bdf8' : 'transparent',
-                  color: sliceMode === 'cut180' ? '#0f172a' : '#94a3b8',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '5px 10px',
-                  fontSize: '0.74rem',
-                  fontWeight: 900,
-                  cursor: 'pointer'
-                }}
-              >
-                🌓 Nửa Quả 180°
-              </button>
-              <button
-                onClick={() => setSliceMode('full')}
-                style={{
-                  background: sliceMode === 'full' ? '#38bdf8' : 'transparent',
-                  color: sliceMode === 'full' ? '#0f172a' : '#94a3b8',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '5px 10px',
-                  fontSize: '0.74rem',
-                  fontWeight: 900,
-                  cursor: 'pointer'
-                }}
-              >
-                🌍 Nguyên Khối
-              </button>
-            </div>
-
-            <button
-              onClick={() => setIsExploded(!isExploded)}
-              style={{
-                background: isExploded ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : 'rgba(15, 23, 42, 0.85)',
-                color: isExploded ? '#000000' : '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                padding: '8px 12px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-              }}
-            >
-              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 5 Lớp'}
-            </button>
-
-            <button
-              onClick={() => setIsFocusIsolated(!isFocusIsolated)}
-              style={{
-                background: isFocusIsolated ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(15, 23, 42, 0.85)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                padding: '8px 12px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
-              }}
-            >
-              👁️ {isFocusIsolated ? 'Tắt Cô Lập' : 'Bật Cô Lập'}
-            </button>
-
-            <button
-              onClick={() => setShowRefModal(true)}
-              style={{
-                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                color: '#ffffff',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '12px',
-                padding: '8px 12px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
-              }}
-            >
-              🖼️ Sơ Đồ SGK (earth_3d_ref)
-            </button>
-
-            {!useFallback2D && (
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button
-                  onClick={() => handleZoom(-1.5)}
-                  title="Phóng to"
-                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}
-                >
-                  ➕
-                </button>
-                <button
-                  onClick={() => handleZoom(1.5)}
-                  title="Thu nhỏ"
-                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}
-                >
-                  ➖
-                </button>
-                <button
-                  onClick={handleResetCamera}
-                  title="Đặt lại vị trí góc nhìn ban đầu"
-                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.8rem', cursor: 'pointer' }}
-                >
-                  🏠
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Reference Modal Popup */}
-          {showRefModal && (
-            <div style={{
-              position: 'fixed',
-              top: 0, left: 0, right: 0, bottom: 0,
-              zIndex: 99999,
-              background: 'rgba(3, 7, 18, 0.88)',
-              backdropFilter: 'blur(12px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '24px'
-            }} onClick={() => setShowRefModal(false)}>
-              <div style={{
-                position: 'relative',
-                background: '#0f172a',
-                border: '2px solid #38bdf8',
-                borderRadius: '24px',
-                padding: '20px',
-                maxWidth: '900px',
-                width: '100%',
-                maxHeight: '90vh',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-                overflow: 'hidden'
-              }} onClick={(e) => e.stopPropagation()}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sparkles size={20} color="#38bdf8" />
-                    <h3 style={{ margin: 0, color: '#f8fafc', fontSize: '1.2rem', fontWeight: 900 }}>
-                      Sơ Đồ Chuẩn Cấu Tạo Trái Đất (SGK Địa Lý)
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setShowRefModal(false)}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: 'none',
-                      color: '#ffffff',
-                      borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
-                      fontSize: '1rem',
-                      fontWeight: 900,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-                <div style={{ flex: 1, overflow: 'auto', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#000000', borderRadius: '16px', padding: '12px' }}>
-                  <img
-                    src="/assets/earth_3d_ref.png"
-                    alt="Sơ đồ 3D Cấu tạo Trái Đất chuẩn SGK"
-                    style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: '12px' }}
-                  />
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#94a3b8', textAlign: 'center' }}>
-                  💡 Hình ảnh minh họa chuẩn SGK Địa lý mô tả 5 lớp cấu tạo Trái đất: Vỏ Trái Đất, Manti trên, Manti dưới, Nhân ngoài và Nhân trong.
-                </div>
-              </div>
+              👆 Nhấp chuột để chọn xem: <b>{hoveredLayerName}</b>
             </div>
           )}
         </div>
 
-        {/* Right Info Specs Panel */}
+        {/* Right Callout Panel matching Textbook Diagram Image 2 */}
         <div style={{
-          flex: 1,
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
-          borderRadius: '20px',
-          border: `2px solid ${activeInfo.color}`,
-          boxShadow: `0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px ${activeInfo.color}20`,
-          padding: '22px',
+          width: '320px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
-          overflowY: 'auto'
+          gap: '10px',
+          zIndex: 15
         }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-              <div>
-                <span style={{
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  color: activeInfo.color,
-                  letterSpacing: '1px',
-                  background: `${activeInfo.color}25`,
-                  padding: '3px 10px',
-                  borderRadius: '20px',
-                  border: `1px solid ${activeInfo.color}50`
-                }}>
-                  {activeInfo.enName}
-                </span>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ffffff', margin: '6px 0 0 0' }}>
-                  {activeInfo.name}
-                </h3>
-              </div>
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: activeInfo.color,
-                boxShadow: `0 0 16px ${activeInfo.color}`
-              }} />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>📏 Độ sâu:</div>
-                <div style={{ fontSize: '0.95rem', color: activeInfo.color, fontWeight: 900, marginTop: '2px' }}>
-                  {activeInfo.depth}
-                </div>
-              </div>
-
-              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>🌡️ Nhiệt độ:</div>
-                <div style={{ fontSize: '0.95rem', color: '#fde047', fontWeight: 900, marginTop: '2px' }}>
-                  {activeInfo.temp}
-                </div>
-              </div>
-
-              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>🧊 Trạng thái:</div>
-                <div style={{ fontSize: '0.85rem', color: '#f8fafc', fontWeight: 800, marginTop: '2px' }}>
-                  {activeInfo.state}
-                </div>
-              </div>
-
-              <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>📊 Thể tích & Khối lượng:</div>
-                <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: 800, marginTop: '2px' }}>
-                  V: {activeInfo.volume}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '12px 14px', borderRadius: '14px', borderLeft: `4px solid ${activeInfo.color}`, marginBottom: '14px' }}>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.55 }}>
-                {activeInfo.desc}
-              </p>
-            </div>
-
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {activeInfo.details.map((item, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                  <span style={{ color: activeInfo.color, fontWeight: 900 }}>•</span>
-                  <span style={{ color: '#e2e8f0', lineHeight: 1.45 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div style={{
-            marginTop: '16px',
-            padding: '10px 14px',
-            background: 'rgba(56, 189, 248, 0.1)',
-            borderRadius: '12px',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
+            background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
+            border: themeMode === 'sgk' ? '1.5px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '16px',
+            padding: '12px 14px',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)'
           }}>
-            <span style={{ fontSize: '1.1rem' }}>💡</span>
-            <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: 600 }}>
-              Nhấp vào bất kỳ lớp nào hoặc chọn thanh bên dưới để xem bóc tách chi tiết!
-            </span>
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              CHỈ DẪN CẤU TRÚC (SGK)
+            </h4>
+            <p style={{ margin: 0, fontSize: '0.72rem', color: themeMode === 'sgk' ? '#64748b' : '#94a3b8', fontWeight: 600 }}>
+              Nhấp vào từng lớp bên dưới hoặc nhấp trực tiếp vào mô hình 3D để khám phá chi tiết:
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* Bottom Layer Selector Button Bar */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.95)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '12px 16px',
-        borderRadius: '16px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '10px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#94a3b8', marginRight: '6px' }}>
-            📍 Chọn Lớp Quan Sát:
-          </span>
-          {Object.keys(layersInfo).map(key => {
-            const item = layersInfo[key];
-            const isSelected = activeLayer === key;
+          {/* 4 Textbook Layer Cards matching Image 2 */}
+          {[
+            { key: 'crust', label: 'Lớp vỏ', sub: '(dày từ 8 đến 40 km)', color: '#0284c7', bg: '#e0f2fe' },
+            { key: 'upperMantle', label: 'Lớp bao (Manti)', sub: '(dày khoảng 2.900 km)', color: '#ea580c', bg: '#ffedd5' },
+            { key: 'outerCore', label: 'Nhân ngoài', sub: '(dày khoảng 2.250 km)', color: '#d97706', bg: '#fef3c7' },
+            { key: 'innerCore', label: 'Nhân trong', sub: '(bán kính khoảng 1.300 km)', color: '#ca8a04', bg: '#fef9c3' }
+          ].map(item => {
+            const isSelected = activeLayer === item.key || (item.key === 'upperMantle' && activeLayer === 'lowerMantle');
             return (
-              <button
-                key={key}
-                onClick={() => handleSelectLayer(key)}
+              <div
+                key={item.key}
+                onClick={() => handleSelectLayer(item.key)}
                 style={{
-                  background: isSelected ? item.color : '#1e293b',
-                  color: isSelected ? '#000000' : '#ffffff',
-                  border: isSelected ? `2px solid ${item.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  padding: '8px 16px',
-                  fontWeight: 900,
-                  fontSize: '0.82rem',
+                  background: isSelected ? item.bg : (themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.8)'),
+                  border: `2px solid ${isSelected ? item.color : (themeMode === 'sgk' ? '#cbd5e1' : 'rgba(255, 255, 255, 0.15)')}`,
+                  borderRadius: '14px',
+                  padding: '10px 14px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  boxShadow: isSelected ? `0 4px 16px ${item.color}60` : 'none',
-                  transition: 'all 0.2s ease'
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isSelected ? `0 4px 16px ${item.color}35` : 'none'
                 }}
               >
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: isSelected ? '#000' : item.color }} />
-                {item.name} ({item.depth})
-              </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '14px', height: '14px', borderRadius: '50%',
+                    background: item.color, boxShadow: `0 0 8px ${item.color}`
+                  }} />
+                  <div>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#ffffff' }}>
+                      {item.label}
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: themeMode === 'sgk' ? '#475569' : '#94a3b8', fontWeight: 700 }}>
+                      {item.sub}
+                    </div>
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: item.color }}>
+                  {isSelected ? '✓ Đang chọn' : 'Xem ▸'}
+                </span>
+              </div>
             );
           })}
+
+          {/* Detailed Info Card */}
+          {activeInfo && (
+            <div style={{
+              background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
+              border: `2px solid ${activeInfo.color}`,
+              borderRadius: '16px',
+              padding: '12px 14px',
+              marginTop: 'auto',
+              boxShadow: `0 8px 24px ${activeInfo.color}25`
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeInfo.color }} />
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#ffffff' }}>
+                  {activeInfo.name}
+                </h4>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.76rem', color: themeMode === 'sgk' ? '#334155' : '#cbd5e1', lineHeight: 1.45 }}>
+                {activeInfo.desc}
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Unified Bottom Action Control Toolbar (Zero Overlap!) */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '10px',
+        padding: '10px 16px',
+        background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
+        border: themeMode === 'sgk' ? '1.5px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
+        borderRadius: '14px',
+        zIndex: 20
+      }}>
+        {/* Slice Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: themeMode === 'sgk' ? '#475569' : '#94a3b8' }}>
+            Chế độ cắt:
+          </span>
+          <button
+            onClick={() => setSliceMode('cut90')}
+            style={{
+              background: sliceMode === 'cut90' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
+              color: sliceMode === 'cut90' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
+              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🔪 Cắt 90°
+          </button>
+          <button
+            onClick={() => setSliceMode('cut180')}
+            style={{
+              background: sliceMode === 'cut180' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
+              color: sliceMode === 'cut180' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
+              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🌓 Nửa Quả 180°
+          </button>
+          <button
+            onClick={() => setSliceMode('full')}
+            style={{
+              background: sliceMode === 'full' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
+              color: sliceMode === 'full' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
+              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🌍 Nguyên Khối
+          </button>
+        </div>
+
+        {/* Feature Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setIsExploded(!isExploded)}
+            style={{
+              background: isExploded ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : (themeMode === 'sgk' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'),
+              color: isExploded ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
+              border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách Các Lớp'}
+          </button>
+
+          <button
+            onClick={() => setAutoRotate(!autoRotate)}
+            style={{
+              background: autoRotate ? '#0284c7' : (themeMode === 'sgk' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'),
+              color: autoRotate ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
+              border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🔄 {autoRotate ? 'Xoay: BẬT' : 'Xoay: TẮT'}
+          </button>
+
+          <button
+            onClick={() => setShowRefModal(true)}
+            style={{
+              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+              color: '#ffffff', border: 'none', borderRadius: '10px', padding: '6px 12px',
+              fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🖼️ Xem Hình SGK Mẫu
+          </button>
+
+          {!useFallback2D && (
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button onClick={() => handleZoom(-1.5)} title="Phóng to" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>➕</button>
+              <button onClick={() => handleZoom(1.5)} title="Thu nhỏ" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>➖</button>
+              <button onClick={handleResetCamera} title="Đặt lại vị trí" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>🏠</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Reference Modal Popup */}
+      {showRefModal && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 999999,
+          background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
+        }} onClick={() => setShowRefModal(false)}>
+          <div style={{
+            background: '#ffffff', borderRadius: '24px', padding: '24px', maxWidth: '800px', width: '100%',
+            display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.2rem', fontWeight: 900 }}>
+                🖼️ HÌNH MẪU SGK: CẤU TRÚC CỦA TRÁI ĐẤT
+              </h3>
+              <button onClick={() => setShowRefModal(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontWeight: 900, cursor: 'pointer' }}>✕</button>
+            </div>
+            <img src="/assets/earth_3d_ref.png" alt="Cấu Trúc Trái Đất SGK" style={{ width: '100%', borderRadius: '16px', border: '1px solid #cbd5e1' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

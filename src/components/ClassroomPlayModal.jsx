@@ -307,7 +307,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
