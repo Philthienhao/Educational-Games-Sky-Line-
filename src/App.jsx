@@ -308,7 +308,6 @@ export function App() {
   const categories = [
     'Tất cả',
     'Gọi tên và chia nhóm',
-    'Công cụ Lớp học',
     'Đối kháng Đội nhóm',
     'Trắc nghiệm kịch tính',
     'Bất ngờ & May mắn',
@@ -322,6 +321,7 @@ export function App() {
 
   const filteredBaseGames = (baseGames || []).filter(game => {
     if (!game || typeof game !== 'object') return false;
+    if (game.engineType === 'classroom-timer' || game.id === 'classroom-timer-game') return false;
 
     const isPickerGame = game.isStudentPicker || 
                          game.category === 'Gọi tên và chia nhóm' || 

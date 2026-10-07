@@ -649,7 +649,6 @@ const INITIAL_BASE_GAMES = [
     isStudentPicker: true,
     icon: '🧩',
     gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-    thumbnail: '/thumbnails/thumb_student_group_divider.jpg',
     description: 'Chia nhóm học sinh tùy chọn số nhóm đầu ra (2-8 nhóm). Giao diện bóc thăm bí mật hồi hộp với nhạc nền kịch tính, thẻ bí mật, tráo lại nhóm và sao chép/xuất kết quả!',
     engineType: 'student-group-divider',
     playsCount: 0,
@@ -767,20 +766,6 @@ const INITIAL_BASE_GAMES = [
     thumbnail: '/thumbnails/thumb_pirate_ship_battle.jpg',
     description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
     engineType: 'pirate-ship-battle',
-    playsCount: 0,
-    defaultQuestions: []
-  },
-  {
-    id: 'classroom-timer-game',
-    title: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
-    subtitle: 'Bộ 5 Chủ Đề Đồng Hồ Trực Quan: Cát, Nến, Báo Thức, LED & Vòng Tròn',
-    category: 'Công cụ Lớp học',
-    isClassroomTool: true,
-    icon: '⏳',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-    thumbnail: '/thumbnails/thumb_classroom_timer.jpg',
-    description: 'Bộ 5 giao diện đồng hồ đếm ngược lớp học kèm âm thanh tích tắc và chuông báo hết giờ chuyên nghiệp cho giáo viên!',
-    engineType: 'classroom-timer',
     playsCount: 0,
     defaultQuestions: []
   }
@@ -989,21 +974,6 @@ const INITIAL_SAVED_GAMES = [
     engineType: 'pirate-ship-battle',
     thumbnail: '/thumbnails/thumb_pirate_ship_battle.jpg',
     description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
-    questions: [],
-    updatedAt: new Date().toISOString().split('T')[0]
-  },
-  {
-    id: 'saved_sample_classroom_timer',
-    userId: 'user_admin',
-    baseGameId: 'classroom-timer-game',
-    title: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
-    lessonTitle: 'Đồng Hồ Đếm Ngược Lớp Học Multi-Theme',
-    subject: 'Công Cụ Lớp Học',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-    icon: '⏳',
-    engineType: 'classroom-timer',
-    thumbnail: '/thumbnails/thumb_classroom_timer.jpg',
-    description: 'Bộ 5 giao diện đồng hồ đếm ngược lớp học kèm âm thanh tích tắc và chuông báo hết giờ chuyên nghiệp cho giáo viên!',
     questions: [],
     updatedAt: new Date().toISOString().split('T')[0]
   }
@@ -1284,7 +1254,7 @@ export const StorageService = {
         try {
           let storedGames = JSON.parse(existingBaseStr);
           // Clean legacy items only
-          storedGames = storedGames.filter(g => g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game');
+          storedGames = storedGames.filter(g => g && g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game' && g.id !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
           
           const storedIds = new Set(storedGames.map(g => g.id));
           let updated = false;
@@ -1385,7 +1355,7 @@ export const StorageService = {
                 }
               }
             });
-            saved = saved.filter(g => g && typeof g === 'object' && (g.title || g.lessonTitle || g.name || g.id) && !deletedIdsForInit.includes(g.id));
+            saved = saved.filter(g => g && typeof g === 'object' && (g.title || g.lessonTitle || g.name || g.id) && !deletedIdsForInit.includes(g.id) && g.id !== 'saved_sample_classroom_timer' && g.baseGameId !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
             if (updated) {
               try {
                 localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(saved));
@@ -1983,6 +1953,9 @@ export const StorageService = {
       }
     });
 
+    // Remove classroom-timer-game from store catalog as it lives in dedicated "Đồng hồ bấm giờ" tab
+    games = games.filter(g => g && g.id !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
+
     // Ensure category and flags are synchronized with system definitions
     games = games.map(g => {
       if (!g || typeof g !== 'object') return g;
@@ -2173,7 +2146,7 @@ export const StorageService = {
 
     // CRITICAL: Return games belonging to the current user OR initial sample games (unless blacklisted deleted)
     if (!effectiveUserId) return [];
-    return cleanSaved.filter(g => g.userId === effectiveUserId || (g.userId === 'user_admin' && !deletedIds.includes(g.id)));
+    return cleanSaved.filter(g => (g.userId === effectiveUserId || (g.userId === 'user_admin' && !deletedIds.includes(g.id))) && g.id !== 'saved_sample_classroom_timer' && g.baseGameId !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
   },
 
   saveTeacherGame: (arg1, arg2) => {
