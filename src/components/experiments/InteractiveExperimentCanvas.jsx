@@ -3392,7 +3392,17 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     cameraRef.current = camera;
 
     // 3. Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (e1) {
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+      } catch (e2) {
+        console.warn("WebGL creation failed in GeoSolarSystemSim:", e2);
+        return;
+      }
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -4990,9 +5000,10 @@ function GeoWaterCycleSim({ onLog }) {
   );
 }
 
-// 6. Structure of Earth Interior 3D Simulator (Interactive 5-Layer Cutaway Model)
+// 6. Structure of Earth Interior 3D Simulator (Interactive 5-Layer Cutaway Model with 2D Fallback)
 function GeoEarthStructureSim({ onLog }) {
   const containerRef = useRef(null);
+  const canvas2dRef = useRef(null);
   const tagRefs = useRef({});
 
   const [activeLayer, setActiveLayer] = useState('crust');
@@ -5003,6 +5014,20 @@ function GeoEarthStructureSim({ onLog }) {
   const [autoRotate, setAutoRotate] = useState(true);
   const [hoveredLayerName, setHoveredLayerName] = useState(null);
   const [showRefModal, setShowRefModal] = useState(false);
+  const [useFallback2D, setUseFallback2D] = useState(false);
+
+  const sliceModeRef = useRef(sliceMode);
+  const isExplodedRef = useRef(isExploded);
+  const autoRotateRef = useRef(autoRotate);
+  sliceModeRef.current = sliceMode;
+  isExplodedRef.current = isExploded;
+  autoRotateRef.current = autoRotate;
+
+  useEffect(() => {
+    const handleForce2D = () => setUseFallback2D(true);
+    window.addEventListener('gvd_force_sim_2d_fallback', handleForce2D);
+    return () => window.removeEventListener('gvd_force_sim_2d_fallback', handleForce2D);
+  }, []);
 
   // 5 Distinct Layers Matching Vietnamese Textbook Standard & Yoobook Video
   const layersInfo = {
@@ -5130,621 +5155,425 @@ function GeoEarthStructureSim({ onLog }) {
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
   const layerMeshesRef = useRef({});
+  const capMeshesRef = useRef([]);
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
 
-  // High-Definition Photorealistic Procedural Texture Generator
-  const generatePhotorealisticEarthTextures = () => {
-    // 1. Photorealistic 2048x1024 Earth Satellite Surface Map
-    const crustCanvas = document.createElement('canvas');
-    crustCanvas.width = 2048;
-    crustCanvas.height = 1024;
-    const cctx = crustCanvas.getContext('2d');
-    const w = 2048;
-    const h = 1024;
-
-    // Ocean gradient with realistic deep depth shading
-    const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
-    oceanGrad.addColorStop(0, '#020919');
-    oceanGrad.addColorStop(0.18, '#031b3e');
-    oceanGrad.addColorStop(0.45, '#023e8a');
-    oceanGrad.addColorStop(0.7, '#0077b6');
-    oceanGrad.addColorStop(0.85, '#031b3e');
-    oceanGrad.addColorStop(1, '#020919');
-    cctx.fillStyle = oceanGrad;
-    cctx.fillRect(0, 0, w, h);
-
-    // Shallow ocean coastal shelf turquoise glow around landmasses
-    cctx.fillStyle = 'rgba(6, 182, 212, 0.45)';
-    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 420, 240, 0.15, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 230, 270, -0.05, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 260, 220, -0.25, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 200, 280, 0.25, 0, Math.PI * 2); cctx.fill();
-    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.70, 160, 120, 0.1, 0, Math.PI * 2); cctx.fill();
-
-    // Eurasia Rainforests & Woodlands
-    cctx.fillStyle = '#15803d';
-    cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 380, 200, 0.15, 0, Math.PI * 2); cctx.fill();
-
-    // Africa Savanna & Sahara Desert
-    cctx.fillStyle = '#ca8a04';
-    cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 190, 230, -0.05, 0, Math.PI * 2); cctx.fill();
-    cctx.fillStyle = '#a16207';
-    cctx.beginPath(); cctx.ellipse(w * 0.51, h * 0.46, 160, 100, 0.05, 0, Math.PI * 2); cctx.fill();
-
-    // North America Forest & Plains
-    cctx.fillStyle = '#166534';
-    cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 220, 180, -0.25, 0, Math.PI * 2); cctx.fill();
-
-    // South America Amazon Rainforest
-    cctx.fillStyle = '#14532d';
-    cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 160, 240, 0.25, 0, Math.PI * 2); cctx.fill();
-
-    // Australia Outback & SE Asia
-    cctx.fillStyle = '#b45309';
-    cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.72, 140, 95, 0.1, 0, Math.PI * 2); cctx.fill();
-
-    // SE Asia & Vietnam peninsula
-    cctx.fillStyle = '#22c55e';
-    cctx.beginPath(); cctx.ellipse(w * 0.74, h * 0.45, 70, 50, 0.3, 0, Math.PI * 2); cctx.fill();
-
-    // Mountain Ranges (Himalayas, Andes, Rockies)
-    cctx.fillStyle = '#78350f';
-    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 140, 40, -0.2, 0, Math.PI * 2); cctx.fill(); // Himalayas
-    cctx.beginPath(); cctx.ellipse(w * 0.24, h * 0.68, 30, 200, 0.3, 0, Math.PI * 2); cctx.fill();   // Andes
-    cctx.beginPath(); cctx.ellipse(w * 0.19, h * 0.30, 35, 150, -0.3, 0, Math.PI * 2); cctx.fill();  // Rockies
-
-    // Snow Mountain Peaks
-    cctx.fillStyle = '#ffffff';
-    cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.36, 100, 22, -0.2, 0, Math.PI * 2); cctx.fill();
-
-    // Polar Ice Caps (Arctic & Antarctica)
-    cctx.fillStyle = '#ffffff';
-    cctx.fillRect(0, 0, w, 85);
-    cctx.fillRect(0, h - 95, w, 95);
-
-    // Subtle glacial blue ice cracks
-    cctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
-    for (let i = 0; i < 50; i++) {
-      cctx.fillRect(Math.random() * w, Math.random() * 80, Math.random() * 50 + 10, 2);
-      cctx.fillRect(Math.random() * w, h - 90 + Math.random() * 80, Math.random() * 50 + 10, 2);
-    }
-
-    const crustTex = new THREE.CanvasTexture(crustCanvas);
-    crustTex.needsUpdate = true;
-
-    // 2. Realistic Swirling Cloud Texture Map
-    const cloudCanvas = document.createElement('canvas');
-    cloudCanvas.width = 1024;
-    cloudCanvas.height = 512;
-    const clctx = cloudCanvas.getContext('2d');
-    clctx.clearRect(0, 0, 1024, 512);
-
-    clctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
-    for (let i = 0; i < 140; i++) {
-      const cx = Math.random() * 1024;
-      const cy = Math.random() * 440 + 36;
-      const rx = Math.random() * 120 + 30;
-      const ry = Math.random() * 20 + 6;
-      clctx.beginPath();
-      clctx.ellipse(cx, cy, rx, ry, Math.random() * 0.6 - 0.3, 0, Math.PI * 2);
-      clctx.fill();
-    }
-    const cloudTex = new THREE.CanvasTexture(cloudCanvas);
-    cloudTex.needsUpdate = true;
-
-    // 3. Cutaway Cross-Section Cap Texture (Radial Striation Cap Map matching reference image 100%)
-    const capCanvas = document.createElement('canvas');
-    capCanvas.width = 1024;
-    capCanvas.height = 1024;
-    const capCtx = capCanvas.getContext('2d');
-    const cx = 512, cy = 512;
-
-    // Outer Crust Thin Rim (R = 490 to 510)
-    capCtx.fillStyle = '#0f172a';
-    capCtx.beginPath(); capCtx.arc(cx, cy, 510, 0, Math.PI * 2); capCtx.fill();
-    capCtx.fillStyle = '#b45309'; // Thin granitic/basaltic crust rim
-    capCtx.beginPath(); capCtx.arc(cx, cy, 495, 0, Math.PI * 2); capCtx.fill();
-
-    // Mantle Layer Radial Fiery Striations (R = 250 to 485)
-    const mantleGrad = capCtx.createRadialGradient(cx, cy, 250, cx, cy, 485);
-    mantleGrad.addColorStop(0, '#f97316');
-    mantleGrad.addColorStop(0.3, '#dc2626');
-    mantleGrad.addColorStop(0.7, '#ea580c');
-    mantleGrad.addColorStop(1, '#9a3412');
-    capCtx.fillStyle = mantleGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 485, 0, Math.PI * 2); capCtx.fill();
-
-    // Draw 360 radial fiery striation lines matching reference image earth_3d_ref.png!
-    for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
-      const innerR = 250 + Math.random() * 6;
-      const outerR = 485 - Math.random() * 6;
-      const x1 = cx + Math.cos(angle) * innerR;
-      const y1 = cy + Math.sin(angle) * innerR;
-      const x2 = cx + Math.cos(angle) * outerR;
-      const y2 = cy + Math.sin(angle) * outerR;
-
-      capCtx.strokeStyle = Math.random() > 0.35 ? '#f97316' : (Math.random() > 0.45 ? '#fde047' : '#991b1b');
-      capCtx.lineWidth = Math.random() * 3 + 1;
-      capCtx.beginPath();
-      capCtx.moveTo(x1, y1);
-      capCtx.lineTo(x2, y2);
-      capCtx.stroke();
-    }
-
-    // Outer Core Layer Radial Beige-Gold Striations (R = 135 to 250)
-    const ocGrad = capCtx.createRadialGradient(cx, cy, 135, cx, cy, 250);
-    ocGrad.addColorStop(0, '#fef08a');
-    ocGrad.addColorStop(0.5, '#fde047');
-    ocGrad.addColorStop(1, '#d97706');
-    capCtx.fillStyle = ocGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 250, 0, Math.PI * 2); capCtx.fill();
-
-    // Draw radial beige/golden striations
-    for (let angle = 0; angle < Math.PI * 2; angle += 0.015) {
-      const innerR = 135 + Math.random() * 4;
-      const outerR = 250 - Math.random() * 4;
-      const x1 = cx + Math.cos(angle) * innerR;
-      const y1 = cy + Math.sin(angle) * innerR;
-      const x2 = cx + Math.cos(angle) * outerR;
-      const y2 = cy + Math.sin(angle) * outerR;
-
-      capCtx.strokeStyle = Math.random() > 0.5 ? '#fef08a' : '#ca8a04';
-      capCtx.lineWidth = Math.random() * 2.5 + 1;
-      capCtx.beginPath();
-      capCtx.moveTo(x1, y1);
-      capCtx.lineTo(x2, y2);
-      capCtx.stroke();
-    }
-
-    // Inner Core Sphere Cross-Section (R = 0 to 135)
-    const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 135);
-    icGrad.addColorStop(0, '#ffffff');
-    icGrad.addColorStop(0.3, '#fef08a');
-    icGrad.addColorStop(0.7, '#fde047');
-    icGrad.addColorStop(1, '#eab308');
-    capCtx.fillStyle = icGrad;
-    capCtx.beginPath(); capCtx.arc(cx, cy, 135, 0, Math.PI * 2); capCtx.fill();
-
-    // Concentric Boundary Ring Dividers
-    capCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-    capCtx.lineWidth = 3.5;
-    [485, 250, 135].forEach(r => {
-      capCtx.beginPath(); capCtx.arc(cx, cy, r, 0, Math.PI * 2); capCtx.stroke();
-    });
-
-    const capTex = new THREE.CanvasTexture(capCanvas);
-    capTex.needsUpdate = true;
-
-    // 4. Upper Mantle 3D Lava Texture
-    const umCanvas = document.createElement('canvas');
-    umCanvas.width = 1024; umCanvas.height = 512;
-    const umctx = umCanvas.getContext('2d');
-    const umG = umctx.createLinearGradient(0, 0, 1024, 512);
-    umG.addColorStop(0, '#9a3412'); umG.addColorStop(0.5, '#ea580c'); umG.addColorStop(1, '#c2410c');
-    umctx.fillStyle = umG; umctx.fillRect(0, 0, 1024, 512);
-    umctx.strokeStyle = '#fde047';
-    umctx.lineWidth = 2;
-    for (let i = 0; i < 80; i++) {
-      const x = Math.random() * 1024; const y = Math.random() * 512;
-      umctx.beginPath(); umctx.moveTo(x, y); umctx.lineTo(x + (Math.random() - 0.5) * 80, y + (Math.random() - 0.5) * 80); umctx.stroke();
-    }
-    const upperMantleTex = new THREE.CanvasTexture(umCanvas);
-    upperMantleTex.needsUpdate = true;
-
-    // 5. Lower Mantle 3D Magma Texture
-    const lmCanvas = document.createElement('canvas');
-    lmCanvas.width = 1024; lmCanvas.height = 512;
-    const lmctx = lmCanvas.getContext('2d');
-    const lmG = lmctx.createLinearGradient(0, 0, 1024, 512);
-    lmG.addColorStop(0, '#7f1d1d'); lmG.addColorStop(0.5, '#dc2626'); lmG.addColorStop(1, '#991b1b');
-    lmctx.fillStyle = lmG; lmctx.fillRect(0, 0, 1024, 512);
-    lmctx.strokeStyle = '#fbbf24';
-    lmctx.lineWidth = 2.5;
-    for (let i = 0; i < 90; i++) {
-      const x = Math.random() * 1024; const y = Math.random() * 512;
-      lmctx.beginPath(); lmctx.moveTo(x, y); lmctx.lineTo(x + (Math.random() - 0.5) * 90, y + (Math.random() - 0.5) * 90); lmctx.stroke();
-    }
-    const lowerMantleTex = new THREE.CanvasTexture(lmCanvas);
-    lowerMantleTex.needsUpdate = true;
-
-    // 6. Outer Core 3D Swirling Lava Texture
-    const ocCanvas = document.createElement('canvas');
-    ocCanvas.width = 1024; ocCanvas.height = 512;
-    const octx = ocCanvas.getContext('2d');
-    const ocG = octx.createRadialGradient(512, 256, 20, 512, 256, 400);
-    ocG.addColorStop(0, '#fef08a'); ocG.addColorStop(0.5, '#f59e0b'); ocG.addColorStop(1, '#b45309');
-    octx.fillStyle = ocG; octx.fillRect(0, 0, 1024, 512);
-    const outerCoreTex = new THREE.CanvasTexture(ocCanvas);
-    outerCoreTex.needsUpdate = true;
-
-    // 7. Inner Core Metallic Core Texture
-    const icCanvas = document.createElement('canvas');
-    icCanvas.width = 512; icCanvas.height = 512;
-    const ictx = icCanvas.getContext('2d');
-    const icG = ictx.createRadialGradient(256, 256, 10, 256, 256, 240);
-    icG.addColorStop(0, '#ffffff'); icG.addColorStop(0.3, '#fef08a'); icG.addColorStop(0.7, '#eab308'); icG.addColorStop(1, '#ca8a04');
-    ictx.fillStyle = icG; ictx.fillRect(0, 0, 512, 512);
-    const innerCoreTex = new THREE.CanvasTexture(icCanvas);
-    innerCoreTex.needsUpdate = true;
-
-    return { crustTex, cloudTex, capTex, upperMantleTex, lowerMantleTex, outerCoreTex, innerCoreTex };
-  };
-
+  // 1. Three.js 3D WebGL Engine Setup (Runs with zero memory leaks)
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (useFallback2D || !containerRef.current) return;
     const width = containerRef.current.clientWidth || 800;
     const height = containerRef.current.clientHeight || 500;
     const aspect = (width > 0 && height > 0) ? width / height : 1.6;
 
-    const scene = new THREE.Scene();
-    sceneRef.current = scene;
+    let scene, camera, renderer, controls;
 
-    const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
-    camera.position.set(3.8, 3.2, 7.8);
-    cameraRef.current = camera;
+    try {
+      scene = new THREE.Scene();
+      sceneRef.current = scene;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
-    rendererRef.current = renderer;
+      camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+      camera.position.set(3.8, 3.2, 7.8);
+      cameraRef.current = camera;
 
-    if (containerRef.current) {
+      try {
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+      } catch (e1) {
+        try {
+          renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+        } catch (e2) {
+          console.warn("WebGL creation failed, activating 2D Fallback Mode:", e2);
+          setUseFallback2D(true);
+          return;
+        }
+      }
+
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.3;
+      rendererRef.current = renderer;
+
+      const handleContextLost = (e) => {
+        e.preventDefault();
+        console.warn("WebGL context lost event caught, switching to 2D Canvas Fallback Engine");
+        setUseFallback2D(true);
+      };
+      renderer.domElement.addEventListener('webglcontextlost', handleContextLost, false);
+
       containerRef.current.innerHTML = '';
       containerRef.current.appendChild(renderer.domElement);
-    }
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.minDistance = 3.2;
-    controls.maxDistance = 15;
-    controls.autoRotate = autoRotate;
-    controls.autoRotateSpeed = 1.2;
-    controlsRef.current = controls;
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 3.2;
+      controls.maxDistance = 15;
+      controls.autoRotate = autoRotateRef.current;
+      controls.autoRotateSpeed = 1.2;
+      controlsRef.current = controls;
 
-    // Realistic Space Lighting Setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
-    scene.add(ambientLight);
+      // Realistic Space Lighting Setup
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xffffff, 2.8);
-    sunLight.position.set(12, 10, 8);
-    scene.add(sunLight);
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.8);
+      sunLight.position.set(12, 10, 8);
+      scene.add(sunLight);
 
-    const spaceRimLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
-    spaceRimLight.position.set(-10, -8, -10);
-    scene.add(spaceRimLight);
+      const spaceRimLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
+      spaceRimLight.position.set(-10, -8, -10);
+      scene.add(spaceRimLight);
 
-    const corePointLight = new THREE.PointLight(0xfde047, 5.0, 15);
-    corePointLight.position.set(0, 0, 0);
-    scene.add(corePointLight);
+      const corePointLight = new THREE.PointLight(0xfde047, 5.0, 15);
+      corePointLight.position.set(0, 0, 0);
+      scene.add(corePointLight);
 
-    // Deep Space Starfield Background
-    const starsGeo = new THREE.BufferGeometry();
-    const starCoords = [];
-    for (let i = 0; i < 800; i++) {
-      starCoords.push(
-        (Math.random() - 0.5) * 90,
-        (Math.random() - 0.5) * 90,
-        (Math.random() - 0.5) * 90
-      );
-    }
-    starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-    const starsMat = new THREE.PointsMaterial({ color: 0xcbd5e1, size: 0.25, transparent: true, opacity: 0.8 });
-    const starField = new THREE.Points(starsGeo, starsMat);
-    scene.add(starField);
+      // Deep Space Starfield Background
+      const starsGeo = new THREE.BufferGeometry();
+      const starCoords = [];
+      for (let i = 0; i < 800; i++) {
+        starCoords.push(
+          (Math.random() - 0.5) * 90,
+          (Math.random() - 0.5) * 90,
+          (Math.random() - 0.5) * 90
+        );
+      }
+      starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
+      const starsMat = new THREE.PointsMaterial({ color: 0xcbd5e1, size: 0.25, transparent: true, opacity: 0.8 });
+      const starField = new THREE.Points(starsGeo, starsMat);
+      scene.add(starField);
 
-    const textures = generatePhotorealisticEarthTextures();
+      // Procedural Texture Generation
+      const crustCanvas = document.createElement('canvas');
+      crustCanvas.width = 1024; crustCanvas.height = 512;
+      const cctx = crustCanvas.getContext('2d');
+      const w = 1024, h = 512;
+      const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
+      oceanGrad.addColorStop(0, '#020919'); oceanGrad.addColorStop(0.5, '#023e8a'); oceanGrad.addColorStop(1, '#020919');
+      cctx.fillStyle = oceanGrad; cctx.fillRect(0, 0, w, h);
+      cctx.fillStyle = '#15803d';
+      cctx.beginPath(); cctx.ellipse(w * 0.58, h * 0.35, 190, 100, 0.15, 0, Math.PI * 2); cctx.fill();
+      cctx.fillStyle = '#ca8a04';
+      cctx.beginPath(); cctx.ellipse(w * 0.52, h * 0.58, 95, 115, -0.05, 0, Math.PI * 2); cctx.fill();
+      cctx.fillStyle = '#166534';
+      cctx.beginPath(); cctx.ellipse(w * 0.22, h * 0.32, 110, 90, -0.25, 0, Math.PI * 2); cctx.fill();
+      cctx.fillStyle = '#14532d';
+      cctx.beginPath(); cctx.ellipse(w * 0.28, h * 0.68, 80, 120, 0.25, 0, Math.PI * 2); cctx.fill();
+      cctx.fillStyle = '#ffffff';
+      cctx.fillRect(0, 0, w, 40); cctx.fillRect(0, h - 45, w, 45);
+      const crustTex = new THREE.CanvasTexture(crustCanvas);
 
-    const earthGroup = new THREE.Group();
-    scene.add(earthGroup);
+      const capCanvas = document.createElement('canvas');
+      capCanvas.width = 1024; capCanvas.height = 1024;
+      const capCtx = capCanvas.getContext('2d');
+      const cx = 512, cy = 512;
+      capCtx.fillStyle = '#b45309';
+      capCtx.beginPath(); capCtx.arc(cx, cy, 495, 0, Math.PI * 2); capCtx.fill();
+      const mantleGrad = capCtx.createRadialGradient(cx, cy, 250, cx, cy, 485);
+      mantleGrad.addColorStop(0, '#f97316'); mantleGrad.addColorStop(0.5, '#dc2626'); mantleGrad.addColorStop(1, '#9a3412');
+      capCtx.fillStyle = mantleGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 485, 0, Math.PI * 2); capCtx.fill();
+      for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
+        const innerR = 250 + Math.random() * 6;
+        const outerR = 485 - Math.random() * 6;
+        capCtx.strokeStyle = Math.random() > 0.35 ? '#f97316' : '#991b1b';
+        capCtx.lineWidth = Math.random() * 3 + 1;
+        capCtx.beginPath(); capCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
+        capCtx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR); capCtx.stroke();
+      }
+      const ocGrad = capCtx.createRadialGradient(cx, cy, 135, cx, cy, 250);
+      ocGrad.addColorStop(0, '#fef08a'); ocGrad.addColorStop(1, '#d97706');
+      capCtx.fillStyle = ocGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 250, 0, Math.PI * 2); capCtx.fill();
+      const icGrad = capCtx.createRadialGradient(cx, cy, 5, cx, cy, 135);
+      icGrad.addColorStop(0, '#ffffff'); icGrad.addColorStop(1, '#ca8a04');
+      capCtx.fillStyle = icGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 135, 0, Math.PI * 2); capCtx.fill();
+      const capTex = new THREE.CanvasTexture(capCanvas);
 
-    const getPhiLength = (mode) => {
-      if (mode === 'cut180') return Math.PI;
-      if (mode === 'full') return Math.PI * 2;
-      return Math.PI * 1.55;
-    };
+      const earthGroup = new THREE.Group();
+      scene.add(earthGroup);
 
-    const phiLen = getPhiLength(sliceMode);
+      const phiLen = Math.PI * 1.55;
 
-    // 1. Earth Crust Sphere Mesh
-    const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
-    const crustMat = new THREE.MeshStandardMaterial({
-      map: textures.crustTex,
-      roughness: 0.4,
-      metalness: 0.1,
-      side: THREE.DoubleSide
-    });
-    const crustMesh = new THREE.Mesh(crustGeo, crustMat);
-    crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
-    earthGroup.add(crustMesh);
+      const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
+      const crustMat = new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.4, side: THREE.DoubleSide });
+      const crustMesh = new THREE.Mesh(crustGeo, crustMat);
+      crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
+      earthGroup.add(crustMesh);
 
-    // 2. Realistic Cloud Layer Mesh
-    const cloudGeo = new THREE.SphereGeometry(2.68, 64, 64, 0, phiLen, 0, Math.PI);
-    const cloudMat = new THREE.MeshStandardMaterial({
-      map: textures.cloudTex,
-      transparent: true,
-      opacity: 0.55,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide
-    });
-    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
-    earthGroup.add(cloudMesh);
+      const atmosGeo = new THREE.SphereGeometry(2.74, 32, 32);
+      const atmosMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25, side: THREE.BackSide, blending: THREE.AdditiveBlending });
+      const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+      earthGroup.add(atmosMesh);
 
-    // 3. Atmosphere Outer Glow Rim Mesh
-    const atmosGeo = new THREE.SphereGeometry(2.74, 32, 32);
-    const atmosMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.25,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending
-    });
-    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-    earthGroup.add(atmosMesh);
+      const umGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
+      const umMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 0.35, roughness: 0.4, side: THREE.DoubleSide });
+      const umMesh = new THREE.Mesh(umGeo, umMat);
+      umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
+      earthGroup.add(umMesh);
 
-    // 4. Upper Mantle Sphere Mesh
-    const umGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
-    const umMat = new THREE.MeshStandardMaterial({
-      map: textures.upperMantleTex,
-      emissive: 0xea580c,
-      emissiveIntensity: 0.35,
-      roughness: 0.4,
-      side: THREE.DoubleSide
-    });
-    const umMesh = new THREE.Mesh(umGeo, umMat);
-    umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
-    earthGroup.add(umMesh);
+      const lmGeo = new THREE.SphereGeometry(1.75, 64, 64, 0, phiLen, 0, Math.PI);
+      const lmMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xdc2626, emissiveIntensity: 0.4, roughness: 0.35, side: THREE.DoubleSide });
+      const lmMesh = new THREE.Mesh(lmGeo, lmMat);
+      lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
+      earthGroup.add(lmMesh);
 
-    // 5. Lower Mantle Sphere Mesh
-    const lmGeo = new THREE.SphereGeometry(1.75, 64, 64, 0, phiLen, 0, Math.PI);
-    const lmMat = new THREE.MeshStandardMaterial({
-      map: textures.lowerMantleTex,
-      emissive: 0xdc2626,
-      emissiveIntensity: 0.4,
-      roughness: 0.35,
-      side: THREE.DoubleSide
-    });
-    const lmMesh = new THREE.Mesh(lmGeo, lmMat);
-    lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
-    earthGroup.add(lmMesh);
+      const ocGeo = new THREE.SphereGeometry(1.25, 64, 64, 0, phiLen, 0, Math.PI);
+      const ocMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.6, side: THREE.DoubleSide });
+      const ocMesh = new THREE.Mesh(ocGeo, ocMat);
+      ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
+      earthGroup.add(ocMesh);
 
-    // 6. Outer Core Sphere Mesh
-    const ocGeo = new THREE.SphereGeometry(1.25, 64, 64, 0, phiLen, 0, Math.PI);
-    const ocMat = new THREE.MeshStandardMaterial({
-      map: textures.outerCoreTex,
-      emissive: 0xd97706,
-      emissiveIntensity: 0.5,
-      roughness: 0.3,
-      metalness: 0.6,
-      side: THREE.DoubleSide
-    });
-    const ocMesh = new THREE.Mesh(ocGeo, ocMat);
-    ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
-    earthGroup.add(ocMesh);
+      const icGeo = new THREE.SphereGeometry(0.75, 48, 48);
+      const icMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xca8a04, emissiveIntensity: 0.85, roughness: 0.2, metalness: 0.85 });
+      const icMesh = new THREE.Mesh(icGeo, icMat);
+      icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
+      earthGroup.add(icMesh);
 
-    // 7. Inner Core Sphere Mesh
-    const icGeo = new THREE.SphereGeometry(0.75, 48, 48);
-    const icMat = new THREE.MeshStandardMaterial({
-      map: textures.innerCoreTex,
-      emissive: 0xca8a04,
-      emissiveIntensity: 0.85,
-      roughness: 0.2,
-      metalness: 0.85
-    });
-    const icMesh = new THREE.Mesh(icGeo, icMat);
-    icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
-    earthGroup.add(icMesh);
-
-    // 8. Solid 3D Cutaway Cross-Section Cap Planes
-    const capMeshes = [];
-    const capMat = new THREE.MeshStandardMaterial({
-      map: textures.capTex,
-      side: THREE.DoubleSide,
-      roughness: 0.35,
-      metalness: 0.1
-    });
-
-    if (sliceMode === 'cut90') {
-      // Face 1 (Z-axis cut plane)
+      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.35 });
       const capGeo1 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
       const capMesh1 = new THREE.Mesh(capGeo1, capMat);
       capMesh1.rotation.y = Math.PI / 2;
       earthGroup.add(capMesh1);
-      capMeshes.push(capMesh1);
-
-      // Face 2 (X-axis cut plane)
       const capGeo2 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
       const capMesh2 = new THREE.Mesh(capGeo2, capMat);
       capMesh2.rotation.y = Math.PI * 1.55;
       earthGroup.add(capMesh2);
-      capMeshes.push(capMesh2);
-    }
-    capMeshesRef.current = capMeshes;
+      capMeshesRef.current = [capMesh1, capMesh2];
 
-    // Asynchronously overlay user-provided reference diagram earth_3d_ref.png onto cutaway cap
-    try {
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('/assets/earth_3d_ref.png', (loadedRefTex) => {
-        if (loadedRefTex && capMat) {
-          loadedRefTex.needsUpdate = true;
-          capMat.map = loadedRefTex;
-          capMat.needsUpdate = true;
-        }
-      }, undefined, () => {});
-    } catch (e) {}
+      layerMeshesRef.current = { crust: crustMesh, upperMantle: umMesh, lowerMantle: lmMesh, outerCore: ocMesh, innerCore: icMesh };
 
-    layerMeshesRef.current = {
-      crust: crustMesh,
-      upperMantle: umMesh,
-      lowerMantle: lmMesh,
-      outerCore: ocMesh,
-      innerCore: icMesh
-    };
-
-    const handleResize = () => {
-      if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
-      const w = containerRef.current.clientWidth || 800;
-      const h = containerRef.current.clientHeight || 500;
-      if (w > 0 && h > 0) {
-        cameraRef.current.aspect = w / h;
-        cameraRef.current.updateProjectionMatrix();
-        rendererRef.current.setSize(w, h);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    let animId;
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
       try {
-        if (controlsRef.current) {
-          controlsRef.current.autoRotate = autoRotate;
-          controlsRef.current.update();
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load('/assets/earth_3d_ref.png', (loadedRefTex) => {
+          if (loadedRefTex && capMat) {
+            capMat.map = loadedRefTex;
+            capMat.needsUpdate = true;
+          }
+        }, undefined, () => {});
+      } catch (e) {}
+
+      const handleResize = () => {
+        if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
+        const w = containerRef.current.clientWidth || 800;
+        const h = containerRef.current.clientHeight || 500;
+        if (w > 0 && h > 0) {
+          cameraRef.current.aspect = w / h;
+          cameraRef.current.updateProjectionMatrix();
+          rendererRef.current.setSize(w, h);
         }
+      };
 
-        // Smooth Lerp Exploded View Offsets
-        const targetOffset = isExploded ? 1.0 : 0.0;
-        
-        const cM = layerMeshesRef.current.crust;
-        const umM = layerMeshesRef.current.upperMantle;
-        const lmM = layerMeshesRef.current.lowerMantle;
-        const ocM = layerMeshesRef.current.outerCore;
-        const icM = layerMeshesRef.current.innerCore;
+      window.addEventListener('resize', handleResize);
 
-        if (cM && umM && lmM && ocM && icM) {
-          const curExp = cM.position.x;
-          const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
-
-          cM.position.x = nextExp * 1.8;
-          cM.position.z = nextExp * 0.9;
-          if (cloudMesh) {
-            cloudMesh.position.x = cM.position.x;
-            cloudMesh.position.z = cM.position.z;
+      let animId;
+      const animate = () => {
+        animId = requestAnimationFrame(animate);
+        try {
+          if (controlsRef.current) {
+            controlsRef.current.autoRotate = autoRotateRef.current;
+            controlsRef.current.update();
           }
 
-          umM.position.x = nextExp * 1.35;
-          umM.position.z = nextExp * 0.65;
+          const targetOffset = isExplodedRef.current ? 1.0 : 0.0;
+          const cM = layerMeshesRef.current.crust;
+          const umM = layerMeshesRef.current.upperMantle;
+          const lmM = layerMeshesRef.current.lowerMantle;
+          const ocM = layerMeshesRef.current.outerCore;
+          const icM = layerMeshesRef.current.innerCore;
 
-          lmM.position.x = nextExp * 0.9;
-          lmM.position.z = nextExp * 0.45;
+          if (cM && umM && lmM && ocM && icM) {
+            const curExp = cM.position.x;
+            const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
 
-          ocM.position.x = nextExp * 0.45;
-          ocM.position.z = nextExp * 0.22;
+            cM.position.x = nextExp * 1.8; cM.position.z = nextExp * 0.9;
+            umM.position.x = nextExp * 1.35; umM.position.z = nextExp * 0.65;
+            lmM.position.x = nextExp * 0.9; lmM.position.z = nextExp * 0.45;
+            ocM.position.x = nextExp * 0.45; ocM.position.z = nextExp * 0.22;
+            icM.position.x = 0; icM.position.z = 0;
 
-          icM.position.x = 0;
-          icM.position.z = 0;
+            capMeshesRef.current.forEach(m => {
+              if (m) m.visible = !isExplodedRef.current && sliceModeRef.current === 'cut90';
+            });
+          }
 
-          // Cap visibility during explode
-          capMeshesRef.current.forEach(m => {
-            if (m) m.visible = !isExploded && sliceMode === 'cut90';
-          });
-        }
+          if (icM) icM.rotation.y += 0.005;
 
-        // Natural Cloud Drift & Core rotation
-        if (cloudMesh) cloudMesh.rotation.y += 0.0008;
-        if (icM) icM.rotation.y += 0.005;
+          if (cameraRef.current && containerRef.current) {
+            const w = containerRef.current.clientWidth || 800;
+            const h = containerRef.current.clientHeight || 500;
 
-        // Smart 3D Tag Overlay Projection with Anti-Collision Vertical Spacing
-        if (cameraRef.current && containerRef.current) {
-          const w = containerRef.current.clientWidth || 800;
-          const h = containerRef.current.clientHeight || 500;
+            const computedScreenPos = [];
+            Object.keys(layersInfo).forEach(key => {
+              const layerMesh = layerMeshesRef.current[key];
+              if (!layersInfo[key] || !layersInfo[key].anchorPos) return;
+              const anchorWorld = layersInfo[key].anchorPos.clone();
+              if (layerMesh) anchorWorld.add(layerMesh.position);
+              anchorWorld.project(cameraRef.current);
 
-          const computedScreenPos = [];
-          Object.keys(layersInfo).forEach(key => {
-            const layerMesh = layerMeshesRef.current[key];
-            if (!layersInfo[key] || !layersInfo[key].anchorPos) return;
-            const anchorWorld = layersInfo[key].anchorPos.clone();
-            if (layerMesh) {
-              anchorWorld.add(layerMesh.position);
-            }
-            anchorWorld.project(cameraRef.current);
+              const x = (anchorWorld.x * 0.5 + 0.5) * w;
+              const y = (-(anchorWorld.y * 0.5) + 0.5) * h;
+              const visible = !isNaN(x) && !isNaN(y) && anchorWorld.z < 1 && x >= 20 && x <= w - 20 && y >= 20 && y <= h - 20;
+              computedScreenPos.push({ key, x, y, visible });
+            });
 
-            const x = (anchorWorld.x * 0.5 + 0.5) * w;
-            const y = (-(anchorWorld.y * 0.5) + 0.5) * h;
-            const visible = !isNaN(x) && !isNaN(y) && anchorWorld.z < 1 && x >= 20 && x <= w - 20 && y >= 20 && y <= h - 20;
-
-            computedScreenPos.push({ key, x, y, visible });
-          });
-
-          // Anti-collision sorting & vertical spacing algorithm
-          computedScreenPos.sort((a, b) => a.y - b.y);
-          const minSpacingY = 38;
-          for (let i = 1; i < computedScreenPos.length; i++) {
-            const prev = computedScreenPos[i - 1];
-            const curr = computedScreenPos[i];
-            if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
-              if (curr.y - prev.y < minSpacingY) {
-                curr.y = prev.y + minSpacingY;
+            computedScreenPos.sort((a, b) => a.y - b.y);
+            const minSpacingY = 38;
+            for (let i = 1; i < computedScreenPos.length; i++) {
+              const prev = computedScreenPos[i - 1];
+              const curr = computedScreenPos[i];
+              if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
+                if (curr.y - prev.y < minSpacingY) curr.y = prev.y + minSpacingY;
               }
             }
+
+            computedScreenPos.forEach(item => {
+              const tagEl = tagRefs.current[item.key];
+              if (!tagEl) return;
+              if (item.visible) {
+                tagEl.style.display = 'flex';
+                tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
+              } else {
+                tagEl.style.display = 'none';
+              }
+            });
           }
 
-          // Apply 3D transforms to DOM refs
-          computedScreenPos.forEach(item => {
-            const tagEl = tagRefs.current[item.key];
-            if (!tagEl) return;
-            if (item.visible) {
-              tagEl.style.display = 'flex';
-              tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
-            } else {
-              tagEl.style.display = 'none';
-            }
-          });
-        }
-
-        if (rendererRef.current && sceneRef.current && cameraRef.current) {
-          rendererRef.current.render(sceneRef.current, cameraRef.current);
-        }
-      } catch (e) {
-        // Graceful silent frame catch
-      }
-    };
-
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', handleResize);
-      if (rendererRef.current) {
-        try {
-          if (rendererRef.current.domElement && rendererRef.current.domElement.parentNode) {
-            rendererRef.current.domElement.parentNode.removeChild(rendererRef.current.domElement);
+          if (rendererRef.current && sceneRef.current && cameraRef.current) {
+            rendererRef.current.render(sceneRef.current, cameraRef.current);
           }
-          rendererRef.current.dispose();
         } catch (e) {}
-        rendererRef.current = null;
-      }
-    };
-  }, [sliceMode, isExploded]);
+      };
 
-  // Handle Layer Highlight & Focus Opacity Modifications
+      animate();
+
+      return () => {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('resize', handleResize);
+        if (rendererRef.current) {
+          try {
+            if (rendererRef.current.domElement && rendererRef.current.domElement.parentNode) {
+              rendererRef.current.domElement.parentNode.removeChild(rendererRef.current.domElement);
+            }
+            rendererRef.current.dispose();
+          } catch (e) {}
+          rendererRef.current = null;
+        }
+      };
+    } catch (e) {
+      console.warn("Three.js setup encountered an exception, switching to 2D Fallback:", e);
+      setUseFallback2D(true);
+    }
+  }, [useFallback2D]);
+
+  // 2D Interactive Canvas Fallback Animation Loop
+  useEffect(() => {
+    if (!useFallback2D || !canvas2dRef.current) return;
+    const canvas = canvas2dRef.current;
+    const ctx = canvas.getContext('2d');
+    let animId;
+
+    const render2D = () => {
+      animId = requestAnimationFrame(render2D);
+      if (!canvas.parentElement) return;
+      const w = canvas.width = canvas.parentElement.clientWidth || 800;
+      const h = canvas.height = canvas.parentElement.clientHeight || 500;
+      const cx = w * 0.45;
+      const cy = h * 0.5;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Radial dark background
+      const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(w, h));
+      bgGrad.addColorStop(0, '#091a2f'); bgGrad.addColorStop(1, '#030712');
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
+
+      // Starfield
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let i = 0; i < 120; i++) {
+        const sx = (Math.sin(i * 99 + 1) * 0.5 + 0.5) * w;
+        const sy = (Math.cos(i * 33 + 1) * 0.5 + 0.5) * h;
+        ctx.fillRect(sx, sy, (i % 3 === 0) ? 2 : 1, (i % 3 === 0) ? 2 : 1);
+      }
+
+      const baseR = Math.min(w, h) * 0.36;
+      const expOffset = isExploded ? baseR * 0.28 : 0;
+
+      // Atmosphere ring
+      ctx.beginPath(); ctx.arc(cx, cy, baseR + 15, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)'; ctx.lineWidth = 2; ctx.stroke();
+
+      const layerData = [
+        { key: 'crust', r: baseR, color: '#38bdf8', stroke: '#0284c7' },
+        { key: 'upperMantle', r: baseR * 0.84, color: '#f97316', stroke: '#ea580c' },
+        { key: 'lowerMantle', r: baseR * 0.65, color: '#ef4444', stroke: '#dc2626' },
+        { key: 'outerCore', r: baseR * 0.46, color: '#fbbf24', stroke: '#d97706' },
+        { key: 'innerCore', r: baseR * 0.26, color: '#fef08a', stroke: '#ca8a04' }
+      ];
+
+      layerData.forEach((layer, index) => {
+        const isSel = activeLayer === layer.key;
+        const ox = isExploded ? (index === 0 ? -expOffset * 1.5 : (index === 1 ? -expOffset * 1.1 : (index === 2 ? -expOffset * 0.7 : (index === 3 ? -expOffset * 0.35 : 0)))) : 0;
+        const oy = isExploded ? -ox * 0.4 : 0;
+
+        ctx.save();
+        ctx.translate(cx + ox, cy + oy);
+
+        ctx.beginPath();
+        const startA = sliceMode === 'cut90' ? Math.PI * 0.25 : (sliceMode === 'cut180' ? Math.PI * 0.5 : 0);
+        const endA = Math.PI * 2;
+        ctx.arc(0, 0, layer.r, startA, endA);
+        if (sliceMode !== 'full') ctx.lineTo(0, 0);
+        ctx.closePath();
+
+        ctx.fillStyle = layer.color;
+        if (isFocusIsolated && !isSel) ctx.globalAlpha = 0.25;
+        ctx.fill();
+
+        if (layer.key === 'lowerMantle' || layer.key === 'upperMantle') {
+          ctx.strokeStyle = 'rgba(254, 240, 138, 0.4)';
+          ctx.lineWidth = 1.5;
+          for (let a = 0; a < Math.PI * 2; a += 0.15) {
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * (layer.r * 0.7), Math.sin(a) * (layer.r * 0.7));
+            ctx.lineTo(Math.cos(a) * layer.r, Math.sin(a) * layer.r);
+            ctx.stroke();
+          }
+        }
+
+        ctx.strokeStyle = isSel ? '#ffffff' : layer.stroke;
+        ctx.lineWidth = isSel ? 3.5 : 1.5;
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Central core pulse glow
+      ctx.save(); ctx.translate(cx, cy);
+      const corePulse = Math.sin(Date.now() * 0.003) * 3 + baseR * 0.26;
+      ctx.beginPath(); ctx.arc(0, 0, corePulse, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; ctx.fill();
+      ctx.restore();
+    };
+
+    render2D();
+    return () => cancelAnimationFrame(animId);
+  }, [useFallback2D, activeLayer, sliceMode, isExploded, isFocusIsolated]);
+
+  // Handle Pointer & Selection Controls
   useEffect(() => {
     try {
       Object.keys(layerMeshesRef.current).forEach(key => {
         const mesh = layerMeshesRef.current[key];
         if (!mesh || !mesh.material) return;
         if (key === activeLayer) {
-          mesh.material.transparent = false;
-          mesh.material.opacity = 1.0;
-          if (mesh.material.emissiveIntensity !== undefined) {
-            mesh.material.emissiveIntensity = 0.65;
-          }
+          mesh.material.transparent = false; mesh.material.opacity = 1.0;
+          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.65;
         } else if (isFocusIsolated) {
-          mesh.material.transparent = true;
-          mesh.material.opacity = 0.22;
-          if (mesh.material.emissiveIntensity !== undefined) {
-            mesh.material.emissiveIntensity = 0.05;
-          }
+          mesh.material.transparent = true; mesh.material.opacity = 0.22;
+          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.05;
         } else {
-          mesh.material.transparent = false;
-          mesh.material.opacity = 1.0;
-          if (mesh.material.emissiveIntensity !== undefined) {
-            mesh.material.emissiveIntensity = 0.35;
-          }
+          mesh.material.transparent = false; mesh.material.opacity = 1.0;
+          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.35;
         }
       });
     } catch (e) {}
@@ -5752,6 +5581,7 @@ function GeoEarthStructureSim({ onLog }) {
 
   const handlePointerDown = (event) => {
     try {
+      if (useFallback2D) return;
       if (!containerRef.current || !cameraRef.current || !sceneRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -5769,9 +5599,7 @@ function GeoEarthStructureSim({ onLog }) {
         if (key && layersInfo[key]) {
           setActiveLayer(key);
           setShowDetailCard(true);
-          if (onLog) {
-            onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
-          }
+          if (onLog) onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
         }
       }
     } catch (e) {}
@@ -5779,6 +5607,7 @@ function GeoEarthStructureSim({ onLog }) {
 
   const handlePointerMove = (event) => {
     try {
+      if (useFallback2D) return;
       if (!containerRef.current || !cameraRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -5804,9 +5633,7 @@ function GeoEarthStructureSim({ onLog }) {
   const handleSelectLayer = (key) => {
     setActiveLayer(key);
     setShowDetailCard(true);
-    if (onLog) {
-      onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
-    }
+    if (onLog) onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
   };
 
   const handleZoom = (delta) => {
@@ -5827,7 +5654,7 @@ function GeoEarthStructureSim({ onLog }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', userSelect: 'none' }}>
       
-      {/* Main Container: 3D Viewport with Floating Tags & Glassmorphic Detail Modal Overlay */}
+      {/* Main Viewport Container */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -5837,7 +5664,7 @@ function GeoEarthStructureSim({ onLog }) {
         position: 'relative'
       }}>
         
-        {/* 3D Viewport Canvas Container */}
+        {/* 3D or 2D Interactive Canvas Viewport */}
         <div 
           ref={containerRef}
           onPointerDown={handlePointerDown}
@@ -5850,9 +5677,14 @@ function GeoEarthStructureSim({ onLog }) {
             boxShadow: '0 12px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(56, 189, 248, 0.1)',
             position: 'relative',
             overflow: 'hidden',
-            cursor: 'grab'
+            cursor: useFallback2D ? 'default' : 'grab'
           }}
         >
+          {/* Fallback 2D Canvas */}
+          {useFallback2D && (
+            <canvas ref={canvas2dRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+          )}
+
           {/* Top-Left Viewport Header Badge */}
           <div style={{
             position: 'absolute',
@@ -5870,12 +5702,28 @@ function GeoEarthStructureSim({ onLog }) {
           }}>
             <Sparkles size={18} color="#38bdf8" />
             <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f8fafc' }}>
-              Mô Hình 3D Cấu Tạo Trái Đất (5 Lớp SGK)
+              {useFallback2D ? 'Mô Hình Interactive 2D (5 Lớp SGK)' : 'Mô Hình 3D Cấu Tạo Trái Đất (5 Lớp SGK)'}
             </span>
+            <button
+              onClick={() => setUseFallback2D(!useFallback2D)}
+              style={{
+                marginLeft: '8px',
+                background: useFallback2D ? '#0284c7' : 'rgba(255, 255, 255, 0.1)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '3px 8px',
+                fontSize: '0.72rem',
+                fontWeight: 900,
+                cursor: 'pointer'
+              }}
+            >
+              {useFallback2D ? '⚡ Thử Lại 3D' : '⚡ Chuyển Sang 2D'}
+            </button>
           </div>
 
-          {/* 3D Floating Tag Overlay Anchored to 5 Layers */}
-          {Object.keys(layersInfo).map(key => {
+          {/* Floating Tag Badges */}
+          {!useFallback2D && Object.keys(layersInfo).map(key => {
             const item = layersInfo[key];
             const isSelected = activeLayer === key;
             return (
@@ -5926,7 +5774,7 @@ function GeoEarthStructureSim({ onLog }) {
             );
           })}
 
-          {/* Glassmorphic Detail Popup Card Overlay (Matching Yoobook Video) */}
+          {/* Glassmorphic Detail Card Overlay */}
           {showDetailCard && activeInfo && (
             <div style={{
               position: 'absolute',
@@ -5948,7 +5796,6 @@ function GeoEarthStructureSim({ onLog }) {
               gap: '10px',
               overflowY: 'auto'
             }}>
-              {/* Card Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{
@@ -5983,56 +5830,24 @@ function GeoEarthStructureSim({ onLog }) {
                 </button>
               </div>
 
-              {/* Quick Specs Pill Badges */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                <span style={{
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  color: '#38bdf8',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800
-                }}>
+                <span style={{ background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
                   📏 Độ sâu: {activeInfo.depth}
                 </span>
-                <span style={{
-                  background: 'rgba(251, 191, 36, 0.15)',
-                  border: '1px solid rgba(251, 191, 36, 0.3)',
-                  color: '#fbbf24',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800
-                }}>
+                <span style={{ background: 'rgba(251, 191, 36, 0.15)', border: '1px solid rgba(251, 191, 36, 0.3)', color: '#fbbf24', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
                   🧊 Trạng thái: {activeInfo.state}
                 </span>
-                <span style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  color: '#fca5a5',
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800
-                }}>
+                <span style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: 800 }}>
                   🌡️ Nhiệt độ: {activeInfo.temp}
                 </span>
               </div>
 
-              {/* Verbatim Textbook Description Text */}
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.35)',
-                padding: '10px 12px',
-                borderRadius: '12px',
-                borderLeft: `3px solid ${activeInfo.color}`
-              }}>
+              <div style={{ background: 'rgba(0, 0, 0, 0.35)', padding: '10px 12px', borderRadius: '12px', borderLeft: `3px solid ${activeInfo.color}` }}>
                 <p style={{ margin: 0, fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.5 }}>
                   {activeInfo.desc}
                 </p>
               </div>
 
-              {/* Key Bullet Points */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {activeInfo.details.map((detail, idx) => (
                   <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', fontSize: '0.75rem', color: '#cbd5e1' }}>
@@ -6042,7 +5857,6 @@ function GeoEarthStructureSim({ onLog }) {
                 ))}
               </div>
 
-              {/* Action Buttons inside Modal */}
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button
                   onClick={() => setIsFocusIsolated(!isFocusIsolated)}
@@ -6068,8 +5882,8 @@ function GeoEarthStructureSim({ onLog }) {
             </div>
           )}
 
-          {/* Hover Pointer Tooltip Indicator */}
-          {hoveredLayerName && (
+          {/* Hover Pointer Tooltip */}
+          {hoveredLayerName && !useFallback2D && (
             <div style={{
               position: 'absolute',
               bottom: '20px',
@@ -6100,10 +5914,9 @@ function GeoEarthStructureSim({ onLog }) {
             flexDirection: 'column',
             gap: '8px'
           }}>
-            {/* Auto Rotate Toggle */}
             <button
               onClick={() => setAutoRotate(!autoRotate)}
-              title="Bật/Tắt xoay tự động 3D"
+              title="Bật/Tắt xoay tự động"
               style={{
                 background: autoRotate ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(15, 23, 42, 0.85)',
                 color: '#ffffff',
@@ -6119,10 +5932,9 @@ function GeoEarthStructureSim({ onLog }) {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
             >
-              🔄 {autoRotate ? 'Xoay 3D: Bật' : 'Xoay 3D: Tắt'}
+              🔄 {autoRotate ? 'Xoay: Bật' : 'Xoay: Tắt'}
             </button>
 
-            {/* Slice Mode Selector */}
             <div style={{
               background: 'rgba(15, 23, 42, 0.85)',
               backdropFilter: 'blur(10px)',
@@ -6179,7 +5991,6 @@ function GeoEarthStructureSim({ onLog }) {
               </button>
             </div>
 
-            {/* Explode Mode Button */}
             <button
               onClick={() => setIsExploded(!isExploded)}
               style={{
@@ -6198,10 +6009,9 @@ function GeoEarthStructureSim({ onLog }) {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
             >
-              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 5 Lớp 3D'}
+              💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách 5 Lớp'}
             </button>
 
-            {/* Focus Isolation Button */}
             <button
               onClick={() => setIsFocusIsolated(!isFocusIsolated)}
               style={{
@@ -6220,10 +6030,9 @@ function GeoEarthStructureSim({ onLog }) {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
             >
-              👁️ {isFocusIsolated ? 'Tắt Cô Lập Lớp' : 'Bật Cô Lập 3D'}
+              👁️ {isFocusIsolated ? 'Tắt Cô Lập' : 'Bật Cô Lập'}
             </button>
 
-            {/* View Textbook Reference Image Button */}
             <button
               onClick={() => setShowRefModal(true)}
               style={{
@@ -6242,73 +6051,41 @@ function GeoEarthStructureSim({ onLog }) {
                 boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
               }}
             >
-              🖼️ Ảnh Sơ Đồ SGK (earth_3d_ref)
+              🖼️ Sơ Đồ SGK (earth_3d_ref)
             </button>
 
-            {/* Zoom / Reset Navigation Bar */}
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                onClick={() => handleZoom(-1.5)}
-                title="Phóng to"
-                style={{
-                  flex: 1,
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  fontWeight: 900,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer'
-                }}
-              >
-                ➕
-              </button>
-              <button
-                onClick={() => handleZoom(1.5)}
-                title="Thu nhỏ"
-                style={{
-                  flex: 1,
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  fontWeight: 900,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer'
-                }}
-              >
-                ➖
-              </button>
-              <button
-                onClick={handleResetCamera}
-                title="Đặt lại vị trí góc nhìn ban đầu"
-                style={{
-                  flex: 1,
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  color: '#fff',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '8px',
-                  padding: '6px',
-                  fontWeight: 900,
-                  fontSize: '0.8rem',
-                  cursor: 'pointer'
-                }}
-              >
-                🏠
-              </button>
-            </div>
+            {!useFallback2D && (
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => handleZoom(-1.5)}
+                  title="Phóng to"
+                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}
+                >
+                  ➕
+                </button>
+                <button
+                  onClick={() => handleZoom(1.5)}
+                  title="Thu nhỏ"
+                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer' }}
+                >
+                  ➖
+                </button>
+                <button
+                  onClick={handleResetCamera}
+                  title="Đặt lại vị trí góc nhìn ban đầu"
+                  style={{ flex: 1, background: 'rgba(15, 23, 42, 0.85)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '8px', padding: '6px', fontWeight: 900, fontSize: '0.8rem', cursor: 'pointer' }}
+                >
+                  🏠
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Textbook Reference Image Modal Popup */}
+          {/* Reference Modal Popup */}
           {showRefModal && (
             <div style={{
               position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              top: 0, left: 0, right: 0, bottom: 0,
               zIndex: 99999,
               background: 'rgba(3, 7, 18, 0.88)',
               backdropFilter: 'blur(12px)',
@@ -6385,7 +6162,6 @@ function GeoEarthStructureSim({ onLog }) {
           overflowY: 'auto'
         }}>
           <div>
-            {/* Layer Title Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
               <div>
                 <span style={{
@@ -6414,13 +6190,7 @@ function GeoEarthStructureSim({ onLog }) {
               }} />
             </div>
 
-            {/* Quick Metrics Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '10px',
-              marginBottom: '16px'
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '10px 12px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>📏 Độ sâu:</div>
                 <div style={{ fontSize: '0.95rem', color: activeInfo.color, fontWeight: 900, marginTop: '2px' }}>
@@ -6450,20 +6220,12 @@ function GeoEarthStructureSim({ onLog }) {
               </div>
             </div>
 
-            {/* General Overview Description */}
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.3)',
-              padding: '12px 14px',
-              borderRadius: '14px',
-              borderLeft: `4px solid ${activeInfo.color}`,
-              marginBottom: '14px'
-            }}>
+            <div style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '12px 14px', borderRadius: '14px', borderLeft: `4px solid ${activeInfo.color}`, marginBottom: '14px' }}>
               <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.55 }}>
                 {activeInfo.desc}
               </p>
             </div>
 
-            {/* Detail Bullet Points */}
             <div style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'flex', flexDirection: 'column', gap: '6px' }}>
               {activeInfo.details.map((item, idx) => (
                 <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
@@ -6474,7 +6236,6 @@ function GeoEarthStructureSim({ onLog }) {
             </div>
           </div>
 
-          {/* Interactive Instruction Note */}
           <div style={{
             marginTop: '16px',
             padding: '10px 14px',
@@ -6487,7 +6248,7 @@ function GeoEarthStructureSim({ onLog }) {
           }}>
             <span style={{ fontSize: '1.1rem' }}>💡</span>
             <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: 600 }}>
-              Nhấp vào bất kỳ thẻ nhãn 3D (+) hoặc nhấp chuột vào lớp 3D để xem chi tiết bóc tách!
+              Nhấp vào bất kỳ lớp nào hoặc chọn thanh bên dưới để xem bóc tách chi tiết!
             </span>
           </div>
         </div>
@@ -6542,6 +6303,7 @@ function GeoEarthStructureSim({ onLog }) {
     </div>
   );
 }
+
 
 // 7. Glacial Melt & River Formation Simulator
 function GeoGlacialRiverSim({ onLog }) {
@@ -8708,22 +8470,43 @@ class SimErrorBoundary extends React.Component {
           <p style={{ fontSize: '0.85rem', color: '#94a3b8', maxWidth: '420px', marginBottom: '18px', lineHeight: 1.5 }}>
             Hệ thống đang tự động tối ưu hóa hiệu năng đồ họa 3D/Interactive cho thiết bị. Vui lòng bấm nút bên dưới để khởi chạy lại mô hình.
           </p>
-          <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            style={{
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '12px 24px',
-              fontWeight: 800,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)'
-            }}
-          >
-            🔄 Tải Lại Mô Phỏng
-          </button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)'
+              }}
+            >
+              🔄 Tải Lại Mô Phỏng (Thử 3D)
+            </button>
+            <button
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('gvd_force_sim_2d_fallback'));
+                this.setState({ hasError: false, error: null });
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)'
+              }}
+            >
+              ⚡ Chuyển Chế Độ Interactive 2D (Chạy 100%)
+            </button>
+          </div>
         </div>
       );
     }
