@@ -84,13 +84,20 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
 
   useEffect(() => {
     document.body.classList.add('is-modal-open', 'is-game-playing', 'is-fullscreen');
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
+    try {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {}
     setIsFullscreen(true);
 
     const handleFSChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!(document.fullscreenElement || document.webkitFullscreenElement));
     };
     document.addEventListener('fullscreenchange', handleFSChange);
     document.addEventListener('webkitfullscreenchange', handleFSChange);
@@ -99,9 +106,15 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       document.body.classList.remove('is-modal-open', 'is-game-playing', 'is-fullscreen');
       document.removeEventListener('fullscreenchange', handleFSChange);
       document.removeEventListener('webkitfullscreenchange', handleFSChange);
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+      try {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      } catch (e) {}
     };
   }, []);
 
@@ -152,13 +165,24 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   };
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
-    }
+    try {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (e) {}
   };
 
   const commonProps = {

@@ -9032,14 +9032,21 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
   useEffect(() => {
     document.body.classList.add('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
     
-    // Automatically trigger native browser full screen when entering experiment mode
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    }
+    // Automatically trigger native browser full screen safely
+    try {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      }
+    } catch (e) {}
     setIsFullscreen(true);
 
     const handleFSChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!(document.fullscreenElement || document.webkitFullscreenElement));
     };
     document.addEventListener('fullscreenchange', handleFSChange);
     document.addEventListener('webkitfullscreenchange', handleFSChange);
@@ -9048,20 +9055,37 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       document.body.classList.remove('is-modal-open', 'is-game-playing', 'is-experiment-active', 'is-fullscreen');
       document.removeEventListener('fullscreenchange', handleFSChange);
       document.removeEventListener('webkitfullscreenchange', handleFSChange);
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
+      try {
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        }
+      } catch (e) {}
     };
   }, []);
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
-      setIsFullscreen(false);
-    }
+    try {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (e) {}
   };
 
   const handleSensorUpdate = (sensors) => {
