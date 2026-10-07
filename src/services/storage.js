@@ -252,6 +252,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường Phổ thông Chất lượng cao Hùng Vương',
     createdAt: '2026-10-05'
+  },
+  {
+    id: 'user_dieu_hien',
+    username: 'dieuhien',
+    password: '123456',
+    name: 'Nguyễn Diệu Hiền',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường tiểu học & thcs Xuy Xá',
+    createdAt: '2026-10-07'
   }
 ];
 
