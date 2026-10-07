@@ -5003,6 +5003,7 @@ function GeoWaterCycleSim({ onLog }) {
 // 6. Structure of Earth Interior 3D Simulator (Interactive 5-Layer Cutaway Model with 2D Fallback)
 function GeoEarthStructureSim({ onLog }) {
   const containerRef = useRef(null);
+  const mount3dRef = useRef(null);
   const canvas2dRef = useRef(null);
   const tagRefs = useRef({});
 
@@ -5161,9 +5162,9 @@ function GeoEarthStructureSim({ onLog }) {
 
   // 1. Three.js 3D WebGL Engine Setup (Runs with zero memory leaks)
   useEffect(() => {
-    if (useFallback2D || !containerRef.current) return;
-    const width = containerRef.current.clientWidth || 800;
-    const height = containerRef.current.clientHeight || 500;
+    if (useFallback2D || !mount3dRef.current) return;
+    const width = mount3dRef.current.clientWidth || 800;
+    const height = mount3dRef.current.clientHeight || 500;
     const aspect = (width > 0 && height > 0) ? width / height : 1.6;
 
     let scene, camera, renderer, controls;
@@ -5201,8 +5202,10 @@ function GeoEarthStructureSim({ onLog }) {
       };
       renderer.domElement.addEventListener('webglcontextlost', handleContextLost, false);
 
-      containerRef.current.innerHTML = '';
-      containerRef.current.appendChild(renderer.domElement);
+      if (mount3dRef.current) {
+        mount3dRef.current.innerHTML = '';
+        mount3dRef.current.appendChild(renderer.domElement);
+      }
 
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
@@ -5458,6 +5461,9 @@ function GeoEarthStructureSim({ onLog }) {
           } catch (e) {}
           rendererRef.current = null;
         }
+        if (mount3dRef.current) {
+          mount3dRef.current.innerHTML = '';
+        }
       };
     } catch (e) {
       console.warn("Three.js setup encountered an exception, switching to 2D Fallback:", e);
@@ -5680,10 +5686,31 @@ function GeoEarthStructureSim({ onLog }) {
             cursor: useFallback2D ? 'default' : 'grab'
           }}
         >
-          {/* Fallback 2D Canvas */}
-          {useFallback2D && (
-            <canvas ref={canvas2dRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-          )}
+          {/* Dedicated Three.js WebGL Mount Container (Zero React Children!) */}
+          <div 
+            ref={mount3dRef} 
+            style={{ 
+              position: 'absolute', 
+              inset: 0, 
+              width: '100%', 
+              height: '100%', 
+              zIndex: 1, 
+              display: useFallback2D ? 'none' : 'block' 
+            }} 
+          />
+
+          {/* Dedicated 2D Canvas Fallback Container */}
+          <canvas 
+            ref={canvas2dRef} 
+            style={{ 
+              position: 'absolute', 
+              inset: 0, 
+              width: '100%', 
+              height: '100%', 
+              zIndex: 2, 
+              display: useFallback2D ? 'block' : 'none' 
+            }} 
+          />
 
           {/* Top-Left Viewport Header Badge */}
           <div style={{
