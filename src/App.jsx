@@ -935,30 +935,6 @@ export function App() {
               <button
                 onClick={() => {
                   setIsMobileAccountOpen(false);
-                  setIsChangePasswordOpen(true);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)'
-                }}
-              >
-                <KeyRound size={18} /> Đổi Mật Khẩu Cá Nhân
-              </button>
-              <button
-                onClick={() => {
-                  setIsMobileAccountOpen(false);
                   handleLogout();
                 }}
                 style={{
