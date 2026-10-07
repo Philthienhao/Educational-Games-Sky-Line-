@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v2.0.0_skl_web_links_feature';
+const CURRENT_APP_BUILD_VERSION = 'v2.0.1_remove_timer_from_catalog';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {

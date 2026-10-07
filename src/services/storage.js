@@ -1378,6 +1378,10 @@ export const StorageService = {
           if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
           let updatedCache = false;
           idbGames.forEach(idbG => {
+            if (idbG && idbG.id && (idbG.id === 'classroom-timer-game' || idbG.engineType === 'classroom-timer' || idbG.baseGameId === 'classroom-timer-game' || idbG.id === 'saved_sample_classroom_timer')) {
+              IDBStorageService.deleteGame(idbG.id).catch(() => {});
+              return;
+            }
             if (idbG && idbG.id && !deletedIdsForInit.includes(idbG.id)) {
               const idx = runtimeSavedGamesCache.findIndex(cg => cg.id === idbG.id);
               if (idx >= 0) {
@@ -1388,6 +1392,7 @@ export const StorageService = {
               updatedCache = true;
             }
           });
+          runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g && g.id !== 'saved_sample_classroom_timer' && g.baseGameId !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
           if (updatedCache) {
             try {
               localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(runtimeSavedGamesCache));
@@ -1416,6 +1421,10 @@ export const StorageService = {
         if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
         let updated = false;
         idbGames.forEach(idbG => {
+          if (idbG && idbG.id && (idbG.id === 'classroom-timer-game' || idbG.engineType === 'classroom-timer' || idbG.baseGameId === 'classroom-timer-game' || idbG.id === 'saved_sample_classroom_timer')) {
+            IDBStorageService.deleteGame(idbG.id).catch(() => {});
+            return;
+          }
           if (idbG && idbG.id && !deletedIds.includes(idbG.id)) {
             const existingIdx = runtimeSavedGamesCache.findIndex(cg => cg.id === idbG.id);
             if (existingIdx >= 0) {
@@ -1426,6 +1435,7 @@ export const StorageService = {
             updated = true;
           }
         });
+        runtimeSavedGamesCache = runtimeSavedGamesCache.filter(g => g && g.id !== 'saved_sample_classroom_timer' && g.baseGameId !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
         if (updated) {
           try {
             localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(runtimeSavedGamesCache));
