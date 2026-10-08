@@ -5007,6 +5007,7 @@ function GeoEarthStructureSim({ onLog }) {
   const canvas2dRef = useRef(null);
   const tagRefs = useRef({});
 
+  const [themeMode, setThemeMode] = useState('space'); // 'space' or 'sgk'
   const [activeLayer, setActiveLayer] = useState('crust');
   const [sliceMode, setSliceMode] = useState('cut90'); // 'cut90', 'cut180', 'full'
   const [isExploded, setIsExploded] = useState(false);
