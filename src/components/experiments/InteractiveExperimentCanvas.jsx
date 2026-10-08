@@ -5463,64 +5463,90 @@ function GeoEarthStructureSim({ onLog }) {
       scene.add(earthGroup);
 
       const phiLen = sliceModeRef.current === 'cut180' ? Math.PI : (sliceModeRef.current === 'full' ? Math.PI * 2 : Math.PI * 1.5);
+      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1 });
 
-      // 1. Crust Layer (Radius 2.65)
-      const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
-      const crustMat = new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.35, metalness: 0.1, side: THREE.FrontSide });
-      const crustMesh = new THREE.Mesh(crustGeo, crustMat);
+      const createCutFaces = (geoFn) => {
+        const meshA = new THREE.Mesh(geoFn(), capMat);
+        meshA.rotation.set(0, 0, 0);
+
+        const meshB = new THREE.Mesh(geoFn(), capMat);
+        meshB.rotation.set(0, sliceModeRef.current === 'cut180' ? Math.PI : Math.PI / 2, 0);
+
+        return [meshA, meshB];
+      };
+
+      // 1. Crust Layer Group (Radius 2.65, Inner 2.35)
+      const crustGroup = new THREE.Group();
+      const crustMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.35, side: THREE.FrontSide })
+      );
       crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
-      earthGroup.add(crustMesh);
+      crustGroup.add(crustMesh);
 
-      // 2. Atmosphere Shell (Radius 2.72)
-      const atmosGeo = new THREE.SphereGeometry(2.72, 64, 64, 0, phiLen, 0, Math.PI);
-      const atmosMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.22, side: THREE.BackSide, blending: THREE.AdditiveBlending });
-      const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-      earthGroup.add(atmosMesh);
+      const [crustCutA, crustCutB] = createCutFaces(() => new THREE.RingGeometry(2.35, 2.65, 64, 4, -Math.PI / 2, Math.PI));
+      crustCutA.userData = crustCutB.userData = { key: 'crust', name: 'Vỏ Trái đất' };
+      crustGroup.add(crustCutA, crustCutB);
+      earthGroup.add(crustGroup);
 
-      // 3. Upper Mantle (Radius 2.35)
-      const umGeo = new THREE.SphereGeometry(2.35, 64, 64, 0, phiLen, 0, Math.PI);
-      const umMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 0.4, roughness: 0.3, side: THREE.FrontSide });
-      const umMesh = new THREE.Mesh(umGeo, umMat);
-      umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
-      earthGroup.add(umMesh);
+      // Atmosphere shell attached to crustGroup
+      const atmosMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.72, 64, 64, 0, phiLen, 0, Math.PI),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.20, side: THREE.BackSide, blending: THREE.AdditiveBlending })
+      );
+      crustGroup.add(atmosMesh);
 
-      // 4. Lower Mantle (Radius 1.85)
-      const lmGeo = new THREE.SphereGeometry(1.85, 64, 64, 0, phiLen, 0, Math.PI);
-      const lmMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.45, roughness: 0.25, side: THREE.FrontSide });
-      const lmMesh = new THREE.Mesh(lmGeo, lmMat);
-      lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
-      earthGroup.add(lmMesh);
+      // 2. Mantle Group (Upper + Lower Mantle) (Outer 2.35, Inner 1.35)
+      const mantleGroup = new THREE.Group();
+      const mantleMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.35, 64, 64, 0, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.45, roughness: 0.3, side: THREE.FrontSide })
+      );
+      mantleMesh.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
+      mantleGroup.add(mantleMesh);
 
-      // 5. Outer Core (Radius 1.35)
-      const ocGeo = new THREE.SphereGeometry(1.35, 64, 64, 0, phiLen, 0, Math.PI);
-      const ocMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.55, roughness: 0.2, metalness: 0.7, side: THREE.FrontSide });
-      const ocMesh = new THREE.Mesh(ocGeo, ocMat);
+      const [mantleCutA, mantleCutB] = createCutFaces(() => new THREE.RingGeometry(1.35, 2.35, 64, 8, -Math.PI / 2, Math.PI));
+      mantleCutA.userData = mantleCutB.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
+      mantleGroup.add(mantleCutA, mantleCutB);
+      earthGroup.add(mantleGroup);
+
+      // 3. Outer Core Group (Outer 1.35, Inner 0.85)
+      const outerCoreGroup = new THREE.Group();
+      const ocMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.35, 64, 64, 0, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.55, roughness: 0.2, metalness: 0.7, side: THREE.FrontSide })
+      );
       ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
-      earthGroup.add(ocMesh);
+      outerCoreGroup.add(ocMesh);
 
-      // 6. Inner Core (Radius 0.85) - Solid Sphere
-      const icGeo = new THREE.SphereGeometry(0.85, 48, 48);
-      const icMat = new THREE.MeshStandardMaterial({ color: 0xfffbe5, emissive: 0xfef08a, emissiveIntensity: 0.9, roughness: 0.15, metalness: 0.9 });
-      const icMesh = new THREE.Mesh(icGeo, icMat);
+      const [ocCutA, ocCutB] = createCutFaces(() => new THREE.RingGeometry(0.85, 1.35, 64, 8, -Math.PI / 2, Math.PI));
+      ocCutA.userData = ocCutB.userData = { key: 'outerCore', name: 'Nhân ngoài' };
+      outerCoreGroup.add(ocCutA, ocCutB);
+      earthGroup.add(outerCoreGroup);
+
+      // 4. Inner Core Group (Radius 0.85 Solid Sphere)
+      const innerCoreGroup = new THREE.Group();
+      const icMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.85, 48, 48),
+        new THREE.MeshStandardMaterial({ color: 0xfffbe5, emissive: 0xfef08a, emissiveIntensity: 0.9, roughness: 0.15, metalness: 0.9 })
+      );
       icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
-      earthGroup.add(icMesh);
+      innerCoreGroup.add(icMesh);
 
-      // 7. Precise Cutaway Cap Planes
-      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.3 });
+      const [icCutA, icCutB] = createCutFaces(() => new THREE.CircleGeometry(0.85, 64, -Math.PI / 2, Math.PI));
+      icCutA.userData = icCutB.userData = { key: 'innerCore', name: 'Nhân trong' };
+      innerCoreGroup.add(icCutA, icCutB);
+      earthGroup.add(innerCoreGroup);
 
-      const capGeo1 = new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI);
-      const capMesh1 = new THREE.Mesh(capGeo1, capMat);
-      capMesh1.rotation.set(0, 0, 0); // Face 1 lies on z = 0 plane facing +Z
-      earthGroup.add(capMesh1);
+      layerMeshesRef.current = {
+        crust: crustGroup,
+        upperMantle: mantleGroup,
+        lowerMantle: mantleGroup,
+        outerCore: outerCoreGroup,
+        innerCore: innerCoreGroup
+      };
 
-      const capGeo2 = new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI);
-      const capMesh2 = new THREE.Mesh(capGeo2, capMat);
-      capMesh2.rotation.set(0, Math.PI / 2, 0); // Face 2 lies on x = 0 plane facing +X
-      earthGroup.add(capMesh2);
-
-      capMeshesRef.current = [capMesh1, capMesh2];
-
-      layerMeshesRef.current = { crust: crustMesh, upperMantle: umMesh, lowerMantle: lmMesh, outerCore: ocMesh, innerCore: icMesh };
+      capMeshesRef.current = [crustCutA, crustCutB, mantleCutA, mantleCutB, ocCutA, ocCutB, icCutA, icCutB];
 
       const handleResize = () => {
         if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
@@ -5545,26 +5571,20 @@ function GeoEarthStructureSim({ onLog }) {
           }
 
           const targetOffset = isExplodedRef.current ? 1.0 : 0.0;
-          const cM = layerMeshesRef.current.crust;
-          const umM = layerMeshesRef.current.upperMantle;
-          const lmM = layerMeshesRef.current.lowerMantle;
-          const ocM = layerMeshesRef.current.outerCore;
-          const icM = layerMeshesRef.current.innerCore;
+          const curExp = crustGroup.position.x;
+          const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.5, 0.08);
 
-          if (cM && umM && lmM && ocM && icM) {
-            const curExp = cM.position.x;
-            const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.4, 0.08);
+          // Horizontal exploded separation along X axis (matching textbook diagram!)
+          crustGroup.position.x = nextExp * 1.8; crustGroup.position.z = nextExp * 0.9;
+          mantleGroup.position.x = nextExp * 1.2; mantleGroup.position.z = nextExp * 0.6;
+          outerCoreGroup.position.x = nextExp * 0.6; outerCoreGroup.position.z = nextExp * 0.3;
+          innerCoreGroup.position.x = 0; innerCoreGroup.position.z = 0;
 
-            cM.position.x = nextExp * 1.8; cM.position.z = nextExp * 0.9;
-            umM.position.x = nextExp * 1.35; umM.position.z = nextExp * 0.65;
-            lmM.position.x = nextExp * 0.9; lmM.position.z = nextExp * 0.45;
-            ocM.position.x = nextExp * 0.45; ocM.position.z = nextExp * 0.22;
-            icM.position.x = 0; icM.position.z = 0;
-
-            capMeshesRef.current.forEach(m => {
-              if (m) m.visible = !isExplodedRef.current && sliceModeRef.current !== 'full';
-            });
-          }
+          const showCut = sliceModeRef.current !== 'full';
+          crustCutA.visible = crustCutB.visible = showCut;
+          mantleCutA.visible = mantleCutB.visible = showCut;
+          ocCutA.visible = ocCutB.visible = showCut;
+          icCutA.visible = icCutB.visible = showCut;
 
           if (icM) icM.rotation.y += 0.005;
 
