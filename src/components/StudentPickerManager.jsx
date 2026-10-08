@@ -19,6 +19,18 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     setHomeroomData(hr);
   }, [currentUser]);
 
+  const marbleRaceGame = baseGames.find(g => g.engineType === 'marble-race' || g.id === 'marble-race-quiz') || {
+    id: 'marble-race-quiz',
+    title: 'Đua Bi Sinh Tử — Gọi Tên Lên Bảng',
+    subtitle: 'Đua Bi Thác Đổ Vật Lý 2D / Về Nhất Lên Bảng',
+    category: 'Gọi tên và chia nhóm',
+    isStudentPicker: true,
+    icon: '🏁',
+    gradient: 'linear-gradient(135deg, #f43f5e 0%, #be123c 100%)',
+    description: 'Mô phỏng đường đua bi rơi thác đổ tự do với đệm nảy pinball, dốc zíc-zắc, cánh quạt tử thần, bãi chốt Galton và phễu cổ chai! Tự động cập nhật bảng xếp hạng, minimap và diễn biến trực tiếp.',
+    engineType: 'marble-race'
+  };
+
   const duckRaceGame = baseGames.find(g => g.engineType === 'duck-race' || g.id === 'duck-race-quiz') || {
     id: 'duck-race-quiz',
     title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
@@ -104,6 +116,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
   };
 
   const studentPickerGames = [
+    marbleRaceGame,
     duckRaceGame,
     turtleRaceGame,
     clawMachineGame,

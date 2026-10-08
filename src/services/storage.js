@@ -683,6 +683,19 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
+    id: 'marble-race-quiz',
+    title: 'Đua Bi Sinh Tử — Gọi Tên Học Sinh Lên Bảng',
+    subtitle: 'Đua Bi Thác Đổ Vật Lý 2D / Về Nhất Lên Bảng Trả Lời',
+    category: 'Gọi tên và chia nhóm',
+    isStudentPicker: true,
+    icon: '🏁',
+    gradient: 'linear-gradient(135deg, #f43f5e 0%, #be123c 100%)',
+    description: 'Mô phỏng đường đua bi rơi thác đổ tự do với đệm nảy pinball, dốc zíc-zắc, cánh quạt tử thần, bệ nitro, cổng dịch chuyển, bãi chốt Galton và phễu cổ chai! Tự động cập nhật bảng xếp hạng, minimap và diễn biến trực tiếp.',
+    engineType: 'marble-race',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'duck-race-quiz',
     title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
     subtitle: 'Cuộc Đua Vịt Gọi Tên / Chọn Học Sinh Nhận Thưởng',

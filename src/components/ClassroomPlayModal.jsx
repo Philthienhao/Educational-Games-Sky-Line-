@@ -34,6 +34,7 @@ import { PirateShipBattleGame } from './games/PirateShipBattleGame';
 import { ClassroomTimerGame } from './games/ClassroomTimerGame';
 import { GeoExperimentsView } from './GeoExperimentsView';
 import { StudentGroupDividerGame } from './games/StudentGroupDividerGame';
+import { MarbleRaceGame } from './games/MarbleRaceGame';
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
@@ -295,6 +296,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'student-group-divider':
         component = <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />;
         break;
+      case 'marble-race':
+        component = <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={onAddPoints} />;
+        break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
         break;
@@ -307,7 +311,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -360,6 +364,8 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
             <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
           ) : engineType === 'student-group-divider' ? (
             <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
+          ) : engineType === 'marble-race' ? (
+            <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={onAddPoints} />
           ) : (
             renderGameEngine()
           )}
