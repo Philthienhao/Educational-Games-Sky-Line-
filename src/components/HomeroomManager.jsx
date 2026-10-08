@@ -1116,14 +1116,14 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                       key={st.id}
                       onClick={() => openStudentDetail(st)}
                       style={{ 
-                        borderBottom: '1px solid rgba(255,255,255,0.05)',
-                        background: isHighAlert ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
+                        borderBottom: '1px solid #e2e8f0',
+                        background: isHighAlert ? 'rgba(239, 68, 68, 0.06)' : (idx % 2 === 0 ? '#ffffff' : '#f8fafc'),
                         cursor: 'pointer',
                         transition: 'background 0.2s'
                       }}
                     >
-                      <td style={{ padding: '14px 16px', color: 'var(--text-muted)' }}>{idx + 1}</td>
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#38bdf8' }}>{st.studentId}</td>
+                      <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 800, fontSize: '0.9rem' }}>{idx + 1}</td>
+                      <td style={{ padding: '14px 16px', fontWeight: 900, color: '#0369a1', fontSize: '0.9rem' }}>{st.studentId}</td>
                       <td style={{ padding: '14px 16px' }}>
                         {st.avatar ? (
                           <img src={st.avatar} alt={st.name} style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #00a896' }} />
@@ -1133,39 +1133,67 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '14px 16px', fontWeight: 800, color: '#fff' }}>
-                        <div style={{ color: '#38bdf8', textDecoration: 'underline' }}>{st.name}</div>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ color: '#0f172a', fontWeight: 900, fontSize: '0.96rem', letterSpacing: '0.01em' }}>{st.name}</div>
                         {st.teacherNotes && (
-                          <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 400, marginTop: '2px' }}>
+                          <span style={{ display: 'block', fontSize: '0.76rem', color: '#475569', fontWeight: 600, marginTop: '2px' }}>
                             💬 {st.teacherNotes}
                           </span>
                         )}
                       </td>
                       <td style={{ padding: '14px 16px' }}>
-                        <span className="badge" style={{ background: `${scoreColor}20`, color: scoreColor, border: `1.5px solid ${scoreColor}`, fontWeight: 900, fontSize: '0.88rem', padding: '4px 12px' }}>
+                        <span className="badge" style={{ 
+                          background: score >= 100 ? '#ecfdf5' : (score >= 90 ? '#fef3c7' : '#fee2e2'), 
+                          color: score >= 100 ? '#047857' : (score >= 90 ? '#b45309' : '#b91c1c'), 
+                          border: `1.5px solid ${scoreColor}`, 
+                          fontWeight: 900, 
+                          fontSize: '0.88rem', 
+                          padding: '5px 12px',
+                          borderRadius: '12px'
+                        }}>
                           💯 {score} điểm
                         </span>
                       </td>
-                      <td style={{ padding: '14px 16px', color: '#cbd5e1' }}>
-                        <div>{st.fatherName || st.motherName || 'Phụ huynh'}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#38bdf8' }}>📞 {st.phone || 'Chưa có SĐT'}</div>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.95rem', lineHeight: 1.35 }}>
+                          {st.fatherName || st.motherName || 'Phụ huynh'}
+                        </div>
+                        <div style={{ fontSize: '0.82rem', color: '#0284c7', fontWeight: 700, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          📞 {st.phone || 'Chưa có SĐT'}
+                        </div>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         {vCount > 0 ? (
-                          <span className="badge" style={{ background: isHighAlert ? '#dc2626' : 'rgba(239, 68, 68, 0.2)', color: isHighAlert ? '#fff' : '#fca5a5', fontWeight: 800 }}>
-                            {isHighAlert && '🚨 '} {vCount} lần
+                          <span className="badge" style={{ 
+                            background: isHighAlert ? '#dc2626' : '#fee2e2', 
+                            color: isHighAlert ? '#ffffff' : '#b91c1c', 
+                            border: `1.5px solid ${isHighAlert ? '#b91c1c' : '#fca5a5'}`, 
+                            fontWeight: 900,
+                            fontSize: '0.82rem',
+                            padding: '5px 12px',
+                            borderRadius: '12px'
+                          }}>
+                            {isHighAlert && '🚨 '} {vCount} LẦN
                           </span>
                         ) : (
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>0</span>
+                          <span style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 800 }}>0</span>
                         )}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         {rCount > 0 ? (
-                          <span className="badge" style={{ background: 'rgba(245, 158, 11, 0.2)', color: '#fde047', fontWeight: 800 }}>
+                          <span className="badge" style={{ 
+                            background: '#fef3c7', 
+                            color: '#b45309', 
+                            border: '1.5px solid #fcd34d', 
+                            fontWeight: 900,
+                            fontSize: '0.82rem',
+                            padding: '5px 12px',
+                            borderRadius: '12px'
+                          }}>
                             🏆 {rCount}
                           </span>
                         ) : (
-                          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>0</span>
+                          <span style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 800 }}>0</span>
                         )}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
@@ -1440,7 +1468,7 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
 
           {/* Full Ranked Table */}
           <div className="glass-panel" style={{ padding: '24px', borderRadius: '20px' }}>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#5eead4', marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f766e', marginBottom: '16px' }}>
               📊 Bảng Xếp Hạng Điểm Nề Nếp Toàn Lớp
             </h4>
 
@@ -1457,22 +1485,23 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                       justifyContent: 'space-between',
                       padding: '14px 20px',
                       borderRadius: '16px',
-                      background: idx < topHonorsCount ? 'rgba(245, 158, 11, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                      border: idx < topHonorsCount ? '1.5px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                      background: idx < topHonorsCount ? '#fef3c7' : '#ffffff',
+                      border: idx < topHonorsCount ? '1.5px solid #f59e0b' : '1px solid #e2e8f0',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
                       cursor: 'pointer'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <span style={{ fontWeight: 900, fontSize: '1.2rem', color: idx === 0 ? '#fbbf24' : (idx === 1 ? '#cbd5e1' : (idx === 2 ? '#d97706' : 'var(--text-muted)')), width: '32px' }}>
+                      <span style={{ fontWeight: 900, fontSize: '1.2rem', color: idx === 0 ? '#d97706' : (idx === 1 ? '#475569' : (idx === 2 ? '#b45309' : '#64748b')), width: '32px' }}>
                         #{idx + 1}
                       </span>
-                      <div style={{ fontWeight: 800, color: '#fff', fontSize: '1rem' }}>
-                        {st.name} ({st.studentId})
+                      <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1rem' }}>
+                        {st.name} <span style={{ color: '#0284c7', fontSize: '0.85rem' }}>({st.studentId})</span>
                       </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7', border: '1px solid #10b981', fontWeight: 900, fontSize: '0.9rem', padding: '6px 14px' }}>
+                      <span className="badge" style={{ background: '#ecfdf5', color: '#047857', border: '1.5px solid #10b981', fontWeight: 900, fontSize: '0.9rem', padding: '6px 14px', borderRadius: '12px' }}>
                         💯 {score} điểm
                       </span>
                     </div>
