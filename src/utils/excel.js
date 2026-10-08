@@ -163,10 +163,10 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType
   if (
     normEngine === 'duck-race' || normEngine === 'turtle-race' || normEngine === 'claw-machine' ||
     normEngine === 'astronaut-explorer' || normEngine === 'magic-hat' || normEngine === 'magic-grimoire' ||
-    normEngine === 'student-group-divider' || normEngine === 'racing' ||
+    normEngine === 'student-group-divider' || normEngine === 'marble-race' || normEngine === 'racing' ||
     normTitle.includes('dua vit') || normTitle.includes('dua rua') || normTitle.includes('gap thu') ||
     normTitle.includes('phi hanh gia') || normTitle.includes('chiec mu') || normTitle.includes('co thu') ||
-    normTitle.includes('chia nhom')
+    normTitle.includes('chia nhom') || normTitle.includes('dua bi')
   ) {
     return downloadStudentListExcelTemplate(gameTitle);
   }

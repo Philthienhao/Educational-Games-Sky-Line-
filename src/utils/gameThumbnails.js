@@ -18,6 +18,8 @@ export const GAME_THUMBNAILS = {
   'matching-pairs': '/thumbnails/thumb_matching_pairs.jpg',
   'duck-race': '/thumbnails/thumb_duck_race.jpg',
   'turtle-race': '/thumbnails/thumb_turtle_race.jpg',
+  'marble-race': '/thumbnails/thumb_marble_race.jpg',
+  'marble-race-quiz': '/thumbnails/thumb_marble_race.jpg',
   'claw-machine': '/thumbnails/thumb_claw_machine.jpg',
   'astronaut-explorer': '/thumbnails/thumb_astronaut_explorer.jpg',
   'magic-hat': '/thumbnails/thumb_magic_hat.jpg',

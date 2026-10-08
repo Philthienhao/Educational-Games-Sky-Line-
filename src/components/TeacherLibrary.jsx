@@ -79,8 +79,8 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
                        g.category === 'Gọi tên và chia nhóm' || 
                        g.category === 'Kho game gọi tên học sinh' || 
                        g.category === 'Tương tác & Quay số' ||
-                       ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
-                       ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId);
+                       ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                       ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId);
       
       const isTool = g.isClassroomTool || 
                      g.category === 'Công cụ Lớp học' || 

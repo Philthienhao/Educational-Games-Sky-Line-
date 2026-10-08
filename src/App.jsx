@@ -329,7 +329,7 @@ export function App() {
     const isPickerGame = game.isStudentPicker || 
                          game.category === 'Gọi tên và chia nhóm' || 
                          game.category === 'Kho game gọi tên học sinh' || 
-                         ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
+                         ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
 
     const isToolGame = game.isClassroomTool || 
                        game.category === 'Công cụ Lớp học' || 

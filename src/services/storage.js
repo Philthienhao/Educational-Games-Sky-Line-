@@ -1409,8 +1409,8 @@ export const StorageService = {
           storedGames.forEach(g => {
             if (!g || typeof g !== 'object') return;
             const isPicker = g.isStudentPicker || 
-                             ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
-                             ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
+                             ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                             ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
             if (isPicker) {
               if (g.category !== 'Gọi tên và chia nhóm' || !g.isStudentPicker) {
                 g.category = 'Gọi tên và chia nhóm';
@@ -2095,8 +2095,8 @@ export const StorageService = {
     games = games.map(g => {
       if (!g || typeof g !== 'object') return g;
       const isPicker = g.isStudentPicker || 
-                       ['duck-race', 'turtle-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
-                       ['duck-race-quiz', 'turtle-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
+                       ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+                       ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
       if (isPicker) {
         return { ...g, category: 'Gọi tên và chia nhóm', isStudentPicker: true };
       }
