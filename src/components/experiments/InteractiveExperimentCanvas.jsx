@@ -5248,143 +5248,276 @@ function GeoEarthStructureSim({ onLog }) {
       const starField = new THREE.Points(starsGeo, starsMat);
       scene.add(starField);
 
-      // Procedural Texture Generation - Matching earth_3d_ref.png 100%
-      const crustCanvas = document.createElement('canvas');
-      crustCanvas.width = 1024; crustCanvas.height = 512;
-      const cctx = crustCanvas.getContext('2d');
-      const w = 1024, h = 512;
-      const oceanGrad = cctx.createLinearGradient(0, 0, 0, h);
-      oceanGrad.addColorStop(0, '#0c1b33'); oceanGrad.addColorStop(0.5, '#023e8a'); oceanGrad.addColorStop(1, '#0c1b33');
-      cctx.fillStyle = oceanGrad; cctx.fillRect(0, 0, w, h);
+      // 2. High-Definition Photorealistic Earth Crust Texture (2048x1024 Equirectangular Map)
+      const createPhotorealisticEarthTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 2048; canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        const w = 2048, h = 1024;
 
-      // Continents with detailed vegetation, desert, and coastlines
-      cctx.fillStyle = '#15803d'; // Green landmass
-      cctx.beginPath(); cctx.ellipse(w * 0.25, h * 0.35, 140, 95, -0.2, 0, Math.PI * 2); cctx.fill(); // North America
-      cctx.fillStyle = '#ca8a04'; // Desert
-      cctx.beginPath(); cctx.ellipse(w * 0.32, h * 0.65, 80, 110, 0.2, 0, Math.PI * 2); cctx.fill(); // South America
-      cctx.fillStyle = '#166534';
-      cctx.beginPath(); cctx.ellipse(w * 0.62, h * 0.32, 220, 110, 0.05, 0, Math.PI * 2); cctx.fill(); // Eurasia
-      cctx.fillStyle = '#ca8a04';
-      cctx.beginPath(); cctx.ellipse(w * 0.54, h * 0.52, 110, 120, -0.1, 0, Math.PI * 2); cctx.fill(); // Africa
-      cctx.fillStyle = '#b45309';
-      cctx.beginPath(); cctx.ellipse(w * 0.82, h * 0.68, 70, 50, 0.1, 0, Math.PI * 2); cctx.fill(); // Australia
+        // Deep Abyssal Ocean & Shallow Coastal Waters Gradient
+        const oceanGrad = ctx.createLinearGradient(0, 0, 0, h);
+        oceanGrad.addColorStop(0.0, '#040d1a');
+        oceanGrad.addColorStop(0.2, '#08203e');
+        oceanGrad.addColorStop(0.5, '#0b2b52');
+        oceanGrad.addColorStop(0.8, '#08203e');
+        oceanGrad.addColorStop(1.0, '#040d1a');
+        ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, w, h);
 
-      // Polar Ice Caps
-      cctx.fillStyle = '#f8fafc';
-      cctx.fillRect(0, 0, w, 35); cctx.fillRect(0, h - 40, w, 40);
+        // Coastal Shelf Turquoise Highlights
+        ctx.fillStyle = 'rgba(2, 132, 199, 0.45)';
+        const drawShelf = (cxPos, cyPos, rx, ry, angle = 0) => {
+          ctx.save(); ctx.translate(cxPos, cyPos); ctx.rotate(angle);
+          ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        };
+        drawShelf(w * 0.25, h * 0.35, 250, 150, -0.15); // N. America
+        drawShelf(w * 0.33, h * 0.64, 140, 210, 0.2);   // S. America
+        drawShelf(w * 0.54, h * 0.50, 190, 230, -0.1);  // Africa
+        drawShelf(w * 0.65, h * 0.32, 400, 200, 0.05);  // Eurasia
+        drawShelf(w * 0.82, h * 0.66, 140, 100, 0.1);   // Australia
+        drawShelf(w * 0.76, h * 0.42, 150, 130, 0.1);   // SE Asia / Vietnam
 
-      // Atmosphere Cloud Swirls
-      cctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-      for (let i = 0; i < 40; i++) {
-        const cxPos = (i * 27) % w;
-        const cyPos = 60 + (i * 11) % (h - 120);
-        cctx.beginPath();
-        cctx.ellipse(cxPos, cyPos, 60 + (i % 5) * 15, 12 + (i % 3) * 6, (i % 4) * 0.5, 0, Math.PI * 2);
-        cctx.fill();
-      }
-      const crustTex = new THREE.CanvasTexture(crustCanvas);
+        // North America (Vegetation, Tundra, Rockies, Desert)
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath();
+        ctx.moveTo(w * 0.10, h * 0.18); ctx.lineTo(w * 0.22, h * 0.14);
+        ctx.lineTo(w * 0.30, h * 0.22); ctx.lineTo(w * 0.31, h * 0.34);
+        ctx.lineTo(w * 0.28, h * 0.42); ctx.lineTo(w * 0.24, h * 0.48);
+        ctx.lineTo(w * 0.20, h * 0.52); ctx.lineTo(w * 0.15, h * 0.40);
+        ctx.lineTo(w * 0.09, h * 0.28); ctx.closePath(); ctx.fill();
 
-      // Radial Cross-Section Texture matching earth_3d_ref.png cutaway diagram
-      const capCanvas = document.createElement('canvas');
-      capCanvas.width = 1024; capCanvas.height = 1024;
-      const capCtx = capCanvas.getContext('2d');
-      const cx = 512, cy = 512;
+        // Rocky Mountains
+        ctx.fillStyle = '#78716c';
+        ctx.beginPath(); ctx.ellipse(w * 0.16, h * 0.32, 30, 100, -0.3, 0, Math.PI * 2); ctx.fill();
 
-      // Outer Crust Rim
-      capCtx.fillStyle = '#0284c7';
-      capCtx.beginPath(); capCtx.arc(cx, cy, 498, 0, Math.PI * 2); capCtx.fill();
+        // South America (Amazon Rainforest, Andes, Pampas)
+        ctx.fillStyle = '#14532d';
+        ctx.beginPath();
+        ctx.moveTo(w * 0.22, h * 0.51); ctx.lineTo(w * 0.35, h * 0.54);
+        ctx.lineTo(w * 0.32, h * 0.72); ctx.lineTo(w * 0.28, h * 0.88);
+        ctx.lineTo(w * 0.25, h * 0.70); ctx.lineTo(w * 0.22, h * 0.58);
+        ctx.closePath(); ctx.fill();
 
-      // Mantle Layer (Upper + Lower Mantle) - Intense Radial Magma
-      const mantleGrad = capCtx.createRadialGradient(cx, cy, 235, cx, cy, 490);
-      mantleGrad.addColorStop(0, '#f97316'); mantleGrad.addColorStop(0.4, '#ea580c'); mantleGrad.addColorStop(0.8, '#dc2626'); mantleGrad.addColorStop(1, '#9a3412');
-      capCtx.fillStyle = mantleGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.fill();
+        // Andes Mountains
+        ctx.fillStyle = '#57534e';
+        ctx.beginPath(); ctx.ellipse(w * 0.25, h * 0.70, 16, 170, 0.1, 0, Math.PI * 2); ctx.fill();
 
-      // Magma Radial Streaks
-      for (let angle = 0; angle < Math.PI * 2; angle += 0.008) {
-        const innerR = 235 + Math.random() * 8;
-        const outerR = 490 - Math.random() * 8;
-        capCtx.strokeStyle = Math.random() > 0.4 ? '#fde047' : (Math.random() > 0.2 ? '#f97316' : '#991b1b');
-        capCtx.lineWidth = Math.random() * 2.5 + 0.8;
-        capCtx.beginPath(); capCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
-        capCtx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR); capCtx.stroke();
-      }
+        // Africa (Sahara Desert Gold, Congo Rainforest)
+        ctx.fillStyle = '#d97706'; // Sahara
+        ctx.beginPath();
+        ctx.moveTo(w * 0.42, h * 0.32); ctx.lineTo(w * 0.58, h * 0.32);
+        ctx.lineTo(w * 0.60, h * 0.44); ctx.lineTo(w * 0.52, h * 0.78);
+        ctx.lineTo(w * 0.45, h * 0.60); ctx.lineTo(w * 0.40, h * 0.42);
+        ctx.closePath(); ctx.fill();
 
-      // Outer Core Layer - Molten Liquid Metal (Golden Yellow to Orange)
-      const ocGrad = capCtx.createRadialGradient(cx, cy, 140, cx, cy, 235);
-      ocGrad.addColorStop(0, '#fef08a'); ocGrad.addColorStop(0.6, '#f59e0b'); ocGrad.addColorStop(1, '#d97706');
-      capCtx.fillStyle = ocGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 235, 0, Math.PI * 2); capCtx.fill();
+        ctx.fillStyle = '#15803d'; // Congo basin
+        ctx.beginPath(); ctx.ellipse(w * 0.51, h * 0.55, 70, 60, 0, 0, Math.PI * 2); ctx.fill();
 
-      for (let angle = 0; angle < Math.PI * 2; angle += 0.012) {
-        const innerR = 140 + Math.random() * 4;
-        const outerR = 235 - Math.random() * 4;
-        capCtx.strokeStyle = Math.random() > 0.5 ? '#ffffff' : '#fbbf24';
-        capCtx.lineWidth = Math.random() * 2 + 0.5;
-        capCtx.beginPath(); capCtx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
-        capCtx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR); capCtx.stroke();
-      }
+        ctx.fillStyle = '#166534'; // Madagascar
+        ctx.beginPath(); ctx.ellipse(w * 0.62, h * 0.68, 15, 42, -0.3, 0, Math.PI * 2); ctx.fill();
 
-      // Inner Core - Solid Dense White-Yellow Metallic Sphere
-      const icGrad = capCtx.createRadialGradient(cx, cy, 0, cx, cy, 140);
-      icGrad.addColorStop(0, '#ffffff'); icGrad.addColorStop(0.5, '#fef08a'); icGrad.addColorStop(1, '#eab308');
-      capCtx.fillStyle = icGrad; capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.fill();
+        // Eurasia (Europe, Siberia, Arabia, Himalayas, India, China, SE Asia, Vietnam)
+        ctx.fillStyle = '#166534';
+        ctx.beginPath();
+        ctx.moveTo(w * 0.42, h * 0.28); ctx.lineTo(w * 0.48, h * 0.15);
+        ctx.lineTo(w * 0.75, h * 0.12); ctx.lineTo(w * 0.88, h * 0.22);
+        ctx.lineTo(w * 0.85, h * 0.38); ctx.lineTo(w * 0.78, h * 0.45);
+        ctx.lineTo(w * 0.70, h * 0.44); ctx.lineTo(w * 0.62, h * 0.35);
+        ctx.lineTo(w * 0.52, h * 0.35); ctx.closePath(); ctx.fill();
 
-      // Concentric Border Rings
-      capCtx.strokeStyle = '#ffffff'; capCtx.lineWidth = 3;
-      capCtx.beginPath(); capCtx.arc(cx, cy, 490, 0, Math.PI * 2); capCtx.stroke();
-      capCtx.beginPath(); capCtx.arc(cx, cy, 235, 0, Math.PI * 2); capCtx.stroke();
-      capCtx.beginPath(); capCtx.arc(cx, cy, 140, 0, Math.PI * 2); capCtx.stroke();
+        // Arabia Desert
+        ctx.fillStyle = '#eab308';
+        ctx.beginPath(); ctx.ellipse(w * 0.60, h * 0.40, 50, 40, 0.2, 0, Math.PI * 2); ctx.fill();
 
-      const capTex = new THREE.CanvasTexture(capCanvas);
+        // Himalayas Snow & High Plateau
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath(); ctx.ellipse(w * 0.72, h * 0.35, 65, 20, -0.05, 0, Math.PI * 2); ctx.fill();
+
+        // Vietnam S-shaped Coastline & Indochina Peninsula
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath();
+        ctx.moveTo(w * 0.76, h * 0.40);
+        ctx.quadraticCurveTo(w * 0.78, h * 0.44, w * 0.77, h * 0.48);
+        ctx.quadraticCurveTo(w * 0.76, h * 0.52, w * 0.75, h * 0.54);
+        ctx.lineTo(w * 0.74, h * 0.48); ctx.closePath(); ctx.fill();
+
+        // Archipelago Islands (Japan, Philippines, Indonesia)
+        const drawIsland = (ix, iy, rx, ry, col = '#15803d') => {
+          ctx.fillStyle = col; ctx.beginPath();
+          ctx.ellipse(ix * w, iy * h, rx, ry, 0.3, 0, Math.PI * 2); ctx.fill();
+        };
+        drawIsland(0.86, 0.30, 8, 28);  // Japan Honshu
+        drawIsland(0.87, 0.26, 6, 16);  // Hokkaido
+        drawIsland(0.79, 0.54, 24, 8);  // Sumatra
+        drawIsland(0.82, 0.56, 28, 9);  // Java
+        drawIsland(0.83, 0.50, 20, 20); // Borneo
+        drawIsland(0.81, 0.47, 10, 16); // Philippines
+
+        // Australia (Outback Red & East Coast Green)
+        ctx.fillStyle = '#c2410c';
+        ctx.beginPath(); ctx.ellipse(w * 0.83, h * 0.68, 90, 60, 0.05, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#15803d';
+        ctx.beginPath(); ctx.ellipse(w * 0.87, h * 0.68, 22, 50, 0.1, 0, Math.PI * 2); ctx.fill();
+
+        // Polar Ice Caps
+        const iceSouth = ctx.createLinearGradient(0, h * 0.84, 0, h);
+        iceSouth.addColorStop(0, 'rgba(248, 250, 252, 0.1)');
+        iceSouth.addColorStop(0.3, '#f1f5f9'); iceSouth.addColorStop(1, '#ffffff');
+        ctx.fillStyle = iceSouth; ctx.fillRect(0, h * 0.84, w, h * 0.16);
+
+        const iceNorth = ctx.createLinearGradient(0, 0, 0, h * 0.14);
+        iceNorth.addColorStop(0, '#ffffff'); iceNorth.addColorStop(0.7, '#f1f5f9');
+        iceNorth.addColorStop(1, 'rgba(248, 250, 252, 0.1)');
+        ctx.fillStyle = iceNorth; ctx.fillRect(0, 0, w, h * 0.14);
+
+        // Cloud Cover Layer (Swirled Bands)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.58)';
+        for (let i = 0; i < 50; i++) {
+          const cxPos = (i * 41) % w;
+          const cyPos = h * 0.15 + (i * 17) % (h * 0.70);
+          ctx.save(); ctx.translate(cxPos, cyPos); ctx.rotate((i % 5) * 0.2);
+          ctx.beginPath(); ctx.ellipse(0, 0, 70 + (i % 6) * 20, 12 + (i % 3) * 6, 0, 0, Math.PI * 2);
+          ctx.fill(); ctx.restore();
+        }
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      // 3. High-Resolution Radial Cross-Section Cap Texture (2048x2048)
+      const createPhotorealisticCapTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 2048; canvas.height = 2048;
+        const ctx = canvas.getContext('2d');
+        const cx = 1024, cy = 1024;
+        const maxR = 1000;
+
+        ctx.clearRect(0, 0, 2048, 2048);
+
+        // Outer Crust Rim (0 - 70km)
+        ctx.fillStyle = '#0284c7';
+        ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI * 2); ctx.fill();
+
+        // Upper Mantle (70 - 660km depth) - Glowing Convective Magma
+        const umGrad = ctx.createRadialGradient(cx, cy, 840, cx, cy, 960);
+        umGrad.addColorStop(0.0, '#ea580c'); umGrad.addColorStop(0.5, '#f97316'); umGrad.addColorStop(1.0, '#ca8a04');
+        ctx.fillStyle = umGrad; ctx.beginPath(); ctx.arc(cx, cy, 960, 0, Math.PI * 2); ctx.fill();
+
+        ctx.lineWidth = 3.5;
+        for (let a = 0; a < Math.PI * 2; a += 0.015) {
+          const r1 = 845 + Math.random() * 10; const r2 = 955 - Math.random() * 10;
+          ctx.strokeStyle = Math.random() > 0.5 ? '#fef08a' : '#f97316';
+          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+        }
+
+        // Lower Mantle (660 - 2,900km depth) - Deep Fiery Mineral Mantle
+        const lmGrad = ctx.createRadialGradient(cx, cy, 510, cx, cy, 840);
+        lmGrad.addColorStop(0.0, '#991b1b'); lmGrad.addColorStop(0.5, '#dc2626'); lmGrad.addColorStop(1.0, '#ea580c');
+        ctx.fillStyle = lmGrad; ctx.beginPath(); ctx.arc(cx, cy, 840, 0, Math.PI * 2); ctx.fill();
+
+        ctx.lineWidth = 2.0;
+        for (let a = 0; a < Math.PI * 2; a += 0.01) {
+          const r1 = 515 + Math.random() * 15; const r2 = 835 - Math.random() * 15;
+          ctx.strokeStyle = Math.random() > 0.6 ? '#fca5a5' : '#b91c1c';
+          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+        }
+
+        // Outer Core (2,900 - 5,100km depth) - Liquid Iron-Nickel Shimmer
+        const ocGrad = ctx.createRadialGradient(cx, cy, 310, cx, cy, 510);
+        ocGrad.addColorStop(0.0, '#fef08a'); ocGrad.addColorStop(0.5, '#f59e0b'); ocGrad.addColorStop(1.0, '#d97706');
+        ctx.fillStyle = ocGrad; ctx.beginPath(); ctx.arc(cx, cy, 510, 0, Math.PI * 2); ctx.fill();
+
+        ctx.lineWidth = 2.5;
+        for (let a = 0; a < Math.PI * 2; a += 0.012) {
+          const r1 = 315 + Math.random() * 8; const r2 = 505 - Math.random() * 8;
+          ctx.strokeStyle = Math.random() > 0.4 ? '#ffffff' : '#fbbf24';
+          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+        }
+
+        // Inner Core (5,100 - 6,371km depth) - Solid Metallic Crystal Core
+        const icGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 310);
+        icGrad.addColorStop(0.0, '#ffffff'); icGrad.addColorStop(0.4, '#fffbe5');
+        icGrad.addColorStop(0.8, '#fef08a'); icGrad.addColorStop(1.0, '#eab308');
+        ctx.fillStyle = icGrad; ctx.beginPath(); ctx.arc(cx, cy, 310, 0, Math.PI * 2); ctx.fill();
+
+        // Crisp White Concentric Boundary Rings
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+        [960, 840, 510, 310].forEach(r => {
+          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+        });
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      const crustTex = createPhotorealisticEarthTexture();
+      const capTex = createPhotorealisticCapTexture();
 
       const earthGroup = new THREE.Group();
       scene.add(earthGroup);
 
-      const phiLen = Math.PI * 1.55;
+      const phiLen = sliceModeRef.current === 'cut180' ? Math.PI : (sliceModeRef.current === 'full' ? Math.PI * 2 : Math.PI * 1.5);
 
+      // 1. Crust Layer (Radius 2.65)
       const crustGeo = new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI);
-      const crustMat = new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.4, side: THREE.DoubleSide });
+      const crustMat = new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.35, metalness: 0.1, side: THREE.FrontSide });
       const crustMesh = new THREE.Mesh(crustGeo, crustMat);
       crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
       earthGroup.add(crustMesh);
 
-      const atmosGeo = new THREE.SphereGeometry(2.74, 32, 32);
-      const atmosMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.25, side: THREE.BackSide, blending: THREE.AdditiveBlending });
+      // 2. Atmosphere Shell (Radius 2.72)
+      const atmosGeo = new THREE.SphereGeometry(2.72, 64, 64, 0, phiLen, 0, Math.PI);
+      const atmosMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.22, side: THREE.BackSide, blending: THREE.AdditiveBlending });
       const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
       earthGroup.add(atmosMesh);
 
-      const umGeo = new THREE.SphereGeometry(2.25, 64, 64, 0, phiLen, 0, Math.PI);
-      const umMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 0.35, roughness: 0.4, side: THREE.DoubleSide });
+      // 3. Upper Mantle (Radius 2.35)
+      const umGeo = new THREE.SphereGeometry(2.35, 64, 64, 0, phiLen, 0, Math.PI);
+      const umMat = new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xea580c, emissiveIntensity: 0.4, roughness: 0.3, side: THREE.FrontSide });
       const umMesh = new THREE.Mesh(umGeo, umMat);
       umMesh.userData = { key: 'upperMantle', name: 'Manti trên' };
       earthGroup.add(umMesh);
 
-      const lmGeo = new THREE.SphereGeometry(1.75, 64, 64, 0, phiLen, 0, Math.PI);
-      const lmMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xdc2626, emissiveIntensity: 0.4, roughness: 0.35, side: THREE.DoubleSide });
+      // 4. Lower Mantle (Radius 1.85)
+      const lmGeo = new THREE.SphereGeometry(1.85, 64, 64, 0, phiLen, 0, Math.PI);
+      const lmMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.45, roughness: 0.25, side: THREE.FrontSide });
       const lmMesh = new THREE.Mesh(lmGeo, lmMat);
       lmMesh.userData = { key: 'lowerMantle', name: 'Manti dưới' };
       earthGroup.add(lmMesh);
 
-      const ocGeo = new THREE.SphereGeometry(1.25, 64, 64, 0, phiLen, 0, Math.PI);
-      const ocMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.6, side: THREE.DoubleSide });
+      // 5. Outer Core (Radius 1.35)
+      const ocGeo = new THREE.SphereGeometry(1.35, 64, 64, 0, phiLen, 0, Math.PI);
+      const ocMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.55, roughness: 0.2, metalness: 0.7, side: THREE.FrontSide });
       const ocMesh = new THREE.Mesh(ocGeo, ocMat);
       ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
       earthGroup.add(ocMesh);
 
-      const icGeo = new THREE.SphereGeometry(0.75, 48, 48);
-      const icMat = new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xca8a04, emissiveIntensity: 0.85, roughness: 0.2, metalness: 0.85 });
+      // 6. Inner Core (Radius 0.85) - Solid Sphere
+      const icGeo = new THREE.SphereGeometry(0.85, 48, 48);
+      const icMat = new THREE.MeshStandardMaterial({ color: 0xfffbe5, emissive: 0xfef08a, emissiveIntensity: 0.9, roughness: 0.15, metalness: 0.9 });
       const icMesh = new THREE.Mesh(icGeo, icMat);
       icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
       earthGroup.add(icMesh);
 
-      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.35 });
-      const capGeo1 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
+      // 7. Precise Cutaway Cap Planes
+      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.3 });
+
+      const capGeo1 = new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI);
       const capMesh1 = new THREE.Mesh(capGeo1, capMat);
-      capMesh1.rotation.y = Math.PI / 2;
+      capMesh1.rotation.set(0, 0, 0); // Face 1 lies on z = 0 plane facing +Z
       earthGroup.add(capMesh1);
-      const capGeo2 = new THREE.CircleGeometry(2.65, 64, 0, Math.PI);
+
+      const capGeo2 = new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI);
       const capMesh2 = new THREE.Mesh(capGeo2, capMat);
-      capMesh2.rotation.y = Math.PI * 1.55;
+      capMesh2.rotation.set(0, Math.PI / 2, 0); // Face 2 lies on x = 0 plane facing +X
       earthGroup.add(capMesh2);
+
       capMeshesRef.current = [capMesh1, capMesh2];
 
       layerMeshesRef.current = { crust: crustMesh, upperMantle: umMesh, lowerMantle: lmMesh, outerCore: ocMesh, innerCore: icMesh };
@@ -5429,7 +5562,7 @@ function GeoEarthStructureSim({ onLog }) {
             icM.position.x = 0; icM.position.z = 0;
 
             capMeshesRef.current.forEach(m => {
-              if (m) m.visible = !isExplodedRef.current && sliceModeRef.current === 'cut90';
+              if (m) m.visible = !isExplodedRef.current && sliceModeRef.current !== 'full';
             });
           }
 
@@ -5522,7 +5655,7 @@ function GeoEarthStructureSim({ onLog }) {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Radial dark background
+      // Radial dark space background
       const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(w, h));
       bgGrad.addColorStop(0, '#091a2f'); bgGrad.addColorStop(1, '#030712');
       ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
