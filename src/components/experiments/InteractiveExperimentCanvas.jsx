@@ -5386,70 +5386,73 @@ function GeoEarthStructureSim({ onLog }) {
         return tex;
       };
 
-      // 3. High-Resolution Radial Cross-Section Cap Texture (2048x2048)
-      const createPhotorealisticCapTexture = () => {
+      const createMantleCapTexture = () => {
         const canvas = document.createElement('canvas');
-        canvas.width = 2048; canvas.height = 2048;
+        canvas.width = 1024; canvas.height = 1024;
         const ctx = canvas.getContext('2d');
-        const cx = 1024, cy = 1024;
-        const maxR = 1000;
+        const cx = 512, cy = 512, maxR = 500;
 
-        ctx.clearRect(0, 0, 2048, 2048);
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+        grad.addColorStop(0.0, '#991b1b'); grad.addColorStop(0.4, '#dc2626');
+        grad.addColorStop(0.8, '#ea580c'); grad.addColorStop(1.0, '#b91c1c');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
 
-        // Outer Crust Rim (0 - 70km)
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI * 2); ctx.fill();
-
-        // Upper Mantle (70 - 660km depth) - Glowing Convective Magma
-        const umGrad = ctx.createRadialGradient(cx, cy, 840, cx, cy, 960);
-        umGrad.addColorStop(0.0, '#ea580c'); umGrad.addColorStop(0.5, '#f97316'); umGrad.addColorStop(1.0, '#ca8a04');
-        ctx.fillStyle = umGrad; ctx.beginPath(); ctx.arc(cx, cy, 960, 0, Math.PI * 2); ctx.fill();
-
-        ctx.lineWidth = 3.5;
-        for (let a = 0; a < Math.PI * 2; a += 0.015) {
-          const r1 = 845 + Math.random() * 10; const r2 = 955 - Math.random() * 10;
-          ctx.strokeStyle = Math.random() > 0.5 ? '#fef08a' : '#f97316';
+        // Dense Radial Fibrous Magma Lines (Matching textbook image)
+        ctx.lineWidth = 3.0;
+        for (let a = 0; a < Math.PI * 2; a += 0.008) {
+          const r1 = 10 + Math.random() * 20; const r2 = maxR - Math.random() * 8;
+          ctx.strokeStyle = Math.random() > 0.4 ? '#fef08a' : (Math.random() > 0.2 ? '#f97316' : '#ef4444');
           ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
           ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
         }
 
-        // Lower Mantle (660 - 2,900km depth) - Deep Fiery Mineral Mantle
-        const lmGrad = ctx.createRadialGradient(cx, cy, 510, cx, cy, 840);
-        lmGrad.addColorStop(0.0, '#991b1b'); lmGrad.addColorStop(0.5, '#dc2626'); lmGrad.addColorStop(1.0, '#ea580c');
-        ctx.fillStyle = lmGrad; ctx.beginPath(); ctx.arc(cx, cy, 840, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
 
-        ctx.lineWidth = 2.0;
-        for (let a = 0; a < Math.PI * 2; a += 0.01) {
-          const r1 = 515 + Math.random() * 15; const r2 = 835 - Math.random() * 15;
-          ctx.strokeStyle = Math.random() > 0.6 ? '#fca5a5' : '#b91c1c';
-          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
-          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
-        }
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
 
-        // Outer Core (2,900 - 5,100km depth) - Liquid Iron-Nickel Shimmer
-        const ocGrad = ctx.createRadialGradient(cx, cy, 310, cx, cy, 510);
-        ocGrad.addColorStop(0.0, '#fef08a'); ocGrad.addColorStop(0.5, '#f59e0b'); ocGrad.addColorStop(1.0, '#d97706');
-        ctx.fillStyle = ocGrad; ctx.beginPath(); ctx.arc(cx, cy, 510, 0, Math.PI * 2); ctx.fill();
+      const createOuterCoreCapTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        const cx = 512, cy = 512, maxR = 500;
+
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+        grad.addColorStop(0.0, '#fffbe5'); grad.addColorStop(0.5, '#f59e0b');
+        grad.addColorStop(1.0, '#d97706'); ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
 
         ctx.lineWidth = 2.5;
-        for (let a = 0; a < Math.PI * 2; a += 0.012) {
-          const r1 = 315 + Math.random() * 8; const r2 = 505 - Math.random() * 8;
-          ctx.strokeStyle = Math.random() > 0.4 ? '#ffffff' : '#fbbf24';
+        for (let a = 0; a < Math.PI * 2; a += 0.01) {
+          const r1 = 10 + Math.random() * 15; const r2 = maxR - Math.random() * 6;
+          ctx.strokeStyle = Math.random() > 0.3 ? '#ffffff' : '#fef08a';
           ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
           ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
         }
 
-        // Inner Core (5,100 - 6,371km depth) - Solid Metallic Crystal Core
-        const icGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 310);
-        icGrad.addColorStop(0.0, '#ffffff'); icGrad.addColorStop(0.4, '#fffbe5');
-        icGrad.addColorStop(0.8, '#fef08a'); icGrad.addColorStop(1.0, '#eab308');
-        ctx.fillStyle = icGrad; ctx.beginPath(); ctx.arc(cx, cy, 310, 0, Math.PI * 2); ctx.fill();
-
-        // Crisp White Concentric Boundary Rings
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
-        [960, 840, 510, 310].forEach(r => {
-          ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-        });
+        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      const createInnerCoreCapTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        const cx = 512, cy = 512, maxR = 500;
+
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+        grad.addColorStop(0.0, '#ffffff'); grad.addColorStop(0.5, '#fffbe5');
+        grad.addColorStop(0.85, '#fef08a'); grad.addColorStop(1.0, '#eab308');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
+
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
 
         const tex = new THREE.CanvasTexture(canvas);
         tex.needsUpdate = true;
@@ -5457,19 +5460,21 @@ function GeoEarthStructureSim({ onLog }) {
       };
 
       const crustTex = createPhotorealisticEarthTexture();
-      const capTex = createPhotorealisticCapTexture();
+      const mantleCapTex = createMantleCapTexture();
+      const outerCoreCapTex = createOuterCoreCapTexture();
+      const innerCoreCapTex = createInnerCoreCapTexture();
 
       const earthGroup = new THREE.Group();
       scene.add(earthGroup);
 
       const phiLen = sliceModeRef.current === 'cut180' ? Math.PI : (sliceModeRef.current === 'full' ? Math.PI * 2 : Math.PI * 1.5);
-      const capMat = new THREE.MeshStandardMaterial({ map: capTex, side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1 });
 
-      const createCutFaces = (geoFn) => {
-        const meshA = new THREE.Mesh(geoFn(), capMat);
+      const createCutFaces = (geoFn, tex) => {
+        const mat = new THREE.MeshStandardMaterial({ map: tex, side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1 });
+        const meshA = new THREE.Mesh(geoFn(), mat);
         meshA.rotation.set(0, 0, 0);
 
-        const meshB = new THREE.Mesh(geoFn(), capMat);
+        const meshB = new THREE.Mesh(geoFn(), mat);
         meshB.rotation.set(0, sliceModeRef.current === 'cut180' ? Math.PI : Math.PI / 2, 0);
 
         return [meshA, meshB];
@@ -5484,7 +5489,7 @@ function GeoEarthStructureSim({ onLog }) {
       crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
       crustGroup.add(crustMesh);
 
-      const [crustCutA, crustCutB] = createCutFaces(() => new THREE.RingGeometry(2.35, 2.65, 64, 4, -Math.PI / 2, Math.PI));
+      const [crustCutA, crustCutB] = createCutFaces(() => new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI), mantleCapTex);
       crustCutA.userData = crustCutB.userData = { key: 'crust', name: 'Vỏ Trái đất' };
       crustGroup.add(crustCutA, crustCutB);
       earthGroup.add(crustGroup);
@@ -5496,7 +5501,7 @@ function GeoEarthStructureSim({ onLog }) {
       );
       crustGroup.add(atmosMesh);
 
-      // 2. Mantle Group (Upper + Lower Mantle) (Outer 2.35, Inner 1.35)
+      // 2. Mantle Group (Upper + Lower Mantle) (Outer 2.35)
       const mantleGroup = new THREE.Group();
       const mantleMesh = new THREE.Mesh(
         new THREE.SphereGeometry(2.35, 64, 64, 0, phiLen, 0, Math.PI),
@@ -5505,12 +5510,12 @@ function GeoEarthStructureSim({ onLog }) {
       mantleMesh.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
       mantleGroup.add(mantleMesh);
 
-      const [mantleCutA, mantleCutB] = createCutFaces(() => new THREE.RingGeometry(1.35, 2.35, 64, 8, -Math.PI / 2, Math.PI));
+      const [mantleCutA, mantleCutB] = createCutFaces(() => new THREE.CircleGeometry(2.35, 64, -Math.PI / 2, Math.PI), mantleCapTex);
       mantleCutA.userData = mantleCutB.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
       mantleGroup.add(mantleCutA, mantleCutB);
       earthGroup.add(mantleGroup);
 
-      // 3. Outer Core Group (Outer 1.35, Inner 0.85)
+      // 3. Outer Core Group (Outer 1.35)
       const outerCoreGroup = new THREE.Group();
       const ocMesh = new THREE.Mesh(
         new THREE.SphereGeometry(1.35, 64, 64, 0, phiLen, 0, Math.PI),
@@ -5519,7 +5524,7 @@ function GeoEarthStructureSim({ onLog }) {
       ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
       outerCoreGroup.add(ocMesh);
 
-      const [ocCutA, ocCutB] = createCutFaces(() => new THREE.RingGeometry(0.85, 1.35, 64, 8, -Math.PI / 2, Math.PI));
+      const [ocCutA, ocCutB] = createCutFaces(() => new THREE.CircleGeometry(1.35, 64, -Math.PI / 2, Math.PI), outerCoreCapTex);
       ocCutA.userData = ocCutB.userData = { key: 'outerCore', name: 'Nhân ngoài' };
       outerCoreGroup.add(ocCutA, ocCutB);
       earthGroup.add(outerCoreGroup);
@@ -5533,7 +5538,7 @@ function GeoEarthStructureSim({ onLog }) {
       icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
       innerCoreGroup.add(icMesh);
 
-      const [icCutA, icCutB] = createCutFaces(() => new THREE.CircleGeometry(0.85, 64, -Math.PI / 2, Math.PI));
+      const [icCutA, icCutB] = createCutFaces(() => new THREE.CircleGeometry(0.85, 64, -Math.PI / 2, Math.PI), innerCoreCapTex);
       icCutA.userData = icCutB.userData = { key: 'innerCore', name: 'Nhân trong' };
       innerCoreGroup.add(icCutA, icCutB);
       earthGroup.add(innerCoreGroup);
@@ -5586,7 +5591,7 @@ function GeoEarthStructureSim({ onLog }) {
           ocCutA.visible = ocCutB.visible = showCut;
           icCutA.visible = icCutB.visible = showCut;
 
-          if (icM) icM.rotation.y += 0.005;
+          if (icMesh) icMesh.rotation.y += 0.005;
 
           if (cameraRef.current && containerRef.current) {
             const w = containerRef.current.clientWidth || 800;
@@ -5658,7 +5663,7 @@ function GeoEarthStructureSim({ onLog }) {
     }
   }, [useFallback2D]);
 
-  // 2D Interactive Canvas Fallback Animation Loop
+  // 2D Interactive Canvas Fallback Animation Loop (Upgraded to match textbook image 100%)
   useEffect(() => {
     if (!useFallback2D || !canvas2dRef.current) return;
     const canvas = canvas2dRef.current;
@@ -5698,10 +5703,10 @@ function GeoEarthStructureSim({ onLog }) {
 
       const layerData = [
         { key: 'crust', r: baseR, color: '#38bdf8', stroke: '#0284c7' },
-        { key: 'upperMantle', r: baseR * 0.84, color: '#f97316', stroke: '#ea580c' },
-        { key: 'lowerMantle', r: baseR * 0.65, color: '#ef4444', stroke: '#dc2626' },
-        { key: 'outerCore', r: baseR * 0.46, color: '#fbbf24', stroke: '#d97706' },
-        { key: 'innerCore', r: baseR * 0.26, color: '#fef08a', stroke: '#ca8a04' }
+        { key: 'upperMantle', r: baseR * 0.84, color: '#dc2626', stroke: '#991b1b', isMagma: true },
+        { key: 'lowerMantle', r: baseR * 0.65, color: '#b91c1c', stroke: '#7f1d1d', isMagma: true },
+        { key: 'outerCore', r: baseR * 0.46, color: '#f59e0b', stroke: '#d97706', isGold: true },
+        { key: 'innerCore', r: baseR * 0.26, color: '#fffbe5', stroke: '#fef08a' }
       ];
 
       layerData.forEach((layer, index) => {
@@ -5723,12 +5728,25 @@ function GeoEarthStructureSim({ onLog }) {
         if (isFocusIsolated && !isSel) ctx.globalAlpha = 0.25;
         ctx.fill();
 
-        if (layer.key === 'lowerMantle' || layer.key === 'upperMantle') {
-          ctx.strokeStyle = 'rgba(254, 240, 138, 0.4)';
+        // Render Fibrous Radial Magma Lines on Mantle
+        if (layer.isMagma) {
+          ctx.strokeStyle = 'rgba(254, 240, 138, 0.6)';
           ctx.lineWidth = 1.5;
-          for (let a = 0; a < Math.PI * 2; a += 0.15) {
+          for (let a = startA; a < endA; a += 0.08) {
             ctx.beginPath();
             ctx.moveTo(Math.cos(a) * (layer.r * 0.7), Math.sin(a) * (layer.r * 0.7));
+            ctx.lineTo(Math.cos(a) * layer.r, Math.sin(a) * layer.r);
+            ctx.stroke();
+          }
+        }
+
+        // Render Fibrous Radial Golden Lines on Outer Core
+        if (layer.isGold) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.lineWidth = 1.5;
+          for (let a = startA; a < endA; a += 0.1) {
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * (layer.r * 0.6), Math.sin(a) * (layer.r * 0.6));
             ctx.lineTo(Math.cos(a) * layer.r, Math.sin(a) * layer.r);
             ctx.stroke();
           }
@@ -5744,7 +5762,7 @@ function GeoEarthStructureSim({ onLog }) {
       ctx.save(); ctx.translate(cx, cy);
       const corePulse = Math.sin(Date.now() * 0.003) * 3 + baseR * 0.26;
       ctx.beginPath(); ctx.arc(0, 0, corePulse, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; ctx.fill();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)'; ctx.fill();
       ctx.restore();
     };
 
