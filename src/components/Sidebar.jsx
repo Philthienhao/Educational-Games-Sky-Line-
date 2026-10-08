@@ -178,67 +178,67 @@ export function Sidebar({
             </div>
           </div>
 
-          {/* PROMINENT QUICK USER ACCOUNT BANNER WITH ĐỔI PASS BUTTON */}
+          {/* USER ACCOUNT CARD WITH ĐỔI MẬT KHẨU BUTTON BELOW USERNAME */}
           <div style={{
-            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(13, 148, 136, 0.08) 100%)',
-            border: '1.5px solid rgba(2, 132, 199, 0.35)',
+            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(13, 148, 136, 0.06) 100%)',
+            border: '1.5px solid rgba(2, 132, 199, 0.3)',
             borderRadius: '16px',
             padding: '12px 14px',
             marginTop: '12px',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '10px',
-            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.12)'
+            alignItems: 'flex-start',
+            gap: '12px',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.1)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '0.95rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: '0 3px 8px rgba(13, 148, 136, 0.3)'
-              }}>
-                {currentUser?.name?.charAt(0) || '👤'}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: '0.84rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {currentUser?.name || 'Giáo Viên'}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 800 }}>
-                  @{currentUser?.username}
-                </div>
-              </div>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              fontWeight: 900,
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: '0 3px 8px rgba(13, 148, 136, 0.3)',
+              marginTop: '2px'
+            }}>
+              {currentUser?.name?.charAt(0) || '👤'}
             </div>
 
-            <button
-              onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
-              style={{
-                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '10px',
-                padding: '8px 12px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.4)',
-                flexShrink: 0
-              }}
-            >
-              <KeyRound size={15} />
-              <span>Đổi Pass</span>
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
+              <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {currentUser?.name || 'Giáo Viên'}
+              </div>
+              <div style={{ fontSize: '0.74rem', color: '#0284c7', fontWeight: 800 }}>
+                @{currentUser?.username}
+              </div>
+
+              <button
+                onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
+                style={{
+                  marginTop: '6px',
+                  alignSelf: 'flex-start',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '9px',
+                  padding: '5px 11px',
+                  fontSize: '0.74rem',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+                }}
+              >
+                <KeyRound size={13} />
+                <span>Đổi Mật Khẩu</span>
+              </button>
+            </div>
           </div>
         </div>
 

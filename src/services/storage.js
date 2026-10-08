@@ -272,6 +272,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'THPT Hạ Hoà',
     createdAt: '2026-10-07'
+  },
+  {
+    id: 'user_thi_hao',
+    username: 'thihao',
+    password: '123456',
+    name: 'Trần Thị Hảo',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường Tiểu Học Tân Trường',
+    createdAt: '2026-10-08'
   }
 ];
 
