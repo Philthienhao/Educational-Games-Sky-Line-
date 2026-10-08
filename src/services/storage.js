@@ -322,6 +322,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường THCS Phan Chu Trinh',
     createdAt: '2026-10-08'
+  },
+  {
+    id: 'user_dinh_dat',
+    username: 'dinhdat',
+    password: '123456',
+    name: 'Trương Đình Đạt',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường THCS Bạch Hà, Lương Sơn, Nghệ An',
+    createdAt: '2026-10-08'
   }
 ];
 
