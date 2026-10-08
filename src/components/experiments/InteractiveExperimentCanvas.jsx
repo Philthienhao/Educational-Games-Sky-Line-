@@ -5000,28 +5000,22 @@ function GeoWaterCycleSim({ onLog }) {
   );
 }
 
-// 6. Structure of Earth Interior 3D Simulator (Interactive 5-Layer Cutaway Model with 2D Fallback)
+// 6. Structure of Earth Interior 3D Simulator (Photorealistic 4-Layer Exploded Model matching sample image)
 function GeoEarthStructureSim({ onLog }) {
   const containerRef = useRef(null);
   const mount3dRef = useRef(null);
   const canvas2dRef = useRef(null);
-  const tagRefs = useRef({});
 
-  const [themeMode, setThemeMode] = useState('space'); // 'space' or 'sgk'
-  const [activeLayer, setActiveLayer] = useState('crust');
-  const [sliceMode, setSliceMode] = useState('cut90'); // 'cut90', 'cut180', 'full'
-  const [isExploded, setIsExploded] = useState(false);
-  const [isFocusIsolated, setIsFocusIsolated] = useState(false);
-  const [showDetailCard, setShowDetailCard] = useState(true);
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [activeLayer, setActiveLayer] = useState('mantle');
+  const [sliceMode, setSliceMode] = useState('cut180'); // default 'cut180' matching sample image
+  const [isExploded, setIsExploded] = useState(true); // default exploded matching sample image
+  const [autoRotate, setAutoRotate] = useState(false);
   const [hoveredLayerName, setHoveredLayerName] = useState(null);
-  const [showRefModal, setShowRefModal] = useState(false);
   const [useFallback2D, setUseFallback2D] = useState(false);
 
-  const sliceModeRef = useRef(sliceMode);
   const isExplodedRef = useRef(isExploded);
   const autoRotateRef = useRef(autoRotate);
-  sliceModeRef.current = sliceMode;
+  const separationRef = useRef(isExploded ? 1.0 : 0.0);
   isExplodedRef.current = isExploded;
   autoRotateRef.current = autoRotate;
 
@@ -5031,137 +5025,81 @@ function GeoEarthStructureSim({ onLog }) {
     return () => window.removeEventListener('gvd_force_sim_2d_fallback', handleForce2D);
   }, []);
 
-  // 5 Distinct Layers Matching Vietnamese Textbook Standard & Yoobook Video
+  // 4 Core Layers Matching Vietnamese Textbook & Sample Image
   const layersInfo = {
     crust: {
       key: 'crust',
       name: 'Vỏ Trái đất',
       enName: 'Earth Crust',
       depth: '5 - 70 km',
-      thickness: 'Khoảng 5 - 70 km',
-      temp: '0°C - 1.000°C',
-      state: 'Rắn',
-      composition: 'Vỏ lục địa & Vỏ đại dương',
+      thickness: 'Dày từ 5 đến 70 km (Vỏ đại dương ~5-10km, Vỏ lục địa ~35-70km)',
+      temp: 'Nhiệt độ tăng dần theo độ sâu (lên đến ~1.000°C)',
+      state: 'Rắn chắc',
+      composition: 'Đá granit (lục địa) & Đá bazan (đại dương)',
       volume: '< 1% thể tích',
       mass: '< 0.5% khối lượng',
-      desc: 'Là lớp ngoài cùng của Trái đất, trạng thái Rắn, dày khoảng 5 - 70km, gồm Vỏ lục địa và Vỏ đại dương.',
-      details: [
-        'Độ sâu: Khoảng 5 - 70 km',
-        'Trạng thái: Rắn',
-        'Cấu tạo: Vỏ lục địa (dày 35-70km, đá granit nhẹ) và Vỏ đại dương (dày 5-10km, đá basal nặng).',
-        'Là lớp ngoài cùng mỏng nhất nhưng là nơi diễn ra toàn bộ hoạt động sinh sống của con người và sinh vật.'
-      ],
+      desc: 'Là lớp ngoài cùng mỏng nhất của Trái Đất, nơi toàn bộ sự sống, lục địa và đại dương tồn tại. Gồm vỏ lục địa nhẹ và vỏ đại dương nặng.',
       color: '#38bdf8',
-      emissive: '#0284c7',
-      radius: 2.65,
-      anchorPos: new THREE.Vector3(-2.4, 1.4, 0.8)
+      emissive: '#0284c7'
     },
-    upperMantle: {
-      key: 'upperMantle',
-      name: 'Manti trên',
-      enName: 'Upper Mantle',
-      depth: 'Dưới vỏ - 660 km',
-      thickness: 'Khoảng 600 km',
-      temp: '1.000°C - 2.200°C',
-      state: 'Dẻo / Rắn',
-      composition: 'Đá silicat nóng',
-      volume: '~15% thể tích',
-      mass: '~18% khối lượng',
-      desc: 'Nằm ngay dưới vỏ Trái đất, kéo dài đến độ sâu khoảng 660km, chủ yếu là đá silicat nóng, phần lớn ở trạng thái rắn nhưng có thể biến dạng và chuyển động chậm.',
-      details: [
-        'Độ sâu: Nằm ngay dưới vỏ Trái đất, kéo dài đến độ sâu khoảng 660 km',
-        'Trạng thái: Dẻo / Rắn',
-        'Thành phần: Chủ yếu là đá silicat nóng (bao gồm tầng bao mềm Asthenosphere).',
-        'Tính chất: Có thể biến dạng và chuyển động chậm, hình thành các dòng đối lưu magma thúc đẩy sự dịch chuyển mảng kiến tạo.'
-      ],
-      color: '#f97316',
-      emissive: '#ea580c',
-      radius: 2.25,
-      anchorPos: new THREE.Vector3(-2.5, 0.1, 0.6)
-    },
-    lowerMantle: {
-      key: 'lowerMantle',
-      name: 'Manti dưới',
-      enName: 'Lower Mantle',
-      depth: '660 - 2.900 km',
-      thickness: 'Khoảng 2.240 km',
-      temp: '2.200°C - 4.000°C',
-      state: 'Rắn',
-      composition: 'Khoáng vật silicat cao áp',
-      volume: '~67% thể tích',
-      mass: '~49% khối lượng',
-      desc: 'Nằm ở độ sâu khoảng 660 - 2.900 km, nhiệt độ và áp suất rất cao, vật chất chủ yếu ở trạng thái rắn.',
-      details: [
-        'Độ sâu: Nằm ở độ sâu khoảng 660 - 2.900 km',
-        'Trạng thái: Rắn',
-        'Nhiệt độ & Áp suất: Nhiệt độ và áp suất rất cao nén giữ vật chất ở trạng thái rắn nén đặc.',
-        'Chiếm khối lượng và thể tích lớn nhất trong toàn bộ khối vỏ nội tại Trái Đất.'
-      ],
-      color: '#ef4444',
-      emissive: '#dc2626',
-      radius: 1.75,
-      anchorPos: new THREE.Vector3(-2.0, -1.2, 0.7)
+    mantle: {
+      key: 'mantle',
+      name: 'Lớp Bao (Manti)',
+      enName: 'Mantle Layer',
+      depth: 'Dưới vỏ đến 2.900 km',
+      thickness: 'Dày khoảng 2.900 km (chiếm ~84% thể tích Trái Đất)',
+      temp: 'Khoảng 1.000°C - 4.000°C',
+      state: 'Manti trên quánh dẻo, Manti dưới rắn',
+      composition: 'Đá silicat giàu magnesi và sắt (Peridotit nóng chảy)',
+      volume: '~84% thể tích',
+      mass: '~68% khối lượng',
+      desc: 'Lớp trung gian dày nhất. Phần trên quánh dẻo có các dòng đối lưu magma cuộn xoáy làm dịch chuyển các mảng kiến tạo vỏ Trái Đất, gây ra động đất và núi lửa.',
+      color: '#ea580c',
+      emissive: '#c2410c'
     },
     outerCore: {
       key: 'outerCore',
-      name: 'Nhân ngoài',
+      name: 'Nhân ngoài (Lõi ngoài)',
       enName: 'Outer Core',
       depth: '2.900 - 5.100 km',
-      thickness: 'Khoảng 2.200 km',
-      temp: '4.400°C - 5.000°C',
-      state: 'Lỏng',
-      composition: 'Hợp kim Sắt và Niken nóng chảy',
+      thickness: 'Dày khoảng 2.200 - 2.250 km',
+      temp: 'Khoảng 4.400°C - 5.000°C',
+      state: 'Lỏng (kim loại nóng chảy sôi sục)',
+      composition: 'Hợp kim Sắt (Fe) và Niken (Ni) nóng chảy',
       volume: '~15% thể tích',
       mass: '~30% khối lượng',
-      desc: 'Độ sâu khoảng 2.900 - 5.100 km, trạng thái lỏng, gồm hợp kim sắt và niken nóng chảy, chuyển động tạo ra từ trường Trái Đất.',
-      details: [
-        'Độ sâu: Khoảng 2.900 - 5.100 km',
-        'Trạng thái: Lỏng',
-        'Thành phần: Gồm hợp kim sắt và niken nóng chảy sôi sục cuộn xoáy.',
-        'Sự chuyển động của dòng kim loại lỏng sinh ra hiệu ứng Dynamo tạo nên từ trường Trái Đất bảo vệ bầu khí quyển.'
-      ],
+      desc: 'Lớp kim loại lỏng nóng chảy cuộn xoáy liên tục dưới nhiệt độ cực lớn. Dòng kim loại dẫn điện chuyển động sinh ra hiệu ứng dynamo tạo thành Từ trường Trái Đất bảo vệ sự sống.',
       color: '#fbbf24',
-      emissive: '#d97706',
-      radius: 1.25,
-      anchorPos: new THREE.Vector3(1.4, 1.0, 0.8)
+      emissive: '#d97706'
     },
     innerCore: {
       key: 'innerCore',
-      name: 'Nhân trong',
+      name: 'Nhân trong (Lõi trong)',
       enName: 'Inner Core',
-      depth: '5.100 - 6.371 km',
-      thickness: 'Bán kính ~1.271 km',
-      temp: '5.000°C - 6.000°C',
-      state: 'Rắn',
-      composition: 'Sắt và Niken tinh thể nén cực đại',
-      volume: '0.7% thể tích',
-      mass: '1.7% khối lượng',
-      desc: 'Nằm ở trung tâm Trái Đất, chủ yếu gồm sắt và niken, trạng thái rắn do áp suất rất lớn, nhiệt độ khoảng 5.000–6.000°C.',
-      details: [
-        'Độ sâu: Nằm ở trung tâm Trái Đất (5.100 - 6.371 km)',
-        'Trạng thái: Rắn',
-        'Nhiệt độ & Áp suất: Khoảng 5.000 - 6.000°C (tương đương nhiệt độ bề mặt Mặt Trời), áp suất cực đại nén chặt các hạt kim loại.',
-        'Khối cầu kim loại đặc rắn cách nhiệt tại tâm hành tinh.'
-      ],
+      depth: '5.100 - 6.371 km (đến tận tâm Trái Đất)',
+      thickness: 'Bán kính khoảng 1.270 - 1.300 km',
+      temp: 'Khoảng 5.000°C - 6.000°C (nóng như bề mặt Mặt Trời)',
+      state: 'Rắn (do áp suất cực đại nén chặt)',
+      composition: 'Hợp kim Sắt và Niken tinh thể nén đặc',
+      volume: '~0.7% thể tích',
+      mass: '~1.7% khối lượng',
+      desc: 'Khối cầu kim loại đặc rắn tại tâm Trái Đất. Dù nhiệt độ cao tới 6.000°C, áp suất hàng triệu atm đã nén chặt các nguyên tử giữ chúng ở trạng thái rắn hoàn toàn.',
       color: '#fef08a',
-      emissive: '#ca8a04',
-      radius: 0.75,
-      anchorPos: new THREE.Vector3(0.0, -0.2, 1.2)
+      emissive: '#ca8a04'
     }
   };
 
-  const activeInfo = layersInfo[activeLayer] || layersInfo.crust;
+  const activeInfo = layersInfo[activeLayer] || layersInfo.mantle;
 
   const sceneRef = useRef(null);
   const controlsRef = useRef(null);
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
   const layerMeshesRef = useRef({});
-  const capMeshesRef = useRef([]);
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
 
-  // 1. Three.js 3D WebGL Engine Setup (Runs with zero memory leaks)
+  // 1. Three.js 3D WebGL Engine Setup (Matching Sample Image 100%)
   useEffect(() => {
     if (useFallback2D || !mount3dRef.current) return;
     const width = mount3dRef.current.clientWidth || 800;
@@ -5174,8 +5112,9 @@ function GeoEarthStructureSim({ onLog }) {
       scene = new THREE.Scene();
       sceneRef.current = scene;
 
-      camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
-      camera.position.set(3.8, 3.2, 7.8);
+      camera = new THREE.PerspectiveCamera(42, aspect, 0.1, 1000);
+      // Perspective matching sample image: camera viewing from front-right (+X, +Y, +Z)
+      camera.position.set(4.2, 1.8, 6.8);
       cameraRef.current = camera;
 
       try {
@@ -5193,7 +5132,7 @@ function GeoEarthStructureSim({ onLog }) {
       renderer.setSize(width, height);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.3;
+      renderer.toneMappingExposure = 1.35;
       rendererRef.current = renderer;
 
       const handleContextLost = (e) => {
@@ -5211,173 +5150,119 @@ function GeoEarthStructureSim({ onLog }) {
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.minDistance = 3.2;
-      controls.maxDistance = 15;
+      controls.minDistance = 3.0;
+      controls.maxDistance = 16;
+      controls.target.set(0.1, 0, 0);
       controls.autoRotate = autoRotateRef.current;
-      controls.autoRotateSpeed = 1.2;
+      controls.autoRotateSpeed = 1.0;
       controlsRef.current = controls;
 
       // Realistic Space Lighting Setup
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
       scene.add(ambientLight);
 
       const sunLight = new THREE.DirectionalLight(0xffffff, 2.8);
-      sunLight.position.set(12, 10, 8);
+      sunLight.position.set(12, 10, 10);
       scene.add(sunLight);
 
-      const spaceRimLight = new THREE.DirectionalLight(0x38bdf8, 1.4);
-      spaceRimLight.position.set(-10, -8, -10);
+      const spaceRimLight = new THREE.DirectionalLight(0x38bdf8, 1.2);
+      spaceRimLight.position.set(-10, -6, -8);
       scene.add(spaceRimLight);
 
-      const corePointLight = new THREE.PointLight(0xfde047, 5.0, 15);
-      corePointLight.position.set(0, 0, 0);
+      const corePointLight = new THREE.PointLight(0xfef08a, 4.5, 14);
+      corePointLight.position.set(2.6, 0, 0);
       scene.add(corePointLight);
 
       // Deep Space Starfield Background
       const starsGeo = new THREE.BufferGeometry();
       const starCoords = [];
-      for (let i = 0; i < 800; i++) {
+      for (let i = 0; i < 900; i++) {
         starCoords.push(
-          (Math.random() - 0.5) * 90,
-          (Math.random() - 0.5) * 90,
-          (Math.random() - 0.5) * 90
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100
         );
       }
       starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starCoords, 3));
-      const starsMat = new THREE.PointsMaterial({ color: 0xcbd5e1, size: 0.25, transparent: true, opacity: 0.8 });
+      const starsMat = new THREE.PointsMaterial({ color: 0xcbd5e1, size: 0.22, transparent: true, opacity: 0.75 });
       const starField = new THREE.Points(starsGeo, starsMat);
       scene.add(starField);
 
-      // 2. High-Definition Photorealistic Earth Crust Texture (2048x1024 Equirectangular Map)
-      const createPhotorealisticEarthTexture = () => {
+      // ==========================================
+      // TEXTURE GENERATORS MATCHING SAMPLE IMAGE
+      // ==========================================
+
+      // 1. Photorealistic Earth Crust (Americas, Oceans, Swirling Storm Clouds)
+      const createCrustTexture = () => {
         const canvas = document.createElement('canvas');
         canvas.width = 2048; canvas.height = 1024;
         const ctx = canvas.getContext('2d');
         const w = 2048, h = 1024;
 
-        // Deep Abyssal Ocean & Shallow Coastal Waters Gradient
+        // Ocean Gradient
         const oceanGrad = ctx.createLinearGradient(0, 0, 0, h);
         oceanGrad.addColorStop(0.0, '#040d1a');
-        oceanGrad.addColorStop(0.2, '#08203e');
-        oceanGrad.addColorStop(0.5, '#0b2b52');
-        oceanGrad.addColorStop(0.8, '#08203e');
+        oceanGrad.addColorStop(0.25, '#072448');
+        oceanGrad.addColorStop(0.5, '#0b3b6d');
+        oceanGrad.addColorStop(0.75, '#072448');
         oceanGrad.addColorStop(1.0, '#040d1a');
         ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, w, h);
 
-        // Coastal Shelf Turquoise Highlights
-        ctx.fillStyle = 'rgba(2, 132, 199, 0.45)';
+        // Continental Shelf Turquoise Glow (Caribbean, Atlantic, Pacific)
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.4)';
         const drawShelf = (cxPos, cyPos, rx, ry, angle = 0) => {
           ctx.save(); ctx.translate(cxPos, cyPos); ctx.rotate(angle);
           ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
           ctx.restore();
         };
-        drawShelf(w * 0.25, h * 0.35, 250, 150, -0.15); // N. America
-        drawShelf(w * 0.33, h * 0.64, 140, 210, 0.2);   // S. America
-        drawShelf(w * 0.54, h * 0.50, 190, 230, -0.1);  // Africa
-        drawShelf(w * 0.65, h * 0.32, 400, 200, 0.05);  // Eurasia
-        drawShelf(w * 0.82, h * 0.66, 140, 100, 0.1);   // Australia
-        drawShelf(w * 0.76, h * 0.42, 150, 130, 0.1);   // SE Asia / Vietnam
+        drawShelf(w * 0.68, h * 0.36, 260, 160, -0.1); // N. America shelf
+        drawShelf(w * 0.75, h * 0.66, 160, 220, 0.2);  // S. America shelf
 
-        // North America (Vegetation, Tundra, Rockies, Desert)
+        // North America (Greenery, Rockies, Prairies, Deserts)
         ctx.fillStyle = '#15803d';
         ctx.beginPath();
-        ctx.moveTo(w * 0.10, h * 0.18); ctx.lineTo(w * 0.22, h * 0.14);
-        ctx.lineTo(w * 0.30, h * 0.22); ctx.lineTo(w * 0.31, h * 0.34);
-        ctx.lineTo(w * 0.28, h * 0.42); ctx.lineTo(w * 0.24, h * 0.48);
-        ctx.lineTo(w * 0.20, h * 0.52); ctx.lineTo(w * 0.15, h * 0.40);
-        ctx.lineTo(w * 0.09, h * 0.28); ctx.closePath(); ctx.fill();
+        ctx.moveTo(w * 0.52, h * 0.16); ctx.lineTo(w * 0.65, h * 0.12);
+        ctx.lineTo(w * 0.76, h * 0.20); ctx.lineTo(w * 0.78, h * 0.34);
+        ctx.lineTo(w * 0.74, h * 0.44); ctx.lineTo(w * 0.68, h * 0.50);
+        ctx.lineTo(w * 0.64, h * 0.46); ctx.lineTo(w * 0.56, h * 0.38);
+        ctx.lineTo(w * 0.50, h * 0.26); ctx.closePath(); ctx.fill();
 
-        // Rocky Mountains
+        // Rocky Mountains / Desert Southwest
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath(); ctx.ellipse(w * 0.60, h * 0.32, 45, 110, -0.25, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = '#78716c';
-        ctx.beginPath(); ctx.ellipse(w * 0.16, h * 0.32, 30, 100, -0.3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(w * 0.58, h * 0.28, 25, 80, -0.25, 0, Math.PI * 2); ctx.fill();
 
-        // South America (Amazon Rainforest, Andes, Pampas)
+        // South America (Amazon Basin, Andes Mountains)
         ctx.fillStyle = '#14532d';
         ctx.beginPath();
-        ctx.moveTo(w * 0.22, h * 0.51); ctx.lineTo(w * 0.35, h * 0.54);
-        ctx.lineTo(w * 0.32, h * 0.72); ctx.lineTo(w * 0.28, h * 0.88);
-        ctx.lineTo(w * 0.25, h * 0.70); ctx.lineTo(w * 0.22, h * 0.58);
+        ctx.moveTo(w * 0.66, h * 0.52); ctx.lineTo(w * 0.79, h * 0.54);
+        ctx.lineTo(w * 0.77, h * 0.72); ctx.lineTo(w * 0.72, h * 0.88);
+        ctx.lineTo(w * 0.69, h * 0.72); ctx.lineTo(w * 0.65, h * 0.58);
         ctx.closePath(); ctx.fill();
 
-        // Andes Mountains
+        // Andes Mountain Chain
         ctx.fillStyle = '#57534e';
-        ctx.beginPath(); ctx.ellipse(w * 0.25, h * 0.70, 16, 170, 0.1, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(w * 0.68, h * 0.70, 18, 160, 0.1, 0, Math.PI * 2); ctx.fill();
 
-        // Africa (Sahara Desert Gold, Congo Rainforest)
-        ctx.fillStyle = '#d97706'; // Sahara
-        ctx.beginPath();
-        ctx.moveTo(w * 0.42, h * 0.32); ctx.lineTo(w * 0.58, h * 0.32);
-        ctx.lineTo(w * 0.60, h * 0.44); ctx.lineTo(w * 0.52, h * 0.78);
-        ctx.lineTo(w * 0.45, h * 0.60); ctx.lineTo(w * 0.40, h * 0.42);
-        ctx.closePath(); ctx.fill();
-
-        ctx.fillStyle = '#15803d'; // Congo basin
-        ctx.beginPath(); ctx.ellipse(w * 0.51, h * 0.55, 70, 60, 0, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#166534'; // Madagascar
-        ctx.beginPath(); ctx.ellipse(w * 0.62, h * 0.68, 15, 42, -0.3, 0, Math.PI * 2); ctx.fill();
-
-        // Eurasia (Europe, Siberia, Arabia, Himalayas, India, China, SE Asia, Vietnam)
-        ctx.fillStyle = '#166534';
-        ctx.beginPath();
-        ctx.moveTo(w * 0.42, h * 0.28); ctx.lineTo(w * 0.48, h * 0.15);
-        ctx.lineTo(w * 0.75, h * 0.12); ctx.lineTo(w * 0.88, h * 0.22);
-        ctx.lineTo(w * 0.85, h * 0.38); ctx.lineTo(w * 0.78, h * 0.45);
-        ctx.lineTo(w * 0.70, h * 0.44); ctx.lineTo(w * 0.62, h * 0.35);
-        ctx.lineTo(w * 0.52, h * 0.35); ctx.closePath(); ctx.fill();
-
-        // Arabia Desert
-        ctx.fillStyle = '#eab308';
-        ctx.beginPath(); ctx.ellipse(w * 0.60, h * 0.40, 50, 40, 0.2, 0, Math.PI * 2); ctx.fill();
-
-        // Himalayas Snow & High Plateau
-        ctx.fillStyle = '#e2e8f0';
-        ctx.beginPath(); ctx.ellipse(w * 0.72, h * 0.35, 65, 20, -0.05, 0, Math.PI * 2); ctx.fill();
-
-        // Vietnam S-shaped Coastline & Indochina Peninsula
-        ctx.fillStyle = '#15803d';
-        ctx.beginPath();
-        ctx.moveTo(w * 0.76, h * 0.40);
-        ctx.quadraticCurveTo(w * 0.78, h * 0.44, w * 0.77, h * 0.48);
-        ctx.quadraticCurveTo(w * 0.76, h * 0.52, w * 0.75, h * 0.54);
-        ctx.lineTo(w * 0.74, h * 0.48); ctx.closePath(); ctx.fill();
-
-        // Archipelago Islands (Japan, Philippines, Indonesia)
-        const drawIsland = (ix, iy, rx, ry, col = '#15803d') => {
-          ctx.fillStyle = col; ctx.beginPath();
-          ctx.ellipse(ix * w, iy * h, rx, ry, 0.3, 0, Math.PI * 2); ctx.fill();
-        };
-        drawIsland(0.86, 0.30, 8, 28);  // Japan Honshu
-        drawIsland(0.87, 0.26, 6, 16);  // Hokkaido
-        drawIsland(0.79, 0.54, 24, 8);  // Sumatra
-        drawIsland(0.82, 0.56, 28, 9);  // Java
-        drawIsland(0.83, 0.50, 20, 20); // Borneo
-        drawIsland(0.81, 0.47, 10, 16); // Philippines
-
-        // Australia (Outback Red & East Coast Green)
-        ctx.fillStyle = '#c2410c';
-        ctx.beginPath(); ctx.ellipse(w * 0.83, h * 0.68, 90, 60, 0.05, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#15803d';
-        ctx.beginPath(); ctx.ellipse(w * 0.87, h * 0.68, 22, 50, 0.1, 0, Math.PI * 2); ctx.fill();
-
-        // Polar Ice Caps
-        const iceSouth = ctx.createLinearGradient(0, h * 0.84, 0, h);
-        iceSouth.addColorStop(0, 'rgba(248, 250, 252, 0.1)');
-        iceSouth.addColorStop(0.3, '#f1f5f9'); iceSouth.addColorStop(1, '#ffffff');
-        ctx.fillStyle = iceSouth; ctx.fillRect(0, h * 0.84, w, h * 0.16);
-
-        const iceNorth = ctx.createLinearGradient(0, 0, 0, h * 0.14);
+        // Polar Ice
+        const iceNorth = ctx.createLinearGradient(0, 0, 0, h * 0.15);
         iceNorth.addColorStop(0, '#ffffff'); iceNorth.addColorStop(0.7, '#f1f5f9');
-        iceNorth.addColorStop(1, 'rgba(248, 250, 252, 0.1)');
-        ctx.fillStyle = iceNorth; ctx.fillRect(0, 0, w, h * 0.14);
+        iceNorth.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = iceNorth; ctx.fillRect(0, 0, w, h * 0.15);
 
-        // Cloud Cover Layer (Swirled Bands)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.58)';
-        for (let i = 0; i < 50; i++) {
-          const cxPos = (i * 41) % w;
-          const cyPos = h * 0.15 + (i * 17) % (h * 0.70);
-          ctx.save(); ctx.translate(cxPos, cyPos); ctx.rotate((i % 5) * 0.2);
-          ctx.beginPath(); ctx.ellipse(0, 0, 70 + (i % 6) * 20, 12 + (i % 3) * 6, 0, 0, Math.PI * 2);
+        const iceSouth = ctx.createLinearGradient(0, h * 0.85, 0, h);
+        iceSouth.addColorStop(0, 'rgba(255,255,255,0)');
+        iceSouth.addColorStop(0.3, '#f1f5f9'); iceSouth.addColorStop(1, '#ffffff');
+        ctx.fillStyle = iceSouth; ctx.fillRect(0, h * 0.85, w, h * 0.15);
+
+        // Realistic Swirling White Storm Clouds
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+        for (let i = 0; i < 45; i++) {
+          const cxPos = (i * 47) % w;
+          const cyPos = h * 0.15 + (i * 19) % (h * 0.70);
+          ctx.save(); ctx.translate(cxPos, cyPos); ctx.rotate((i % 6) * 0.25);
+          ctx.beginPath(); ctx.ellipse(0, 0, 80 + (i % 5) * 25, 14 + (i % 4) * 6, 0, 0, Math.PI * 2);
           ctx.fill(); ctx.restore();
         }
 
@@ -5386,72 +5271,88 @@ function GeoEarthStructureSim({ onLog }) {
         return tex;
       };
 
-      const createMantleCapTexture = () => {
+      // 2. Mantle Outer Convex Surface (Molten Red Volcanic Rock with Magma Cracks)
+      const createMantleOuterTexture = () => {
         const canvas = document.createElement('canvas');
-        canvas.width = 1024; canvas.height = 1024;
+        canvas.width = 1024; canvas.height = 512;
         const ctx = canvas.getContext('2d');
-        const cx = 512, cy = 512, maxR = 500;
+        const w = 1024, h = 512;
 
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-        grad.addColorStop(0.0, '#991b1b'); grad.addColorStop(0.4, '#dc2626');
-        grad.addColorStop(0.8, '#ea580c'); grad.addColorStop(1.0, '#b91c1c');
-        ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
+        // Dark Volcanic Magma Red Base
+        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+        bgGrad.addColorStop(0.0, '#7f1d1d');
+        bgGrad.addColorStop(0.5, '#dc2626');
+        bgGrad.addColorStop(1.0, '#991b1b');
+        ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
 
-        // Dense Radial Fibrous Magma Lines (Matching textbook image)
-        ctx.lineWidth = 3.0;
-        for (let a = 0; a < Math.PI * 2; a += 0.008) {
-          const r1 = 10 + Math.random() * 20; const r2 = maxR - Math.random() * 8;
-          ctx.strokeStyle = Math.random() > 0.4 ? '#fef08a' : (Math.random() > 0.2 ? '#f97316' : '#ef4444');
-          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
-          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+        // Mottled Basalt Rock Plates & Incandescent Magma Fissures
+        for (let i = 0; i < 180; i++) {
+          const px = Math.random() * w; const py = Math.random() * h;
+          const rad = 20 + Math.random() * 60;
+          ctx.fillStyle = Math.random() > 0.4 ? 'rgba(69, 10, 10, 0.75)' : 'rgba(185, 28, 28, 0.6)';
+          ctx.beginPath(); ctx.arc(px, py, rad, 0, Math.PI * 2); ctx.fill();
         }
 
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
-
-        const tex = new THREE.CanvasTexture(canvas);
-        tex.needsUpdate = true;
-        return tex;
-      };
-
-      const createOuterCoreCapTexture = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1024; canvas.height = 1024;
-        const ctx = canvas.getContext('2d');
-        const cx = 512, cy = 512, maxR = 500;
-
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-        grad.addColorStop(0.0, '#fffbe5'); grad.addColorStop(0.5, '#f59e0b');
-        grad.addColorStop(1.0, '#d97706'); ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
-
-        ctx.lineWidth = 2.5;
-        for (let a = 0; a < Math.PI * 2; a += 0.01) {
-          const r1 = 10 + Math.random() * 15; const r2 = maxR - Math.random() * 6;
-          ctx.strokeStyle = Math.random() > 0.3 ? '#ffffff' : '#fef08a';
-          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
-          ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2); ctx.stroke();
+        // Glowing Yellow-Orange Lava Veins
+        ctx.lineWidth = 1.8;
+        for (let i = 0; i < 60; i++) {
+          ctx.strokeStyle = Math.random() > 0.5 ? '#f97316' : '#fbbf24';
+          ctx.beginPath();
+          let vx = Math.random() * w; let vy = Math.random() * h;
+          ctx.moveTo(vx, vy);
+          for (let step = 0; step < 4; step++) {
+            vx += (Math.random() - 0.5) * 60; vy += (Math.random() - 0.5) * 60;
+            ctx.lineTo(vx, vy);
+          }
+          ctx.stroke();
         }
 
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
-
         const tex = new THREE.CanvasTexture(canvas);
         tex.needsUpdate = true;
         return tex;
       };
 
-      const createInnerCoreCapTexture = () => {
+      // 3. Mantle Cut Face (The Iconic Radial Fibrous Magma Ring from Sample Image)
+      const createMantleCutTexture = () => {
         const canvas = document.createElement('canvas');
         canvas.width = 1024; canvas.height = 1024;
         const ctx = canvas.getContext('2d');
-        const cx = 512, cy = 512, maxR = 500;
+        const cx = 512, cy = 512;
+        const maxR = 500;
+        const minR = 302; // Matches inner hole (1.45 / 2.40 * 500)
 
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
-        grad.addColorStop(0.0, '#ffffff'); grad.addColorStop(0.5, '#fffbe5');
-        grad.addColorStop(0.85, '#fef08a'); grad.addColorStop(1.0, '#eab308');
+        // Radial Background Gradient between minR and maxR
+        const grad = ctx.createRadialGradient(cx, cy, minR - 10, cx, cy, maxR + 5);
+        grad.addColorStop(0.0, '#fef08a'); // inner fire yellow
+        grad.addColorStop(0.12, '#f59e0b'); // fire gold
+        grad.addColorStop(0.35, '#ea580c'); // fiery orange
+        grad.addColorStop(0.70, '#dc2626'); // magma red
+        grad.addColorStop(0.92, '#991b1b'); // deep crimson
+        grad.addColorStop(1.0, '#7f1d1d'); // volcanic crust
         ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
 
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4;
+        // Dense Radial Fibrous Magma Streaks (Over 1400 rays)
+        for (let a = 0; a < Math.PI * 2; a += 0.0045) {
+          const jitterAngle = a + (Math.random() - 0.5) * 0.003;
+          const rStart = minR - 4 + Math.random() * 12;
+          const rEnd = maxR - Math.random() * 8;
+          const cosA = Math.cos(jitterAngle); const sinA = Math.sin(jitterAngle);
+
+          const rnd = Math.random();
+          ctx.strokeStyle = rnd > 0.65 ? '#fef08a' : (rnd > 0.35 ? '#f97316' : (rnd > 0.15 ? '#dc2626' : '#ea580c'));
+          ctx.lineWidth = 1.0 + Math.random() * 2.2;
+          ctx.beginPath();
+          ctx.moveTo(cx + cosA * rStart, cy + sinA * rStart);
+          ctx.lineTo(cx + cosA * rEnd, cy + sinA * rEnd);
+          ctx.stroke();
+        }
+
+        // Inner glowing border ring
+        ctx.strokeStyle = '#fef08a'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, minR, 0, Math.PI * 2); ctx.stroke();
+
+        // Outer volcanic border ring
+        ctx.strokeStyle = '#7f1d1d'; ctx.lineWidth = 4;
         ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
 
         const tex = new THREE.CanvasTexture(canvas);
@@ -5459,99 +5360,234 @@ function GeoEarthStructureSim({ onLog }) {
         return tex;
       };
 
-      const crustTex = createPhotorealisticEarthTexture();
-      const mantleCapTex = createMantleCapTexture();
-      const outerCoreCapTex = createOuterCoreCapTexture();
-      const innerCoreCapTex = createInnerCoreCapTexture();
+      // 4. Outer Core Convex Surface (Pale Molten Golden-Cream Metal)
+      const createOuterCoreOuterTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        const w = 1024, h = 512;
+
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0.0, '#fef3c7');
+        grad.addColorStop(0.5, '#fde047');
+        grad.addColorStop(1.0, '#eab308');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+
+        // Fluid Molten Metal Granules
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        for (let i = 0; i < 200; i++) {
+          ctx.beginPath();
+          ctx.arc(Math.random() * w, Math.random() * h, 8 + Math.random() * 20, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      // 5. Outer Core Cut Face (Radiant Golden-Cream Fibrous Striations)
+      const createOuterCoreCutTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        const cx = 512, cy = 512;
+        const maxR = 500;
+        const minR = 275; // Matches inner hole (0.78 / 1.42 * 500)
+
+        const grad = ctx.createRadialGradient(cx, cy, minR - 10, cx, cy, maxR + 5);
+        grad.addColorStop(0.0, '#ffffff'); // white hot inner
+        grad.addColorStop(0.25, '#fffbe5'); // pale cream
+        grad.addColorStop(0.60, '#fef08a'); // gold cream
+        grad.addColorStop(0.85, '#f59e0b'); // warm gold
+        grad.addColorStop(1.0, '#d97706'); // golden amber
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 1024, 1024);
+
+        // Dense Fibrous Striations (Over 1200 fine golden-cream lines)
+        for (let a = 0; a < Math.PI * 2; a += 0.005) {
+          const jitterAngle = a + (Math.random() - 0.5) * 0.002;
+          const rStart = minR - 3 + Math.random() * 10;
+          const rEnd = maxR - Math.random() * 6;
+          const cosA = Math.cos(jitterAngle); const sinA = Math.sin(jitterAngle);
+
+          const rnd = Math.random();
+          ctx.strokeStyle = rnd > 0.4 ? '#ffffff' : (rnd > 0.2 ? '#fffbe5' : '#fef08a');
+          ctx.lineWidth = 1.0 + Math.random() * 1.8;
+          ctx.beginPath();
+          ctx.moveTo(cx + cosA * rStart, cy + sinA * rStart);
+          ctx.lineTo(cx + cosA * rEnd, cy + sinA * rEnd);
+          ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3.5;
+        ctx.beginPath(); ctx.arc(cx, cy, minR, 0, Math.PI * 2); ctx.stroke();
+
+        ctx.strokeStyle = '#d97706'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(cx, cy, maxR - 2, 0, Math.PI * 2); ctx.stroke();
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      // 6. Inner Core Solid Sphere Texture (Glowing White-Hot Heat Core)
+      const createInnerCoreTexture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024; canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        const w = 1024, h = 512;
+
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0.0, '#ffffff');
+        grad.addColorStop(0.5, '#fffbe5');
+        grad.addColorStop(1.0, '#fef08a');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, w, h);
+
+        // Solar Convective Cells
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        for (let i = 0; i < 150; i++) {
+          ctx.beginPath();
+          ctx.arc(Math.random() * w, Math.random() * h, 10 + Math.random() * 30, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        return tex;
+      };
+
+      // Instantiate Textures
+      const crustTex = createCrustTexture();
+      const mantleOuterTex = createMantleOuterTexture();
+      const mantleCutTex = createMantleCutTexture();
+      const outerCoreOuterTex = createOuterCoreOuterTexture();
+      const outerCoreCutTex = createOuterCoreCutTexture();
+      const innerCoreTex = createInnerCoreTexture();
 
       const earthGroup = new THREE.Group();
       scene.add(earthGroup);
 
-      const phiLen = sliceModeRef.current === 'cut180' ? Math.PI : (sliceModeRef.current === 'full' ? Math.PI * 2 : Math.PI * 1.5);
+      // Slicing parameters for hemisphere cutaway opening to +X
+      const phiStart = sliceMode === 'cut90' ? -Math.PI / 2 : (sliceMode === 'cut180' ? -Math.PI / 2 : 0);
+      const phiLen = sliceMode === 'cut90' ? Math.PI * 1.5 : (sliceMode === 'cut180' ? Math.PI : Math.PI * 2);
+      const showCutFaces = sliceMode !== 'full';
 
-      const createCutFaces = (geoFn, tex) => {
-        const mat = new THREE.MeshStandardMaterial({ map: tex, side: THREE.DoubleSide, roughness: 0.3, metalness: 0.1 });
-        const meshA = new THREE.Mesh(geoFn(), mat);
-        meshA.rotation.set(0, 0, 0);
-
-        const meshB = new THREE.Mesh(geoFn(), mat);
-        meshB.rotation.set(0, sliceModeRef.current === 'cut180' ? Math.PI : Math.PI / 2, 0);
-
-        return [meshA, meshB];
-      };
-
-      // 1. Crust Layer Group (Radius 2.65, Inner 2.35)
+      // ==========================================
+      // 1. LAYER 1: CRUST GROUP (Hemisphere Cup)
+      // ==========================================
       const crustGroup = new THREE.Group();
       const crustMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(2.65, 64, 64, 0, phiLen, 0, Math.PI),
-        new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.35, side: THREE.FrontSide })
+        new THREE.SphereGeometry(2.65, 64, 64, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ map: crustTex, roughness: 0.35, metalness: 0.05, side: THREE.FrontSide })
       );
       crustMesh.userData = { key: 'crust', name: 'Vỏ Trái đất' };
       crustGroup.add(crustMesh);
 
-      const [crustCutA, crustCutB] = createCutFaces(() => new THREE.CircleGeometry(2.65, 64, -Math.PI / 2, Math.PI), mantleCapTex);
-      crustCutA.userData = crustCutB.userData = { key: 'crust', name: 'Vỏ Trái đất' };
-      crustGroup.add(crustCutA, crustCutB);
-      earthGroup.add(crustGroup);
-
-      // Atmosphere shell attached to crustGroup
+      // Atmosphere Shell
       const atmosMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(2.72, 64, 64, 0, phiLen, 0, Math.PI),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.20, side: THREE.BackSide, blending: THREE.AdditiveBlending })
+        new THREE.SphereGeometry(2.72, 64, 64, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.22, side: THREE.BackSide, blending: THREE.AdditiveBlending })
       );
       crustGroup.add(atmosMesh);
 
-      // 2. Mantle Group (Upper + Lower Mantle) (Outer 2.35)
-      const mantleGroup = new THREE.Group();
-      const mantleMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(2.35, 64, 64, 0, phiLen, 0, Math.PI),
-        new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0x991b1b, emissiveIntensity: 0.45, roughness: 0.3, side: THREE.FrontSide })
+      // Inner Cavity of Crust (when Mantle is pulled out)
+      const crustInnerMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.45, 48, 48, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x44403c, roughness: 0.7, side: THREE.BackSide })
       );
-      mantleMesh.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
-      mantleGroup.add(mantleMesh);
+      crustGroup.add(crustInnerMesh);
 
-      const [mantleCutA, mantleCutB] = createCutFaces(() => new THREE.CircleGeometry(2.35, 64, -Math.PI / 2, Math.PI), mantleCapTex);
-      mantleCutA.userData = mantleCutB.userData = { key: 'lowerMantle', name: 'Manti Trái đất' };
-      mantleGroup.add(mantleCutA, mantleCutB);
+      // Thin Rocky Rim of Crust Cut Face at x = 0
+      const crustCutRing = new THREE.Mesh(
+        new THREE.RingGeometry(2.45, 2.65, 64),
+        new THREE.MeshStandardMaterial({ color: 0x292524, roughness: 0.8, side: THREE.DoubleSide })
+      );
+      crustCutRing.rotation.y = Math.PI / 2;
+      crustCutRing.visible = showCutFaces;
+      crustCutRing.userData = { key: 'crust', name: 'Vỏ Trái đất' };
+      crustGroup.add(crustCutRing);
+
+      earthGroup.add(crustGroup);
+
+      // ==========================================
+      // 2. LAYER 2: MANTLE GROUP (Hollow Shell)
+      // ==========================================
+      const mantleGroup = new THREE.Group();
+      const mantleOuterMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(2.40, 64, 64, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ map: mantleOuterTex, roughness: 0.45, emissive: 0x7f1d1d, emissiveIntensity: 0.35, side: THREE.FrontSide })
+      );
+      mantleOuterMesh.userData = { key: 'mantle', name: 'Lớp Bao (Manti)' };
+      mantleGroup.add(mantleOuterMesh);
+
+      // Inner Cavity of Mantle (Molten Magma)
+      const mantleInnerMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.45, 48, 48, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x5c0d0d, roughness: 0.6, side: THREE.BackSide })
+      );
+      mantleGroup.add(mantleInnerMesh);
+
+      // Cut Face: Radiant Fibrous Magma Ring at x = 0
+      const mantleCutRing = new THREE.Mesh(
+        new THREE.RingGeometry(1.45, 2.40, 64),
+        new THREE.MeshStandardMaterial({ map: mantleCutTex, roughness: 0.3, emissive: 0x991b1b, emissiveIntensity: 0.28, side: THREE.DoubleSide })
+      );
+      mantleCutRing.rotation.y = Math.PI / 2;
+      mantleCutRing.visible = showCutFaces;
+      mantleCutRing.userData = { key: 'mantle', name: 'Lớp Bao (Manti)' };
+      mantleGroup.add(mantleCutRing);
+
       earthGroup.add(mantleGroup);
 
-      // 3. Outer Core Group (Outer 1.35)
+      // ==========================================
+      // 3. LAYER 3: OUTER CORE GROUP (Hollow Shell)
+      // ==========================================
       const outerCoreGroup = new THREE.Group();
-      const ocMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(1.35, 64, 64, 0, phiLen, 0, Math.PI),
-        new THREE.MeshStandardMaterial({ color: 0xfbbf24, emissive: 0xd97706, emissiveIntensity: 0.55, roughness: 0.2, metalness: 0.7, side: THREE.FrontSide })
+      const ocOuterMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(1.42, 64, 64, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ map: outerCoreOuterTex, roughness: 0.25, metalness: 0.65, emissive: 0xb45309, emissiveIntensity: 0.3, side: THREE.FrontSide })
       );
-      ocMesh.userData = { key: 'outerCore', name: 'Nhân ngoài' };
-      outerCoreGroup.add(ocMesh);
+      ocOuterMesh.userData = { key: 'outerCore', name: 'Nhân ngoài (Lõi ngoài)' };
+      outerCoreGroup.add(ocOuterMesh);
 
-      const [ocCutA, ocCutB] = createCutFaces(() => new THREE.CircleGeometry(1.35, 64, -Math.PI / 2, Math.PI), outerCoreCapTex);
-      ocCutA.userData = ocCutB.userData = { key: 'outerCore', name: 'Nhân ngoài' };
-      outerCoreGroup.add(ocCutA, ocCutB);
+      // Inner Cavity of Outer Core
+      const ocInnerMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.78, 48, 48, phiStart, phiLen, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.5, metalness: 0.7, side: THREE.BackSide })
+      );
+      outerCoreGroup.add(ocInnerMesh);
+
+      // Cut Face: Radiant Golden Striations Ring at x = 0
+      const ocCutRing = new THREE.Mesh(
+        new THREE.RingGeometry(0.78, 1.42, 64),
+        new THREE.MeshStandardMaterial({ map: outerCoreCutTex, roughness: 0.2, metalness: 0.55, emissive: 0xd97706, emissiveIntensity: 0.25, side: THREE.DoubleSide })
+      );
+      ocCutRing.rotation.y = Math.PI / 2;
+      ocCutRing.visible = showCutFaces;
+      ocCutRing.userData = { key: 'outerCore', name: 'Nhân ngoài (Lõi ngoài)' };
+      outerCoreGroup.add(ocCutRing);
+
       earthGroup.add(outerCoreGroup);
 
-      // 4. Inner Core Group (Radius 0.85 Solid Sphere)
+      // ==========================================
+      // 4. LAYER 4: INNER CORE GROUP (Solid Sphere)
+      // ==========================================
       const innerCoreGroup = new THREE.Group();
       const icMesh = new THREE.Mesh(
-        new THREE.SphereGeometry(0.85, 48, 48),
-        new THREE.MeshStandardMaterial({ color: 0xfffbe5, emissive: 0xfef08a, emissiveIntensity: 0.9, roughness: 0.15, metalness: 0.9 })
+        new THREE.SphereGeometry(0.76, 48, 48),
+        new THREE.MeshStandardMaterial({ map: innerCoreTex, roughness: 0.15, metalness: 0.3, emissive: 0xfef08a, emissiveIntensity: 0.9 })
       );
-      icMesh.userData = { key: 'innerCore', name: 'Nhân trong' };
+      icMesh.userData = { key: 'innerCore', name: 'Nhân trong (Lõi trong)' };
       innerCoreGroup.add(icMesh);
 
-      const [icCutA, icCutB] = createCutFaces(() => new THREE.CircleGeometry(0.85, 64, -Math.PI / 2, Math.PI), innerCoreCapTex);
-      icCutA.userData = icCutB.userData = { key: 'innerCore', name: 'Nhân trong' };
-      innerCoreGroup.add(icCutA, icCutB);
       earthGroup.add(innerCoreGroup);
 
       layerMeshesRef.current = {
         crust: crustGroup,
-        upperMantle: mantleGroup,
-        lowerMantle: mantleGroup,
+        mantle: mantleGroup,
         outerCore: outerCoreGroup,
         innerCore: innerCoreGroup
       };
-
-      capMeshesRef.current = [crustCutA, crustCutB, mantleCutA, mantleCutB, ocCutA, ocCutB, icCutA, icCutB];
 
       const handleResize = () => {
         if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
@@ -5575,63 +5611,18 @@ function GeoEarthStructureSim({ onLog }) {
             controlsRef.current.update();
           }
 
+          // Smooth Telescopic Horizontal Explosion along X axis matching sample image!
           const targetOffset = isExplodedRef.current ? 1.0 : 0.0;
-          const curExp = crustGroup.position.x;
-          const nextExp = THREE.MathUtils.lerp(curExp, targetOffset * 1.5, 0.08);
+          separationRef.current = THREE.MathUtils.lerp(separationRef.current, targetOffset, 0.08);
+          const sep = separationRef.current;
 
-          // Horizontal exploded separation along X axis (matching textbook diagram!)
-          crustGroup.position.x = nextExp * 1.8; crustGroup.position.z = nextExp * 0.9;
-          mantleGroup.position.x = nextExp * 1.2; mantleGroup.position.z = nextExp * 0.6;
-          outerCoreGroup.position.x = nextExp * 0.6; outerCoreGroup.position.z = nextExp * 0.3;
-          innerCoreGroup.position.x = 0; innerCoreGroup.position.z = 0;
-
-          const showCut = sliceModeRef.current !== 'full';
-          crustCutA.visible = crustCutB.visible = showCut;
-          mantleCutA.visible = mantleCutB.visible = showCut;
-          ocCutA.visible = ocCutB.visible = showCut;
-          icCutA.visible = icCutB.visible = showCut;
+          crustGroup.position.x = -2.4 * sep;
+          mantleGroup.position.x = -0.7 * sep;
+          outerCoreGroup.position.x = 1.0 * sep;
+          innerCoreGroup.position.x = 2.6 * sep;
+          corePointLight.position.x = 2.6 * sep;
 
           if (icMesh) icMesh.rotation.y += 0.005;
-
-          if (cameraRef.current && containerRef.current) {
-            const w = containerRef.current.clientWidth || 800;
-            const h = containerRef.current.clientHeight || 500;
-
-            const computedScreenPos = [];
-            Object.keys(layersInfo).forEach(key => {
-              const layerMesh = layerMeshesRef.current[key];
-              if (!layersInfo[key] || !layersInfo[key].anchorPos) return;
-              const anchorWorld = layersInfo[key].anchorPos.clone();
-              if (layerMesh) anchorWorld.add(layerMesh.position);
-              anchorWorld.project(cameraRef.current);
-
-              const x = (anchorWorld.x * 0.5 + 0.5) * w;
-              const y = (-(anchorWorld.y * 0.5) + 0.5) * h;
-              const visible = !isNaN(x) && !isNaN(y) && anchorWorld.z < 1 && x >= 20 && x <= w - 20 && y >= 20 && y <= h - 20;
-              computedScreenPos.push({ key, x, y, visible });
-            });
-
-            computedScreenPos.sort((a, b) => a.y - b.y);
-            const minSpacingY = 38;
-            for (let i = 1; i < computedScreenPos.length; i++) {
-              const prev = computedScreenPos[i - 1];
-              const curr = computedScreenPos[i];
-              if (curr.visible && prev.visible && Math.abs(curr.x - prev.x) < 140) {
-                if (curr.y - prev.y < minSpacingY) curr.y = prev.y + minSpacingY;
-              }
-            }
-
-            computedScreenPos.forEach(item => {
-              const tagEl = tagRefs.current[item.key];
-              if (!tagEl) return;
-              if (item.visible) {
-                tagEl.style.display = 'flex';
-                tagEl.style.transform = `translate3d(${item.x}px, ${item.y}px, 0px) translate(-50%, -50%)`;
-              } else {
-                tagEl.style.display = 'none';
-              }
-            });
-          }
 
           if (rendererRef.current && sceneRef.current && cameraRef.current) {
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -5661,9 +5652,9 @@ function GeoEarthStructureSim({ onLog }) {
       console.warn("Three.js setup encountered an exception, switching to 2D Fallback:", e);
       setUseFallback2D(true);
     }
-  }, [useFallback2D]);
+  }, [useFallback2D, sliceMode]);
 
-  // 2D Interactive Canvas Fallback Animation Loop (Upgraded to match textbook image 100%)
+  // 2D Interactive Canvas Fallback Animation Loop (Horizontal Exploded Layers Matching Sample)
   useEffect(() => {
     if (!useFallback2D || !canvas2dRef.current) return;
     const canvas = canvas2dRef.current;
@@ -5680,116 +5671,80 @@ function GeoEarthStructureSim({ onLog }) {
 
       ctx.clearRect(0, 0, w, h);
 
-      // Radial dark space background
+      // Deep Space Background
       const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, Math.max(w, h));
-      bgGrad.addColorStop(0, '#091a2f'); bgGrad.addColorStop(1, '#030712');
+      bgGrad.addColorStop(0, '#091a2f'); bgGrad.addColorStop(1, '#020617');
       ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
 
       // Starfield
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      for (let i = 0; i < 120; i++) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      for (let i = 0; i < 100; i++) {
         const sx = (Math.sin(i * 99 + 1) * 0.5 + 0.5) * w;
         const sy = (Math.cos(i * 33 + 1) * 0.5 + 0.5) * h;
         ctx.fillRect(sx, sy, (i % 3 === 0) ? 2 : 1, (i % 3 === 0) ? 2 : 1);
       }
 
-      const baseR = Math.min(w, h) * 0.36;
-      const expOffset = isExploded ? baseR * 0.28 : 0;
+      const baseR = Math.min(w, h) * 0.32;
+      const expOffset = isExploded ? baseR * 0.75 : 0;
 
-      // Atmosphere ring
-      ctx.beginPath(); ctx.arc(cx, cy, baseR + 15, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)'; ctx.lineWidth = 2; ctx.stroke();
-
+      // 4 Layers matching sample image: Crust on Left, Inner Core on Right
       const layerData = [
-        { key: 'crust', r: baseR, color: '#38bdf8', stroke: '#0284c7' },
-        { key: 'upperMantle', r: baseR * 0.84, color: '#dc2626', stroke: '#991b1b', isMagma: true },
-        { key: 'lowerMantle', r: baseR * 0.65, color: '#b91c1c', stroke: '#7f1d1d', isMagma: true },
-        { key: 'outerCore', r: baseR * 0.46, color: '#f59e0b', stroke: '#d97706', isGold: true },
-        { key: 'innerCore', r: baseR * 0.26, color: '#fffbe5', stroke: '#fef08a' }
+        { key: 'crust', ox: -expOffset * 1.3, r: baseR, color: '#38bdf8', stroke: '#0284c7', label: 'Vỏ Trái đất' },
+        { key: 'mantle', ox: -expOffset * 0.4, r: baseR * 0.82, color: '#dc2626', stroke: '#991b1b', label: 'Lớp Bao (Manti)', isMagma: true },
+        { key: 'outerCore', ox: expOffset * 0.5, r: baseR * 0.52, color: '#f59e0b', stroke: '#d97706', label: 'Nhân ngoài', isGold: true },
+        { key: 'innerCore', ox: expOffset * 1.3, r: baseR * 0.28, color: '#fffbe5', stroke: '#fef08a', label: 'Nhân trong' }
       ];
 
-      layerData.forEach((layer, index) => {
+      layerData.forEach((layer) => {
         const isSel = activeLayer === layer.key;
-        const ox = isExploded ? (index === 0 ? -expOffset * 1.5 : (index === 1 ? -expOffset * 1.1 : (index === 2 ? -expOffset * 0.7 : (index === 3 ? -expOffset * 0.35 : 0)))) : 0;
-        const oy = isExploded ? -ox * 0.4 : 0;
-
         ctx.save();
-        ctx.translate(cx + ox, cy + oy);
+        ctx.translate(cx + layer.ox, cy);
 
         ctx.beginPath();
         const startA = sliceMode === 'cut90' ? Math.PI * 0.25 : (sliceMode === 'cut180' ? Math.PI * 0.5 : 0);
-        const endA = Math.PI * 2;
+        const endA = Math.PI * 1.5;
         ctx.arc(0, 0, layer.r, startA, endA);
         if (sliceMode !== 'full') ctx.lineTo(0, 0);
         ctx.closePath();
 
         ctx.fillStyle = layer.color;
-        if (isFocusIsolated && !isSel) ctx.globalAlpha = 0.25;
         ctx.fill();
 
-        // Render Fibrous Radial Magma Lines on Mantle
+        // Radial Magma Fibers for Mantle
         if (layer.isMagma) {
-          ctx.strokeStyle = 'rgba(254, 240, 138, 0.6)';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#fef08a'; ctx.lineWidth = 1.6;
           for (let a = startA; a < endA; a += 0.08) {
             ctx.beginPath();
-            ctx.moveTo(Math.cos(a) * (layer.r * 0.7), Math.sin(a) * (layer.r * 0.7));
+            ctx.moveTo(Math.cos(a) * (layer.r * 0.65), Math.sin(a) * (layer.r * 0.65));
             ctx.lineTo(Math.cos(a) * layer.r, Math.sin(a) * layer.r);
             ctx.stroke();
           }
         }
 
-        // Render Fibrous Radial Golden Lines on Outer Core
+        // Radial Golden Fibers for Outer Core
         if (layer.isGold) {
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.4;
           for (let a = startA; a < endA; a += 0.1) {
             ctx.beginPath();
-            ctx.moveTo(Math.cos(a) * (layer.r * 0.6), Math.sin(a) * (layer.r * 0.6));
+            ctx.moveTo(Math.cos(a) * (layer.r * 0.55), Math.sin(a) * (layer.r * 0.55));
             ctx.lineTo(Math.cos(a) * layer.r, Math.sin(a) * layer.r);
             ctx.stroke();
           }
         }
 
         ctx.strokeStyle = isSel ? '#ffffff' : layer.stroke;
-        ctx.lineWidth = isSel ? 3.5 : 1.5;
+        ctx.lineWidth = isSel ? 4 : 2;
         ctx.stroke();
+
         ctx.restore();
       });
-
-      // Central core pulse glow
-      ctx.save(); ctx.translate(cx, cy);
-      const corePulse = Math.sin(Date.now() * 0.003) * 3 + baseR * 0.26;
-      ctx.beginPath(); ctx.arc(0, 0, corePulse, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)'; ctx.fill();
-      ctx.restore();
     };
 
     render2D();
     return () => cancelAnimationFrame(animId);
-  }, [useFallback2D, activeLayer, sliceMode, isExploded, isFocusIsolated]);
+  }, [useFallback2D, activeLayer, sliceMode, isExploded]);
 
-  // Handle Pointer & Selection Controls
-  useEffect(() => {
-    try {
-      Object.keys(layerMeshesRef.current).forEach(key => {
-        const mesh = layerMeshesRef.current[key];
-        if (!mesh || !mesh.material) return;
-        if (key === activeLayer) {
-          mesh.material.transparent = false; mesh.material.opacity = 1.0;
-          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.65;
-        } else if (isFocusIsolated) {
-          mesh.material.transparent = true; mesh.material.opacity = 0.22;
-          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.05;
-        } else {
-          mesh.material.transparent = false; mesh.material.opacity = 1.0;
-          if (mesh.material.emissiveIntensity !== undefined) mesh.material.emissiveIntensity = 0.35;
-        }
-      });
-    } catch (e) {}
-  }, [activeLayer, isFocusIsolated]);
-
+  // Handle Pointer Selection on 3D Meshes
   const handlePointerDown = (event) => {
     try {
       if (useFallback2D) return;
@@ -5809,8 +5764,7 @@ function GeoEarthStructureSim({ onLog }) {
         const key = hitObj.userData?.key;
         if (key && layersInfo[key]) {
           setActiveLayer(key);
-          setShowDetailCard(true);
-          if (onLog) onLog(`🔍 Nhấp xem 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
+          if (onLog) onLog(`🔍 Khám phá mô hình 3D bóc tách ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
         }
       }
     } catch (e) {}
@@ -5843,91 +5797,75 @@ function GeoEarthStructureSim({ onLog }) {
 
   const handleSelectLayer = (key) => {
     setActiveLayer(key);
-    setShowDetailCard(true);
     if (onLog) onLog(`Khám phá cấu tạo ${layersInfo[key].name}: Độ sâu ${layersInfo[key].depth}, Trạng thái ${layersInfo[key].state}.`);
   };
 
   const handleZoom = (delta) => {
     if (!cameraRef.current || !controlsRef.current) return;
     const dist = cameraRef.current.position.length();
-    const newDist = THREE.MathUtils.clamp(dist + delta, 3.2, 15);
+    const newDist = THREE.MathUtils.clamp(dist + delta, 3.0, 16);
     cameraRef.current.position.multiplyScalar(newDist / dist);
     controlsRef.current.update();
   };
 
   const handleResetCamera = () => {
     if (!cameraRef.current || !controlsRef.current) return;
-    cameraRef.current.position.set(3.8, 3.2, 7.8);
-    controlsRef.current.target.set(0, 0, 0);
+    cameraRef.current.position.set(4.2, 1.8, 6.8);
+    controlsRef.current.target.set(0.1, 0, 0);
     controlsRef.current.update();
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none', background: themeMode === 'sgk' ? '#f8fafc' : '#030712', borderRadius: '18px', padding: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', userSelect: 'none', background: '#020617', borderRadius: '18px', padding: '12px' }}>
       
-      {/* Top Header Mode Switcher Bar */}
+      {/* Top Header Bar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '8px 16px',
-        background: themeMode === 'sgk' ? 'linear-gradient(135deg, #ffffff 0%, #edf2f7 100%)' : 'rgba(15, 23, 42, 0.95)',
+        padding: '10px 18px',
+        background: 'rgba(15, 23, 42, 0.95)',
         borderRadius: '14px',
-        border: themeMode === 'sgk' ? '1.5px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+        border: '1px solid rgba(56, 189, 248, 0.25)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
         zIndex: 20
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
             color: '#ffffff',
-            width: '32px', height: '32px', borderRadius: '10px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900
+            width: '36px', height: '36px', borderRadius: '10px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900,
+            fontSize: '1.2rem', boxShadow: '0 0 12px rgba(2, 132, 199, 0.5)'
           }}>
             🌍
           </div>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#f8fafc' }}>
-              CẤU TRÚC CỦA TRÁI ĐẤT (Mô Hình 3D Bóc Tách SGK)
+            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '0.02em' }}>
+              MÔ HÌNH 3D CẤU TRÚC BÓC TÁCH TRÁI ĐẤT
             </h3>
-            <span style={{ fontSize: '0.72rem', color: themeMode === 'sgk' ? '#64748b' : '#94a3b8', fontWeight: 700 }}>
-              Địa Lý Khối 6 • Chuẩn Hình Mẫu SGK GDPT 2018
+            <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 700 }}>
+              Mô Phỏng 3D Trực Quan 4 Lớp Địa Cầu • Chuẩn Kiến Thức Địa Lý Khối 6
             </span>
           </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
-            onClick={() => {
-              setThemeMode(themeMode === 'sgk' ? 'space' : 'sgk');
-              handleResetCamera();
-            }}
-            style={{
-              background: themeMode === 'sgk' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(255, 255, 255, 0.1)',
-              color: '#ffffff', border: 'none', borderRadius: '10px', padding: '6px 14px',
-              fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '6px',
-              boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
-            }}
-          >
-            {themeMode === 'sgk' ? '📖 Chế Độ SGK (Đang Bật)' : '🌌 Chế Độ Vũ Trụ 3D'}
-          </button>
-
-          <button
             onClick={() => setUseFallback2D(!useFallback2D)}
             style={{
-              background: useFallback2D ? '#eab308' : 'rgba(15, 23, 42, 0.1)',
-              color: useFallback2D ? '#000000' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
-              border: '1px solid #cbd5e1', borderRadius: '10px', padding: '6px 12px',
-              fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+              background: useFallback2D ? '#eab308' : 'rgba(255, 255, 255, 0.1)',
+              color: useFallback2D ? '#000000' : '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '10px', padding: '6px 14px',
+              fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s ease'
             }}
           >
-            {useFallback2D ? '⚡ Thử 3D WebGL' : '⚡ Bản 2D Super-Fast'}
+            {useFallback2D ? '⚡ Thử 3D WebGL' : '⚡ Bản 2D Siêu Nhẹ'}
           </button>
         </div>
       </div>
 
-      {/* Main Viewport Workspace: 3D Model on Left, SGK Leader Lines & Cards on Right */}
+      {/* Main Viewport Workspace: 3D Model on Left, Layer Information Cards on Right */}
       <div style={{
         flex: 1,
         display: 'flex',
@@ -5937,25 +5875,23 @@ function GeoEarthStructureSim({ onLog }) {
         position: 'relative'
       }}>
         
-        {/* 3D Model Container */}
+        {/* 3D Model Viewport Container */}
         <div 
           ref={containerRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           style={{
-            flex: 1.4,
-            background: themeMode === 'sgk' 
-              ? 'radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%)' 
-              : 'radial-gradient(circle at 50% 50%, #091a2f 0%, #030712 100%)',
+            flex: 1.45,
+            background: 'radial-gradient(circle at 50% 50%, #091a2f 0%, #020617 100%)',
             borderRadius: '20px',
-            border: themeMode === 'sgk' ? '2px solid #cbd5e1' : '1.5px solid rgba(56, 189, 248, 0.35)',
-            boxShadow: themeMode === 'sgk' ? '0 10px 30px rgba(0, 0, 0, 0.08)' : '0 12px 40px rgba(0, 0, 0, 0.6)',
+            border: '1.5px solid rgba(56, 189, 248, 0.35)',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.7)',
             position: 'relative',
             overflow: 'hidden',
             cursor: useFallback2D ? 'default' : 'grab'
           }}
         >
-          {/* Dedicated Three.js WebGL Mount Container */}
+          {/* Three.js WebGL Mount */}
           <div 
             ref={mount3dRef} 
             style={{ 
@@ -5968,7 +5904,7 @@ function GeoEarthStructureSim({ onLog }) {
             }} 
           />
 
-          {/* Dedicated 2D Canvas Fallback Container */}
+          {/* 2D Fallback Canvas */}
           <canvas 
             ref={canvas2dRef} 
             style={{ 
@@ -5995,53 +5931,53 @@ function GeoEarthStructureSim({ onLog }) {
               borderRadius: '20px',
               fontSize: '0.82rem',
               fontWeight: 800,
-              boxShadow: '0 4px 20px rgba(2, 132, 199, 0.5)',
+              boxShadow: '0 4px 20px rgba(2, 132, 199, 0.6)',
               border: '1px solid rgba(255, 255, 255, 0.4)',
               pointerEvents: 'none'
             }}>
-              👆 Nhấp chuột để chọn xem: <b>{hoveredLayerName}</b>
+              👆 Nhấp chuột để khám phá: <b>{hoveredLayerName}</b>
             </div>
           )}
         </div>
 
-        {/* Right Callout Panel matching Textbook Diagram Image 2 */}
+        {/* Right Educational Control Panel */}
         <div style={{
-          width: '320px',
+          width: '340px',
           display: 'flex',
           flexDirection: 'column',
           gap: '10px',
           zIndex: 15
         }}>
           <div style={{
-            background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
-            border: themeMode === 'sgk' ? '1.5px solid #e2e8f0' : '1px solid rgba(255, 255, 255, 0.15)',
+            background: 'rgba(15, 23, 42, 0.95)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
             borderRadius: '16px',
-            padding: '12px 14px',
-            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)'
+            padding: '12px 16px',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
           }}>
-            <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              CHỈ DẪN CẤU TRÚC (SGK)
+            <h4 style={{ margin: '0 0 4px 0', fontSize: '0.88rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              CÁC TẦNG CẤU TẠO TRÁI ĐẤT
             </h4>
-            <p style={{ margin: 0, fontSize: '0.72rem', color: themeMode === 'sgk' ? '#64748b' : '#94a3b8', fontWeight: 600 }}>
-              Nhấp vào từng lớp bên dưới hoặc nhấp trực tiếp vào mô hình 3D để khám phá chi tiết:
+            <p style={{ margin: 0, fontSize: '0.74rem', color: '#94a3b8', fontWeight: 600 }}>
+              Chọn từng lớp hoặc xoay mô hình 3D để khám phá chi tiết cấu trúc:
             </p>
           </div>
 
-          {/* 4 Textbook Layer Cards matching Image 2 */}
+          {/* 4 Layer Selection Cards */}
           {[
-            { key: 'crust', label: 'Lớp vỏ', sub: '(dày từ 8 đến 40 km)', color: '#0284c7', bg: '#e0f2fe' },
-            { key: 'upperMantle', label: 'Lớp bao (Manti)', sub: '(dày khoảng 2.900 km)', color: '#ea580c', bg: '#ffedd5' },
-            { key: 'outerCore', label: 'Nhân ngoài', sub: '(dày khoảng 2.250 km)', color: '#d97706', bg: '#fef3c7' },
-            { key: 'innerCore', label: 'Nhân trong', sub: '(bán kính khoảng 1.300 km)', color: '#ca8a04', bg: '#fef9c3' }
+            { key: 'crust', label: 'Vỏ Trái đất', sub: 'Dày từ 5 đến 70 km', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.15)' },
+            { key: 'mantle', label: 'Lớp Bao (Manti)', sub: 'Dày khoảng 2.900 km', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)' },
+            { key: 'outerCore', label: 'Nhân ngoài (Lõi ngoài)', sub: 'Dày khoảng 2.250 km • Thể lỏng', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.15)' },
+            { key: 'innerCore', label: 'Nhân trong (Lõi trong)', sub: 'Bán kính ~1.300 km • Thể rắn', color: '#fef08a', bg: 'rgba(254, 240, 138, 0.15)' }
           ].map(item => {
-            const isSelected = activeLayer === item.key || (item.key === 'upperMantle' && activeLayer === 'lowerMantle');
+            const isSelected = activeLayer === item.key;
             return (
               <div
                 key={item.key}
                 onClick={() => handleSelectLayer(item.key)}
                 style={{
-                  background: isSelected ? item.bg : (themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.8)'),
-                  border: `2px solid ${isSelected ? item.color : (themeMode === 'sgk' ? '#cbd5e1' : 'rgba(255, 255, 255, 0.15)')}`,
+                  background: isSelected ? item.bg : 'rgba(15, 23, 42, 0.8)',
+                  border: `2px solid ${isSelected ? item.color : 'rgba(255, 255, 255, 0.12)'}`,
                   borderRadius: '14px',
                   padding: '10px 14px',
                   cursor: 'pointer',
@@ -6049,47 +5985,53 @@ function GeoEarthStructureSim({ onLog }) {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   transition: 'all 0.2s ease',
-                  boxShadow: isSelected ? `0 4px 16px ${item.color}35` : 'none'
+                  boxShadow: isSelected ? `0 4px 18px ${item.color}40` : 'none'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
                     width: '14px', height: '14px', borderRadius: '50%',
-                    background: item.color, boxShadow: `0 0 8px ${item.color}`
+                    background: item.color, boxShadow: `0 0 10px ${item.color}`
                   }} />
                   <div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#ffffff' }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#ffffff' }}>
                       {item.label}
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: themeMode === 'sgk' ? '#475569' : '#94a3b8', fontWeight: 700 }}>
+                    <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>
                       {item.sub}
                     </div>
                   </div>
                 </div>
-                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: item.color }}>
-                  {isSelected ? '✓ Đang chọn' : 'Xem ▸'}
+                <span style={{ fontSize: '0.74rem', fontWeight: 900, color: item.color }}>
+                  {isSelected ? '✓ Đang chọn' : 'Khám phá ▸'}
                 </span>
               </div>
             );
           })}
 
-          {/* Detailed Info Card */}
+          {/* Active Layer Detailed Specifications */}
           {activeInfo && (
             <div style={{
-              background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
+              background: 'rgba(15, 23, 42, 0.95)',
               border: `2px solid ${activeInfo.color}`,
               borderRadius: '16px',
-              padding: '12px 14px',
+              padding: '14px 16px',
               marginTop: 'auto',
-              boxShadow: `0 8px 24px ${activeInfo.color}25`
+              boxShadow: `0 8px 24px ${activeInfo.color}30`
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeInfo.color }} />
-                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: themeMode === 'sgk' ? '#0f172a' : '#ffffff' }}>
-                  {activeInfo.name}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: activeInfo.color, boxShadow: `0 0 8px ${activeInfo.color}` }} />
+                <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 900, color: '#ffffff' }}>
+                  {activeInfo.name} ({activeInfo.enName})
                 </h4>
               </div>
-              <p style={{ margin: 0, fontSize: '0.76rem', color: themeMode === 'sgk' ? '#334155' : '#cbd5e1', lineHeight: 1.45 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '8px' }}>
+                <div><b>Độ dày:</b> {activeInfo.thickness}</div>
+                <div><b>Trạng thái:</b> <span style={{ color: activeInfo.color, fontWeight: 800 }}>{activeInfo.state}</span></div>
+                <div><b>Nhiệt độ:</b> {activeInfo.temp}</div>
+                <div><b>Thành phần:</b> {activeInfo.composition}</div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.74rem', color: '#94a3b8', lineHeight: 1.45, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '6px' }}>
                 {activeInfo.desc}
               </p>
             </div>
@@ -6097,53 +6039,54 @@ function GeoEarthStructureSim({ onLog }) {
         </div>
       </div>
 
-      {/* Unified Bottom Action Control Toolbar (Zero Overlap!) */}
+      {/* Unified Bottom Action Control Toolbar */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '10px',
-        padding: '10px 16px',
-        background: themeMode === 'sgk' ? '#ffffff' : 'rgba(15, 23, 42, 0.95)',
-        border: themeMode === 'sgk' ? '1.5px solid #cbd5e1' : '1px solid rgba(255, 255, 255, 0.15)',
+        padding: '10px 18px',
+        background: 'rgba(15, 23, 42, 0.95)',
+        border: '1px solid rgba(255, 255, 255, 0.15)',
         borderRadius: '14px',
         zIndex: 20
       }}>
         {/* Slice Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: themeMode === 'sgk' ? '#475569' : '#94a3b8' }}>
+          <span style={{ fontSize: '0.76rem', fontWeight: 900, color: '#94a3b8' }}>
             Chế độ cắt:
           </span>
           <button
-            onClick={() => setSliceMode('cut90')}
-            style={{
-              background: sliceMode === 'cut90' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
-              color: sliceMode === 'cut90' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
-              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
-            }}
-          >
-            🔪 Cắt 90°
-          </button>
-          <button
             onClick={() => setSliceMode('cut180')}
             style={{
-              background: sliceMode === 'cut180' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
-              color: sliceMode === 'cut180' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
-              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+              background: sliceMode === 'cut180' ? '#0284c7' : 'rgba(255,255,255,0.1)',
+              color: sliceMode === 'cut180' ? '#ffffff' : '#94a3b8',
+              border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer',
+              boxShadow: sliceMode === 'cut180' ? '0 0 12px rgba(2, 132, 199, 0.5)' : 'none'
             }}
           >
-            🌓 Nửa Quả 180°
+            🌓 Bóc tách 180° (Chuẩn mẫu)
+          </button>
+          <button
+            onClick={() => setSliceMode('cut90')}
+            style={{
+              background: sliceMode === 'cut90' ? '#0284c7' : 'rgba(255,255,255,0.1)',
+              color: sliceMode === 'cut90' ? '#ffffff' : '#94a3b8',
+              border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer'
+            }}
+          >
+            🔪 Cắt góc 90°
           </button>
           <button
             onClick={() => setSliceMode('full')}
             style={{
-              background: sliceMode === 'full' ? '#0284c7' : (themeMode === 'sgk' ? '#f1f5f9' : 'rgba(255,255,255,0.1)'),
-              color: sliceMode === 'full' ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#94a3b8'),
-              border: 'none', borderRadius: '8px', padding: '5px 10px', fontSize: '0.74rem', fontWeight: 900, cursor: 'pointer'
+              background: sliceMode === 'full' ? '#0284c7' : 'rgba(255,255,255,0.1)',
+              color: sliceMode === 'full' ? '#ffffff' : '#94a3b8',
+              border: 'none', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer'
             }}
           >
-            🌍 Nguyên Khối
+            🌍 Quả cầu nguyên vẹn
           </button>
         </div>
 
@@ -6152,9 +6095,10 @@ function GeoEarthStructureSim({ onLog }) {
           <button
             onClick={() => setIsExploded(!isExploded)}
             style={{
-              background: isExploded ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : (themeMode === 'sgk' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'),
-              color: isExploded ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
-              border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
+              background: isExploded ? 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)' : 'rgba(255, 255, 255, 0.1)',
+              color: '#ffffff',
+              border: 'none', borderRadius: '10px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer',
+              boxShadow: isExploded ? '0 0 14px rgba(245, 158, 11, 0.5)' : 'none'
             }}
           >
             💥 {isExploded ? 'Ghép Liền Lớp' : 'Tách Các Lớp'}
@@ -6163,56 +6107,23 @@ function GeoEarthStructureSim({ onLog }) {
           <button
             onClick={() => setAutoRotate(!autoRotate)}
             style={{
-              background: autoRotate ? '#0284c7' : (themeMode === 'sgk' ? '#e2e8f0' : 'rgba(255, 255, 255, 0.1)'),
-              color: autoRotate ? '#ffffff' : (themeMode === 'sgk' ? '#0f172a' : '#ffffff'),
-              border: 'none', borderRadius: '10px', padding: '6px 12px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
+              background: autoRotate ? '#0284c7' : 'rgba(255, 255, 255, 0.1)',
+              color: '#ffffff',
+              border: 'none', borderRadius: '10px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
             }}
           >
             🔄 {autoRotate ? 'Xoay: BẬT' : 'Xoay: TẮT'}
           </button>
 
-          <button
-            onClick={() => setShowRefModal(true)}
-            style={{
-              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-              color: '#ffffff', border: 'none', borderRadius: '10px', padding: '6px 12px',
-              fontSize: '0.78rem', fontWeight: 900, cursor: 'pointer'
-            }}
-          >
-            🖼️ Xem Hình SGK Mẫu
-          </button>
-
           {!useFallback2D && (
             <div style={{ display: 'flex', gap: '4px' }}>
-              <button onClick={() => handleZoom(-1.5)} title="Phóng to" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>➕</button>
-              <button onClick={() => handleZoom(1.5)} title="Thu nhỏ" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>➖</button>
-              <button onClick={handleResetCamera} title="Đặt lại vị trí" style={{ background: '#cbd5e1', border: 'none', borderRadius: '6px', padding: '4px 8px', fontWeight: 900, cursor: 'pointer' }}>🏠</button>
+              <button onClick={() => handleZoom(-1.5)} title="Phóng to" style={{ background: '#334155', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 900, cursor: 'pointer' }}>➕</button>
+              <button onClick={() => handleZoom(1.5)} title="Thu nhỏ" style={{ background: '#334155', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 900, cursor: 'pointer' }}>➖</button>
+              <button onClick={handleResetCamera} title="Đặt lại góc nhìn chuẩn" style={{ background: '#334155', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '5px 10px', fontWeight: 900, cursor: 'pointer' }}>🏠</button>
             </div>
           )}
         </div>
       </div>
-
-      {/* Reference Modal Popup */}
-      {showRefModal && (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 999999,
-          background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
-        }} onClick={() => setShowRefModal(false)}>
-          <div style={{
-            background: '#ffffff', borderRadius: '24px', padding: '24px', maxWidth: '800px', width: '100%',
-            display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ margin: 0, color: '#0f172a', fontSize: '1.2rem', fontWeight: 900 }}>
-                🖼️ HÌNH MẪU SGK: CẤU TRÚC CỦA TRÁI ĐẤT
-              </h3>
-              <button onClick={() => setShowRefModal(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontWeight: 900, cursor: 'pointer' }}>✕</button>
-            </div>
-            <img src="/assets/earth_3d_ref.png" alt="Cấu Trúc Trái Đất SGK" style={{ width: '100%', borderRadius: '16px', border: '1px solid #cbd5e1' }} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
