@@ -302,6 +302,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường TH Đống Đa',
     createdAt: '2026-10-08'
+  },
+  {
+    id: 'user_suri_nguyen',
+    username: 'suringuyen',
+    password: '123456',
+    name: 'Nguyễn Thị Tuyết Nhung',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
+    createdAt: '2026-10-08'
   }
 ];
 
