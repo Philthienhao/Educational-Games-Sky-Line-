@@ -181,8 +181,8 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
                 )}
               </div>
 
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                {formData.gender} • Sinh ngày: {formData.dob} • Phụ huynh: {formData.fatherName || formData.motherName || 'Chưa cập nhật'} ({formData.phone})
+              <p style={{ fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginTop: '4px' }}>
+                {formData.gender} • Sinh ngày: {formData.dob} • Phụ huynh: <strong style={{ color: '#ffffff' }}>{formData.fatherName || formData.motherName || 'Chưa cập nhật'}</strong> (<span style={{ color: '#38bdf8' }}>📞 {formData.phone || 'Chưa có SĐT'}</span>)
               </p>
             </div>
           </div>
