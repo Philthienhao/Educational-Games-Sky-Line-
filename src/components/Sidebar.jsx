@@ -177,69 +177,6 @@ export function Sidebar({
               Mẹ Têrêsa Calcutta
             </div>
           </div>
-
-          {/* USER ACCOUNT CARD WITH ĐỔI MẬT KHẨU BUTTON BELOW USERNAME */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(13, 148, 136, 0.06) 100%)',
-            border: '1.5px solid rgba(2, 132, 199, 0.3)',
-            borderRadius: '16px',
-            padding: '12px 14px',
-            marginTop: '12px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.1)'
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              color: '#ffffff',
-              fontWeight: 900,
-              fontSize: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-              boxShadow: '0 3px 8px rgba(13, 148, 136, 0.3)',
-              marginTop: '2px'
-            }}>
-              {currentUser?.name?.charAt(0) || '👤'}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {currentUser?.name || 'Giáo Viên'}
-              </div>
-              <div style={{ fontSize: '0.74rem', color: '#0284c7', fontWeight: 800 }}>
-                @{currentUser?.username}
-              </div>
-
-              <button
-                onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
-                style={{
-                  marginTop: '6px',
-                  alignSelf: 'flex-start',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '9px',
-                  padding: '5px 11px',
-                  fontSize: '0.74rem',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
-                }}
-              >
-                <KeyRound size={13} />
-                <span>Đổi Mật Khẩu</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* 2. MAIN MENU SECTION (DANH MỤC CHÍNH) - FULL VERTICAL LIST NO SCROLL */}
@@ -384,7 +321,7 @@ export function Sidebar({
             </div>
           </div>
 
-          {/* USER PROFILE & LOGOUT FOOTER - FIXED AT VERY BOTTOM */}
+          {/* USER PROFILE & LOGOUT FOOTER - FIXED AT VERY BOTTOM-LEFT OF SCREEN */}
           <div className="sidebar-user-footer" style={{ flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
               <div 
@@ -419,32 +356,61 @@ export function Sidebar({
                   <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
                     {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
                   </span>
+                  <span style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 800 }}>
+                    @{currentUser?.username}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ width: '100%' }}>
+            {/* ACTION BUTTONS AT BOTTOM-LEFT OF SCREEN */}
+            <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
               <button 
-                onClick={onLogout}
-                title="Đăng xuất khỏi hệ thống"
+                onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
+                title="Đổi mật khẩu tài khoản"
                 style={{
-                  width: '100%',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  color: '#ef4444',
-                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  flex: 1,
+                  background: 'rgba(2, 132, 199, 0.12)',
+                  color: '#0284c7',
+                  border: '1px solid rgba(2, 132, 199, 0.25)',
                   borderRadius: '10px',
-                  padding: '9px 12px',
-                  fontSize: '0.82rem',
+                  padding: '7px 8px',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px',
-                  cursor: 'pointer'
+                  gap: '5px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                <LogOut size={16} />
-                <span>Đăng xuất tài khoản</span>
+                <KeyRound size={14} />
+                <span>Đổi mật khẩu</span>
+              </button>
+
+              <button 
+                onClick={onLogout}
+                title="Đăng xuất khỏi hệ thống"
+                style={{
+                  flex: 1,
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  color: '#ef4444',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: '10px',
+                  padding: '7px 8px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <LogOut size={14} />
+                <span>Đăng xuất</span>
               </button>
             </div>
           </div>
