@@ -1144,56 +1144,71 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                       <td style={{ padding: '14px 16px' }}>
                         <span className="badge" style={{ 
                           background: score >= 100 ? '#ecfdf5' : (score >= 90 ? '#fef3c7' : '#fee2e2'), 
-                          color: score >= 100 ? '#047857' : (score >= 90 ? '#b45309' : '#b91c1c'), 
-                          border: `1.5px solid ${scoreColor}`, 
+                          color: score >= 100 ? '#065f46' : (score >= 90 ? '#92400e' : '#991b1b'), 
+                          border: `2px solid ${scoreColor}`, 
                           fontWeight: 900, 
-                          fontSize: '0.88rem', 
-                          padding: '5px 12px',
-                          borderRadius: '12px'
+                          fontSize: '0.9rem', 
+                          padding: '6px 14px',
+                          borderRadius: '14px',
+                          whiteSpace: 'nowrap',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                         }}>
                           💯 {score} điểm
                         </span>
                       </td>
                       <td style={{ padding: '14px 16px' }}>
-                        <div style={{ color: '#0f172a', fontWeight: 800, fontSize: '0.95rem', lineHeight: 1.35 }}>
+                        <div style={{ color: '#0f172a', fontWeight: 900, fontSize: '0.98rem', lineHeight: 1.35, whiteSpace: 'nowrap' }}>
                           {st.fatherName || st.motherName || 'Phụ huynh'}
                         </div>
-                        <div style={{ fontSize: '0.82rem', color: '#0284c7', fontWeight: 700, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <div style={{ fontSize: '0.88rem', color: '#0369a1', fontWeight: 800, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
                           📞 {st.phone || 'Chưa có SĐT'}
                         </div>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         {vCount > 0 ? (
                           <span className="badge" style={{ 
-                            background: isHighAlert ? '#dc2626' : '#fee2e2', 
-                            color: isHighAlert ? '#ffffff' : '#b91c1c', 
-                            border: `1.5px solid ${isHighAlert ? '#b91c1c' : '#fca5a5'}`, 
+                            background: isHighAlert ? '#dc2626' : '#ffe4e6', 
+                            color: isHighAlert ? '#ffffff' : '#991b1b', 
+                            border: `2px solid ${isHighAlert ? '#991b1b' : '#ef4444'}`, 
                             fontWeight: 900,
-                            fontSize: '0.82rem',
-                            padding: '5px 12px',
-                            borderRadius: '12px'
+                            fontSize: '0.88rem',
+                            padding: '6px 14px',
+                            borderRadius: '14px',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: isHighAlert ? '0 2px 8px rgba(220, 38, 38, 0.4)' : '0 2px 6px rgba(239, 68, 68, 0.2)'
                           }}>
                             {isHighAlert && '🚨 '} {vCount} LẦN
                           </span>
                         ) : (
-                          <span style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 800 }}>0</span>
+                          <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
                         )}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                         {rCount > 0 ? (
                           <span className="badge" style={{ 
                             background: '#fef3c7', 
-                            color: '#b45309', 
-                            border: '1.5px solid #fcd34d', 
+                            color: '#92400e', 
+                            border: '2px solid #f59e0b', 
                             fontWeight: 900,
-                            fontSize: '0.82rem',
-                            padding: '5px 12px',
-                            borderRadius: '12px'
+                            fontSize: '0.88rem',
+                            padding: '6px 14px',
+                            borderRadius: '14px',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)'
                           }}>
                             🏆 {rCount}
                           </span>
                         ) : (
-                          <span style={{ color: '#64748b', fontSize: '0.88rem', fontWeight: 800 }}>0</span>
+                          <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
                         )}
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
@@ -1781,8 +1796,8 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
                   <span className="badge" style={{ background: '#0284c7', color: '#fff', fontWeight: 800, padding: '4px 14px', borderRadius: '12px', fontSize: '0.85rem', marginTop: '6px' }}>
                     🗓️ Ngày sinh: {st.dob}
                   </span>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '12px' }}>
-                    Phụ huynh: {st.fatherName || st.motherName || 'Chưa cập nhật'} (📞 {st.phone})
+                  <p style={{ fontSize: '0.86rem', color: '#e2e8f0', fontWeight: 600, marginTop: '12px' }}>
+                    Phụ huynh: <strong style={{ color: '#ffffff' }}>{st.fatherName || st.motherName || 'Chưa cập nhật'}</strong> (<span style={{ color: '#38bdf8' }}>📞 {st.phone || 'Chưa có SĐT'}</span>)
                   </p>
                 </div>
               ))}
