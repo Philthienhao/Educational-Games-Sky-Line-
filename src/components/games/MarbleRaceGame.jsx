@@ -152,9 +152,13 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     try {
       const hr = StorageService.getTeacherHomeroom(currentUser?.id);
       if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
-        setHomeroom(hr);
+        const cleanStudents = hr.students.filter(s => {
+          const sName = (typeof s === 'string' ? s : (s?.name || s?.studentName || '')).trim().toLowerCase();
+          return sName !== 'tran thi b' && sName !== 'nguyen van a';
+        });
+        setHomeroom({ ...hr, students: cleanStudents });
         setSelectedClassName(hr.className || 'Lớp Chủ Nhiệm');
-        setStudents(hr.students.map((s, idx) => ({
+        setStudents(cleanStudents.map((s, idx) => ({
           id: s.id || `s_${idx}`,
           name: typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`),
           avatar: s.avatar || null,
@@ -327,9 +331,12 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     try {
       const hr = StorageService.getTeacherHomeroom(currentUser?.id);
       if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
-        const names = hr.students.map((s, idx) => 
-          typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`)
-        );
+        const names = hr.students
+          .map((s, idx) => typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`))
+          .filter(n => {
+            const low = n.trim().toLowerCase();
+            return low !== 'tran thi b' && low !== 'nguyen van a';
+          });
         setCustomRosterText(names.join('\n'));
         setCustomClassNameInput(hr.className || 'Lớp Chủ Nhiệm');
       } else {

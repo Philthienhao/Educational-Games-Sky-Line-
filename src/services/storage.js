@@ -1276,6 +1276,29 @@ export const StorageService = {
         localStorage.removeItem('gvd_auto_backup_snapshot');
       } catch (e) {}
 
+      // 1b. Clean unwanted test students (Tran Thi B, Nguyen Van A) from homeroom records
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const lKey = localStorage.key(i);
+          if (lKey && lKey.startsWith('gvd_homeroom_')) {
+            try {
+              const hrData = JSON.parse(localStorage.getItem(lKey));
+              if (hrData && Array.isArray(hrData.students)) {
+                const cleaned = hrData.students.filter(s => {
+                  const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+                  return name !== 'tran thi b' && name !== 'nguyen van a';
+                });
+                if (cleaned.length !== hrData.students.length) {
+                  hrData.students = cleaned;
+                  localStorage.setItem(lKey, JSON.stringify(hrData));
+                  IDBStorageService.setItem(lKey, hrData).catch(() => {});
+                }
+              }
+            } catch(e) {}
+          }
+        }
+      } catch(e) {}
+
       // 2. Initialize or safely update users
       try {
         try { localStorage.removeItem('gvd_deleted_usernames'); } catch (e) {}
@@ -1646,14 +1669,34 @@ export const StorageService = {
       // 2. Homeroom Class
       const cloudHomeroom = await CloudStorageService.getUserPrivateCloudData(userId, 'homeroom');
       if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students) && cloudHomeroom.isCustomized) {
+        // Always sanitize unwanted test students
+        cloudHomeroom.students = cloudHomeroom.students.filter(s => {
+          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+          return name !== 'tran thi b' && name !== 'nguyen van a';
+        });
         const key = `gvd_homeroom_${userId}`;
         const localStr = localStorage.getItem(key);
         let shouldApplyCloud = true;
         if (localStr) {
           try {
             const localH = JSON.parse(localStr);
-            if (localH && localH.isCustomized && Array.isArray(localH.students) && localH.students.length > cloudHomeroom.students.length) {
-              shouldApplyCloud = false;
+            if (localH && Array.isArray(localH.students)) {
+              const cleanedLocal = localH.students.filter(s => {
+                const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+                return name !== 'tran thi b' && name !== 'nguyen van a';
+              });
+              if (cleanedLocal.length !== localH.students.length) {
+                localH.students = cleanedLocal;
+                localStorage.setItem(key, JSON.stringify(localH));
+                IDBStorageService.setItem(key, localH).catch(() => {});
+              }
+            }
+            if (localH && localH.isCustomized && Array.isArray(localH.students)) {
+              const cloudTime = new Date(cloudHomeroom.updatedAt || cloudHomeroom.createdAt || 0).getTime();
+              const localTime = new Date(localH.updatedAt || localH.createdAt || 0).getTime();
+              if (localTime > cloudTime && localH.students.length > cloudHomeroom.students.length) {
+                shouldApplyCloud = false;
+              }
             }
           } catch (e) {}
         }
@@ -2532,7 +2575,15 @@ export const StorageService = {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === 'object') return parsed;
+        if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.students)) {
+            parsed.students = parsed.students.filter(s => {
+              const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+              return name !== 'tran thi b' && name !== 'nguyen van a';
+            });
+          }
+          return parsed;
+        }
       } catch (e) {
         // Fallback to initial
       }
@@ -2681,6 +2732,12 @@ export const StorageService = {
       try {
         const parsed = JSON.parse(localStored);
         if (parsed && typeof parsed === 'object' && parsed.isCustomized) {
+          if (Array.isArray(parsed.students)) {
+            parsed.students = parsed.students.filter(s => {
+              const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+              return name !== 'tran thi b' && name !== 'nguyen van a';
+            });
+          }
           IDBStorageService.setItem(key, parsed).catch(() => {});
           CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', parsed).catch(() => {});
           return parsed;
@@ -2692,6 +2749,10 @@ export const StorageService = {
     try {
       const idbClass = await IDBStorageService.getItem(key);
       if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
+        idbClass.students = idbClass.students.filter(s => {
+          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+          return name !== 'tran thi b' && name !== 'nguyen van a';
+        });
         try {
           localStorage.setItem(key, JSON.stringify(idbClass));
         } catch(err) {}
@@ -2704,6 +2765,10 @@ export const StorageService = {
     try {
       const cloudClass = await CloudStorageService.getUserPrivateCloudData(effectiveId, 'homeroom');
       if (cloudClass && typeof cloudClass === 'object' && Array.isArray(cloudClass.students) && cloudClass.isCustomized) {
+        cloudClass.students = cloudClass.students.filter(s => {
+          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+          return name !== 'tran thi b' && name !== 'nguyen van a';
+        });
         try {
           localStorage.setItem(key, JSON.stringify(cloudClass));
         } catch (err) {}
@@ -2724,6 +2789,12 @@ export const StorageService = {
 
     // Mark as customized so default sample class is NEVER injected over user's setup
     const updatedClassData = { ...classData, isCustomized: true };
+    if (Array.isArray(updatedClassData.students)) {
+      updatedClassData.students = updatedClassData.students.filter(s => {
+        const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+        return name !== 'tran thi b' && name !== 'nguyen van a';
+      });
+    }
 
     // 1. Pre-save any student base64 avatars to AvatarStorageService to shrink payload
     if (Array.isArray(updatedClassData.students)) {

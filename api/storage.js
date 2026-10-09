@@ -33,13 +33,31 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing valid userId or dataType key' });
   }
 
+  // Helper: ensure homeroom data never retains unwanted test students
+  const sanitizeHomeroomData = (dataObj) => {
+    if (storageKey && storageKey.endsWith('_homeroom') && dataObj && typeof dataObj === 'object') {
+      if (Array.isArray(dataObj.students)) {
+        dataObj.students = dataObj.students.filter(s => {
+          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
+          return name !== 'tran thi b' && name !== 'nguyen van a';
+        });
+      }
+    }
+    return dataObj;
+  };
+
   // --- POST: Save User Data to 24/7 Persistent Cloud Stores ---
   if (req.method === 'POST') {
     try {
-      const bodyPayload = req.body;
+      let bodyPayload = req.body;
       if (bodyPayload === undefined || bodyPayload === null) {
         return res.status(400).json({ error: 'Empty payload body' });
       }
+
+      if (typeof bodyPayload === 'string') {
+        try { bodyPayload = JSON.parse(bodyPayload); } catch (e) {}
+      }
+      bodyPayload = sanitizeHomeroomData(bodyPayload);
 
       const stringifiedPayload = typeof bodyPayload === 'string' ? bodyPayload : JSON.stringify(bodyPayload);
       const updatedAt = new Date().toISOString();
@@ -137,9 +155,9 @@ export default async function handler(req, res) {
             if (rawVal) {
               try {
                 const parsed = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
-                return res.status(200).json(parsed);
+                return res.status(200).json(sanitizeHomeroomData(parsed));
               } catch (e) {
-                return res.status(200).json(rawVal);
+                return res.status(200).json(sanitizeHomeroomData(rawVal));
               }
             }
           }
@@ -160,7 +178,7 @@ export default async function handler(req, res) {
           if (sbRes.ok) {
             const rows = await sbRes.json();
             if (Array.isArray(rows) && rows.length > 0 && rows[0].data !== undefined) {
-              return res.status(200).json(rows[0].data);
+              return res.status(200).json(sanitizeHomeroomData(rows[0].data));
             }
           }
         } catch (e) {
@@ -183,9 +201,9 @@ export default async function handler(req, res) {
             if (rawText && rawText.trim()) {
               try {
                 const parsedData = JSON.parse(rawText);
-                return res.status(200).json(parsedData);
+                return res.status(200).json(sanitizeHomeroomData(parsedData));
               } catch (e) {
-                return res.status(200).json(rawText);
+                return res.status(200).json(sanitizeHomeroomData(rawText));
               }
             }
           }
