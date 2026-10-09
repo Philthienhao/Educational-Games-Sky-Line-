@@ -10,6 +10,18 @@ const CURRENT_USER_KEY = 'gvd_current_user';
 // Runtime In-Memory Cache for Guaranteed Persistence even if LocalStorage is limited/blocked
 let runtimeSavedGamesCache = null;
 
+// Helper: identifies unwanted test students (both accented & unaccented)
+export const isUnwantedTestStudent = (studentOrName) => {
+  if (!studentOrName) return false;
+  const nameStr = (typeof studentOrName === 'string' ? studentOrName : (studentOrName?.name || studentOrName?.studentName || '')).trim();
+  if (!nameStr) return false;
+  const raw = nameStr.toLowerCase();
+  const unaccented = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+  return unaccented === 'tran thi b' || unaccented === 'nguyen van a' ||
+         raw === 'tran thi b' || raw === 'nguyen van a' ||
+         raw === 'trần thị b' || raw === 'nguyễn văn a';
+};
+
 // Initial Registered System Accounts (Built-in Seed Accounts for Cross-Device / Incognito Access)
 const INITIAL_USERS = [
   {
@@ -1284,10 +1296,7 @@ export const StorageService = {
             try {
               const hrData = JSON.parse(localStorage.getItem(lKey));
               if (hrData && Array.isArray(hrData.students)) {
-                const cleaned = hrData.students.filter(s => {
-                  const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-                  return name !== 'tran thi b' && name !== 'nguyen van a';
-                });
+                const cleaned = hrData.students.filter(s => !isUnwantedTestStudent(s));
                 if (cleaned.length !== hrData.students.length) {
                   hrData.students = cleaned;
                   localStorage.setItem(lKey, JSON.stringify(hrData));
@@ -1670,10 +1679,7 @@ export const StorageService = {
       const cloudHomeroom = await CloudStorageService.getUserPrivateCloudData(userId, 'homeroom');
       if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students) && cloudHomeroom.isCustomized) {
         // Always sanitize unwanted test students
-        cloudHomeroom.students = cloudHomeroom.students.filter(s => {
-          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-          return name !== 'tran thi b' && name !== 'nguyen van a';
-        });
+        cloudHomeroom.students = cloudHomeroom.students.filter(s => !isUnwantedTestStudent(s));
         const key = `gvd_homeroom_${userId}`;
         const localStr = localStorage.getItem(key);
         let shouldApplyCloud = true;
@@ -1681,10 +1687,7 @@ export const StorageService = {
           try {
             const localH = JSON.parse(localStr);
             if (localH && Array.isArray(localH.students)) {
-              const cleanedLocal = localH.students.filter(s => {
-                const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-                return name !== 'tran thi b' && name !== 'nguyen van a';
-              });
+              const cleanedLocal = localH.students.filter(s => !isUnwantedTestStudent(s));
               if (cleanedLocal.length !== localH.students.length) {
                 localH.students = cleanedLocal;
                 localStorage.setItem(key, JSON.stringify(localH));
@@ -2577,10 +2580,7 @@ export const StorageService = {
         const parsed = JSON.parse(stored);
         if (parsed && typeof parsed === 'object') {
           if (Array.isArray(parsed.students)) {
-            parsed.students = parsed.students.filter(s => {
-              const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-              return name !== 'tran thi b' && name !== 'nguyen van a';
-            });
+            parsed.students = parsed.students.filter(s => !isUnwantedTestStudent(s));
           }
           return parsed;
         }
@@ -2733,10 +2733,7 @@ export const StorageService = {
         const parsed = JSON.parse(localStored);
         if (parsed && typeof parsed === 'object' && parsed.isCustomized) {
           if (Array.isArray(parsed.students)) {
-            parsed.students = parsed.students.filter(s => {
-              const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-              return name !== 'tran thi b' && name !== 'nguyen van a';
-            });
+            parsed.students = parsed.students.filter(s => !isUnwantedTestStudent(s));
           }
           IDBStorageService.setItem(key, parsed).catch(() => {});
           CloudStorageService.saveUserPrivateCloudData(effectiveId, 'homeroom', parsed).catch(() => {});
@@ -2749,10 +2746,7 @@ export const StorageService = {
     try {
       const idbClass = await IDBStorageService.getItem(key);
       if (idbClass && typeof idbClass === 'object' && Array.isArray(idbClass.students)) {
-        idbClass.students = idbClass.students.filter(s => {
-          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-          return name !== 'tran thi b' && name !== 'nguyen van a';
-        });
+        idbClass.students = idbClass.students.filter(s => !isUnwantedTestStudent(s));
         try {
           localStorage.setItem(key, JSON.stringify(idbClass));
         } catch(err) {}
@@ -2765,10 +2759,7 @@ export const StorageService = {
     try {
       const cloudClass = await CloudStorageService.getUserPrivateCloudData(effectiveId, 'homeroom');
       if (cloudClass && typeof cloudClass === 'object' && Array.isArray(cloudClass.students) && cloudClass.isCustomized) {
-        cloudClass.students = cloudClass.students.filter(s => {
-          const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-          return name !== 'tran thi b' && name !== 'nguyen van a';
-        });
+        cloudClass.students = cloudClass.students.filter(s => !isUnwantedTestStudent(s));
         try {
           localStorage.setItem(key, JSON.stringify(cloudClass));
         } catch (err) {}
@@ -2790,10 +2781,7 @@ export const StorageService = {
     // Mark as customized so default sample class is NEVER injected over user's setup
     const updatedClassData = { ...classData, isCustomized: true };
     if (Array.isArray(updatedClassData.students)) {
-      updatedClassData.students = updatedClassData.students.filter(s => {
-        const name = (typeof s === 'string' ? s : (s?.name || '')).trim().toLowerCase();
-        return name !== 'tran thi b' && name !== 'nguyen van a';
-      });
+      updatedClassData.students = updatedClassData.students.filter(s => !isUnwantedTestStudent(s));
     }
 
     // 1. Pre-save any student base64 avatars to AvatarStorageService to shrink payload

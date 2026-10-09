@@ -6,7 +6,7 @@ import {
   UserPlus, FileText, Upload, Check, Edit3, Trash2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { StorageService } from '../../services/storage';
+import { StorageService, isUnwantedTestStudent } from '../../services/storage';
 import { parseStudentRosterFile } from '../../utils/universalParser';
 
 // Color palette for student marbles matching video aesthetic
@@ -152,10 +152,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     try {
       const hr = StorageService.getTeacherHomeroom(currentUser?.id);
       if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
-        const cleanStudents = hr.students.filter(s => {
-          const sName = (typeof s === 'string' ? s : (s?.name || s?.studentName || '')).trim().toLowerCase();
-          return sName !== 'tran thi b' && sName !== 'nguyen van a';
-        });
+        const cleanStudents = hr.students.filter(s => !isUnwantedTestStudent(s));
         setHomeroom({ ...hr, students: cleanStudents });
         setSelectedClassName(hr.className || 'Lớp Chủ Nhiệm');
         setStudents(cleanStudents.map((s, idx) => ({
@@ -295,7 +292,8 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     const lines = customRosterText
       .split('\n')
       .map(s => s.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter(s => !isUnwantedTestStudent(s));
 
     if (lines.length < 2) {
       alert('Vui lòng nhập ít nhất 2 học sinh để bắt đầu cuộc đua bi!');
@@ -333,10 +331,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
       if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
         const names = hr.students
           .map((s, idx) => typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`))
-          .filter(n => {
-            const low = n.trim().toLowerCase();
-            return low !== 'tran thi b' && low !== 'nguyen van a';
-          });
+          .filter(n => !isUnwantedTestStudent(n));
         setCustomRosterText(names.join('\n'));
         setCustomClassNameInput(hr.className || 'Lớp Chủ Nhiệm');
       } else {
