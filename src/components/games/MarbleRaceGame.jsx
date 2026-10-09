@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Trophy, RotateCcw, Volume2, VolumeX, Maximize, X, 
   Play, FastForward, Clock, Users, ArrowRight, Award, 
-  Sparkles, CheckCircle, RefreshCw, Zap, Shield, HelpCircle
+  Sparkles, CheckCircle, RefreshCw, Zap, Shield, HelpCircle,
+  UserPlus, FileText, Upload, Check, Edit3, Trash2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { StorageService } from '../../services/storage';
+import { parseStudentRosterFile } from '../../utils/universalParser';
 
 // Color palette for student marbles matching video aesthetic
 const MARBLE_COLORS = [
@@ -122,6 +124,12 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
   const [homeroom, setHomeroom] = useState(null);
   const [students, setStudents] = useState([]);
   const [selectedClassName, setSelectedClassName] = useState('Lớp Mẫu 25 Học Sinh');
+
+  // Custom Roster State
+  const [showRosterModal, setShowRosterModal] = useState(false);
+  const [customRosterText, setCustomRosterText] = useState('');
+  const [customClassNameInput, setCustomClassNameInput] = useState('');
+  const fileInputRef = useRef(null);
 
   const loadStudents = () => {
     try {
@@ -247,6 +255,101 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
       { id: Date.now() + Math.random(), time: formatTime(timeSec), text },
       ...prev.slice(0, 40)
     ]);
+  };
+
+  // Open Custom Roster Modal
+  const handleOpenRosterModal = () => {
+    if (!customRosterText.trim()) {
+      const currentNames = students.map(s => s.name).join('\n');
+      setCustomRosterText(currentNames);
+    }
+    if (!customClassNameInput.trim()) {
+      setCustomClassNameInput(selectedClassName);
+    }
+    setShowRosterModal(true);
+  };
+
+  // Apply Custom Roster
+  const handleApplyCustomRoster = () => {
+    const lines = customRosterText
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    if (lines.length < 2) {
+      alert('Vui lòng nhập ít nhất 2 học sinh để bắt đầu cuộc đua bi!');
+      return;
+    }
+
+    const className = customClassNameInput.trim() || `Lớp Tùy Chọn (${lines.length} HS)`;
+    const newStudents = lines.map((name, idx) => ({
+      id: `custom_${Date.now()}_${idx}`,
+      name,
+      avatar: null,
+      number: idx + 1,
+      color: MARBLE_COLORS[idx % MARBLE_COLORS.length]
+    }));
+
+    setSelectedClassName(className);
+    setStudents(newStudents);
+    setShowRosterModal(false);
+
+    try {
+      const storageKey = `gvd_marble_custom_roster_${currentUser?.id || 'guest'}`;
+      localStorage.setItem(storageKey, JSON.stringify({
+        className,
+        names: lines
+      }));
+    } catch (e) {}
+
+    addCommentary(`Đã nạp danh sách "${className}" (${lines.length} học sinh)! Chuẩn bị xuất phát.`, 0);
+  };
+
+  // Preset Handlers
+  const handleLoadHomeroomPreset = () => {
+    try {
+      const hr = StorageService.getTeacherHomeroom(currentUser?.id);
+      if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
+        const names = hr.students.map((s, idx) => 
+          typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`)
+        );
+        setCustomRosterText(names.join('\n'));
+        setCustomClassNameInput(hr.className || 'Lớp Chủ Nhiệm');
+      } else {
+        alert('Chưa có danh sách Lớp Chủ Nhiệm. Bạn có thể chọn lớp mẫu hoặc dán danh sách học sinh!');
+      }
+    } catch (e) {
+      alert('Không thể tải lớp chủ nhiệm: ' + e.message);
+    }
+  };
+
+  const handleLoadSamplePreset = (count) => {
+    const sample = DEFAULT_CLASS_ROSTER.slice(0, count);
+    setCustomRosterText(sample.join('\n'));
+    setCustomClassNameInput(`Lớp Mẫu ${count} Học Sinh`);
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await parseStudentRosterFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const names = parsed.map(s => 
+          (typeof s === 'object' && s !== null) ? (s.name || s.studentName || 'Học sinh') : String(s || '')
+        ).filter(Boolean);
+        if (names.length > 0) {
+          setCustomRosterText(names.join('\n'));
+          const cleanFileName = file.name.replace(/\.[^/.]+$/, "");
+          setCustomClassNameInput(`Tệp: ${cleanFileName}`);
+          alert(`Đã nhập thành công ${names.length} học sinh từ tệp "${file.name}"!`);
+        }
+      }
+    } catch (err) {
+      alert(err.message || 'Lỗi khi nhập tệp danh sách học sinh.');
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   // --- Reset & Initialize Race Physics ---
@@ -1485,9 +1588,52 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
               VỀ NHẤT LÊN BẢNG
             </span>
           </div>
-          <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600 }}>
-            Lớp tham gia: <strong style={{ color: '#f8fafc' }}>{selectedClassName}</strong> ({students.length} học sinh)
-          </span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#1e293b',
+            padding: '4px 12px',
+            borderRadius: '10px',
+            border: '1px solid #334155'
+          }}>
+            <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Lớp:</span>
+            <strong style={{ color: '#38bdf8', fontSize: '0.92rem' }}>{selectedClassName}</strong>
+            <span style={{
+              background: '#0f172a',
+              color: '#a5f3fc',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '0.78rem',
+              fontWeight: 800
+            }}>
+              {students.length} HS
+            </span>
+          </div>
+
+          {/* Button: Nhập DS Học Sinh Khác */}
+          <button
+            onClick={handleOpenRosterModal}
+            title="Thêm danh sách học sinh khác hoặc dán danh sách tên học sinh để chơi"
+            style={{
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              color: '#ffffff',
+              border: '1px solid #38bdf8',
+              padding: '6px 13px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.4)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <UserPlus size={15} />
+            Nhập DS Học Sinh
+          </button>
         </div>
 
         {/* Controls: Speed, Sync, Sound, Fullscreen, Close */}
@@ -1528,7 +1674,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
           {/* Sync Homeroom button */}
           <button
             onClick={loadStudents}
-            title="Đồng bộ danh sách học sinh từ Lớp Chủ Nhiệm"
+            title="Đồng bộ lại danh sách từ Lớp Chủ Nhiệm"
             style={{
               background: '#1e293b',
               color: '#38bdf8',
@@ -1544,7 +1690,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             }}
           >
             <RefreshCw size={14} />
-            Đồng bộ Lớp
+            Lớp Chủ Nhiệm
           </button>
 
           {/* Sound Toggle */}
@@ -2399,6 +2545,294 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 7. CUSTOM ROSTER INPUT MODAL */}
+      {showRosterModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 130,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#1e293b',
+            color: '#f8fafc',
+            border: '2px solid #38bdf8',
+            borderRadius: '24px',
+            padding: '28px',
+            width: '100%',
+            maxWidth: '640px',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)',
+            overflowY: 'auto'
+          }}>
+            {/* Modal Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 900,
+                  color: '#38bdf8',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}>
+                  <UserPlus size={22} />
+                  NHẬP DANH SÁCH HỌC SINH KHÁC
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                  Giáo viên có thể nhập tên lớp khác, tải tệp Excel hoặc dán danh sách tên để đua bi
+                </p>
+              </div>
+              <button
+                onClick={() => setShowRosterModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Class Name Input */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '6px' }}>
+                🏷️ Tên Lớp / Nhóm Đua:
+              </label>
+              <input
+                type="text"
+                value={customClassNameInput}
+                onChange={(e) => setCustomClassNameInput(e.target.value)}
+                placeholder="Ví dụ: Lớp 6A2, Nhóm 1 Sinh Học, Đội Vàng..."
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  borderRadius: '12px',
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  color: '#ffffff',
+                  fontSize: '0.92rem',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Quick Presets & File Upload */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0' }}>
+                  ⚡ Chọn Nhanh Mẫu Danh Sách:
+                </span>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Upload size={14} /> Tải tệp Excel (.xlsx)
+                </button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".xlsx,.xls,.csv,.txt"
+                  style={{ display: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={handleLoadHomeroomPreset}
+                  style={{
+                    background: '#334155',
+                    color: '#38bdf8',
+                    border: '1px solid #475569',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  🏫 Lớp Chủ Nhiệm
+                </button>
+                <button
+                  onClick={() => handleLoadSamplePreset(25)}
+                  style={{
+                    background: '#334155',
+                    color: '#e2e8f0',
+                    border: '1px solid #475569',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  👥 Mẫu 25 HS
+                </button>
+                <button
+                  onClick={() => handleLoadSamplePreset(18)}
+                  style={{
+                    background: '#334155',
+                    color: '#e2e8f0',
+                    border: '1px solid #475569',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  👥 Mẫu 18 HS
+                </button>
+                <button
+                  onClick={() => handleLoadSamplePreset(10)}
+                  style={{
+                    background: '#334155',
+                    color: '#e2e8f0',
+                    border: '1px solid #475569',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer'
+                  }}
+                >
+                  👥 Mẫu 10 HS
+                </button>
+                <button
+                  onClick={() => setCustomRosterText('')}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Trash2 size={13} /> Xóa trắng
+                </button>
+              </div>
+            </div>
+
+            {/* Textarea Area */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0' }}>
+                  📝 Dán hoặc gõ danh sách tên (mỗi dòng một học sinh):
+                </span>
+                <span style={{
+                  background: customRosterText.split('\n').map(s => s.trim()).filter(Boolean).length >= 2 ? '#065f46' : '#831843',
+                  color: customRosterText.split('\n').map(s => s.trim()).filter(Boolean).length >= 2 ? '#6ee7b7' : '#fbcfe8',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '0.78rem',
+                  fontWeight: 900
+                }}>
+                  {customRosterText.split('\n').map(s => s.trim()).filter(Boolean).length} học sinh đã nhận diện
+                </span>
+              </div>
+
+              <textarea
+                rows={9}
+                value={customRosterText}
+                onChange={(e) => setCustomRosterText(e.target.value)}
+                placeholder={'Nguyễn Văn An\nTrần Thị Bình\nLê Hoàng Nam\nPhan Quốc Bảo\n...'}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '14px',
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  color: '#ffffff',
+                  fontFamily: 'monospace',
+                  fontSize: '0.92rem',
+                  lineHeight: '1.6',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  resize: 'vertical'
+                }}
+              />
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                💡 Mẹo: Thầy cô có thể copy cả cột học sinh từ bảng Excel, Word hoặc Zalo rồi dán trực tiếp vào đây.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '6px' }}>
+              <button
+                onClick={() => setShowRosterModal(false)}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '12px',
+                  background: 'transparent',
+                  border: '1px solid #64748b',
+                  color: '#cbd5e1',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleApplyCustomRoster}
+                style={{
+                  padding: '10px 24px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  border: 'none',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
+                }}
+              >
+                <Check size={18} /> Áp Dụng & Bắt Đầu Đua
+              </button>
             </div>
           </div>
         </div>
