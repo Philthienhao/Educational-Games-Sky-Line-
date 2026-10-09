@@ -316,7 +316,7 @@ export function Sidebar({
                 <Award size={11} color="#d97706" /> TÁC GIẢ WEBSITE
               </div>
               <div style={{ fontSize: '0.88rem', fontWeight: 900, color: '#0f172a' }}>
-                by Thầy Hảo Địa Lý
+                made by Thầy Hảo Địa Lí
               </div>
             </div>
           </div>

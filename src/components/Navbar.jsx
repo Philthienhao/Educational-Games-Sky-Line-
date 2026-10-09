@@ -315,7 +315,7 @@ export function Navbar({
                 🏆 TÁC GIẢ WEBSITE
               </span>
               <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#fde047', marginTop: '1px', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
-                by Thầy Hảo Địa Lí
+                made by Thầy Hảo Địa Lí
               </div>
             </div>
           </div>

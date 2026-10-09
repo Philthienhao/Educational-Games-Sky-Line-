@@ -413,7 +413,7 @@ export function App() {
                 ĐỒ NGHỀ DẠY HỌC
               </div>
               <div style={{ fontSize: '0.68rem', color: '#fde047', fontWeight: 800 }}>
-                by Thầy Hảo Địa Lí
+                made by Thầy Hảo Địa Lí
               </div>
             </div>
           </div>
