@@ -36,9 +36,9 @@ const DEFAULT_STUDENT_ROSTERS = {
     'Văn Nam', 'Thị Trang', 'Văn Tú', 'Thị Thảo', 'Văn Cường', 'Thị Vân'
   ],
   'Lớp 10A2 (Mẫu 15 HS)': [
-    'Nguyễn Văn A', 'Trần Thị B', 'Lê Hoàng C', 'Phạm Minh D', 'Vũ Thị E',
-    'Đặng Văn F', 'Bùi Thị G', 'Đỗ Minh H', 'Hồ Văn I', 'Nông Thị K',
-    'Trịnh Văn L', 'Phan Thị M', 'Lương Văn N', 'Ngô Thị O', 'Dương Văn P'
+    'Nguyễn Văn An', 'Trần Thị Bình', 'Lê Hoàng Cường', 'Phạm Minh Dũng', 'Vũ Thị Em',
+    'Đặng Văn Phúc', 'Bùi Thị Giang', 'Đỗ Minh Hưng', 'Hồ Văn Ích', 'Nông Thị Kiều',
+    'Trịnh Văn Long', 'Phan Thị Mai', 'Lương Văn Nam', 'Ngô Thị Oanh', 'Dương Văn Phong'
   ],
   'Lớp 6A3 (Mẫu 10 HS)': [
     'An', 'Bình', 'Chi', 'Dũng', 'Giang', 'Hương', 'Khánh', 'Linh', 'Minh', 'Nam'
