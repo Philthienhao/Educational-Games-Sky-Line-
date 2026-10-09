@@ -332,6 +332,16 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường THCS Bạch Hà, Lương Sơn, Nghệ An',
     createdAt: '2026-10-08'
+  },
+  {
+    id: 'user_thai_chi',
+    username: 'thaichi',
+    password: '123456',
+    name: 'Thái Thị Chi',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Trường TH Vĩnh Thanh',
+    createdAt: '2026-10-09'
   }
 ];
 
