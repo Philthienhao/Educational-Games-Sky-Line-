@@ -163,11 +163,11 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
   }, [currentUser]);
 
   // --- Game State ---
-  const [simSpeed, setSimSpeed] = useState(1); // 1, 2, 3, 4, 5
+  const [simSpeed, setSimSpeed] = useState(0.75); // 0.5, 0.75, 1, 1.5, 2, 3
   const [gameState, setGameState] = useState('gate_locked'); // 'gate_locked', 'counting_down', 'racing', 'finished'
   const [gateStep, setGateStep] = useState(0); // 0 = locked, 1 = nut 1, 2 = nut 2, 3 = nut 3, 4 = open
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
-  const [currentStageName, setCurrentStageName] = useState('Chặng 1 · Đệm nảy pinball');
+  const [currentStageName, setCurrentStageName] = useState('Chặng 1 · Đệm nảy Pinball & Bệ phóng');
   
   // Commentary feed & Leaderboard
   const [leaderboard, setLeaderboard] = useState([]);
@@ -197,27 +197,33 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     gateY: 175,
     gateOffset: 0,
     cameraY: 0,
-    totalHeight: 4100,
+    totalHeight: 7100,
     trackWidth: 720,
     startTime: 0,
     finishedBalls: [],
     fanAngle1: 0,
     fanAngle2: 0,
     pendulumAngle: 0,
-    seesawAngle: 0,
+    seesawAngle1: 0,
+    seesawAngle2: 0,
+    wheelAngle1: 0,
+    wheelAngle2: 0,
     lastCommentaryTime: 0,
     previousRankings: []
   });
 
-  // Track Segments Definition
+  // Track Segments Definition - Exactly 10 Distinct Stages
   const STAGES = [
-    { startY: 0, endY: 700, name: 'Chặng 1 · Đệm nảy pinball' },
-    { startY: 700, endY: 1200, name: 'Chặng 2 · Ngã ba định mệnh & Đảo hướng' },
-    { startY: 1200, endY: 1850, name: 'Chặng 3 · Dốc zíc-zắc thác trượt & Cổng không gian' },
-    { startY: 1850, endY: 2450, name: 'Chặng 4 · Cánh quạt tử thần & Búa lắc' },
-    { startY: 2450, endY: 3000, name: 'Chặng 5 · Dốc zíc-zắc dài & Cầu bập bênh' },
-    { startY: 3000, endY: 3600, name: 'Chặng 6 · Bãi chốt Galton' },
-    { startY: 3600, endY: 4100, name: 'Chặng 7 · Phễu cổ chai & Chốt chặn' }
+    { startY: 0, endY: 700, name: 'Chặng 1 · Đệm nảy Pinball & Bệ phóng' },
+    { startY: 700, endY: 1400, name: 'Chặng 2 · Ngã ba định mệnh & Mũi tên chia dòng' },
+    { startY: 1400, endY: 2100, name: 'Chặng 3 · Cánh quạt tử thần 3 cánh xoay' },
+    { startY: 2100, endY: 2800, name: 'Chặng 4 · Búa lắc con lắc khổng lồ quét ngang' },
+    { startY: 2800, endY: 3500, name: 'Chặng 5 · Cổng không gian huyền bí & Đệm lướt Slingshot' },
+    { startY: 3500, endY: 4200, name: 'Chặng 6 · Thác trượt Zíc-Zắc & Gờ ma sát đảo chiều' },
+    { startY: 4200, endY: 4900, name: 'Chặng 7 · Cầu bập bênh nghiêng động lực học' },
+    { startY: 4900, endY: 5600, name: 'Chặng 8 · Ma trận chốt ghim Galton đa tầng' },
+    { startY: 5600, endY: 6300, name: 'Chặng 9 · Guồng quay trục xoay 4 cánh chướng ngại' },
+    { startY: 6300, endY: 7100, name: 'Chặng 10 · Đại phễu xoáy nước & Cổ chai về đích' }
   ];
 
   // Helper format time
@@ -286,14 +292,17 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
       gateY: 175,
       gateOffset: 0,
       cameraY: 0,
-      totalHeight: 4100,
+      totalHeight: 7100,
       trackWidth: 720,
       startTime: 0,
       finishedBalls: [],
       fanAngle1: 0,
       fanAngle2: 0,
       pendulumAngle: 0,
-      seesawAngle: 0,
+      seesawAngle1: 0,
+      seesawAngle2: 0,
+      wheelAngle1: 0,
+      wheelAngle2: 0,
       lastCommentaryTime: 0,
       previousRankings: []
     };
@@ -304,7 +313,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     setWinner(null);
     setShowWinnerModal(false);
     setShowFullStandingsModal(false);
-    setCurrentStageName('Chặng 1 · Đệm nảy pinball');
+    setCurrentStageName('Chặng 1 · Đệm nảy Pinball & Bệ phóng');
     setAwardedPoints(0);
     setLeaderboard(balls.map(b => ({ ...b })));
     setCommentaryLog([
@@ -392,353 +401,570 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
 
       // Update elapsed time
       if (state.startTime > 0 && gameState === 'racing') {
-        const nowSec = (currentTime - state.startTime) / 1000 * simSpeed;
+        const nowSec = ((currentTime - state.startTime) / 1000) * simSpeed;
         setElapsedTime(nowSec);
       }
 
       // Rotate fans & obstacles
-      state.fanAngle1 += 2.2 * dt;
-      state.fanAngle2 -= 2.6 * dt;
-      state.pendulumAngle = Math.sin(currentTime * 0.003 * simSpeed) * 0.85;
+      state.fanAngle1 += 2.0 * dt;
+      state.fanAngle2 -= 2.4 * dt;
+      state.pendulumAngle = Math.sin(currentTime * 0.0022 * simSpeed) * 0.95;
+      state.seesawAngle1 = Math.sin(currentTime * 0.0025 * simSpeed) * 0.32;
+      state.seesawAngle2 = Math.cos(currentTime * 0.0025 * simSpeed) * 0.32;
+      state.wheelAngle1 += 1.8 * dt;
+      state.wheelAngle2 -= 2.2 * dt;
 
       // Gate opening animation
       if (gateOpen && state.gateOffset < 300) {
         state.gateOffset += 350 * dt;
       }
 
-      // Static obstacles coordinates
-      // Chặng 1 BUMPERS (Red concentric circular spring bumpers)
+      // Finish line coordinates
+      const finishY = 6880;
+
+      // --- 10 STAGES OBSTACLES DEFINITIONS ---
+      // Bumpers across track
       const bumpers = [
-        { x: 190, y: 310, r: 28 },
-        { x: 360, y: 260, r: 30 },
-        { x: 530, y: 310, r: 28 },
-        { x: 270, y: 440, r: 30 },
-        { x: 450, y: 440, r: 30 },
-        { x: 180, y: 570, r: 28 },
-        { x: 360, y: 560, r: 32 },
-        { x: 540, y: 570, r: 28 }
+        // Chặng 1: Concentric launch bumpers
+        { x: 230, y: 310, r: 28 },
+        { x: 360, y: 270, r: 32 },
+        { x: 490, y: 310, r: 28 },
+        { x: 170, y: 420, r: 28 },
+        { x: 300, y: 430, r: 30 },
+        { x: 420, y: 430, r: 30 },
+        { x: 550, y: 420, r: 28 },
+        { x: 240, y: 550, r: 30 },
+        { x: 360, y: 540, r: 32 },
+        { x: 480, y: 550, r: 30 },
+
+        // Chặng 2: Split lane deflector bumpers
+        { x: 210, y: 990, r: 26 },
+        { x: 140, y: 1120, r: 26 },
+        { x: 510, y: 990, r: 26 },
+        { x: 580, y: 1120, r: 26 },
+
+        // Chặng 4: Pendulum hammer corridor posts
+        { x: 215, y: 2450, r: 20 },
+        { x: 505, y: 2450, r: 20 },
+
+        // Chặng 6: Slalom turnaround cushions
+        { x: 630, y: 3690, r: 26 },
+        { x: 90, y: 3900, r: 26 },
+        { x: 630, y: 4110, r: 26 },
+
+        // Chặng 9: Paddle wheel channel deflectors
+        { x: 175, y: 5950, r: 22 },
+        { x: 545, y: 5950, r: 22 },
+
+        // Chặng 10: Grand funnel guide bumpers
+        { x: 270, y: 6480, r: 26 },
+        { x: 450, y: 6480, r: 26 }
       ];
 
       // Chặng 2 Fork wedge (Upward pointing arrow wedge)
       const forkArrowTip = { x: 360, y: 730 };
-      const forkArrowBase = { x: 360, y: 1040 };
+      const forkArrowBase = { x: 360, y: 860 };
 
-      // Chặng 4 Rotating Fans
+      // Chặng 3 Rotating Fans (Spanning the left and right channels)
       const fans = [
-        { x: 250, y: 2020, radius: 80, angle: state.fanAngle1 },
-        { x: 480, y: 2020, radius: 80, angle: state.fanAngle2 }
+        { x: 250, y: 1720, radius: 85, angle: state.fanAngle1 },
+        { x: 470, y: 1720, radius: 85, angle: state.fanAngle2 }
       ];
 
-      // Chặng 4.5 Swinging Pendulum Hammer
-      const pendulumPivot = { x: 360, y: 2180 };
-      const pendulumLen = 140;
+      // Chặng 4 Swinging Pendulum Hammer
+      const pendulumPivot = { x: 360, y: 2220 };
+      const pendulumLen = 220;
       const pendulumBob = {
         x: pendulumPivot.x + Math.sin(state.pendulumAngle) * pendulumLen,
         y: pendulumPivot.y + Math.cos(state.pendulumAngle) * pendulumLen,
-        radius: 26
+        radius: 32
       };
 
-      // Chặng 4.5 Speed Boost Pad
-      const boostPad = { x: 220, y: 1520, w: 260, h: 42, boostVx: 18, boostVy: 10 };
+      // Chặng 5 Wormhole Portals & Speed Boost Pad
+      const portalIn = { x: 600, y: 2930, r: 28 };
+      const portalOut = { x: 150, y: 3280, r: 28 };
+      const boostPad = { x: 230, y: 3120, w: 260, h: 48, boostVx: 8, boostVy: 18 };
 
-      // Chặng 4.5 Wormhole Portals
-      const portalIn = { x: 620, y: 1380, r: 24 };
-      const portalOut = { x: 100, y: 1720, r: 24 };
+      // Chặng 7 Tilting Seesaws
+      const seesawLen = 250;
+      const seesaws = [
+        {
+          px: 360,
+          py: 4480,
+          angle: state.seesawAngle1,
+          p1: {
+            x: 360 - Math.cos(state.seesawAngle1) * (seesawLen / 2),
+            y: 4480 - Math.sin(state.seesawAngle1) * (seesawLen / 2)
+          },
+          p2: {
+            x: 360 + Math.cos(state.seesawAngle1) * (seesawLen / 2),
+            y: 4480 + Math.sin(state.seesawAngle1) * (seesawLen / 2)
+          }
+        },
+        {
+          px: 360,
+          py: 4700,
+          angle: state.seesawAngle2,
+          p1: {
+            x: 360 - Math.cos(state.seesawAngle2) * (seesawLen / 2),
+            y: 4700 - Math.sin(state.seesawAngle2) * (seesawLen / 2)
+          },
+          p2: {
+            x: 360 + Math.cos(state.seesawAngle2) * (seesawLen / 2),
+            y: 4700 + Math.sin(state.seesawAngle2) * (seesawLen / 2)
+          }
+        }
+      ];
 
-      // Chặng 6 Galton Pegs Grid
+      // Chặng 8 Galton Pegs Grid (Dense 8-row pinboard)
       const galtonPegs = [];
-      const pegRows = 6;
+      const pegRows = 8;
       for (let r = 0; r < pegRows; r++) {
         const count = 9 - (r % 2);
-        const y = 3080 + r * 68;
-        const startX = (r % 2 === 0) ? 90 : 125;
+        const y = 5040 + r * 60;
+        const startX = (r % 2 === 0) ? 140 : 175;
         for (let c = 0; c < count; c++) {
-          galtonPegs.push({ x: startX + c * 70, y, r: 9 });
+          galtonPegs.push({ x: startX + c * 52, y, r: 9 });
         }
       }
 
-      // Finish line coordinates
-      const finishY = 3880;
-
-      // Walls segments [x1, y1, x2, y2]
-      const walls = [
-        // Chặng 0 Funnel entrance
-        [0, 0, 0, 4100],
-        [trackWidth, 0, trackWidth, 4100],
-        [0, 160, 180, 220],
-        [trackWidth, 160, trackWidth - 180, 220],
-
-        // Chặng 2 Direction guide angled walls
-        [0, 680, 200, 850],
-        [200, 850, 0, 1020],
-        [trackWidth, 680, trackWidth - 200, 850],
-        [trackWidth - 200, 850, trackWidth, 1020],
-
-        // Chặng 3 Zig-zag chutes
-        [0, 1220, 560, 1360],
-        [trackWidth, 1420, 160, 1560],
-        [0, 1620, 560, 1760],
-
-        // Chặng 5 Long Zig-zag slide
-        [trackWidth, 2480, 140, 2640],
-        [0, 2720, 580, 2880],
-
-        // Chặng 7 Bottleneck Funnel leading to finish slot
-        [0, 3620, 310, 3860],
-        [trackWidth, 3620, 410, 3860],
-        [310, 3860, 310, 3960],
-        [410, 3860, 410, 3960],
-        [310, 3960, 410, 3960] // floor
+      // Chặng 9 Revolving Cross Paddle Wheels
+      const wheels = [
+        { x: 270, y: 5950, radius: 85, angle: state.wheelAngle1 },
+        { x: 450, y: 5950, radius: 85, angle: state.wheelAngle2 }
       ];
 
-      // Gravity & Physics simulation
-      const gravity = 480; // px/s^2
+      // Walls segments [x1, y1, x2, y2] - All 10 stages guide channels
+      const walls = [
+        // Outer track boundaries
+        [0, 0, 0, 7100],
+        [trackWidth, 0, trackWidth, 7100],
 
-      balls.forEach(ball => {
-        if (ball.isFinished) return;
+        // Chặng 1: Funnel out from gate & into Chặng 2
+        [0, 190, 160, 240],
+        [trackWidth, 190, trackWidth - 160, 240],
+        [0, 620, 150, 700],
+        [trackWidth, 620, trackWidth - 150, 700],
 
-        // Apply gravity
-        ball.vy += gravity * dt;
+        // Chặng 2: Splitter lane funnels & divider wall
+        [0, 750, 180, 880],
+        [180, 880, 70, 1050],
+        [trackWidth, 750, trackWidth - 180, 880],
+        [trackWidth - 180, 880, trackWidth - 70, 1050],
+        [360, 860, 360, 1280], // center divider
+        [70, 1260, 240, 1370], // merge ramp left
+        [trackWidth - 70, 1260, trackWidth - 240, 1370], // merge ramp right
 
-        // Air drag
-        ball.vx *= (1 - 0.15 * dt);
-        ball.vy *= (1 - 0.05 * dt);
+        // Chặng 3: Rotating fans channel guide walls
+        [0, 1420, 140, 1550],
+        [trackWidth, 1420, trackWidth - 140, 1550],
+        [140, 1550, 140, 1880],
+        [trackWidth - 140, 1550, trackWidth - 140, 1880],
+        [360, 1580, 360, 1880], // fan center divider
+        [140, 1920, 260, 2040],
+        [trackWidth - 140, 1920, trackWidth - 260, 2040],
 
-        // Cap maximum speed
-        const speed = Math.hypot(ball.vx, ball.vy);
-        const maxSpeed = 750;
-        if (speed > maxSpeed) {
-          ball.vx = (ball.vx / speed) * maxSpeed;
-          ball.vy = (ball.vy / speed) * maxSpeed;
-        }
+        // Chặng 4: Pendulum hammer bottleneck
+        [0, 2120, 200, 2280],
+        [trackWidth, 2120, trackWidth - 200, 2280],
+        [200, 2280, 200, 2620],
+        [trackWidth - 200, 2280, trackWidth - 200, 2620],
+        [200, 2620, 100, 2740],
+        [trackWidth - 200, 2620, trackWidth - 100, 2740],
 
-        // Starting gate collision
-        if (!gateOpen) {
-          if (ball.y + ball.radius >= state.gateY && ball.y - ball.radius <= state.gateY + 12) {
-            ball.y = state.gateY - ball.radius;
-            ball.vy = -ball.vy * 0.1;
-          }
-        }
+        // Chặng 5: Slingshot & Portal slide ramps
+        [0, 2820, 520, 2960], // slides balls toward the portal inlet
+        [0, 3040, 200, 3120],
+        [trackWidth, 3040, trackWidth - 200, 3120],
+        [200, 3120, 200, 3320],
+        [trackWidth - 200, 3120, trackWidth - 200, 3320],
 
-        // Bumper collisions
-        bumpers.forEach(b => {
-          const dx = ball.x - b.x;
-          const dy = ball.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < ball.radius + b.r) {
-            const nx = dx / dist;
-            const ny = dy / dist;
-            const impulse = 320;
-            ball.vx = nx * impulse + (Math.random() - 0.5) * 50;
-            ball.vy = ny * impulse;
-            ball.x = b.x + nx * (ball.radius + b.r + 2);
-            playSynthSound('bumper');
-          }
+        // Chặng 6: Triple Zig-Zag Slalom Shelves
+        [0, 3540, 570, 3690], // shelf 1 (gap on right)
+        [trackWidth, 3750, 150, 3900], // shelf 2 (gap on left)
+        [0, 3960, 570, 4110], // shelf 3 (gap on right)
+
+        // Chặng 7: Seesaw channel guides
+        [0, 4220, 180, 4350],
+        [trackWidth, 4220, trackWidth - 180, 4350],
+        [180, 4350, 180, 4820],
+        [trackWidth - 180, 4350, trackWidth - 180, 4820],
+
+        // Chặng 8: Galton pegboard funnel guides
+        [0, 4920, 100, 5000],
+        [trackWidth, 4920, trackWidth - 100, 5000],
+        [100, 5000, 100, 5520],
+        [trackWidth - 100, 5000, trackWidth - 100, 5520],
+
+        // Chặng 9: 4-spoke paddle wheels channel
+        [0, 5600, 160, 5720],
+        [trackWidth, 5600, trackWidth - 160, 5720],
+        [160, 5720, 160, 6180],
+        [trackWidth - 160, 5720, trackWidth - 160, 6180],
+
+        // Chặng 10: Grand Whirlpool Funnel to single-lane finish
+        [0, 6300, 220, 6540],
+        [trackWidth, 6300, trackWidth - 220, 6540],
+        [220, 6540, 310, 6760],
+        [trackWidth - 220, 6540, trackWidth - 310, 6760],
+        // Finish lane neck (width 100px: 310 to 410)
+        [310, 6760, 310, 6960],
+        [410, 6760, 410, 6960],
+        // Floor at bottom
+        [310, 6960, 410, 6960]
+      ];
+
+      // --- SUBSTEPPED CONTINUOUS PHYSICS (Anti-tunneling & Smooth Momentum) ---
+      const substeps = 3;
+      const subDt = dt / substeps;
+      const gravity = 240; // px/s^2 (Calibrated slower, suspenseful marble rolling)
+
+      for (let step = 0; step < substeps; step++) {
+        // Find current lead Y for pack racing dynamics
+        let currentLeadY = 0;
+        balls.forEach(b => {
+          if (!b.isFinished && b.y > currentLeadY) currentLeadY = b.y;
         });
 
-        // Galton Pegs collisions
-        galtonPegs.forEach(peg => {
-          const dx = ball.x - peg.x;
-          const dy = ball.y - peg.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < ball.radius + peg.r) {
-            const nx = dx / dist;
-            const ny = dy / dist;
-            const impulse = 180;
-            ball.vx = nx * impulse + (Math.random() - 0.5) * 40;
-            ball.vy = Math.max(10, ny * impulse);
-            ball.x = peg.x + nx * (ball.radius + peg.r + 1);
-            playSynthSound('bumper');
-          }
-        });
+        // 1. Pack Racing Slipstream & Rubber-Banding
+        balls.forEach(ball => {
+          if (ball.isFinished) return;
 
-        // Fork wedge collision
-        if (ball.y >= forkArrowTip.y && ball.y <= forkArrowBase.y) {
-          const arrowHalfWidth = 14 + (ball.y - forkArrowTip.y) * 0.04;
-          if (Math.abs(ball.x - 360) < arrowHalfWidth + ball.radius) {
-            if (ball.x < 360) {
-              ball.x = 360 - arrowHalfWidth - ball.radius;
-              ball.vx = -Math.abs(ball.vx) * 0.6 - 40;
-            } else {
-              ball.x = 360 + arrowHalfWidth + ball.radius;
-              ball.vx = Math.abs(ball.vx) * 0.6 + 40;
-            }
-          }
-        }
-
-        // Rotating Fan Blades collision
-        fans.forEach(fan => {
-          const dx = ball.x - fan.x;
-          const dy = ball.y - fan.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < fan.radius + ball.radius) {
-            // Check 3 blades
-            for (let b = 0; b < 3; b++) {
-              const bAngle = fan.angle + (b * Math.PI * 2) / 3;
-              const bx = Math.cos(bAngle);
-              const by = Math.sin(bAngle);
-              const dot = (dx * bx + dy * by);
-              if (dot > 0 && dot < fan.radius) {
-                const perpDist = Math.abs(-by * dx + bx * dy);
-                if (perpDist < ball.radius + 10) {
-                  // Tangential velocity push
-                  const bladeSpeed = fan.radius * 2.2;
-                  ball.vx += -by * bladeSpeed * 0.6 + (Math.random() - 0.5) * 80;
-                  ball.vy += bx * bladeSpeed * 0.6 + 60;
-                  playSynthSound('fanHit');
-                  break;
-                }
+          // Slipstream (Drafting behind marble directly ahead in close proximity)
+          let hasSlipstream = false;
+          for (let oi = 0; oi < balls.length; oi++) {
+            const ob = balls[oi];
+            if (ob.id !== ball.id && !ob.isFinished && ob.y > ball.y && ob.y - ball.y < 160) {
+              if (Math.abs(ob.x - ball.x) < 45) {
+                hasSlipstream = true;
+                break;
               }
             }
           }
-        });
+          if (hasSlipstream) {
+            ball.vy += 75 * subDt; // Slipstream draft boost!
+          }
 
-        // Swinging Pendulum collision
-        const pdx = ball.x - pendulumBob.x;
-        const pdy = ball.y - pendulumBob.y;
-        const pdist = Math.hypot(pdx, pdy);
-        if (pdist < ball.radius + pendulumBob.radius) {
-          const nx = pdx / pdist;
-          const ny = pdy / pdist;
-          ball.vx += nx * 320;
-          ball.vy += ny * 320;
-          ball.x = pendulumBob.x + nx * (ball.radius + pendulumBob.radius + 2);
-          playSynthSound('bumper');
-        }
+          // Trailing pack rubber-band catchup (keeps the race close and thrilling!)
+          const lagDistance = currentLeadY - ball.y;
+          if (lagDistance > 380) {
+            ball.vy += 45 * subDt;
+          }
 
-        // Speed Boost Pad collision
-        if (
-          ball.x >= boostPad.x && ball.x <= boostPad.x + boostPad.w &&
-          ball.y >= boostPad.y && ball.y <= boostPad.y + boostPad.h
-        ) {
-          ball.vx += boostPad.boostVx;
-          ball.vy += boostPad.boostVy;
-          playSynthSound('boost');
-        }
-
-        // Wormhole Portal A -> B
-        const portDist = Math.hypot(ball.x - portalIn.x, ball.y - portalIn.y);
-        if (portDist < portalIn.r + ball.radius) {
-          ball.x = portalOut.x;
-          ball.y = portalOut.y;
-          ball.vx = 140;
-          ball.vy = 80;
-          playSynthSound('boost');
-          addCommentary(`${ball.name} lọt hố sâu không gian nhảy vọt ngoạn mục!`, elapsedTime);
-        }
-
-        // Walls Collision
-        walls.forEach(([x1, y1, x2, y2]) => {
-          const wx = x2 - x1;
-          const wy = y2 - y1;
-          const wlen2 = wx * wx + wy * wy;
-          if (wlen2 === 0) return;
-
-          let t = ((ball.x - x1) * wx + (ball.y - y1) * wy) / wlen2;
-          t = Math.max(0, Math.min(1, t));
-          const cx = x1 + t * wx;
-          const cy = y1 + t * wy;
-          const cdx = ball.x - cx;
-          const cdy = ball.y - cy;
-          const cdist = Math.hypot(cdx, cdy);
-
-          if (cdist < ball.radius) {
-            const nx = cdist === 0 ? 0 : cdx / cdist;
-            const ny = cdist === 0 ? -1 : cdy / cdist;
-            ball.x = cx + nx * (ball.radius + 0.5);
-            ball.y = cy + ny * (ball.radius + 0.5);
-
-            // Velocity reflection with friction
-            const dot = ball.vx * nx + ball.vy * ny;
-            if (dot < 0) {
-              const restitution = 0.45;
-              ball.vx = ball.vx - (1 + restitution) * dot * nx;
-              ball.vy = ball.vy - (1 + restitution) * dot * ny;
-
-              // Tangential slide friction
-              const tx = -ny;
-              const ty = nx;
-              const tdot = ball.vx * tx + ball.vy * ty;
-              ball.vx = tx * tdot * 0.95 + nx * Math.max(0, -dot * restitution);
-              ball.vy = ty * tdot * 0.95 + ny * Math.max(0, -dot * restitution);
+          // Runaway leader headwind drag (prevents one marble from winning early)
+          if (ball.y === currentLeadY && currentLeadY > 400) {
+            let secondLeadY = 0;
+            balls.forEach(b => {
+              if (b.id !== ball.id && !b.isFinished && b.y > secondLeadY) {
+                secondLeadY = b.y;
+              }
+            });
+            if (currentLeadY - secondLeadY > 200) {
+              ball.vy *= (1 - 0.08 * subDt);
             }
           }
         });
 
-        // Integrate Position
-        ball.x += ball.vx * dt;
-        ball.y += ball.vy * dt;
+        // 2. Individual Ball Physics & Collisions
+        balls.forEach(ball => {
+          if (ball.isFinished) return;
 
-        // Boundaries
-        if (ball.x - ball.radius < 0) {
-          ball.x = ball.radius;
-          ball.vx = Math.abs(ball.vx) * 0.5;
-        }
-        if (ball.x + ball.radius > trackWidth) {
-          ball.x = trackWidth - ball.radius;
-          ball.vx = -Math.abs(ball.vx) * 0.5;
-        }
+          // Apply Gravity
+          ball.vy += gravity * subDt;
 
-        // Finish Line Check
-        if (ball.y >= finishY && !ball.isFinished) {
-          ball.isFinished = true;
-          ball.finishTime = elapsedTime;
-          state.finishedBalls.push(ball);
+          // Air Drag
+          ball.vx *= (1 - 0.12 * subDt);
+          ball.vy *= (1 - 0.03 * subDt);
 
-          if (state.finishedBalls.length === 1) {
-            // First place winner
-            setWinner(ball);
-            setGameState('finished');
-            playSynthSound('win');
-            confetti({
-              particleCount: 120,
-              spread: 80,
-              origin: { y: 0.6 }
-            });
-            setTimeout(() => {
-              setShowWinnerModal(true);
-            }, 600);
-            addCommentary(`🏆 ${ball.name} CÁN ĐÍCH ĐẦU TIÊN (HẠNG 1)!`, elapsedTime);
-          } else {
-            addCommentary(`${ball.name} về đích hạng ${state.finishedBalls.length}.`, elapsedTime);
+          // Speed Cap
+          const speed = Math.hypot(ball.vx, ball.vy);
+          const maxSpeed = 540;
+          if (speed > maxSpeed) {
+            ball.vx = (ball.vx / speed) * maxSpeed;
+            ball.vy = (ball.vy / speed) * maxSpeed;
           }
-        }
-      });
 
-      // Ball-to-ball collisions (Elastic jostling)
-      for (let i = 0; i < balls.length; i++) {
-        for (let j = i + 1; j < balls.length; j++) {
-          const b1 = balls[i];
-          const b2 = balls[j];
-          const dx = b2.x - b1.x;
-          const dy = b2.y - b1.y;
-          const dist = Math.hypot(dx, dy);
-          const minDist = b1.radius + b2.radius;
-          if (dist < minDist && dist > 0) {
-            const overlap = 0.5 * (minDist - dist);
-            const nx = dx / dist;
-            const ny = dy / dist;
-            b1.x -= nx * overlap;
-            b1.y -= ny * overlap;
-            b2.x += nx * overlap;
-            b2.y += ny * overlap;
+          // Starting gate collision
+          if (!gateOpen) {
+            if (ball.y + ball.radius >= state.gateY && ball.y - ball.radius <= state.gateY + 14) {
+              ball.y = state.gateY - ball.radius;
+              ball.vy = -ball.vy * 0.1;
+            }
+          }
 
-            const kx = b1.vx - b2.vx;
-            const ky = b1.vy - b2.vy;
-            const p = 2 * (nx * kx + ny * ky) / 2;
-            b1.vx -= p * nx * 0.8;
-            b1.vy -= p * ny * 0.8;
-            b2.vx += p * nx * 0.8;
-            b2.vy += p * ny * 0.8;
+          // Bumper collisions
+          bumpers.forEach(b => {
+            const dx = ball.x - b.x;
+            const dy = ball.y - b.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < ball.radius + b.r) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              const impulse = 260;
+              ball.vx = nx * impulse + (Math.random() - 0.5) * 45;
+              ball.vy = ny * impulse;
+              ball.x = b.x + nx * (ball.radius + b.r + 1.5);
+              playSynthSound('bumper');
+            }
+          });
+
+          // Galton Pegs collisions (Chặng 8)
+          galtonPegs.forEach(peg => {
+            const dx = ball.x - peg.x;
+            const dy = ball.y - peg.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < ball.radius + peg.r) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              const impulse = 160;
+              ball.vx = nx * impulse + (Math.random() - 0.5) * 50;
+              ball.vy = Math.max(15, ny * impulse);
+              ball.x = peg.x + nx * (ball.radius + peg.r + 1);
+              playSynthSound('bumper');
+            }
+          });
+
+          // Fork wedge collision (Chặng 2)
+          if (ball.y >= forkArrowTip.y && ball.y <= forkArrowBase.y) {
+            const arrowHalfWidth = 14 + (ball.y - forkArrowTip.y) * 0.16;
+            if (Math.abs(ball.x - 360) < arrowHalfWidth + ball.radius) {
+              if (ball.x < 360) {
+                ball.x = 360 - arrowHalfWidth - ball.radius;
+                ball.vx = -Math.abs(ball.vx) * 0.65 - 40;
+              } else {
+                ball.x = 360 + arrowHalfWidth + ball.radius;
+                ball.vx = Math.abs(ball.vx) * 0.65 + 40;
+              }
+            }
+          }
+
+          // Rotating Fans collision (Chặng 3)
+          fans.forEach(fan => {
+            const dx = ball.x - fan.x;
+            const dy = ball.y - fan.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < fan.radius + ball.radius) {
+              for (let b = 0; b < 3; b++) {
+                const bAngle = fan.angle + (b * Math.PI * 2) / 3;
+                const bx = Math.cos(bAngle);
+                const by = Math.sin(bAngle);
+                const dot = dx * bx + dy * by;
+                if (dot > 0 && dot < fan.radius) {
+                  const perpDist = Math.abs(-by * dx + bx * dy);
+                  if (perpDist < ball.radius + 12) {
+                    const bladeSpeed = fan.radius * 2.0;
+                    ball.vx += -by * bladeSpeed * 0.65 + (Math.random() - 0.5) * 60;
+                    ball.vy += bx * bladeSpeed * 0.65 + 50;
+                    playSynthSound('fanHit');
+                    break;
+                  }
+                }
+              }
+            }
+          });
+
+          // Swinging Pendulum collision (Chặng 4)
+          const pdx = ball.x - pendulumBob.x;
+          const pdy = ball.y - pendulumBob.y;
+          const pdist = Math.hypot(pdx, pdy);
+          if (pdist < ball.radius + pendulumBob.radius) {
+            const nx = pdx / pdist;
+            const ny = pdy / pdist;
+            ball.vx += nx * 280;
+            ball.vy += ny * 280;
+            ball.x = pendulumBob.x + nx * (ball.radius + pendulumBob.radius + 2);
+            playSynthSound('bumper');
+          }
+
+          // Wormhole Portal A -> B (Chặng 5)
+          const portDist = Math.hypot(ball.x - portalIn.x, ball.y - portalIn.y);
+          if (portDist < portalIn.r + ball.radius) {
+            ball.x = portalOut.x;
+            ball.y = portalOut.y;
+            ball.vx = 130;
+            ball.vy = 70;
+            playSynthSound('boost');
+            addCommentary(`🌀 ${ball.name} lọt hố sâu không gian nhảy vọt ngoạn mục!`, elapsedTime);
+          }
+
+          // Speed Boost Pad collision (Chặng 5)
+          if (
+            ball.x >= boostPad.x && ball.x <= boostPad.x + boostPad.w &&
+            ball.y >= boostPad.y && ball.y <= boostPad.y + boostPad.h
+          ) {
+            ball.vx += boostPad.boostVx;
+            ball.vy += boostPad.boostVy;
+            playSynthSound('boost');
+          }
+
+          // Tilting Seesaw Planks collision (Chặng 7)
+          seesaws.forEach(sw => {
+            const wx = sw.p2.x - sw.p1.x;
+            const wy = sw.p2.y - sw.p1.y;
+            const wlen2 = wx * wx + wy * wy;
+            if (wlen2 > 0) {
+              let t = ((ball.x - sw.p1.x) * wx + (ball.y - sw.p1.y) * wy) / wlen2;
+              t = Math.max(0, Math.min(1, t));
+              const cx = sw.p1.x + t * wx;
+              const cy = sw.p1.y + t * wy;
+              const cdist = Math.hypot(ball.x - cx, ball.y - cy);
+              if (cdist < ball.radius + 7) {
+                const nx = cdist === 0 ? 0 : (ball.x - cx) / cdist;
+                const ny = cdist === 0 ? -1 : (ball.y - cy) / cdist;
+                ball.x = cx + nx * (ball.radius + 7.5);
+                ball.y = cy + ny * (ball.radius + 7.5);
+                const dot = ball.vx * nx + ball.vy * ny;
+                if (dot < 0) {
+                  ball.vx -= 1.45 * dot * nx;
+                  ball.vy -= 1.45 * dot * ny;
+                }
+                playSynthSound('bumper');
+              }
+            }
+          });
+
+          // Revolving Cross Paddle Wheels collision (Chặng 9)
+          wheels.forEach(wh => {
+            const dx = ball.x - wh.x;
+            const dy = ball.y - wh.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < wh.radius + ball.radius) {
+              for (let s = 0; s < 4; s++) {
+                const sAngle = wh.angle + (s * Math.PI) / 2;
+                const sx = Math.cos(sAngle);
+                const sy = Math.sin(sAngle);
+                const dot = dx * sx + dy * sy;
+                if (dot > 0 && dot < wh.radius) {
+                  const perpDist = Math.abs(-sy * dx + sx * dy);
+                  if (perpDist < ball.radius + 10) {
+                    const paddleSpeed = wh.radius * 1.9;
+                    ball.vx += -sy * paddleSpeed * 0.7 + (Math.random() - 0.5) * 50;
+                    ball.vy += sx * paddleSpeed * 0.7 + 60;
+                    playSynthSound('fanHit');
+                    break;
+                  }
+                }
+              }
+            }
+          });
+
+          // Walls Collision (Robust Segment Distance)
+          walls.forEach(([x1, y1, x2, y2]) => {
+            const wx = x2 - x1;
+            const wy = y2 - y1;
+            const wlen2 = wx * wx + wy * wy;
+            if (wlen2 === 0) return;
+
+            let t = ((ball.x - x1) * wx + (ball.y - y1) * wy) / wlen2;
+            t = Math.max(0, Math.min(1, t));
+            const cx = x1 + t * wx;
+            const cy = y1 + t * wy;
+            const cdx = ball.x - cx;
+            const cdy = ball.y - cy;
+            const cdist = Math.hypot(cdx, cdy);
+
+            if (cdist < ball.radius) {
+              const nx = cdist === 0 ? 0 : cdx / cdist;
+              const ny = cdist === 0 ? -1 : cdy / cdist;
+              ball.x = cx + nx * (ball.radius + 0.5);
+              ball.y = cy + ny * (ball.radius + 0.5);
+
+              const dot = ball.vx * nx + ball.vy * ny;
+              if (dot < 0) {
+                const restitution = 0.52;
+                ball.vx = ball.vx - (1 + restitution) * dot * nx;
+                ball.vy = ball.vy - (1 + restitution) * dot * ny;
+
+                // Slide friction
+                const tx = -ny;
+                const ty = nx;
+                const tdot = ball.vx * tx + ball.vy * ty;
+                ball.vx = tx * tdot * 0.94 + nx * Math.max(0, -dot * restitution);
+                ball.vy = ty * tdot * 0.94 + ny * Math.max(0, -dot * restitution);
+              }
+            }
+          });
+
+          // Position Integration
+          ball.x += ball.vx * subDt;
+          ball.y += ball.vy * subDt;
+
+          // Track Boundaries
+          if (ball.x - ball.radius < 0) {
+            ball.x = ball.radius;
+            ball.vx = Math.abs(ball.vx) * 0.5;
+          }
+          if (ball.x + ball.radius > trackWidth) {
+            ball.x = trackWidth - ball.radius;
+            ball.vx = -Math.abs(ball.vx) * 0.5;
+          }
+
+          // Finish Line Check
+          if (ball.y >= finishY && !ball.isFinished) {
+            ball.isFinished = true;
+            ball.finishTime = elapsedTime;
+            state.finishedBalls.push(ball);
+
+            if (state.finishedBalls.length === 1) {
+              setWinner(ball);
+              setGameState('finished');
+              playSynthSound('win');
+              confetti({
+                particleCount: 140,
+                spread: 85,
+                origin: { y: 0.6 }
+              });
+              setTimeout(() => {
+                setShowWinnerModal(true);
+              }, 600);
+              addCommentary(`🏆 ${ball.name} CÁN ĐÍCH ĐẦU TIÊN (VỀ NHẤT)!`, elapsedTime);
+            } else {
+              addCommentary(`${ball.name} về đích hạng ${state.finishedBalls.length}.`, elapsedTime);
+            }
+          }
+        });
+
+        // 3. Ball-to-Ball Elastic Collisions with Pack Jostling Momentum
+        for (let i = 0; i < balls.length; i++) {
+          for (let j = i + 1; j < balls.length; j++) {
+            const b1 = balls[i];
+            const b2 = balls[j];
+            if (b1.isFinished && b2.isFinished) continue;
+
+            const dx = b2.x - b1.x;
+            const dy = b2.y - b1.y;
+            const dist = Math.hypot(dx, dy);
+            const minDist = b1.radius + b2.radius;
+            if (dist < minDist && dist > 0) {
+              const overlap = 0.5 * (minDist - dist);
+              const nx = dx / dist;
+              const ny = dy / dist;
+              b1.x -= nx * overlap;
+              b1.y -= ny * overlap;
+              b2.x += nx * overlap;
+              b2.y += ny * overlap;
+
+              const kx = b1.vx - b2.vx;
+              const ky = b1.vy - b2.vy;
+              const p = (2 * (nx * kx + ny * ky)) / 2;
+              b1.vx -= p * nx * 0.85;
+              b1.vy -= p * ny * 0.85;
+              b2.vx += p * nx * 0.85;
+              b2.vy += p * ny * 0.85;
+
+              // Lateral jostling impulse so marbles constantly jockey for position
+              const lateralKick = (Math.random() - 0.5) * 16;
+              b1.vx += lateralKick;
+              b2.vx -= lateralKick;
+            }
           }
         }
       }
 
-      // Smooth Camera tracking target (Lead pack average Y)
+      // Smooth Camera tracking target (Tracks lead pack closely)
       const unfinishedBalls = balls.filter(b => !b.isFinished);
       let targetCameraY = 0;
       if (unfinishedBalls.length > 0) {
-        // Sort by Y descending (furthest down)
         const sorted = [...unfinishedBalls].sort((a, b) => b.y - a.y);
         const topY = sorted[0].y;
         targetCameraY = Math.max(0, topY - 320);
@@ -768,14 +994,15 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
       setLeaderboard(ranked);
 
       // Periodically check dramatic overtakes for commentary
-      if (currentTime - state.lastCommentaryTime > 2500 && gameState === 'racing') {
+      if (currentTime - state.lastCommentaryTime > 2200 && gameState === 'racing') {
         state.lastCommentaryTime = currentTime;
         if (state.previousRankings.length === ranked.length) {
-          for (let i = 0; i < Math.min(5, ranked.length); i++) {
+          for (let i = 0; i < Math.min(6, ranked.length); i++) {
             const currentBall = ranked[i];
             const prevIdx = state.previousRankings.findIndex(p => p.id === currentBall.id);
-            if (prevIdx !== -1 && prevIdx - i >= 4) {
-              addCommentary(`${currentBall.name} bứt tốc vượt liền ${prevIdx - i} bạn!`, elapsedTime);
+            if (prevIdx !== -1 && prevIdx - i >= 3) {
+              const overtakes = prevIdx - i;
+              addCommentary(`🔥 ${currentBall.name} bứt tốc ngoạn mục vượt liền ${overtakes} bạn!`, elapsedTime);
               break;
             }
           }
@@ -792,7 +1019,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
 
         ctx.clearRect(0, 0, viewW, viewH);
 
-        // White background with subtle grid lines matching video
+        // White background with subtle grid lines
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, viewW, viewH);
 
@@ -835,7 +1062,6 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             ctx.fillRect(x, state.gateY + 2, 20, 12);
           }
         } else {
-          // Animated opened gate bar sliding away
           ctx.save();
           ctx.globalAlpha = Math.max(0, 1 - state.gateOffset / 200);
           ctx.fillRect(60 - state.gateOffset, state.gateY, (trackWidth - 120) / 2, 16);
@@ -843,7 +1069,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
           ctx.restore();
         }
 
-        // Draw Walls
+        // Draw Track Walls
         ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 14;
         ctx.lineCap = 'round';
@@ -854,20 +1080,64 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
           ctx.stroke();
         });
 
-        // Draw Fork Arrow Wedge (Chặng 2)
+        // Draw Chặng 2 Fork Arrow Wedge
         ctx.fillStyle = '#1e293b';
         ctx.beginPath();
         ctx.moveTo(forkArrowTip.x, forkArrowTip.y);
-        ctx.lineTo(forkArrowTip.x - 28, forkArrowTip.y + 60);
-        ctx.lineTo(forkArrowTip.x - 12, forkArrowTip.y + 60);
+        ctx.lineTo(forkArrowTip.x - 26, forkArrowTip.y + 55);
+        ctx.lineTo(forkArrowTip.x - 12, forkArrowTip.y + 55);
         ctx.lineTo(forkArrowTip.x - 12, forkArrowBase.y);
         ctx.lineTo(forkArrowTip.x + 12, forkArrowBase.y);
-        ctx.lineTo(forkArrowTip.x + 12, forkArrowTip.y + 60);
-        ctx.lineTo(forkArrowTip.x + 28, forkArrowTip.y + 60);
+        ctx.lineTo(forkArrowTip.x + 12, forkArrowTip.y + 55);
+        ctx.lineTo(forkArrowTip.x + 26, forkArrowTip.y + 55);
         ctx.closePath();
         ctx.fill();
 
-        // Draw Speed Boost Pad (Chặng 3)
+        // Draw Chặng 3 Rotating Propeller Fans
+        fans.forEach(fan => {
+          ctx.save();
+          ctx.translate(fan.x, fan.y);
+          ctx.rotate(fan.angle);
+
+          // 3 blades
+          ctx.fillStyle = '#f97316';
+          for (let b = 0; b < 3; b++) {
+            ctx.save();
+            ctx.rotate((b * Math.PI * 2) / 3);
+            ctx.beginPath();
+            ctx.roundRect(0, -11, fan.radius, 22, 10);
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // Center dark hub
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(0, 0, 16, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // Draw Chặng 4 Swinging Pendulum
+        ctx.save();
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(pendulumPivot.x, pendulumPivot.y);
+        ctx.lineTo(pendulumBob.x, pendulumBob.y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(pendulumBob.x, pendulumBob.y, pendulumBob.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(pendulumBob.x, pendulumBob.y, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw Chặng 5 Speed Boost Pad
         ctx.fillStyle = '#fef08a';
         ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 3;
@@ -889,7 +1159,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
           ctx.fill();
         }
 
-        // Draw Wormhole Portals (Chặng 3)
+        // Draw Chặng 5 Wormhole Portals
         // Portal In (Cyan Vortex)
         ctx.save();
         ctx.strokeStyle = '#06b6d4';
@@ -898,43 +1168,69 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
         ctx.beginPath();
         ctx.arc(portalIn.x, portalIn.y, portalIn.r + Math.sin(currentTime * 0.01) * 3, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(6, 182, 212, 0.2)';
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
         ctx.fill();
         ctx.font = 'bold 12px sans-serif';
         ctx.fillStyle = '#0891b2';
-        ctx.fillText('🌀 CỔNG VÀO', portalIn.x, portalIn.y - 30);
+        ctx.fillText('🌀 CỔNG VÀO', portalIn.x, portalIn.y - 32);
 
         // Portal Out (Purple Vortex)
         ctx.strokeStyle = '#a855f7';
         ctx.beginPath();
         ctx.arc(portalOut.x, portalOut.y, portalOut.r + Math.sin(currentTime * 0.01) * 3, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+        ctx.fillStyle = 'rgba(168, 85, 247, 0.25)';
         ctx.fill();
         ctx.fillStyle = '#7e22ce';
-        ctx.fillText('🌀 CỔNG RA', portalOut.x, portalOut.y - 30);
+        ctx.fillText('🌀 CỔNG RA', portalOut.x, portalOut.y - 32);
         ctx.restore();
 
-        // Draw Bumpers (Red concentric circles)
-        bumpers.forEach(b => {
-          // Outer red ring
-          ctx.fillStyle = '#ef4444';
+        // Draw Chặng 6 Rumble Strips on Slalom Shelves
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 3;
+        for (let sx = 60; sx < 520; sx += 30) {
           ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-          ctx.fill();
-          // Inner white circle
-          ctx.fillStyle = '#ffffff';
+          ctx.moveTo(sx, 3550 + (sx / 570) * 140);
+          ctx.lineTo(sx + 10, 3550 + (sx / 570) * 140 - 10);
+          ctx.stroke();
+        }
+        for (let sx = 200; sx < 660; sx += 30) {
           ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r * 0.65, 0, Math.PI * 2);
-          ctx.fill();
-          // Center red dot
-          ctx.fillStyle = '#dc2626';
+          ctx.moveTo(sx, 3880 - ((sx - 150) / 570) * 140);
+          ctx.lineTo(sx + 10, 3880 - ((sx - 150) / 570) * 140 - 10);
+          ctx.stroke();
+        }
+
+        // Draw Chặng 7 Tilting Seesaws
+        seesaws.forEach((sw, sIdx) => {
+          ctx.save();
+          // Support pivot triangle
+          ctx.fillStyle = '#64748b';
           ctx.beginPath();
-          ctx.arc(b.x, b.y, b.r * 0.35, 0, Math.PI * 2);
+          ctx.moveTo(sw.px, sw.py);
+          ctx.lineTo(sw.px - 14, sw.py + 20);
+          ctx.lineTo(sw.px + 14, sw.py + 20);
+          ctx.closePath();
           ctx.fill();
+
+          // Tilting plank
+          ctx.strokeStyle = sIdx === 0 ? '#3b82f6' : '#8b5cf6';
+          ctx.lineWidth = 10;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(sw.p1.x, sw.p1.y);
+          ctx.lineTo(sw.p2.x, sw.p2.y);
+          ctx.stroke();
+
+          // Pivot center pin
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(sw.px, sw.py, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
         });
 
-        // Draw Galton Pegs (Small dark blue pins)
+        // Draw Chặng 8 Galton Pegs (Small dark steel pins)
         ctx.fillStyle = '#334155';
         galtonPegs.forEach(peg => {
           ctx.beginPath();
@@ -942,51 +1238,50 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
           ctx.fill();
         });
 
-        // Draw Rotating Propeller Fans (Chặng 4)
-        fans.forEach(fan => {
+        // Draw Chặng 9 Revolving Cross Paddle Wheels
+        wheels.forEach((wh, wIdx) => {
           ctx.save();
-          ctx.translate(fan.x, fan.y);
-          ctx.rotate(fan.angle);
+          ctx.translate(wh.x, wh.y);
+          ctx.rotate(wh.angle);
 
-          // 3 blades
-          ctx.fillStyle = '#f97316';
-          for (let b = 0; b < 3; b++) {
+          // 4 perpendicular spokes
+          ctx.fillStyle = wIdx === 0 ? '#06b6d4' : '#10b981';
+          for (let s = 0; s < 4; s++) {
             ctx.save();
-            ctx.rotate((b * Math.PI * 2) / 3);
+            ctx.rotate((s * Math.PI) / 2);
             ctx.beginPath();
-            ctx.roundRect(0, -10, fan.radius, 20, 10);
+            ctx.roundRect(0, -9, wh.radius, 18, 8);
             ctx.fill();
             ctx.restore();
           }
 
           // Center dark hub
-          ctx.fillStyle = '#1e293b';
+          ctx.fillStyle = '#0f172a';
           ctx.beginPath();
-          ctx.arc(0, 0, 16, 0, Math.PI * 2);
+          ctx.arc(0, 0, 15, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
         });
 
-        // Draw Swinging Pendulum (Chặng 4)
-        ctx.save();
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(pendulumPivot.x, pendulumPivot.y);
-        ctx.lineTo(pendulumBob.x, pendulumBob.y);
-        ctx.stroke();
+        // Draw Bumpers (Red concentric circles)
+        bumpers.forEach(b => {
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fill();
 
-        ctx.fillStyle = '#64748b';
-        ctx.beginPath();
-        ctx.arc(pendulumBob.x, pendulumBob.y, pendulumBob.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.arc(pendulumBob.x, pendulumBob.y, 8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r * 0.65, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Draw Finish Line Sensor
+          ctx.fillStyle = '#dc2626';
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Draw Finish Line Sensor (Chặng 10)
         ctx.strokeStyle = '#22c55e';
         ctx.lineWidth = 6;
         ctx.setLineDash([12, 8]);
@@ -1076,7 +1371,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
 
         // Draw track simplified walls
         mctx.strokeStyle = '#1e293b';
-        mctx.lineWidth = 2;
+        mctx.lineWidth = 1.5;
         walls.forEach(([x1, y1, x2, y2]) => {
           mctx.beginPath();
           mctx.moveTo(x1 * scaleX, y1 * scaleY);
@@ -1087,14 +1382,14 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
         // Draw finish funnel target (Yellow circle at bottom)
         mctx.fillStyle = '#fde047';
         mctx.beginPath();
-        mctx.arc(mw / 2, finishY * scaleY, 14, 0, Math.PI * 2);
+        mctx.arc(mw / 2, finishY * scaleY, 10, 0, Math.PI * 2);
         mctx.fill();
 
         // Draw balls on minimap as tiny colored dots
         balls.forEach(b => {
           mctx.fillStyle = b.color;
           mctx.beginPath();
-          mctx.arc(b.x * scaleX, b.y * scaleY, 3, 0, Math.PI * 2);
+          mctx.arc(b.x * scaleX, b.y * scaleY, 2.5, 0, Math.PI * 2);
           mctx.fill();
         });
 
@@ -1209,7 +1504,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', padding: '0 6px' }}>
               TỐC ĐỘ:
             </span>
-            {[1, 2, 3, 4, 5].map(spd => (
+            {[0.5, 0.75, 1, 1.5, 2, 3].map(spd => (
               <button
                 key={spd}
                 onClick={() => setSimSpeed(spd)}
@@ -1217,15 +1512,15 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                   background: simSpeed === spd ? '#ef4444' : 'transparent',
                   color: simSpeed === spd ? '#ffffff' : '#94a3b8',
                   border: 'none',
-                  padding: '4px 10px',
+                  padding: '4px 8px',
                   borderRadius: '14px',
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
               >
-                X{spd}
+                {spd}X
               </button>
             ))}
           </div>
