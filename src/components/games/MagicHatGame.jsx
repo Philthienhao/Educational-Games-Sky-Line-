@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Sparkles, RefreshCw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, Wand2, Gift, Upload } from 'lucide-react';
+import { Play, Sparkles, RefreshCw, RotateCcw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, Wand2, Gift, Upload } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StorageService } from '../../services/storage';

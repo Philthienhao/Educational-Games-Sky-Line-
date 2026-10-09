@@ -33,6 +33,7 @@ import { MathSackRaceGame } from './games/MathSackRaceGame';
 import { PirateShipBattleGame } from './games/PirateShipBattleGame';
 import { ClassroomTimerGame } from './games/ClassroomTimerGame';
 import { GeoExperimentsView } from './GeoExperimentsView';
+import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
 import { StudentGroupDividerGame } from './games/StudentGroupDividerGame';
 import { MarbleRaceGame } from './games/MarbleRaceGame';
 
@@ -297,7 +298,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         component = <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />;
         break;
       case 'marble-race':
-        component = <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={onAddPoints} />;
+        component = <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />;
         break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
@@ -365,7 +366,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
           ) : engineType === 'student-group-divider' ? (
             <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
           ) : engineType === 'marble-race' ? (
-            <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={onAddPoints} />
+            <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />
           ) : (
             renderGameEngine()
           )}

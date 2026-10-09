@@ -11,6 +11,12 @@ const DEFAULT_MILLIONAIRE_QUESTIONS = [
   { question: 'Hành tinh nào gần Mặt Trời nhất?', options: ['Sao Thủy', 'Sao Kim', 'Trái Đất', 'Sao Hỏa'], correct: 'A' }
 ];
 
+const moneyLadder = [
+  '200.000', '400.000', '600.000', '1.000.000', '2.000.000',
+  '3.000.000', '6.000.000', '10.000.000', '14.000.000', '22.000.000',
+  '30.000.000', '40.000.000', '60.000.000', '85.000.000', '150.000.000'
+];
+
 export function MillionaireGame({ questions: propQuestions = [], teams = [], onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose }) {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [currentLevel, setCurrentLevel] = useState(0);
@@ -322,7 +328,7 @@ export function MillionaireGame({ questions: propQuestions = [], teams = [], onA
             return (
               <button
                 key={optLabel}
-                onClick={() => handleAnswerOption(optLabel)}
+                onClick={() => handleSelectOption(optLabel)}
                 disabled={!!answerState}
                 style={{
                   padding: '20px 24px',

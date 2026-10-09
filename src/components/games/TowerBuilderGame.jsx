@@ -217,7 +217,7 @@ const MONSTERS = [
   { id: 'm4', name: 'Sói Hoang', cost: -10, icon: '🐺', desc: 'Tấn công công trình' },
 ];
 
-export function TowerBuilderGame({ game, onClose, currentUser }) {
+export function TowerBuilderGame({ game, onClose, currentUser, onAddPoints }) {
   const questions = (game && game.questions && game.questions.length > 0) 
     ? game.questions 
     : (game && game.defaultQuestions && game.defaultQuestions.length > 0)

@@ -1,6 +1,33 @@
 import * as XLSX from 'xlsx';
 import mammoth from 'mammoth';
 
+/**
+ * Extract plain text from PDF files using pdfjs-dist
+ */
+export async function parsePdfToText(file) {
+  try {
+    const pdfjsLib = await import('pdfjs-dist');
+    if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '3.11.174'}/pdf.worker.min.mjs`;
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    let pdfText = '';
+    const maxPages = Math.min(pdf.numPages, 60);
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      pdfText += `\n` + pageText;
+    }
+    return pdfText;
+  } catch (e) {
+    console.warn('PDFjs extraction fallback:', e);
+    return await file.text();
+  }
+}
+
 // Standardized Question Interface
 // { id, question, options: [A, B, C, D], correct: 'A'|'B'|'C'|'D', explanation }
 
