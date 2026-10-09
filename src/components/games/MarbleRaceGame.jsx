@@ -28,6 +28,23 @@ const DEFAULT_CLASS_ROSTER = [
   'Trần Minh Thuận', 'Hà Ngọc Minh', 'Phan Hữu Phước', 'Cao Trọng Nguyên', 'Đỗ Quỳnh Anh'
 ];
 
+const DEFAULT_STUDENT_ROSTERS = {
+  'Lớp 9A1 (Mẫu 24 HS)': [
+    'Hồ Thị Uyên', 'Văn An', 'Quốc Hùng', 'Thị Linh', 'Thị Nhung', 'Thị Thanh',
+    'Văn Sơn', 'Thị Quỳnh', 'Minh Hoàng', 'Văn Khải', 'Thị Dung', 'Văn Trường',
+    'Thị Thu', 'Thị Hoa', 'Văn Minh', 'Thị Lan', 'Văn Hùng', 'Thị Hạnh',
+    'Văn Nam', 'Thị Trang', 'Văn Tú', 'Thị Thảo', 'Văn Cường', 'Thị Vân'
+  ],
+  'Lớp 10A2 (Mẫu 15 HS)': [
+    'Nguyễn Văn A', 'Trần Thị B', 'Lê Hoàng C', 'Phạm Minh D', 'Vũ Thị E',
+    'Đặng Văn F', 'Bùi Thị G', 'Đỗ Minh H', 'Hồ Văn I', 'Nông Thị K',
+    'Trịnh Văn L', 'Phan Thị M', 'Lương Văn N', 'Ngô Thị O', 'Dương Văn P'
+  ],
+  'Lớp 6A3 (Mẫu 10 HS)': [
+    'An', 'Bình', 'Chi', 'Dũng', 'Giang', 'Hương', 'Khánh', 'Linh', 'Minh', 'Nam'
+  ]
+};
+
 export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
   // --- Audio Synthesis Setup ---
   const audioCtxRef = useRef(null);
@@ -323,10 +340,17 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
     }
   };
 
-  const handleLoadSamplePreset = (count) => {
-    const sample = DEFAULT_CLASS_ROSTER.slice(0, count);
-    setCustomRosterText(sample.join('\n'));
-    setCustomClassNameInput(`Lớp Mẫu ${count} Học Sinh`);
+  const handleLoadSamplePreset = (countOrKey) => {
+    if (typeof countOrKey === 'string' && DEFAULT_STUDENT_ROSTERS[countOrKey]) {
+      const sample = DEFAULT_STUDENT_ROSTERS[countOrKey];
+      setCustomRosterText(sample.join('\n'));
+      setCustomClassNameInput(countOrKey);
+    } else {
+      const count = Number(countOrKey) || 25;
+      const sample = DEFAULT_CLASS_ROSTER.slice(0, count);
+      setCustomRosterText(sample.join('\n'));
+      setCustomClassNameInput(`Lớp Mẫu ${count} Học Sinh`);
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -1611,13 +1635,13 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             </span>
           </div>
 
-          {/* Button: Nhập DS Học Sinh Khác */}
+          {/* Button 1: Nhập nhanh danh sách lớp chủ nhiệm */}
           <button
-            onClick={handleOpenRosterModal}
-            title="Thêm danh sách học sinh khác hoặc dán danh sách tên học sinh để chơi"
+            onClick={loadStudents}
+            title="Nhập nhanh danh sách từ Lớp Chủ Nhiệm"
             style={{
-              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-              color: '#ffffff',
+              background: '#1e293b',
+              color: '#38bdf8',
               border: '1px solid #38bdf8',
               padding: '6px 13px',
               borderRadius: '8px',
@@ -1627,12 +1651,35 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.4)',
               transition: 'all 0.15s ease'
             }}
           >
-            <UserPlus size={15} />
-            Nhập DS Học Sinh
+            <RefreshCw size={14} />
+            DS Lớp Chủ Nhiệm
+          </button>
+
+          {/* Button 2: Khung nhập danh sách học sinh theo mong muốn */}
+          <button
+            onClick={handleOpenRosterModal}
+            title="Mở khung nhập danh sách học sinh theo mong muốn"
+            style={{
+              background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
+              color: '#ffffff',
+              border: '1px solid #34d399',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 10px rgba(5, 150, 105, 0.4)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <Edit3 size={15} />
+            Khung Nhập DS Theo Mong Muốn
           </button>
         </div>
 
@@ -2053,6 +2100,60 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
 
               <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
                 Bấm các nút 1 → 2 → 3 → 4 hoặc gõ phím 1, 2, 3, 4 trên bàn phím
+              </div>
+
+              {/* Quick Roster Switching Actions inside Start Modal */}
+              <div style={{
+                marginTop: '16px',
+                paddingTop: '14px',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                gap: '10px',
+                justifyContent: 'center',
+                flexWrap: 'wrap'
+              }}>
+                <button
+                  onClick={loadStudents}
+                  title="Nhập nhanh danh sách lớp chủ nhiệm"
+                  style={{
+                    background: '#1e293b',
+                    color: '#38bdf8',
+                    border: '1px solid #38bdf8',
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  Nhập nhanh DS Lớp Chủ Nhiệm
+                </button>
+                <button
+                  onClick={handleOpenRosterModal}
+                  title="Mở khung nhập danh sách học sinh theo mong muốn"
+                  style={{
+                    background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
+                    color: '#ffffff',
+                    border: '1px solid #34d399',
+                    padding: '8px 16px',
+                    borderRadius: '10px',
+                    fontSize: '0.82rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.4)'
+                  }}
+                >
+                  <Edit3 size={14} />
+                  Khung Nhập DS Theo Mong Muốn
+                </button>
               </div>
             </div>
           )}
@@ -2589,11 +2690,11 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                   alignItems: 'center',
                   gap: '10px'
                 }}>
-                  <UserPlus size={22} />
-                  NHẬP DANH SÁCH HỌC SINH KHÁC
+                  <Edit3 size={22} color="#34d399" />
+                  KHUNG NHẬP DANH SÁCH HỌC SINH THEO MONG MUỐN
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
-                  Giáo viên có thể nhập tên lớp khác, tải tệp Excel hoặc dán danh sách tên để đua bi
+                  Vẫn giữ nguyên danh sách lớp chủ nhiệm, thầy cô có thể nhập nhanh danh sách học sinh theo mong muốn (dán tên, chọn lớp mẫu hoặc tải file Excel) để bắt đầu cuộc đua bi.
                 </p>
               </div>
               <button
@@ -2617,13 +2718,13 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             {/* Class Name Input */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '6px' }}>
-                🏷️ Tên Lớp / Nhóm Đua:
+                🏷️ Tên Lớp / Nhóm Đua Theo Mong Muốn:
               </label>
               <input
                 type="text"
                 value={customClassNameInput}
                 onChange={(e) => setCustomClassNameInput(e.target.value)}
-                placeholder="Ví dụ: Lớp 6A2, Nhóm 1 Sinh Học, Đội Vàng..."
+                placeholder="Ví dụ: Lớp 10A1 Tuyển Chọn, Nhóm 1 Sinh Học, Đội Vàng..."
                 style={{
                   width: '100%',
                   padding: '10px 14px',
@@ -2676,9 +2777,9 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                 <button
                   onClick={handleLoadHomeroomPreset}
                   style={{
-                    background: '#334155',
+                    background: '#1e293b',
                     color: '#38bdf8',
-                    border: '1px solid #475569',
+                    border: '1.5px solid #38bdf8',
                     padding: '6px 12px',
                     borderRadius: '8px',
                     fontSize: '0.8rem',
@@ -2686,10 +2787,10 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                     cursor: 'pointer'
                   }}
                 >
-                  🏫 Lớp Chủ Nhiệm
+                  🏫 Nạp Lớp Chủ Nhiệm
                 </button>
                 <button
-                  onClick={() => handleLoadSamplePreset(25)}
+                  onClick={() => handleLoadSamplePreset('Lớp 9A1 (Mẫu 24 HS)')}
                   style={{
                     background: '#334155',
                     color: '#e2e8f0',
@@ -2701,10 +2802,10 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                     cursor: 'pointer'
                   }}
                 >
-                  👥 Mẫu 25 HS
+                  👥 Lớp 9A1 (24 HS)
                 </button>
                 <button
-                  onClick={() => handleLoadSamplePreset(18)}
+                  onClick={() => handleLoadSamplePreset('Lớp 10A2 (Mẫu 15 HS)')}
                   style={{
                     background: '#334155',
                     color: '#e2e8f0',
@@ -2716,10 +2817,10 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                     cursor: 'pointer'
                   }}
                 >
-                  👥 Mẫu 18 HS
+                  👥 Lớp 10A2 (15 HS)
                 </button>
                 <button
-                  onClick={() => handleLoadSamplePreset(10)}
+                  onClick={() => handleLoadSamplePreset('Lớp 6A3 (Mẫu 10 HS)')}
                   style={{
                     background: '#334155',
                     color: '#e2e8f0',
@@ -2731,7 +2832,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                     cursor: 'pointer'
                   }}
                 >
-                  👥 Mẫu 10 HS
+                  👥 Lớp 6A3 (10 HS)
                 </button>
                 <button
                   onClick={() => setCustomRosterText('')}
@@ -2749,7 +2850,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                     gap: '4px'
                   }}
                 >
-                  <Trash2 size={13} /> Xóa trắng
+                  <Trash2 size={13} /> Xóa trắng để dán
                 </button>
               </div>
             </div>
@@ -2758,7 +2859,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0' }}>
-                  📝 Dán hoặc gõ danh sách tên (mỗi dòng một học sinh):
+                  ✍️ Khung nhập danh sách học sinh theo mong muốn (mỗi dòng một học sinh):
                 </span>
                 <span style={{
                   background: customRosterText.split('\n').map(s => s.trim()).filter(Boolean).length >= 2 ? '#065f46' : '#831843',
@@ -2831,7 +2932,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
                   boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)'
                 }}
               >
-                <Check size={18} /> Áp Dụng & Bắt Đầu Đua
+                <Check size={18} /> Áp Dụng Danh Sách & Bắt Đầu Đua
               </button>
             </div>
           </div>
