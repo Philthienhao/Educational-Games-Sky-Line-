@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserPlus, KeyRound, Trash2, Edit3, PlusCircle, Gamepad2, Users, AlertTriangle, X, CheckCircle2, Eye, Building } from 'lucide-react';
+import { ShieldCheck, UserPlus, KeyRound, Trash2, Edit3, PlusCircle, Gamepad2, Users, AlertTriangle, X, CheckCircle2, Eye, Building, Check, Search, Filter } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { HomeroomManager } from './HomeroomManager';
 import { SoundFX } from '../utils/sound';
@@ -10,6 +10,10 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [adminTab, setAdminTab] = useState('accounts'); // 'accounts' | 'homerooms' | 'games'
   const [selectedHomeroomTeacherId, setSelectedHomeroomTeacherId] = useState(null);
+
+  // Payment Status Management Filter & Search State
+  const [paymentFilter, setPaymentFilter] = useState('all'); // 'all' | 'unpaid' | 'paid'
+  const [searchQuery, setSearchQuery] = useState('');
 
   const allHomeroomClasses = StorageService.getAllHomeroomClassesForAdmin() || [];
   const selectedHomeroomObj = (allHomeroomClasses.length > 0) 
@@ -30,11 +34,41 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [school, setSchool] = useState('');
+  const [newPaymentStatus, setNewPaymentStatus] = useState('unpaid'); // 'unpaid' | 'paid'
 
   const handleDeleteBaseGame = (game) => {
     if (confirm(`⚠️ [ĐỘC QUYỀN ADMIN]\n\nBạn có chắc chắn muốn XÓA VĨNH VIỄN trò chơi "${game.title}" khỏi hệ thống toàn trường?`)) {
       StorageService.deleteBaseGame(game.id);
       setBaseGames(StorageService.getBaseGames());
+      SoundFX.click();
+    }
+  };
+
+  // Toggle or Update Teacher Payment Status (Đã CK / Chưa CK)
+  const handleTogglePayment = (user, targetStatus) => {
+    if (!user || user.role === 'admin' || user.username === 'philthienhao') return;
+
+    const currentPaid = user.paymentStatus === 'paid' || user.isPaid === true;
+    let nextStatus = targetStatus;
+
+    // If currently paid and clicks 'paid' again, toggle back to unpaid
+    if (targetStatus === 'paid' && currentPaid) {
+      nextStatus = 'unpaid';
+    } else if (targetStatus === 'unpaid' && !currentPaid) {
+      nextStatus = 'unpaid';
+    }
+
+    const nextIsPaid = nextStatus === 'paid';
+    StorageService.updateUser(user.id, {
+      paymentStatus: nextStatus,
+      isPaid: nextIsPaid,
+      paidAt: nextIsPaid ? (user.paidAt || new Date().toISOString()) : null
+    });
+
+    setUsers(StorageService.getUsers());
+    if (nextIsPaid) {
+      SoundFX.correct();
+    } else {
       SoundFX.click();
     }
   };
@@ -52,12 +86,16 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
       return;
     }
 
+    const isPaid = newPaymentStatus === 'paid';
     const newUser = StorageService.createUser({
       username,
       password: password || '123456',
       name,
       subject: subject || 'Giáo viên',
-      school: school || 'Trường THPT'
+      school: school || 'Trường THPT',
+      paymentStatus: newPaymentStatus,
+      isPaid: isPaid,
+      paidAt: isPaid ? new Date().toISOString() : null
     });
 
     setUsers(StorageService.getUsers());
@@ -70,6 +108,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
     setName('');
     setSubject('');
     setSchool('');
+    setNewPaymentStatus('unpaid');
   };
 
   // Confirm and Execute User Deletion
@@ -154,95 +193,390 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
       </div>
 
       {/* TAB 1: Account Management */}
-      {adminTab === 'accounts' && (
-        <div className="glass-panel" style={{ padding: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Users size={22} color="#8b5cf6" />
-              Danh Sách Tài Khoản Giáo Viên ({users.filter(u => u.role !== 'admin').length} tài khoản)
-            </h3>
-          </div>
+      {adminTab === 'accounts' && (() => {
+        const teacherUsers = users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao');
+        const paidCount = teacherUsers.filter(u => u.paymentStatus === 'paid' || u.isPaid === true).length;
+        const unpaidCount = teacherUsers.filter(u => u.paymentStatus !== 'paid' && !u.isPaid).length;
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-            <thead>
-              <tr style={{ 
-                background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', 
-                borderBottom: '2px solid #14b8a6', 
-                color: '#ffffff',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-              }}>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Họ và Tên Giáo Viên</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Tên Đăng Nhập</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Mật Khẩu</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Môn Học</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Trường / Đơn Vị</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Vai Trò</th>
-                <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'right' }}>Thao Tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u, idx) => (
-                <tr 
-                  key={u.id}
-                  style={{ 
-                    borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
-                    background: u.role === 'admin' ? 'rgba(239, 68, 68, 0.08)' : (idx % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : '#ffffff'),
-                    transition: 'background 0.2s'
+        const displayedUsers = users.filter(u => {
+          const isTeacher = u.role !== 'admin' && u.username !== 'philthienhao';
+          const isPaid = u.paymentStatus === 'paid' || u.isPaid === true;
+
+          // Filter by payment status tab
+          if (paymentFilter === 'paid') {
+            if (!isTeacher || !isPaid) return false;
+          } else if (paymentFilter === 'unpaid') {
+            if (!isTeacher || isPaid) return false;
+          }
+
+          // Filter by search query
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase().trim();
+            const matchName = (u.name || '').toLowerCase().includes(q);
+            const matchUser = (u.username || '').toLowerCase().includes(q);
+            const matchSub = (u.subject || '').toLowerCase().includes(q);
+            const matchSch = (u.school || '').toLowerCase().includes(q);
+            return matchName || matchUser || matchSub || matchSch;
+          }
+
+          return true;
+        });
+
+        return (
+          <div className="glass-panel" style={{ padding: '28px' }}>
+            {/* Header & Quick Stats */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+                  <Users size={22} color="#8b5cf6" />
+                  Danh Sách Tài Khoản Giáo Viên ({teacherUsers.length} tài khoản)
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Quản lý trạng thái chuyển khoản bán tài khoản và cấp quyền sử dụng hệ thống.
+                </p>
+              </div>
+
+              {/* Quick Stat Badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '12px',
+                  padding: '8px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 700 }}>Tổng GV:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: 'var(--text-bright)' }}>{teacherUsers.length}</span>
+                </div>
+
+                <div 
+                  onClick={() => setPaymentFilter(paymentFilter === 'unpaid' ? 'all' : 'unpaid')}
+                  style={{
+                    background: paymentFilter === 'unpaid' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(245, 158, 11, 0.12)',
+                    border: '1.5px solid rgba(245, 158, 11, 0.45)',
+                    borderRadius: '12px',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Bấm để lọc danh sách Chưa CK"
+                >
+                  <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 800 }}>⏳ Chưa CK:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#f59e0b' }}>{unpaidCount}</span>
+                </div>
+
+                <div 
+                  onClick={() => setPaymentFilter(paymentFilter === 'paid' ? 'all' : 'paid')}
+                  style={{
+                    background: paymentFilter === 'paid' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.12)',
+                    border: '1.5px solid rgba(16, 185, 129, 0.45)',
+                    borderRadius: '12px',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Bấm để lọc danh sách Đã CK"
+                >
+                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800 }}>✅ Đã CK:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#10b981' }}>{paidCount}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Tabs & Search Bar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '18px',
+              padding: '12px 16px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              {/* Filter Tabs */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => setPaymentFilter('all')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: paymentFilter === 'all' ? 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' : 'rgba(255, 255, 255, 0.08)',
+                    color: '#ffffff',
+                    boxShadow: paymentFilter === 'all' ? '0 2px 8px rgba(13, 148, 136, 0.3)' : 'none',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <td style={{ padding: '14px 16px', fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
-                    {u.name}
-                  </td>
-                  <td style={{ padding: '14px 16px', color: '#0284c7', fontWeight: 800 }}>
-                    <code>{u.username}</code>
-                  </td>
-                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
-                    <code>{u.password}</code>
-                  </td>
-                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
-                    {u.subject}
-                  </td>
-                  <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
-                    {u.school || 'THPT'}
-                  </td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span className={u.role === 'admin' ? 'badge badge-admin' : 'badge badge-teacher'}>
-                      {u.role === 'admin' ? 'ADMIN' : 'GIÁO VIÊN'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                    {u.role !== 'admin' && (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                        <button 
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => {
-                            setUserToResetPassword(u);
-                            setNewPasswordInput(u.password || '123456');
-                          }}
-                          title="Đổi mật khẩu"
-                        >
-                          <KeyRound size={14} />
-                          Đổi MK
-                        </button>
-                        <button 
-                          className="btn btn-danger btn-sm"
-                          onClick={() => setUserToDelete(u)}
-                          title="Xóa tài khoản này"
-                        >
-                          <Trash2 size={14} />
-                          Xóa
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      )}
+                  Tất Cả ({teacherUsers.length + (users.find(u => u.role === 'admin') ? 1 : 0)})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentFilter('unpaid')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: paymentFilter === 'unpaid' ? '1.5px solid #d97706' : '1px solid rgba(245, 158, 11, 0.25)',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: paymentFilter === 'unpaid' ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'rgba(245, 158, 11, 0.1)',
+                    color: paymentFilter === 'unpaid' ? '#ffffff' : '#fbbf24',
+                    boxShadow: paymentFilter === 'unpaid' ? '0 2px 8px rgba(217, 119, 6, 0.3)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  ⏳ Chưa CK ({unpaidCount})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPaymentFilter('paid')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: paymentFilter === 'paid' ? '1.5px solid #059669' : '1px solid rgba(16, 185, 129, 0.25)',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: paymentFilter === 'paid' ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : 'rgba(16, 185, 129, 0.1)',
+                    color: paymentFilter === 'paid' ? '#ffffff' : '#34d399',
+                    boxShadow: paymentFilter === 'paid' ? '0 2px 8px rgba(5, 150, 105, 0.3)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  ✅ Đã CK ({paidCount})
+                </button>
+              </div>
+
+              {/* Search Box */}
+              <div style={{ position: 'relative', minWidth: '240px', flex: '1', maxWidth: '340px' }}>
+                <Search size={16} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm theo tên, tài khoản, môn..."
+                  style={{
+                    width: '100%',
+                    padding: '8px 30px 8px 36px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.6)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      display: 'flex'
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ 
+                    background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)', 
+                    borderBottom: '2px solid #14b8a6', 
+                    color: '#ffffff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Họ và Tên Giáo Viên</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Tên Đăng Nhập</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Mật Khẩu</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Môn Học</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Trường / Đơn Vị</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px' }}>Vai Trò</th>
+                    <th style={{ padding: '14px 12px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'center', width: '90px' }} title="Đánh dấu tài khoản chưa chuyển khoản">
+                      Chưa CK
+                    </th>
+                    <th style={{ padding: '14px 12px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'center', width: '90px' }} title="Đánh dấu tài khoản đã chuyển khoản">
+                      Đã CK
+                    </th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', letterSpacing: '0.3px', textAlign: 'right' }}>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedUsers.map((u, idx) => {
+                    const isAdmin = u.role === 'admin' || u.username === 'philthienhao';
+                    const isPaid = !isAdmin && (u.paymentStatus === 'paid' || u.isPaid === true);
+                    const isUnpaid = !isAdmin && !isPaid;
+
+                    return (
+                      <tr 
+                        key={u.id}
+                        style={{ 
+                          borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+                          background: isAdmin ? 'rgba(239, 68, 68, 0.08)' : (idx % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : '#ffffff'),
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        <td style={{ padding: '14px 16px', fontWeight: 800, color: '#0f172a', fontSize: '0.95rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>{u.name}</span>
+                            {isPaid && (
+                              <span style={{ fontSize: '0.7rem', fontWeight: 800, background: '#dcfce7', color: '#15803d', padding: '2px 6px', borderRadius: '6px' }}>
+                                ĐÃ CK
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td style={{ padding: '14px 16px', color: '#0284c7', fontWeight: 800 }}>
+                          <code>{u.username}</code>
+                        </td>
+                        <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
+                          <code>{u.password}</code>
+                        </td>
+                        <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
+                          {u.subject}
+                        </td>
+                        <td style={{ padding: '14px 16px', color: '#334155', fontWeight: 700 }}>
+                          {u.school || 'THPT'}
+                        </td>
+                        <td style={{ padding: '14px 16px' }}>
+                          <span className={isAdmin ? 'badge badge-admin' : 'badge badge-teacher'}>
+                            {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
+                          </span>
+                        </td>
+
+                        {/* Ô Vuông: Chưa CK */}
+                        <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                          {isAdmin ? (
+                            <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700 }}>—</span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleTogglePayment(u, 'unpaid')}
+                              title={isUnpaid ? 'Đang chọn: Chưa chuyển khoản' : 'Bấm vào ô vuông để đánh dấu Chưa CK'}
+                              style={{
+                                width: '26px',
+                                height: '26px',
+                                borderRadius: '6px',
+                                border: isUnpaid ? '2.5px solid #d97706' : '2px solid #cbd5e1',
+                                background: isUnpaid ? '#fef3c7' : '#ffffff',
+                                color: '#b45309',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                boxShadow: isUnpaid ? '0 2px 8px rgba(217, 119, 6, 0.3)' : 'none',
+                                transition: 'all 0.15s ease',
+                                outline: 'none',
+                                margin: '0 auto'
+                              }}
+                            >
+                              {isUnpaid ? <Check size={18} strokeWidth={3.5} /> : null}
+                            </button>
+                          )}
+                        </td>
+
+                        {/* Ô Vuông: Đã CK */}
+                        <td style={{ padding: '14px 12px', textAlign: 'center' }}>
+                          {isAdmin ? (
+                            <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 700 }}>—</span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleTogglePayment(u, 'paid')}
+                              title={isPaid ? 'Đang chọn: Đã chuyển khoản' : 'Bấm vào ô vuông để đánh dấu Đã CK'}
+                              style={{
+                                width: '26px',
+                                height: '26px',
+                                borderRadius: '6px',
+                                border: isPaid ? '2.5px solid #059669' : '2px solid #cbd5e1',
+                                background: isPaid ? '#d1fae5' : '#ffffff',
+                                color: '#047857',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                boxShadow: isPaid ? '0 2px 8px rgba(5, 150, 105, 0.3)' : 'none',
+                                transition: 'all 0.15s ease',
+                                outline: 'none',
+                                margin: '0 auto'
+                              }}
+                            >
+                              {isPaid ? <Check size={18} strokeWidth={3.5} /> : null}
+                            </button>
+                          )}
+                        </td>
+
+                        <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                          {!isAdmin && (
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                              <button 
+                                className="btn btn-secondary btn-sm"
+                                onClick={() => {
+                                  setUserToResetPassword(u);
+                                  setNewPasswordInput(u.password || '123456');
+                                }}
+                                title="Đổi mật khẩu"
+                              >
+                                <KeyRound size={14} />
+                                Đổi MK
+                              </button>
+                              <button 
+                                className="btn btn-danger btn-sm"
+                                onClick={() => setUserToDelete(u)}
+                                title="Xóa tài khoản này"
+                              >
+                                <Trash2 size={14} />
+                                Xóa
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {displayedUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: '#64748b', fontWeight: 700 }}>
+                        Không tìm thấy tài khoản giáo viên nào phù hợp với bộ lọc.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* TAB 2: All Homeroom Classes Supervision for Admin */}
       {adminTab === 'homerooms' && (
@@ -470,6 +804,80 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                   placeholder="VD: THPT Chu Văn An"
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff' }}
                 />
+              </div>
+
+              {/* Trạng Thái Chuyển Khoản (Bán tài khoản) */}
+              <div>
+                <label style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-bright)', display: 'block', marginBottom: '8px' }}>
+                  Trạng Thái Thanh Toán (Bán Tài Khoản):
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div 
+                    onClick={() => setNewPaymentStatus('unpaid')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      background: newPaymentStatus === 'unpaid' ? 'rgba(245, 158, 11, 0.18)' : 'rgba(255,255,255,0.05)',
+                      border: newPaymentStatus === 'unpaid' ? '2px solid #f59e0b' : '1px solid rgba(255,255,255,0.15)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '6px',
+                      border: newPaymentStatus === 'unpaid' ? '2px solid #f59e0b' : '1.5px solid rgba(255,255,255,0.4)',
+                      background: newPaymentStatus === 'unpaid' ? '#f59e0b' : 'transparent',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {newPaymentStatus === 'unpaid' && <Check size={16} strokeWidth={3.5} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: newPaymentStatus === 'unpaid' ? '#fbbf24' : '#ffffff' }}>⏳ Chưa CK</div>
+                      <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)' }}>Chưa thanh toán</div>
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => setNewPaymentStatus('paid')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      background: newPaymentStatus === 'paid' ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)',
+                      border: newPaymentStatus === 'paid' ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.15)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <div style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '6px',
+                      border: newPaymentStatus === 'paid' ? '2px solid #10b981' : '1.5px solid rgba(255,255,255,0.4)',
+                      background: newPaymentStatus === 'paid' ? '#10b981' : 'transparent',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {newPaymentStatus === 'paid' && <Check size={16} strokeWidth={3.5} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: newPaymentStatus === 'paid' ? '#34d399' : '#ffffff' }}>✅ Đã CK</div>
+                      <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.6)' }}>Đã nhận chuyển khoản</div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>

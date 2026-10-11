@@ -12,6 +12,8 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
   const [newName, setNewName] = useState('');
   const [newSubject, setNewSubject] = useState('Địa Lí');
   const [newRole, setNewRole] = useState('teacher');
+  const [newPaymentStatus, setNewPaymentStatus] = useState('unpaid'); // 'unpaid' | 'paid'
+  const [paymentFilter, setPaymentFilter] = useState('all'); // 'all' | 'unpaid' | 'paid'
 
   // Supabase Credentials State
   const [sbUrl, setSbUrl] = useState('');
@@ -43,6 +45,28 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
 
   if (!isOpen) return null;
 
+  const handleTogglePayment = (user, targetStatus) => {
+    if (!user || user.role === 'admin' || user.username === 'philthienhao') return;
+
+    const currentPaid = user.paymentStatus === 'paid' || user.isPaid === true;
+    let nextStatus = targetStatus;
+
+    if (targetStatus === 'paid' && currentPaid) {
+      nextStatus = 'unpaid';
+    } else if (targetStatus === 'unpaid' && !currentPaid) {
+      nextStatus = 'unpaid';
+    }
+
+    const nextIsPaid = nextStatus === 'paid';
+    StorageService.updateUser(user.id, {
+      paymentStatus: nextStatus,
+      isPaid: nextIsPaid,
+      paidAt: nextIsPaid ? (user.paidAt || new Date().toISOString()) : null
+    });
+
+    loadUsers();
+  };
+
   const handleCreateUser = (e) => {
     e.preventDefault();
     setSuccessMsg('');
@@ -65,19 +89,24 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
       return;
     }
 
+    const isPaid = newPaymentStatus === 'paid';
     const created = StorageService.createUser({
       username: cleanUname,
       password: cleanPass,
       name: cleanName,
       subject: newSubject.trim() || 'Giáo Dục',
       role: newRole || 'teacher',
-      school: 'Hệ Thống Hỗ Trợ Dạy Và Học'
+      school: 'Hệ Thống Hỗ TrỢ Dạy Và Học',
+      paymentStatus: newPaymentStatus,
+      isPaid: isPaid,
+      paidAt: isPaid ? new Date().toISOString() : null
     });
 
     setSuccessMsg(`✅ Đã tạo và cấp tài khoản thành công cho: ${created.name} (Tên đăng nhập: "${created.username}" | Mật khẩu: "${created.password}")`);
     setNewUsername('');
     setNewPassword('');
     setNewName('');
+    setNewPaymentStatus('unpaid');
     loadUsers();
   };
 
@@ -510,6 +539,80 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
               />
             </div>
 
+            {/* Trạng Thái Thanh Toán (Bán Tài Khoản) */}
+            <div style={{ gridColumn: 'span 2' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#475569', display: 'block', marginBottom: '6px' }}>
+                Trạng Thái Thanh Toán (Bán Tài Khoản):
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div 
+                  onClick={() => setNewPaymentStatus('unpaid')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    background: newPaymentStatus === 'unpaid' ? '#fef3c7' : '#ffffff',
+                    border: newPaymentStatus === 'unpaid' ? '2px solid #f59e0b' : '1px solid #cbd5e1',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '5px',
+                    border: newPaymentStatus === 'unpaid' ? '2px solid #d97706' : '1.5px solid #cbd5e1',
+                    background: newPaymentStatus === 'unpaid' ? '#d97706' : '#ffffff',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {newPaymentStatus === 'unpaid' && <Check size={14} strokeWidth={3.5} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: newPaymentStatus === 'unpaid' ? '#b45309' : '#1e293b' }}>⏳ Chưa CK</div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Chưa thanh toán</div>
+                  </div>
+                </div>
+
+                <div 
+                  onClick={() => setNewPaymentStatus('paid')}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    background: newPaymentStatus === 'paid' ? '#d1fae5' : '#ffffff',
+                    border: newPaymentStatus === 'paid' ? '2px solid #10b981' : '1px solid #cbd5e1',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '5px',
+                    border: newPaymentStatus === 'paid' ? '2px solid #059669' : '1.5px solid #cbd5e1',
+                    background: newPaymentStatus === 'paid' ? '#059669' : '#ffffff',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {newPaymentStatus === 'paid' && <Check size={14} strokeWidth={3.5} />}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800, color: newPaymentStatus === 'paid' ? '#047857' : '#1e293b' }}>✅ Đã CK</div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Đã nhận chuyển khoản</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div style={{ gridColumn: 'span 2', marginTop: '6px' }}>
               <button
                 type="submit"
@@ -538,77 +641,223 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
 
         {/* List of Teachers */}
         <div>
-          <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#1e293b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={18} color="#0d9488" /> Danh Sách Tài Khoản Trong Hệ Thống ({usersList.length})
-          </h4>
+          {(() => {
+            const teachers = usersList.filter(u => u.role !== 'admin' && u.username !== 'philthienhao');
+            const paidCount = teachers.filter(u => u.paymentStatus === 'paid' || u.isPaid === true).length;
+            const unpaidCount = teachers.filter(u => u.paymentStatus !== 'paid' && !u.isPaid).length;
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto', paddingRight: '4px' }}>
-            {usersList.map((u) => {
-              const isAdmin = u.role === 'admin' || u.username === 'philthienhao';
-              return (
-                <div
-                  key={u.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    borderRadius: '16px',
-                    background: isAdmin ? '#eef2ff' : '#ffffff',
-                    border: isAdmin ? '1.5px solid #818cf8' : '1px solid #e2e8f0',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '50%',
-                      background: isAdmin ? '#4f46e5' : '#0ea5e9',
-                      color: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 900,
-                      fontSize: '1.1rem'
-                    }}>
-                      {isAdmin ? '👑' : '👩‍🏫'}
-                    </div>
+            const filteredList = usersList.filter(u => {
+              const isTeacher = u.role !== 'admin' && u.username !== 'philthienhao';
+              const isPaid = u.paymentStatus === 'paid' || u.isPaid === true;
 
-                    <div>
-                      <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>{u.name}</span>
-                        {isAdmin && <span style={{ background: '#4338ca', color: '#fff', fontSize: '0.7rem', padding: '1px 7px', borderRadius: '10px' }}>ADMIN CHÍNH</span>}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>
-                        Tài khoản: <strong>{u.username}</strong> | Mật khẩu: <code>{u.password}</code> | Môn: {u.subject}
-                      </div>
-                    </div>
-                  </div>
+              if (paymentFilter === 'paid') return isTeacher && isPaid;
+              if (paymentFilter === 'unpaid') return isTeacher && !isPaid;
+              return true;
+            });
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            return (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#1e293b', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Users size={18} color="#0d9488" /> Danh Sách Tài Khoản ({usersList.length})
+                  </h4>
+
+                  {/* Filter Buttons */}
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <button
-                      onClick={() => handleResetPassword(u)}
-                      title="Đổi mật khẩu"
-                      style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '6px 10px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#334155', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      type="button"
+                      onClick={() => setPaymentFilter('all')}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        background: paymentFilter === 'all' ? '#0f766e' : '#e2e8f0',
+                        color: paymentFilter === 'all' ? '#ffffff' : '#334155'
+                      }}
                     >
-                      <Key size={14} /> Đổi Pass
+                      Tất Cả ({usersList.length})
                     </button>
-
-                    {!isAdmin && (
-                      <button
-                        onClick={() => handleDeleteUser(u)}
-                        title="Xóa tài khoản"
-                        style={{ background: '#fee2e2', border: 'none', borderRadius: '10px', padding: '6px 10px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}
-                      >
-                        <Trash2 size={14} /> Xóa
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => setPaymentFilter('unpaid')}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        background: paymentFilter === 'unpaid' ? '#d97706' : '#fef3c7',
+                        color: paymentFilter === 'unpaid' ? '#ffffff' : '#b45309'
+                      }}
+                    >
+                      ⏳ Chưa CK ({unpaidCount})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentFilter('paid')}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.78rem',
+                        fontWeight: 800,
+                        background: paymentFilter === 'paid' ? '#059669' : '#d1fae5',
+                        color: paymentFilter === 'paid' ? '#ffffff' : '#047857'
+                      }}
+                    >
+                      ✅ Đã CK ({paidCount})
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '320px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {filteredList.map((u) => {
+                    const isAdmin = u.role === 'admin' || u.username === 'philthienhao';
+                    const isPaid = !isAdmin && (u.paymentStatus === 'paid' || u.isPaid === true);
+                    const isUnpaid = !isAdmin && !isPaid;
+
+                    return (
+                      <div
+                        key={u.id}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px 16px',
+                          borderRadius: '16px',
+                          background: isAdmin ? '#eef2ff' : '#ffffff',
+                          border: isAdmin ? '1.5px solid #818cf8' : (isPaid ? '1.5px solid #86efac' : '1px solid #e2e8f0'),
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '50%',
+                            background: isAdmin ? '#4f46e5' : (isPaid ? '#059669' : '#0ea5e9'),
+                            color: '#ffffff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 900,
+                            fontSize: '1.1rem'
+                          }}>
+                            {isAdmin ? '👑' : (isPaid ? '✅' : '👩‍🏫')}
+                          </div>
+
+                          <div>
+                            <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span>{u.name}</span>
+                              {isAdmin && <span style={{ background: '#4338ca', color: '#fff', fontSize: '0.7rem', padding: '1px 7px', borderRadius: '10px' }}>ADMIN CHÍNH</span>}
+                              {!isAdmin && isPaid && <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.7rem', padding: '1px 7px', borderRadius: '10px', fontWeight: 800 }}>ĐÃ CK</span>}
+                            </div>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>
+                              Tài khoản: <strong>{u.username}</strong> | Mật khẩu: <code>{u.password}</code> | Môn: {u.subject}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          {/* 2 Ô Vuông: Chưa CK và Đã CK */}
+                          {!isAdmin && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '4px 8px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                              {/* Ô Chưa CK */}
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePayment(u, 'unpaid')}
+                                title={isUnpaid ? 'Đang chọn: Chưa CK' : 'Bấm để đánh dấu Chưa CK'}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 4px'
+                                }}
+                              >
+                                <div style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '5px',
+                                  border: isUnpaid ? '2px solid #d97706' : '1.5px solid #cbd5e1',
+                                  background: isUnpaid ? '#fef3c7' : '#ffffff',
+                                  color: '#b45309',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  {isUnpaid && <Check size={14} strokeWidth={3.5} />}
+                                </div>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isUnpaid ? '#b45309' : '#64748b' }}>Chưa CK</span>
+                              </button>
+
+                              <span style={{ color: '#cbd5e1' }}>|</span>
+
+                              {/* Ô Đã CK */}
+                              <button
+                                type="button"
+                                onClick={() => handleTogglePayment(u, 'paid')}
+                                title={isPaid ? 'Đang chọn: Đã CK' : 'Bấm để đánh dấu Đã CK'}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  background: 'transparent',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '2px 4px'
+                                }}
+                              >
+                                <div style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '5px',
+                                  border: isPaid ? '2px solid #059669' : '1.5px solid #cbd5e1',
+                                  background: isPaid ? '#d1fae5' : '#ffffff',
+                                  color: '#047857',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}>
+                                  {isPaid && <Check size={14} strokeWidth={3.5} />}
+                                </div>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: isPaid ? '#047857' : '#64748b' }}>Đã CK</span>
+                              </button>
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => handleResetPassword(u)}
+                            title="Đổi mật khẩu"
+                            style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '6px 10px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#334155', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Key size={14} /> Đổi Pass
+                          </button>
+
+                          {!isAdmin && (
+                            <button
+                              onClick={() => handleDeleteUser(u)}
+                              title="Xóa tài khoản"
+                              style={{ background: '#fee2e2', border: 'none', borderRadius: '10px', padding: '6px 10px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            >
+                              <Trash2 size={14} /> Xóa
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
       </div>

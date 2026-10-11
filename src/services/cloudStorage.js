@@ -156,6 +156,9 @@ export const CloudStorageService = {
       role: userData.role || 'teacher',
       subject: userData.subject || 'Giáo viên',
       school: userData.school || 'Hệ Thống Hỗ Trợ Dạy Và Học',
+      paymentStatus: userData.paymentStatus || (userData.isPaid ? 'paid' : 'unpaid'),
+      isPaid: userData.paymentStatus === 'paid' || userData.isPaid === true,
+      paidAt: userData.paidAt || null,
       createdAt: userData.createdAt || new Date().toISOString().split('T')[0],
       updatedAt: new Date().toISOString()
     };
@@ -173,6 +176,17 @@ export const CloudStorageService = {
     const { url, key } = getSupabaseCredentials();
     if (url && key) {
       try {
+        const sbPayload = {
+          id: payload.id,
+          username: payload.username,
+          password: payload.password,
+          name: payload.name,
+          role: payload.role,
+          subject: payload.subject,
+          school: payload.school,
+          createdAt: payload.createdAt,
+          updatedAt: payload.updatedAt
+        };
         fetch(`${url}/rest/v1/teachers_users`, {
           method: 'POST',
           headers: {
@@ -181,7 +195,7 @@ export const CloudStorageService = {
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(sbPayload)
         }).catch(() => {});
       } catch (e) {}
     }
