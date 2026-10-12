@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Lock, User, Sparkles, ShieldCheck, ArrowRight, AlertCircle, 
-  BookOpen, Mail, CheckCircle2, X, Compass, 
-  GraduationCap, Award, PhoneCall, ExternalLink, MessageCircle, 
-  Heart, Star, ChevronRight, Zap, Gift, Gamepad2, FileSpreadsheet,
-  Users, Clock, Cloud, Camera, Layers, CheckSquare
+  BookOpen, Mail, CheckCircle2, X, GraduationCap, Award, 
+  PhoneCall, ExternalLink, Heart, Star, Zap, Gift, 
+  Gamepad2, FileSpreadsheet, Users, Clock, Cloud, Camera, 
+  CheckSquare, Layers
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { SoundFX } from '../utils/sound';
@@ -55,65 +55,65 @@ export function LoginModal({ onLoginSuccess }) {
   useEffect(() => {
     const timer = setInterval(() => {
       setSloganIndex((prev) => (prev + 1) % slogans.length);
-    }, 4200);
+    }, 4000);
     return () => clearInterval(timer);
   }, [slogans.length]);
 
-  // System Core Capabilities (Structured as Notes for Teachers)
+  // System Core Capabilities (Compact Notes for Teachers)
   const systemFeaturesNotes = [
     {
-      icon: <Gamepad2 size={20} color="#38bdf8" />,
+      icon: <Gamepad2 size={16} color="#38bdf8" />,
       bg: 'rgba(56, 189, 248, 0.15)',
       border: 'rgba(56, 189, 248, 0.3)',
-      badge: '30+ Game Tương Tác',
+      badge: '30+ Game',
       badgeColor: '#38bdf8',
-      title: 'Kho Game Giáo Dục Đa Dạng',
-      desc: 'Nghiêng đầu Camera AI, Kéo co đối kháng 2 đội, Đua vịt/rùa, Rồng lửa, Chiếc hộp bí ẩn, Lật hình ghi nhớ... phù hợp khởi động và củng cố bài học.'
+      title: '30+ Game Tương Tác',
+      desc: 'Nghiêng đầu Camera AI, Kéo co 2 đội, Đua vịt, Rồng lửa, Hộp bí ẩn, Lật hình...'
     },
     {
-      icon: <FileSpreadsheet size={20} color="#10b981" />,
+      icon: <FileSpreadsheet size={16} color="#10b981" />,
       bg: 'rgba(16, 185, 129, 0.15)',
       border: 'rgba(16, 185, 129, 0.3)',
-      badge: 'Excel / Word 30s',
+      badge: 'Excel/Word',
       badgeColor: '#10b981',
-      title: 'Tùy Biến Câu Hỏi Mọi Môn Học',
-      desc: 'Tải file mẫu Excel chuẩn bị sẵn, dán câu hỏi trắc nghiệm của bất kỳ môn nào (Toán, Văn, Anh, KHTN, Sử, Địa, GDCD, Tiểu học) là tạo game ngay.'
+      title: 'Tùy Biến Câu Hỏi Mọi Môn',
+      desc: 'Dán câu hỏi trắc nghiệm Toán, Văn, Anh, KHTN, Sử, Địa... tạo game trong 30s.'
     },
     {
-      icon: <Users size={20} color="#fbbf24" />,
+      icon: <Users size={16} color="#fbbf24" />,
       bg: 'rgba(245, 158, 11, 0.15)',
       border: 'rgba(245, 158, 11, 0.3)',
-      badge: 'Quản Lý Lớp Học',
+      badge: 'Quản Lý Lớp',
       badgeColor: '#fbbf24',
-      title: 'Gọi Tên & Chia Nhóm Công Bằng',
-      desc: 'Vòng quay may mắn, Phi hành gia vũ trụ, Đua xe gọi tên ngẫu nhiên. Tự động chia tổ/nhóm học tập đối kháng chỉ bằng 1 cú nhấp chuột.'
+      title: 'Gọi Tên & Chia Nhóm Nhanh',
+      desc: 'Vòng quay may mắn, Phi hành gia, Đua xe gọi tên. Tự động chia tổ/nhóm công bằng.'
     },
     {
-      icon: <Clock size={20} color="#f43f5e" />,
+      icon: <Clock size={16} color="#f43f5e" />,
       bg: 'rgba(244, 63, 94, 0.15)',
       border: 'rgba(244, 63, 94, 0.3)',
-      badge: 'Tiện Ích Giảng Đường',
+      badge: 'Giảng Đường',
       badgeColor: '#f43f5e',
       title: 'Đồng Hồ Đếm Giờ Sinh Động',
-      desc: 'Đếm ngược thảo luận nhóm với hiệu ứng kịch tính (Bom nổ, Pháo hoa, Tên lửa phóng) kèm âm thanh sống động khuấy động lớp học.'
+      desc: 'Đếm ngược thảo luận nhóm với hiệu ứng bom nổ, pháo hoa, tên lửa kèm âm thanh.'
     },
     {
-      icon: <Cloud size={20} color="#a855f7" />,
+      icon: <Cloud size={16} color="#a855f7" />,
       bg: 'rgba(168, 85, 247, 0.15)',
       border: 'rgba(168, 85, 247, 0.3)',
-      badge: 'Lưu Trữ Đám Mây',
+      badge: 'Đám Mây',
       badgeColor: '#a855f7',
       title: 'Kho Game Cá Nhân & Trình Chiếu',
-      desc: 'Tự động lưu trữ không giới hạn các bài game đã soạn. Trình chiếu trực tiếp trên máy chiếu lớp học, TV thông minh hoặc bảng tương tác.'
+      desc: 'Lưu trữ không giới hạn bài soạn riêng. Trình chiếu trực tiếp TV thông minh & máy chiếu.'
     },
     {
-      icon: <Camera size={20} color="#06b6d4" />,
+      icon: <Camera size={16} color="#06b6d4" />,
       bg: 'rgba(6, 182, 212, 0.15)',
       border: 'rgba(6, 182, 212, 0.3)',
-      badge: 'Công Nghệ AI',
+      badge: 'AI Camera',
       badgeColor: '#06b6d4',
-      title: 'AI Camera & Thể Dục Tương Tác',
-      desc: 'Nhận diện chuyển động cơ thể không chạm qua Webcam học đường, mang lại trải nghiệm học tập thể chất trong nhà hào hứng cho học sinh.'
+      title: 'Camera AI & Thể Dục Tương Tác',
+      desc: 'Nhận diện chuyển động cơ thể không chạm qua Webcam, khuấy động giờ học thể chất.'
     }
   ];
 
@@ -135,7 +135,7 @@ export function LoginModal({ onLoginSuccess }) {
             theme: 'filled_blue',
             size: 'large',
             shape: 'pill',
-            width: 380,
+            width: 360,
             text: 'signin_with',
             locale: 'vi'
           });
@@ -185,13 +185,11 @@ export function LoginModal({ onLoginSuccess }) {
   const handleTriggerGoogleFlow = () => {
     SoundFX.click();
     setGoogleError('');
-    // Try to trigger native Google One-Tap or button if rendered
     const nativeBtn = document.querySelector('#google-native-signin-button div[role="button"]');
     if (nativeBtn) {
       nativeBtn.click();
       return;
     }
-    // If native prompt is blocked or not configured with valid client ID, open friendly Gmail Quick Login
     setShowQuickGmailModal(true);
   };
 
@@ -269,14 +267,15 @@ export function LoginModal({ onLoginSuccess }) {
       position: 'fixed',
       inset: 0,
       zIndex: 9999,
-      minHeight: '100vh',
+      height: '100vh',
       width: '100vw',
+      maxHeight: '100vh',
+      overflow: 'hidden',
       background: 'radial-gradient(ellipse at 20% 20%, #0d2238 0%, #071521 45%, #030a10 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '16px',
-      overflowY: 'auto',
+      padding: 'clamp(8px, 1.8vh, 18px)',
       fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
       color: '#ffffff'
     }}>
@@ -286,9 +285,9 @@ export function LoginModal({ onLoginSuccess }) {
         position: 'fixed',
         top: '-10%',
         left: '-5%',
-        width: '550px',
-        height: '550px',
-        background: 'radial-gradient(circle, rgba(13, 148, 136, 0.35) 0%, rgba(14, 165, 233, 0.1) 60%, transparent 80%)',
+        width: '500px',
+        height: '500px',
+        background: 'radial-gradient(circle, rgba(13, 148, 136, 0.3) 0%, rgba(14, 165, 233, 0.08) 60%, transparent 80%)',
         filter: 'blur(90px)',
         pointerEvents: 'none',
         zIndex: 1
@@ -298,358 +297,305 @@ export function LoginModal({ onLoginSuccess }) {
         position: 'fixed',
         bottom: '-10%',
         right: '-5%',
-        width: '580px',
-        height: '580px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.28) 0%, rgba(168, 85, 247, 0.12) 60%, transparent 80%)',
-        filter: 'blur(100px)',
+        width: '520px',
+        height: '520px',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.1) 60%, transparent 80%)',
+        filter: 'blur(90px)',
         pointerEvents: 'none',
         zIndex: 1
       }} />
 
-      <div style={{
-        position: 'fixed',
-        top: '40%',
-        right: '35%',
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%)',
-        filter: 'blur(80px)',
-        pointerEvents: 'none',
-        zIndex: 1
-      }} />
-
-      {/* Main Container: Modern Split-Screen Arena */}
-      <div style={{
-        position: 'relative',
-        zIndex: 10,
-        width: '100%',
-        maxWidth: '1260px',
-        minHeight: '700px',
-        background: 'rgba(11, 23, 38, 0.78)',
-        backdropFilter: 'blur(28px)',
-        WebkitBackdropFilter: 'blur(28px)',
-        border: '1.5px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '36px',
-        boxShadow: '0 40px 100px rgba(0, 0, 0, 0.75), 0 0 60px rgba(13, 148, 136, 0.18)',
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        overflow: 'hidden'
-      }}>
+      {/* Main Single-Viewport Container */}
+      <div 
+        className="login-viewport-card"
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: '1200px',
+          height: 'min(95vh, 675px)',
+          maxHeight: 'calc(100vh - 20px)',
+          background: 'rgba(11, 23, 38, 0.85)',
+          backdropFilter: 'blur(28px)',
+          WebkitBackdropFilter: 'blur(28px)',
+          border: '1.5px solid rgba(255, 255, 255, 0.12)',
+          borderRadius: '30px',
+          boxShadow: '0 30px 80px rgba(0, 0, 0, 0.8), 0 0 50px rgba(13, 148, 136, 0.18)',
+          display: 'flex',
+          flexDirection: 'row',
+          overflow: 'hidden'
+        }}
+      >
 
         {/* ========================================================
             LEFT COLUMN: UNIVERSAL EDUCATIONAL SYSTEM CAPABILITIES (NOTE FORMAT)
            ======================================================== */}
         <div style={{
-          flex: '1 1 560px',
-          padding: '38px 36px',
+          flex: '1.18 1 540px',
+          padding: 'clamp(14px, 2.2vh, 24px) clamp(16px, 2.2vw, 28px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: 'linear-gradient(155deg, rgba(15, 33, 55, 0.92) 0%, rgba(7, 21, 33, 0.96) 100%)',
+          background: 'linear-gradient(155deg, rgba(15, 33, 55, 0.94) 0%, rgba(7, 21, 33, 0.98) 100%)',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
           overflow: 'hidden'
         }}>
 
           {/* Top Brand Header */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
-              <div style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '18px',
-                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(13, 148, 136, 0.45)',
-                border: '1.5px solid rgba(255, 255, 255, 0.25)',
-                flexShrink: 0
-              }}>
-                <BookOpen size={28} color="#ffffff" />
-              </div>
-              <div>
-                <div style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '6px',
-                  background: 'rgba(13, 148, 136, 0.2)',
-                  border: '1px solid rgba(13, 148, 136, 0.4)',
-                  padding: '3px 10px',
-                  borderRadius: '20px',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  color: '#2dd4bf',
-                  letterSpacing: '0.5px'
-                }}>
-                  <Sparkles size={12} color="#fde047" /> HỆ SINH THÁI DẠY HỌC TƯƠNG TÁC ĐA MÔN
-                </div>
-                <h1 style={{
-                  fontSize: '1.45rem',
-                  fontWeight: 900,
-                  margin: '3px 0 0 0',
-                  letterSpacing: '-0.3px',
-                  background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 70%, #38bdf8 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
-                  HỆ THỐNG ĐỒ NGHỀ DẠY HỌC
-                </h1>
-              </div>
-            </div>
-
-            {/* Universal Smart Classroom Banner */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              position: 'relative',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              marginBottom: '18px',
-              border: '1.5px solid rgba(56, 189, 248, 0.25)',
-              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(13, 148, 136, 0.15)',
-              background: '#040b12',
-              maxHeight: '175px',
+              width: '42px',
+              height: '42px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              boxShadow: '0 6px 18px rgba(13, 148, 136, 0.4)',
+              border: '1.5px solid rgba(255, 255, 255, 0.25)',
+              flexShrink: 0
             }}>
-              <img 
-                src="/assets/universal_education_hero.jpg" 
-                alt="Universal Interactive Digital Education Ecosystem" 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  maxHeight: '175px',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  display: 'block',
-                  filter: 'contrast(1.05) brightness(1.02)'
-                }}
-              />
-              <div style={{
+              <BookOpen size={22} color="#ffffff" />
+            </div>
+            <div>
+              <div style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '5px',
+                background: 'rgba(13, 148, 136, 0.2)',
+                border: '1px solid rgba(13, 148, 136, 0.4)',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontSize: '0.66rem',
+                fontWeight: 800,
+                color: '#2dd4bf',
+                letterSpacing: '0.5px'
+              }}>
+                <Sparkles size={11} color="#fde047" /> HỆ SINH THÁI DẠY HỌC ĐA MÔN
+              </div>
+              <h1 style={{
+                fontSize: '1.25rem',
+                fontWeight: 900,
+                margin: '2px 0 0 0',
+                letterSpacing: '-0.3px',
+                background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 70%, #38bdf8 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                HỆ THỐNG ĐỒ NGHỀ DẠY HỌC
+              </h1>
+            </div>
+          </div>
+
+          {/* Combined Visual Hero Strip + Dynamic Slogan Banner */}
+          <div style={{
+            position: 'relative',
+            borderRadius: '18px',
+            overflow: 'hidden',
+            margin: '8px 0',
+            height: '92px',
+            border: '1.5px solid rgba(56, 189, 248, 0.25)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+            background: '#040b12',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '10px 14px'
+          }}>
+            {/* Background Graphic */}
+            <img 
+              src="/assets/universal_education_hero.jpg" 
+              alt="Universal Interactive Digital Education Ecosystem" 
+              style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, rgba(7, 21, 33, 0.15) 0%, rgba(7, 21, 33, 0.85) 100%)',
-                pointerEvents: 'none'
-              }} />
-
-              {/* Float Pill on Image */}
-              <div style={{
-                position: 'absolute',
-                bottom: '10px',
-                left: '12px',
-                right: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '8px'
-              }}>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: 'rgba(15, 23, 42, 0.88)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(56, 189, 248, 0.35)',
-                  padding: '5px 12px',
-                  borderRadius: '14px',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  color: '#e0f2fe'
-                }}>
-                  <Layers size={14} color="#38bdf8" /> Ứng Dụng Cho Mọi Môn Học: Toán, Văn, Anh, KHTN...
-                </div>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: 'rgba(16, 185, 129, 0.25)',
-                  border: '1px solid rgba(16, 185, 129, 0.5)',
-                  padding: '4px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.72rem',
-                  fontWeight: 900,
-                  color: '#6ee7b7'
-                }}>
-                  <Star size={12} fill="#10b981" /> 30+ GAME ĐỈNH CAO
-                </div>
-              </div>
-            </div>
-
-            {/* Slogan Banner */}
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 40%',
+                opacity: 0.35,
+                filter: 'contrast(1.1) brightness(0.9)'
+              }}
+            />
             <div style={{
-              background: 'rgba(15, 28, 46, 0.7)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '16px',
-              padding: '12px 16px',
-              marginBottom: '18px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              boxShadow: '0 6px 18px rgba(0, 0, 0, 0.2)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
-                <span style={{
-                  fontSize: '0.68rem',
-                  fontWeight: 900,
-                  color: '#38bdf8',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.6px',
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  padding: '2px 8px',
-                  borderRadius: '8px'
-                }}>
-                  {slogans[sloganIndex].tag}
-                </span>
-                <div style={{ display: 'flex', gap: '4px', marginLeft: 'auto' }}>
-                  {slogans.map((_, idx) => (
-                    <div 
-                      key={idx}
-                      onClick={() => setSloganIndex(idx)}
-                      style={{
-                        width: idx === sloganIndex ? '18px' : '6px',
-                        height: '5px',
-                        borderRadius: '3px',
-                        background: idx === sloganIndex ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
-                        transition: 'all 0.3s ease',
-                        cursor: 'pointer'
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(90deg, rgba(7, 21, 33, 0.95) 0%, rgba(7, 21, 33, 0.75) 50%, rgba(7, 21, 33, 0.85) 100%)',
+              pointerEvents: 'none'
+            }} />
 
-              <h3 style={{
-                fontSize: '0.98rem',
+            {/* Overlaid Slogan Content */}
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{
+                fontSize: '0.64rem',
                 fontWeight: 900,
-                color: '#ffffff',
-                margin: '2px 0 2px 0'
-              }}>
-                "{slogans[sloganIndex].title}"
-              </h3>
-              <p style={{
-                fontSize: '0.78rem',
-                color: '#94a3b8',
-                margin: 0,
-                lineHeight: 1.4,
-                fontWeight: 500
-              }}>
-                {slogans[sloganIndex].subtitle}
-              </p>
-            </div>
-
-            {/* SECTION: FUNCTIONAL NOTES (DẠNG NOTE CÁC TÍNH NĂNG CHỦ YẾU) */}
-            <div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '12px',
-                fontSize: '0.78rem',
-                fontWeight: 900,
-                color: '#2dd4bf',
+                color: '#38bdf8',
                 textTransform: 'uppercase',
-                letterSpacing: '0.6px'
+                letterSpacing: '0.6px',
+                background: 'rgba(56, 189, 248, 0.2)',
+                padding: '2px 8px',
+                borderRadius: '8px'
               }}>
-                <CheckSquare size={16} color="#2dd4bf" />
-                <span>CÁC CHỨC NĂNG CHỦ YẾU CỦA HỆ THỐNG:</span>
-              </div>
-
-              {/* Notes Grid (2 columns of structured notes) */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                gap: '10px'
-              }}>
-                {systemFeaturesNotes.map((note, idx) => (
+                {slogans[sloganIndex].tag}
+              </span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {slogans.map((_, idx) => (
                   <div 
                     key={idx}
+                    onClick={() => setSloganIndex(idx)}
                     style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      border: `1px solid ${note.border}`,
-                      borderRadius: '16px',
-                      padding: '12px 14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)'
+                      width: idx === sloganIndex ? '16px' : '5px',
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: idx === sloganIndex ? '#38bdf8' : 'rgba(255, 255, 255, 0.25)',
+                      transition: 'all 0.3s ease',
+                      cursor: 'pointer'
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{
-                          width: '32px',
-                          height: '32px',
-                          borderRadius: '10px',
-                          background: note.bg,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}>
-                          {note.icon}
-                        </div>
-                        <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#f8fafc' }}>
-                          {note.title}
-                        </span>
-                      </div>
-                      <span style={{
-                        fontSize: '0.62rem',
-                        fontWeight: 900,
-                        color: note.badgeColor,
-                        background: note.bg,
-                        padding: '2px 6px',
-                        borderRadius: '6px',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {note.badge}
-                      </span>
-                    </div>
-
-                    <p style={{
-                      fontSize: '0.73rem',
-                      color: '#94a3b8',
-                      margin: '2px 0 0 0',
-                      lineHeight: 1.4,
-                      fontWeight: 500
-                    }}>
-                      {note.desc}
-                    </p>
-                  </div>
+                  />
                 ))}
               </div>
             </div>
 
+            <div style={{ position: 'relative', zIndex: 2 }}>
+              <h3 style={{
+                fontSize: '0.92rem',
+                fontWeight: 900,
+                color: '#ffffff',
+                margin: '0 0 1px 0',
+                lineHeight: 1.25
+              }}>
+                "{slogans[sloganIndex].title}"
+              </h3>
+              <p style={{
+                fontSize: '0.72rem',
+                color: '#cbd5e1',
+                margin: 0,
+                lineHeight: 1.25,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {slogans[sloganIndex].subtitle}
+              </p>
+            </div>
+          </div>
+
+          {/* Section: 6 High-Density Structured Feature Notes */}
+          <div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '7px',
+              fontSize: '0.72rem',
+              fontWeight: 900,
+              color: '#2dd4bf',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              <CheckSquare size={14} color="#2dd4bf" />
+              <span>CÁC CHỨC NĂNG CHỦ YẾU CỦA HỆ THỐNG:</span>
+            </div>
+
+            {/* Notes Grid: 2 columns x 3 rows with compact height */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '7px'
+            }}>
+              {systemFeaturesNotes.map((note, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.035)',
+                    border: `1px solid ${note.border}`,
+                    borderRadius: '13px',
+                    padding: '7px 9px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    gap: '2px',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 3px 10px rgba(0, 0, 0, 0.25)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.035)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '7px',
+                        background: note.bg,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}>
+                        {note.icon}
+                      </div>
+                      <span style={{ fontSize: '0.76rem', fontWeight: 800, color: '#f8fafc', whiteSpace: 'nowrap' }}>
+                        {note.title}
+                      </span>
+                    </div>
+                    <span style={{
+                      fontSize: '0.58rem',
+                      fontWeight: 900,
+                      color: note.badgeColor,
+                      background: note.bg,
+                      padding: '1px 5px',
+                      borderRadius: '5px',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {note.badge}
+                    </span>
+                  </div>
+
+                  <p style={{
+                    fontSize: '0.67rem',
+                    color: '#94a3b8',
+                    margin: 0,
+                    lineHeight: 1.25,
+                    fontWeight: 500,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}>
+                    {note.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Left Footer: Creator Tag & Mission */}
           <div style={{
-            marginTop: '20px',
-            paddingTop: '14px',
+            marginTop: '8px',
+            paddingTop: '8px',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '10px'
+            gap: '8px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{
-                width: '34px',
-                height: '34px',
+                width: '28px',
+                height: '28px',
                 borderRadius: '50%',
                 overflow: 'hidden',
-                border: '2px solid #0d9488',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                border: '1.5px solid #0d9488',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 flexShrink: 0
               }}>
                 <img 
@@ -659,28 +605,23 @@ export function LoginModal({ onLoginSuccess }) {
                   onError={(e) => { e.target.src = '/assets/thayhao_assistant_avatar.png'; }}
                 />
               </div>
-              <div>
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
-                  Thầy Hảo
-                </div>
-                <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                  Tác giả & Quản trị hệ thống
-                </div>
+              <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f8fafc' }}>
+                Thầy Hảo <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: '0.68rem' }}>• Tác giả & Quản trị</span>
               </div>
             </div>
 
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.72rem',
+              gap: '4px',
+              fontSize: '0.68rem',
               color: '#38bdf8',
               background: 'rgba(56, 189, 248, 0.1)',
-              padding: '4px 10px',
-              borderRadius: '10px',
+              padding: '3px 8px',
+              borderRadius: '8px',
               fontWeight: 700
             }}>
-              <Heart size={12} color="#f43f5e" fill="#f43f5e" /> Đồng hành cùng giáo viên toàn quốc
+              <Heart size={10} color="#f43f5e" fill="#f43f5e" /> Đồng hành cùng GV toàn quốc
             </div>
           </div>
 
@@ -690,8 +631,8 @@ export function LoginModal({ onLoginSuccess }) {
             RIGHT COLUMN: LUXURY GLASSMORPHISM LOGIN CARD
            ======================================================== */}
         <div style={{
-          flex: '1 1 460px',
-          padding: '40px 36px',
+          flex: '1 1 450px',
+          padding: 'clamp(14px, 2.2vh, 24px) clamp(16px, 2.2vw, 28px)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -705,70 +646,66 @@ export function LoginModal({ onLoginSuccess }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '20px'
+              marginBottom: '10px'
             }}>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 background: 'rgba(16, 185, 129, 0.15)',
                 border: '1px solid rgba(16, 185, 129, 0.35)',
-                padding: '5px 12px',
-                borderRadius: '16px',
-                fontSize: '0.75rem',
+                padding: '4px 10px',
+                borderRadius: '12px',
+                fontSize: '0.7rem',
                 fontWeight: 800,
                 color: '#34d399'
               }}>
                 <span style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '6px',
+                  height: '6px',
                   borderRadius: '50%',
                   background: '#10b981',
-                  boxShadow: '0 0 8px #10b981'
+                  boxShadow: '0 0 6px #10b981'
                 }} />
                 CỔNG ĐĂNG NHẬP GIÁO VIÊN
               </div>
 
-              <div style={{
-                fontSize: '0.72rem',
-                color: '#94a3b8',
-                fontWeight: 600
-              }}>
+              <div style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>
                 Bảo mật 100%
               </div>
             </div>
 
             {/* Title & Welcome */}
-            <div style={{ marginBottom: '22px' }}>
+            <div style={{ marginBottom: '12px' }}>
               <h2 style={{
-                fontSize: '1.75rem',
+                fontSize: '1.45rem',
                 fontWeight: 900,
                 color: '#ffffff',
-                margin: '0 0 6px 0',
-                letterSpacing: '-0.5px'
+                margin: '0 0 3px 0',
+                letterSpacing: '-0.4px'
               }}>
                 Chào Mừng Thầy/Cô! 👋
               </h2>
               <p style={{
-                fontSize: '0.86rem',
+                fontSize: '0.78rem',
                 color: '#94a3b8',
                 margin: 0,
-                lineHeight: 1.5,
+                lineHeight: 1.35,
                 fontWeight: 500
               }}>
-                Đăng nhập ngay để tiếp cận kho 30+ game giáo dục đỉnh cao và bộ công cụ tương tác dành cho mọi bộ môn.
+                Đăng nhập ngay để tiếp cận kho 30+ game giáo dục đỉnh cao và công cụ tương tác đa môn.
               </p>
             </div>
 
-            {/* TAB SELECTOR: Gmail (Primary Recommended) vs Traditional Credentials */}
+            {/* Tab Selector: Gmail vs Traditional */}
             <div style={{
               display: 'flex',
               background: 'rgba(15, 23, 42, 0.8)',
-              padding: '5px',
-              borderRadius: '18px',
+              padding: '4px',
+              borderRadius: '15px',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              marginBottom: '24px',
-              gap: '6px'
+              marginBottom: '12px',
+              gap: '4px'
             }}>
               <button
                 type="button"
@@ -781,30 +718,30 @@ export function LoginModal({ onLoginSuccess }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  padding: '11px 12px',
-                  borderRadius: '14px',
+                  gap: '6px',
+                  padding: '8px 10px',
+                  borderRadius: '12px',
                   border: 'none',
                   background: activeTab === 'gmail' 
                     ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' 
                     : 'transparent',
                   color: activeTab === 'gmail' ? '#ffffff' : '#94a3b8',
                   fontWeight: 800,
-                  fontSize: '0.85rem',
+                  fontSize: '0.8rem',
                   cursor: 'pointer',
                   transition: 'all 0.25s ease',
-                  boxShadow: activeTab === 'gmail' ? '0 6px 16px rgba(2, 132, 199, 0.35)' : 'none'
+                  boxShadow: activeTab === 'gmail' ? '0 4px 14px rgba(2, 132, 199, 0.35)' : 'none'
                 }}
               >
-                <Zap size={16} color={activeTab === 'gmail' ? '#fde047' : '#94a3b8'} />
+                <Zap size={14} color={activeTab === 'gmail' ? '#fde047' : '#94a3b8'} />
                 <span>Google Gmail</span>
                 <span style={{
                   background: activeTab === 'gmail' ? '#10b981' : 'rgba(255,255,255,0.1)',
                   color: '#ffffff',
-                  fontSize: '0.62rem',
+                  fontSize: '0.58rem',
                   fontWeight: 900,
-                  padding: '2px 6px',
-                  borderRadius: '8px',
+                  padding: '1px 5px',
+                  borderRadius: '6px',
                   textTransform: 'uppercase'
                 }}>
                   Ưu tiên
@@ -822,22 +759,22 @@ export function LoginModal({ onLoginSuccess }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  padding: '11px 12px',
-                  borderRadius: '14px',
+                  gap: '6px',
+                  padding: '8px 10px',
+                  borderRadius: '12px',
                   border: 'none',
                   background: activeTab === 'traditional' 
                     ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' 
                     : 'transparent',
                   color: activeTab === 'traditional' ? '#ffffff' : '#94a3b8',
                   fontWeight: 800,
-                  fontSize: '0.85rem',
+                  fontSize: '0.8rem',
                   cursor: 'pointer',
                   transition: 'all 0.25s ease',
-                  boxShadow: activeTab === 'traditional' ? '0 6px 16px rgba(79, 70, 229, 0.35)' : 'none'
+                  boxShadow: activeTab === 'traditional' ? '0 4px 14px rgba(79, 70, 229, 0.35)' : 'none'
                 }}
               >
-                <Lock size={15} color={activeTab === 'traditional' ? '#ffffff' : '#94a3b8'} />
+                <Lock size={13} color={activeTab === 'traditional' ? '#ffffff' : '#94a3b8'} />
                 <span>Tài Khoản Cấp Sẵn</span>
               </button>
             </div>
@@ -849,34 +786,34 @@ export function LoginModal({ onLoginSuccess }) {
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.2) 0%, rgba(2, 132, 199, 0.2) 100%)',
                   border: '1.5px solid rgba(45, 212, 191, 0.45)',
-                  borderRadius: '20px',
-                  padding: '14px 16px',
-                  marginBottom: '20px',
+                  borderRadius: '16px',
+                  padding: '9px 12px',
+                  marginBottom: '12px',
                   display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  boxShadow: '0 8px 20px rgba(13, 148, 136, 0.15)'
+                  alignItems: 'center',
+                  gap: '10px',
+                  boxShadow: '0 6px 16px rgba(13, 148, 136, 0.15)'
                 }}>
                   <div style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '12px',
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '10px',
                     background: '#10b981',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#ffffff',
                     flexShrink: 0,
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
+                    boxShadow: '0 3px 10px rgba(16, 185, 129, 0.4)'
                   }}>
-                    <Gift size={20} />
+                    <Gift size={17} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#f8fafc', marginBottom: '2px' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1.2 }}>
                       🎁 Trải Nghiệm Toàn Diện Miễn Phí!
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.45, fontWeight: 500 }}>
-                      Đăng nhập nhanh bằng Gmail — Nhận ngay <strong>1 lần trải nghiệm toàn bộ kho game 3D & công cụ độc quyền</strong> mà không cần đăng ký phức tạp!
+                    <div style={{ fontSize: '0.72rem', color: '#cbd5e1', lineHeight: 1.3, fontWeight: 500, marginTop: '2px' }}>
+                      Đăng nhập nhanh Gmail — Nhận ngay <strong>1 lần dùng thử toàn bộ kho game 3D & công cụ</strong>!
                     </div>
                   </div>
                 </div>
@@ -888,34 +825,31 @@ export function LoginModal({ onLoginSuccess }) {
                   disabled={googleLoading}
                   style={{
                     width: '100%',
-                    padding: '16px 20px',
-                    borderRadius: '20px',
+                    padding: '12px 16px',
+                    borderRadius: '16px',
                     background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                     color: '#0f172a',
-                    border: '2px solid rgba(255, 255, 255, 0.9)',
+                    border: '2px solid rgba(255, 255, 255, 0.95)',
                     fontWeight: 900,
-                    fontSize: '1.02rem',
+                    fontSize: '0.94rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '14px',
+                    gap: '10px',
                     cursor: googleLoading ? 'wait' : 'pointer',
-                    boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(56, 189, 248, 0.25)',
-                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                    position: 'relative',
-                    overflow: 'hidden'
+                    boxShadow: '0 10px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.25)',
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)';
-                    e.currentTarget.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.55), 0 0 35px rgba(56, 189, 248, 0.4)';
+                    e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)';
+                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.35)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(56, 189, 248, 0.25)';
+                    e.currentTarget.style.boxShadow = '0 10px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.25)';
                   }}
                 >
-                  {/* Official Google 4-Color SVG Icon */}
-                  <svg width="24" height="24" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
                     <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
                     <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
@@ -925,7 +859,7 @@ export function LoginModal({ onLoginSuccess }) {
                 </button>
 
                 {/* Secondary Fast Gmail Direct Input Trigger */}
-                <div style={{ textAlign: 'center', marginTop: '14px' }}>
+                <div style={{ textAlign: 'center', marginTop: '8px' }}>
                   <button
                     type="button"
                     onClick={() => {
@@ -936,38 +870,38 @@ export function LoginModal({ onLoginSuccess }) {
                       background: 'transparent',
                       border: 'none',
                       color: '#38bdf8',
-                      fontSize: '0.82rem',
+                      fontSize: '0.76rem',
                       fontWeight: 800,
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px',
+                      gap: '5px',
                       textDecoration: 'underline'
                     }}
                   >
-                    <Mail size={15} /> Hoặc nhập trực tiếp địa chỉ Gmail để vào ngay
+                    <Mail size={13} /> Hoặc nhập trực tiếp địa chỉ Gmail để vào ngay
                   </button>
                 </div>
 
                 {/* Assurance notes */}
                 <div style={{
-                  marginTop: '18px',
+                  marginTop: '10px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '8px',
-                  padding: '12px 14px',
+                  gap: '5px',
+                  padding: '8px 10px',
                   background: 'rgba(255, 255, 255, 0.03)',
-                  borderRadius: '16px',
+                  borderRadius: '13px',
                   border: '1px solid rgba(255, 255, 255, 0.05)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={15} color="#10b981" /> Tự động tạo hồ sơ giáo viên & lưu bài giảng trên đám mây
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={13} color="#10b981" /> Tự động tạo hồ sơ giáo viên & lưu bài giảng đám mây
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={15} color="#10b981" /> Không cần nhớ mật khẩu, bảo mật tiêu chuẩn Google
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={13} color="#10b981" /> Không cần nhớ mật khẩu, bảo mật tiêu chuẩn Google
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.76rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={15} color="#10b981" /> Đồng bộ tức thì trên Máy tính cá nhân, iPad và Laptop
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={13} color="#10b981" /> Đồng bộ tức thì trên Máy tính, iPad và Laptop
                   </div>
                 </div>
 
@@ -979,33 +913,32 @@ export function LoginModal({ onLoginSuccess }) {
             {/* TAB CONTENT 2: TRADITIONAL ACCOUNT (USERNAME / PASSWORD) */}
             {activeTab === 'traditional' && (
               <div>
-                {/* Traditional Error Alert */}
                 {errorMsg && (
                   <div style={{
                     background: 'rgba(239, 68, 68, 0.15)',
                     border: '1px solid rgba(239, 68, 68, 0.4)',
                     color: '#fca5a5',
-                    padding: '10px 14px',
-                    borderRadius: '14px',
-                    fontSize: '0.82rem',
+                    padding: '7px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.74rem',
                     fontWeight: 700,
-                    marginBottom: '16px',
+                    marginBottom: '10px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '6px'
                   }}>
-                    <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <AlertCircle size={15} color="#ef4444" style={{ flexShrink: 0 }} />
                     <span>{errorMsg}</span>
                   </div>
                 )}
 
-                <form onSubmit={handleTraditionalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <form onSubmit={handleTraditionalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
                       TÊN TÀI KHOẢN:
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <User size={18} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <User size={15} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
                         value={username}
@@ -1013,13 +946,13 @@ export function LoginModal({ onLoginSuccess }) {
                         placeholder="Nhập tên tài khoản giáo viên"
                         style={{
                           width: '100%',
-                          padding: '12px 14px 12px 42px',
-                          borderRadius: '16px',
+                          padding: '9px 12px 9px 36px',
+                          borderRadius: '13px',
                           background: 'rgba(15, 23, 42, 0.9)',
                           border: '1.5px solid rgba(255, 255, 255, 0.14)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.92rem',
+                          fontSize: '0.85rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -1028,11 +961,11 @@ export function LoginModal({ onLoginSuccess }) {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
                       MẬT KHẨU:
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <Lock size={18} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <Lock size={15} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="password"
                         value={password}
@@ -1040,13 +973,13 @@ export function LoginModal({ onLoginSuccess }) {
                         placeholder="Nhập mật khẩu"
                         style={{
                           width: '100%',
-                          padding: '12px 14px 12px 42px',
-                          borderRadius: '16px',
+                          padding: '9px 12px 9px 36px',
+                          borderRadius: '13px',
                           background: 'rgba(15, 23, 42, 0.9)',
                           border: '1.5px solid rgba(255, 255, 255, 0.14)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.92rem',
+                          fontSize: '0.85rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -1058,40 +991,39 @@ export function LoginModal({ onLoginSuccess }) {
                     type="submit"
                     disabled={loading}
                     style={{
-                      marginTop: '6px',
-                      padding: '14px',
-                      borderRadius: '16px',
+                      marginTop: '4px',
+                      padding: '11px',
+                      borderRadius: '14px',
                       background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
                       color: '#ffffff',
                       fontWeight: 900,
-                      fontSize: '0.98rem',
+                      fontSize: '0.9rem',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
-                      boxShadow: '0 8px 24px rgba(79, 70, 229, 0.4)',
+                      boxShadow: '0 6px 18px rgba(79, 70, 229, 0.4)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '10px',
-                      transition: 'all 0.2s ease'
+                      gap: '8px'
                     }}
                   >
                     {loading ? 'ĐANG XÁC THỰC...' : (
                       <>
                         <span>ĐĂNG NHẬP HỆ THỐNG</span>
-                        <ArrowRight size={18} />
+                        <ArrowRight size={15} />
                       </>
                     )}
                   </button>
                 </form>
 
                 <p style={{
-                  fontSize: '0.75rem',
+                  fontSize: '0.68rem',
                   color: '#94a3b8',
                   textAlign: 'center',
-                  marginTop: '12px',
-                  lineHeight: 1.4
+                  marginTop: '6px',
+                  lineHeight: 1.3
                 }}>
-                  * Dành cho Thầy/Cô đã được Admin cấp tài khoản nhà trường hoặc đăng ký bản quyền trọn gói.
+                  * Dành cho Thầy/Cô đã được Admin cấp tài khoản hoặc mua gói trọn đời.
                 </p>
               </div>
             )}
@@ -1101,30 +1033,29 @@ export function LoginModal({ onLoginSuccess }) {
               FOOTER: CONTACT & QUICK ZALO ACTION
              ======================================================== */}
           <div style={{
-            marginTop: '26px',
-            paddingTop: '20px',
+            marginTop: '10px',
+            paddingTop: '10px',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
             textAlign: 'center'
           }}>
             <p style={{
-              fontSize: '0.82rem',
+              fontSize: '0.74rem',
               color: '#cbd5e1',
-              margin: '0 0 10px 0',
+              margin: '0 0 6px 0',
               fontWeight: 600,
-              lineHeight: 1.5
+              lineHeight: 1.3
             }}>
               📌 <em>Hỗ trợ tài khoản trọn gói: Liên hệ <strong>Thầy Hảo</strong></em>
             </p>
 
-            {/* Quick Contact Action Buttons: Zalo Pulse + Hotline */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '12px',
+              gap: '8px',
               flexWrap: 'wrap'
             }}>
-              {/* ZALO PULSE ACTION BUTTON */}
+              {/* Zalo Action Button */}
               <a
                 href="https://zalo.me/0387806954"
                 target="_blank"
@@ -1132,28 +1063,26 @@ export function LoginModal({ onLoginSuccess }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
+                  gap: '6px',
                   background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                   color: '#ffffff',
-                  padding: '9px 18px',
-                  borderRadius: '14px',
+                  padding: '6px 14px',
+                  borderRadius: '11px',
                   textDecoration: 'none',
                   fontWeight: 900,
-                  fontSize: '0.85rem',
-                  boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)',
+                  fontSize: '0.78rem',
+                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)',
                   border: '1px solid rgba(255, 255, 255, 0.25)',
-                  transition: 'all 0.2s ease',
                   animation: 'zaloButtonPulse 2.4s infinite ease-in-out'
                 }}
               >
-                {/* Zalo Icon */}
                 <span style={{
                   background: '#ffffff',
                   color: '#0284c7',
-                  borderRadius: '6px',
+                  borderRadius: '5px',
                   fontWeight: 900,
-                  fontSize: '0.7rem',
-                  padding: '1px 5px',
+                  fontSize: '0.62rem',
+                  padding: '1px 4px',
                   letterSpacing: '-0.3px'
                 }}>
                   Zalo
@@ -1169,27 +1098,26 @@ export function LoginModal({ onLoginSuccess }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '5px',
                   background: 'rgba(255, 255, 255, 0.06)',
                   color: '#cbd5e1',
-                  padding: '9px 14px',
-                  borderRadius: '14px',
+                  padding: '6px 12px',
+                  borderRadius: '11px',
                   textDecoration: 'none',
                   fontWeight: 700,
-                  fontSize: '0.82rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  transition: 'all 0.2s ease'
+                  fontSize: '0.74rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
                 }}
               >
-                <ExternalLink size={14} color="#38bdf8" />
-                <span>Facebook Thầy Hảo</span>
+                <ExternalLink size={12} color="#38bdf8" />
+                <span>Facebook</span>
               </a>
             </div>
 
             <div style={{
-              fontSize: '0.7rem',
+              fontSize: '0.62rem',
               color: '#64748b',
-              marginTop: '12px'
+              marginTop: '6px'
             }}>
               Bản quyền © 2026 Hệ Thống Đồ Nghề Dạy Học • Thầy Hảo
             </div>
@@ -1199,9 +1127,7 @@ export function LoginModal({ onLoginSuccess }) {
 
       </div>
 
-      {/* ========================================================
-          POPUP MODAL: DIRECT GMAIL QUICK LOGIN / TRIAL ACTIVATION
-         ======================================================== */}
+      {/* Direct Gmail Modal */}
       {showQuickGmailModal && (
         <div style={{
           position: 'fixed',
@@ -1213,55 +1139,53 @@ export function LoginModal({ onLoginSuccess }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px'
+          padding: '16px'
         }}>
           <div style={{
             width: '100%',
-            maxWidth: '460px',
+            maxWidth: '430px',
             background: 'linear-gradient(150deg, #0e1e33 0%, #071322 100%)',
             border: '2px solid rgba(56, 189, 248, 0.4)',
-            borderRadius: '30px',
-            padding: '32px 28px',
-            boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(2, 132, 199, 0.3)',
+            borderRadius: '26px',
+            padding: '24px 22px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(2, 132, 199, 0.3)',
             color: '#ffffff',
             position: 'relative'
           }}>
-            {/* Close Button */}
             <button
               onClick={() => setShowQuickGmailModal(false)}
               style={{
                 position: 'absolute',
-                top: '18px',
-                right: '18px',
+                top: '14px',
+                right: '14px',
                 background: 'rgba(255, 255, 255, 0.08)',
                 border: 'none',
                 color: '#94a3b8',
                 cursor: 'pointer',
                 borderRadius: '50%',
-                width: '34px',
-                height: '34px',
+                width: '30px',
+                height: '30px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
             >
-              <X size={18} />
+              <X size={16} />
             </button>
 
-            {/* Modal Header */}
-            <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{
-                width: '60px',
-                height: '60px',
-                borderRadius: '20px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '16px',
                 background: '#ffffff',
-                margin: '0 auto 14px',
+                margin: '0 auto 10px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
+                boxShadow: '0 6px 18px rgba(0,0,0,0.3)'
               }}>
-                <svg width="32" height="32" viewBox="0 0 24 24">
+                <svg width="26" height="26" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
                   <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
                   <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
@@ -1269,11 +1193,11 @@ export function LoginModal({ onLoginSuccess }) {
                 </svg>
               </div>
 
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 6px 0', color: '#ffffff' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, margin: '0 0 4px 0', color: '#ffffff' }}>
                 Đăng Nhập Nhanh Bằng Gmail
               </h3>
-              <p style={{ fontSize: '0.84rem', color: '#94a3b8', margin: 0, lineHeight: 1.45 }}>
-                Hệ thống tự động liên kết và cấp quyền <strong>Dùng thử 1 lần</strong> cho tài khoản Gmail của thầy/cô
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.35 }}>
+                Tự động liên kết và cấp quyền <strong>Dùng thử 1 lần</strong> cho tài khoản Gmail
               </p>
             </div>
 
@@ -1282,27 +1206,27 @@ export function LoginModal({ onLoginSuccess }) {
                 background: 'rgba(239, 68, 68, 0.2)',
                 border: '1px solid #ef4444',
                 color: '#fca5a5',
-                padding: '10px 14px',
-                borderRadius: '14px',
-                fontSize: '0.82rem',
+                padding: '8px 12px',
+                borderRadius: '12px',
+                fontSize: '0.76rem',
                 fontWeight: 700,
-                marginBottom: '16px',
+                marginBottom: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '6px'
               }}>
-                <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0 }} />
+                <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
                 <span>{googleError}</span>
               </div>
             )}
 
-            <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
                   ĐỊA CHỈ GMAIL CỦA THẦY/CÔ: <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <div style={{ position: 'relative' }}>
-                  <Mail size={18} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <Mail size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                   <input
                     type="email"
                     required
@@ -1311,13 +1235,13 @@ export function LoginModal({ onLoginSuccess }) {
                     placeholder="VD: tranvanan@gmail.com"
                     style={{
                       width: '100%',
-                      padding: '12px 14px 12px 42px',
-                      borderRadius: '16px',
+                      padding: '10px 12px 10px 38px',
+                      borderRadius: '13px',
                       background: 'rgba(15, 23, 42, 0.9)',
                       border: '1.5px solid rgba(255, 255, 255, 0.15)',
                       color: '#ffffff',
                       fontWeight: 700,
-                      fontSize: '0.92rem',
+                      fontSize: '0.85rem',
                       outline: 'none',
                       boxSizing: 'border-box'
                     }}
@@ -1326,11 +1250,11 @@ export function LoginModal({ onLoginSuccess }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
                   HỌ VÀ TÊN GIÁO VIÊN:
                 </label>
                 <div style={{ position: 'relative' }}>
-                  <User size={18} color="#94a3b8" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                   <input
                     type="text"
                     value={googleName}
@@ -1338,13 +1262,13 @@ export function LoginModal({ onLoginSuccess }) {
                     placeholder="VD: Cô Trần Thị Mai"
                     style={{
                       width: '100%',
-                      padding: '12px 14px 12px 42px',
-                      borderRadius: '16px',
+                      padding: '10px 12px 10px 38px',
+                      borderRadius: '13px',
                       background: 'rgba(15, 23, 42, 0.9)',
                       border: '1.5px solid rgba(255, 255, 255, 0.15)',
                       color: '#ffffff',
                       fontWeight: 700,
-                      fontSize: '0.92rem',
+                      fontSize: '0.85rem',
                       outline: 'none',
                       boxSizing: 'border-box'
                     }}
@@ -1355,34 +1279,34 @@ export function LoginModal({ onLoginSuccess }) {
               <div style={{
                 background: 'rgba(13, 148, 136, 0.15)',
                 border: '1px solid rgba(13, 148, 136, 0.35)',
-                padding: '12px 14px',
-                borderRadius: '14px',
-                fontSize: '0.78rem',
+                padding: '9px 12px',
+                borderRadius: '12px',
+                fontSize: '0.72rem',
                 color: '#2dd4bf',
                 fontWeight: 600,
-                lineHeight: 1.45
+                lineHeight: 1.35
               }}>
-                ✨ Khi đăng nhập thành công, thầy/cô được <strong>trải nghiệm 1 lần toàn bộ 30+ game</strong>. Sau đó có thể liên hệ Thầy Hảo để nâng cấp bản quyền trọn đời!
+                ✨ Khi đăng nhập thành công, thầy/cô được <strong>trải nghiệm 1 lần toàn bộ 30+ game</strong>. Sau đó liên hệ Thầy Hảo để nâng cấp bản quyền!
               </div>
 
               <button
                 type="submit"
                 disabled={googleLoading}
                 style={{
-                  marginTop: '8px',
-                  padding: '14px',
-                  borderRadius: '16px',
+                  marginTop: '4px',
+                  padding: '12px',
+                  borderRadius: '14px',
                   background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                   color: '#ffffff',
                   fontWeight: 900,
-                  fontSize: '1rem',
+                  fontSize: '0.92rem',
                   border: 'none',
                   cursor: googleLoading ? 'wait' : 'pointer',
-                  boxShadow: '0 8px 24px rgba(2, 132, 199, 0.45)',
+                  boxShadow: '0 6px 20px rgba(2, 132, 199, 0.45)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '10px'
+                  gap: '8px'
                 }}
               >
                 {googleLoading ? 'ĐANG TẠO & ĐĂNG NHẬP...' : 'XÁC NHẬN & BẮT ĐẦU TRẢI NGHIỆM NGAY 🚀'}
@@ -1392,16 +1316,31 @@ export function LoginModal({ onLoginSuccess }) {
         </div>
       )}
 
-      {/* Global Inline Animation Keyframes */}
+      {/* Global Responsive & Animation Keyframes */}
       <style>{`
         @keyframes zaloButtonPulse {
           0%, 100% {
             transform: scale(1);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.4);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
           }
           50% {
             transform: scale(1.04);
-            box-shadow: 0 8px 28px rgba(2, 132, 199, 0.7);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.7);
+          }
+        }
+        @media (max-width: 960px) {
+          .login-viewport-card {
+            flex-direction: column !important;
+            height: auto !important;
+            max-height: 96vh !important;
+            overflow-y: auto !important;
+          }
+        }
+        @media (max-height: 580px) {
+          .login-viewport-card {
+            height: auto !important;
+            max-height: 98vh !important;
+            overflow-y: auto !important;
           }
         }
       `}</style>
