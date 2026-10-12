@@ -3,7 +3,7 @@
  * Enables cross-device dynamic user creation and authentication anywhere in the world.
  */
 
-import { IDBStorageService } from './idbStorage';
+import { IDBStorageService } from './idbStorage.js';
 
 const KV_ENDPOINTS = [
   'https://api.kvdb.io/skyline_gvd_users_eduvth_v1/users',
@@ -163,6 +163,7 @@ export const CloudStorageService = {
     const cleanPass = userData.password !== undefined && userData.password !== null ? String(userData.password).trim() : '';
 
     const payload = {
+      ...userData,
       id: userData.id || `user_${Date.now()}`,
       username: cleanUname,
       password: cleanPass,
@@ -180,8 +181,12 @@ export const CloudStorageService = {
     // 1. Save locally to IndexedDB + LocalStorage immediately
     try {
       let localUsers = JSON.parse(localStorage.getItem('gvd_users') || '[]');
-      localUsers = localUsers.filter(u => !u.username || String(u.username).trim().toLowerCase() !== cleanUname);
-      localUsers.push(payload);
+      const existIdx = localUsers.findIndex(u => u && String(u.username || '').trim().toLowerCase() === cleanUname);
+      if (existIdx !== -1) {
+        localUsers[existIdx] = { ...localUsers[existIdx], ...payload };
+      } else {
+        localUsers.push(payload);
+      }
       localStorage.setItem('gvd_users', JSON.stringify(localUsers));
       IDBStorageService.clearAndSaveAllUsers(localUsers).catch(() => {});
     } catch (e) {}

@@ -81,7 +81,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
     }
   };
 
-  // Toggle Google User Access Tier (Cho phép không giới hạn vs Dùng thử)
+  // Toggle Google User Access Tier (Chấp nhận dùng vĩnh viễn vs Dùng thử)
   const handleToggleGoogleUnlimited = (user) => {
     if (!user) return;
     const isCurrentlyUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true;
@@ -90,8 +90,10 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
     setUsers(StorageService.getUsers());
     if (nextTier === 'unlimited') {
       SoundFX.correct();
+      alert(`🎉 Đã duyệt chấp nhận cho tài khoản "${user.name}" (${user.email || user.username}) được DÙNG VĨNH VIỄN không giới hạn!`);
     } else {
       SoundFX.click();
+      alert(`ℹ️ Đã chuyển tài khoản "${user.name}" về chế độ Dùng thử.`);
     }
   };
 
@@ -257,7 +259,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
             boxShadow: adminTab === 'google-accounts' ? '0 4px 14px rgba(2, 132, 199, 0.35)' : undefined
           }}
         >
-          <Mail size={18} /> Duyệt Tài Khoản Gmail (Google OAuth) {users.filter(u => StorageService.isGoogleUser(u)).length > 0 && `(${users.filter(u => StorageService.isGoogleUser(u)).length})`}
+          <Mail size={18} /> Duyệt tài khoản Gmail
         </button>
 
         <button 
@@ -282,7 +284,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
 
       {/* TAB 0: Google OAuth Accounts Management & Approval */}
       {adminTab === 'google-accounts' && (() => {
-        const googleUsers = users.filter(u => StorageService.isGoogleUser(u)).map(u => StorageService.normalizeGoogleUser(u));
+        const googleUsers = StorageService.getGoogleUsers();
         
         const pendingCount = googleUsers.filter(u => {
           const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
@@ -325,10 +327,10 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
                   <Mail size={22} color="#0284c7" />
-                  Duyệt Tài Khoản Gmail Tự Đăng Ký ({googleUsers.length} tài khoản)
+                  Duyệt tài khoản Gmail ({googleUsers.length} tài khoản)
                 </h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Quản lý quyền trải nghiệm dùng thử 1 lần và bật cấp quyền "Không Giới Hạn" cho giáo viên.
+                  Quản lý riêng tài khoản giáo viên dùng thử bằng Gmail và chấp nhận duyệt dùng vĩnh viễn nếu muốn.
                 </p>
               </div>
 
@@ -407,9 +409,9 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
-                  title="Lọc tài khoản Không giới hạn"
+                  title="Lọc tài khoản Dùng vĩnh viễn"
                 >
-                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800 }}>💎 Không giới hạn:</span>
+                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800 }}>💎 Dùng vĩnh viễn:</span>
                   <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#10b981' }}>{unlimitedCount}</span>
                 </div>
               </div>
@@ -494,7 +496,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                     color: googleFilter === 'unlimited' ? '#ffffff' : '#34d399'
                   }}
                 >
-                  💎 Không giới hạn ({unlimitedCount})
+                  💎 Dùng vĩnh viễn ({unlimitedCount})
                 </button>
               </div>
 
@@ -551,13 +553,13 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                     color: '#ffffff',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}>
-                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Giáo Viên (Google OAuth)</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Giáo Viên</th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Địa Chỉ Gmail</th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Ngày Đăng Ký</th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'center' }}>Trạng Thái Hiện Tại</th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Chi Tiết Dùng Thử</th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'center', minWidth: '220px' }}>
-                      Cấp Quyền Không Giới Hạn
+                      Duyệt Dùng Vĩnh Viễn
                     </th>
                     <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'right' }}>Thao Tác</th>
                   </tr>
@@ -609,7 +611,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                             <div>
                               <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>{u.name}</div>
                               <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0284c7', background: 'rgba(2, 132, 199, 0.1)', padding: '1px 6px', borderRadius: '6px' }}>
-                                Google OAuth
+                                Tài khoản Gmail
                               </span>
                             </div>
                           </div>
@@ -630,7 +632,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                           )}
                         </td>
 
-                        {/* Status (Đã dùng thử / Đang chờ duyệt / Không giới hạn) */}
+                        {/* Status (Đã dùng thử / Đang chờ duyệt / Dùng vĩnh viễn) */}
                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                           {isUnlimited ? (
                             <span style={{
@@ -645,7 +647,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                               borderRadius: '20px',
                               boxShadow: '0 2px 8px rgba(16, 185, 129, 0.35)'
                             }}>
-                              💎 Không giới hạn
+                              💎 Dùng vĩnh viễn
                             </span>
                           ) : isUsed ? (
                             <span style={{
@@ -696,13 +698,13 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                           )}
                         </td>
 
-                        {/* Nút Cấp Quyền Không Giới Hạn (Toggle & Action Button) */}
+                        {/* Nút Duyệt Dùng Vĩnh Viễn (Toggle & Action Button) */}
                         <td style={{ padding: '14px 16px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                             {/* Toggle Switch */}
                             <label 
                               style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', position: 'relative' }}
-                              title={isUnlimited ? 'Bấm để hủy quyền Không giới hạn' : 'Bấm để CẤP QUYỀN KHÔNG GIỚI HẠN'}
+                              title={isUnlimited ? 'Bấm để hủy quyền dùng vĩnh viễn' : 'Bấm để CHẤP NHẬN DÙNG VĨNH VIỄN'}
                             >
                               <input 
                                 type="checkbox" 
@@ -757,11 +759,11 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                             >
                               {isUnlimited ? (
                                 <>
-                                  <CheckCircle2 size={16} /> Đã Cho Phép
+                                  <CheckCircle2 size={16} /> Đã Duyệt Vĩnh Viễn
                                 </>
                               ) : (
                                 <>
-                                  <Sparkles size={16} color="#fde047" /> Cho phép không giới hạn
+                                  <Sparkles size={16} color="#fde047" /> Chấp nhận dùng vĩnh viễn
                                 </>
                               )}
                             </button>
@@ -814,11 +816,13 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
 
       {/* TAB 1: Account Management */}
       {adminTab === 'accounts' && (() => {
-        const teacherUsers = users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao');
+        const teacherUsers = users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao' && !StorageService.isGoogleUser(u));
         const paidCount = teacherUsers.filter(u => u.paymentStatus === 'paid' || u.isPaid === true).length;
         const unpaidCount = teacherUsers.filter(u => u.paymentStatus !== 'paid' && !u.isPaid).length;
 
         const displayedUsers = users.filter(u => {
+          if (StorageService.isGoogleUser(u)) return false; // Strict: Gmail trial accounts only managed in 'Duyệt tài khoản Gmail'
+
           const isTeacher = u.role !== 'admin' && u.username !== 'philthienhao';
           const isPaid = u.paymentStatus === 'paid' || u.isPaid === true;
 
@@ -849,10 +853,10 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
               <div>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
                   <Users size={22} color="#8b5cf6" />
-                  Danh Sách Tài Khoản Giáo Viên ({teacherUsers.length} tài khoản)
+                  Danh Sách Tài Khoản Giáo Viên Cấp Thủ Công ({teacherUsers.length} tài khoản)
                 </h3>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Quản lý trạng thái chuyển khoản bán tài khoản và cấp quyền sử dụng hệ thống.
+                  Quản lý tài khoản giáo viên cấp thủ công, trạng thái chuyển khoản và cấp quyền sử dụng hệ thống.
                 </p>
               </div>
 

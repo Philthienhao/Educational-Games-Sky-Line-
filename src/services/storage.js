@@ -1,11 +1,12 @@
-import { IDBStorageService } from './idbStorage';
-import { AvatarStorageService } from './avatarStorage';
-import { CloudStorageService } from './cloudStorage';
+import { IDBStorageService } from './idbStorage.js';
+import { AvatarStorageService } from './avatarStorage.js';
+import { CloudStorageService } from './cloudStorage.js';
 
 const USERS_KEY = 'gvd_users';
 const BASE_GAMES_KEY = 'gvd_base_games';
 const SAVED_GAMES_KEY = 'gvd_saved_games';
 const CURRENT_USER_KEY = 'gvd_current_user';
+const GOOGLE_USERS_KEY = 'gvd_google_users';
 
 // Runtime In-Memory Cache for Guaranteed Persistence even if LocalStorage is limited/blocked
 let runtimeSavedGamesCache = null;
@@ -354,7 +355,11 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường TH Vĩnh Thanh',
     createdAt: '2026-10-09'
-  },
+  }
+];
+
+// Initial Registered Google Trial Accounts (Seeded for Cross-Device / Incognito Access)
+export const INITIAL_GOOGLE_USERS = [
   {
     id: 'user_google_1791775138073_831n6',
     username: 'phamthithanhthao0103@gmail.com',
@@ -373,6 +378,25 @@ const INITIAL_USERS = [
     isPaid: false,
     createdAt: '2026-10-12T03:18:58.073Z',
     updatedAt: '2026-10-12T03:19:36.464Z'
+  },
+  {
+    id: 'user_google_coquynhanh',
+    username: 'coquynhanh@gmail.com',
+    email: 'coquynhanh@gmail.com',
+    password: '',
+    name: 'Cô Quỳnh Anh',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
+    authProvider: 'google',
+    accessTier: 'trial',
+    status: 'trial_expired',
+    trialLimit: 1,
+    totalTrialsUsed: 1,
+    paymentStatus: 'unpaid',
+    isPaid: false,
+    createdAt: '2026-10-11T14:20:00.000Z',
+    updatedAt: '2026-10-11T14:21:00.000Z'
   }
 ];
 
@@ -1429,6 +1453,24 @@ export const StorageService = {
           }
         }).catch(() => {});
 
+        // Seed dedicated Google Users store with INITIAL_GOOGLE_USERS if empty
+        try {
+          let storedGUsers = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+          if (!Array.isArray(storedGUsers)) storedGUsers = [];
+          let gUpdated = false;
+          INITIAL_GOOGLE_USERS.forEach(igu => {
+            const key = String(igu.email || igu.username).trim().toLowerCase();
+            if (!storedGUsers.some(u => u && String(u.email || u.username).trim().toLowerCase() === key)) {
+              storedGUsers.push(igu);
+              gUpdated = true;
+            }
+          });
+          if (gUpdated || !localStorage.getItem(GOOGLE_USERS_KEY)) {
+            localStorage.setItem(GOOGLE_USERS_KEY, JSON.stringify(storedGUsers));
+            IDBStorageService.setItem(GOOGLE_USERS_KEY, storedGUsers).catch(() => {});
+          }
+        } catch (e) {}
+
         // Asynchronously pull Google OAuth Users from 24/7 Cloud KV Store
         StorageService.syncGoogleUsersWithCloud().catch(() => {});
       } catch (e) {
@@ -2080,8 +2122,9 @@ export const StorageService = {
       if (!u) return u;
       const uId = u.id ? String(u.id).trim().toLowerCase() : '';
       const uName = u.username ? String(u.username).trim().toLowerCase() : '';
+      const uEmail = u.email ? String(u.email).trim().toLowerCase() : '';
 
-      if (uId === cleanId || uName === cleanId) {
+      if (uId === cleanId || uName === cleanId || uEmail === cleanId) {
         const merged = { ...u, ...updatedData, updatedAt: new Date().toISOString() };
         if (merged.username) merged.username = String(merged.username).trim().toLowerCase();
         if (merged.password !== undefined && merged.password !== null) merged.password = String(merged.password).trim();
@@ -2090,6 +2133,27 @@ export const StorageService = {
       }
       return u;
     });
+
+    if (!updatedUser) {
+      let gUsers = [];
+      try {
+        gUsers = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+      } catch (e) {}
+      const allG = [...INITIAL_GOOGLE_USERS, ...(Array.isArray(gUsers) ? gUsers : [])];
+      const foundG = allG.find(gu => {
+        if (!gu) return false;
+        const guId = gu.id ? String(gu.id).trim().toLowerCase() : '';
+        const guName = gu.username ? String(gu.username).trim().toLowerCase() : '';
+        const guEmail = gu.email ? String(gu.email).trim().toLowerCase() : '';
+        return guId === cleanId || guName === cleanId || guEmail === cleanId;
+      });
+
+      if (foundG) {
+        const mergedG = { ...foundG, ...updatedData, updatedAt: new Date().toISOString() };
+        updatedUser = mergedG;
+        users.push(mergedG);
+      }
+    }
 
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
     IDBStorageService.clearAndSaveAllUsers(users).catch(() => {});
@@ -2104,6 +2168,29 @@ export const StorageService = {
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newCurr));
         IDBStorageService.setItem(CURRENT_USER_KEY, newCurr).catch(() => {});
       }
+
+      // Also update dedicated Google Users store if this is a Google user
+      if (StorageService.isGoogleUser(updatedUser)) {
+        try {
+          let gUsers = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+          if (Array.isArray(gUsers)) {
+            const gIdx = gUsers.findIndex(gu => {
+              if (!gu) return false;
+              const guId = gu.id ? String(gu.id).trim().toLowerCase() : '';
+              const guName = gu.username ? String(gu.username).trim().toLowerCase() : '';
+              const guEmail = gu.email ? String(gu.email).trim().toLowerCase() : '';
+              return guId === cleanId || guName === cleanId || guEmail === cleanId;
+            });
+            if (gIdx !== -1) {
+              gUsers[gIdx] = { ...gUsers[gIdx], ...updatedUser };
+            } else {
+              gUsers.push(updatedUser);
+            }
+            localStorage.setItem(GOOGLE_USERS_KEY, JSON.stringify(gUsers));
+            IDBStorageService.setItem(GOOGLE_USERS_KEY, gUsers).catch(() => {});
+          }
+        } catch (e) {}
+      }
     }
 
     return updatedUser;
@@ -2113,7 +2200,7 @@ export const StorageService = {
     let users = StorageService.getUsers();
     const cleanId = String(userId).trim().toLowerCase();
 
-    const targetUser = users.find(u => u.id === userId || (u.username && u.username.trim().toLowerCase() === cleanId));
+    const targetUser = users.find(u => u.id === userId || (u.username && u.username.trim().toLowerCase() === cleanId) || (u.email && u.email.trim().toLowerCase() === cleanId));
 
     if (targetUser && (targetUser.role === 'admin' || targetUser.username === 'philthienhao' || targetUser.id === 'user_admin')) {
       console.warn("Cannot delete system admin account");
@@ -2137,6 +2224,17 @@ export const StorageService = {
     if (targetUser) {
       CloudStorageService.deleteCloudUser(targetId, targetUsername).catch(() => {});
     }
+
+    // Also remove from dedicated Google Users store
+    try {
+      let gUsers = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+      if (Array.isArray(gUsers)) {
+        gUsers = gUsers.filter(u => u && u.id !== targetId && u.username !== targetUsername && String(u.email || '').trim().toLowerCase() !== targetUsername);
+        localStorage.setItem(GOOGLE_USERS_KEY, JSON.stringify(gUsers));
+        IDBStorageService.setItem(GOOGLE_USERS_KEY, gUsers).catch(() => {});
+      }
+    } catch (e) {}
+    StorageService.broadcastGoogleUsersToCloud().catch(() => {});
 
     // Clear session if current user was deleted
     const curr = StorageService.getCurrentUser();
@@ -2202,10 +2300,21 @@ export const StorageService = {
       localStorage.setItem(USERS_KEY, JSON.stringify(users));
       IDBStorageService.clearAndSaveAllUsers(users).catch(() => {});
       CloudStorageService.createOrUpdateCloudUser(newUser).catch(() => {});
+
+      // Save to dedicated Google Users store
+      try {
+        let gUsers = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+        if (!Array.isArray(gUsers)) gUsers = [];
+        gUsers = gUsers.filter(u => u && String(u.username || u.email || '').trim().toLowerCase() !== cleanEmail);
+        gUsers.push(newUser);
+        localStorage.setItem(GOOGLE_USERS_KEY, JSON.stringify(gUsers));
+        IDBStorageService.setItem(GOOGLE_USERS_KEY, gUsers).catch(() => {});
+      } catch (e) {}
+
       targetUser = newUser;
     }
 
-    // Broadcast Google OAuth account list to 24/7 cloud KV for Admin cross-device visibility
+    // Broadcast Google account list to 24/7 cloud KV for Admin cross-device visibility
     StorageService.broadcastGoogleUsersToCloud().catch(() => {});
 
     return targetUser;
@@ -2248,10 +2357,51 @@ export const StorageService = {
   },
 
   getGoogleUsers: () => {
-    const users = StorageService.getUsers();
-    return users
-      .filter(u => StorageService.isGoogleUser(u))
-      .map(u => StorageService.normalizeGoogleUser(u));
+    StorageService.init();
+    const deletedUserIds = StorageService.getDeletedUserIds();
+    let googleList = [];
+    try {
+      googleList = JSON.parse(localStorage.getItem(GOOGLE_USERS_KEY) || '[]');
+      if (!Array.isArray(googleList)) googleList = [];
+    } catch (e) {
+      googleList = [];
+    }
+
+    const allUsers = StorageService.getUsers();
+    const fromAllUsers = allUsers.filter(u => StorageService.isGoogleUser(u));
+
+    const map = new Map();
+    INITIAL_GOOGLE_USERS.forEach(igu => {
+      const key = String(igu.email || igu.username).trim().toLowerCase();
+      if (key && !deletedUserIds.includes(igu.id) && !deletedUserIds.includes(key)) {
+        map.set(key, StorageService.normalizeGoogleUser(igu));
+      }
+    });
+    googleList.forEach(gu => {
+      if (StorageService.isGoogleUser(gu)) {
+        const norm = StorageService.normalizeGoogleUser(gu);
+        const key = String(norm.email || norm.username).trim().toLowerCase();
+        if (key && !deletedUserIds.includes(gu.id) && !deletedUserIds.includes(key)) {
+          map.set(key, norm);
+        }
+      }
+    });
+    fromAllUsers.forEach(u => {
+      const norm = StorageService.normalizeGoogleUser(u);
+      const key = String(norm.email || norm.username).trim().toLowerCase();
+      if (key && !deletedUserIds.includes(u.id) && !deletedUserIds.includes(key)) {
+        if (map.has(key)) {
+          map.set(key, { ...map.get(key), ...norm });
+        } else {
+          map.set(key, norm);
+        }
+      }
+    });
+
+    return Array.from(map.values()).filter(u => {
+      const key = String(u.email || u.username).trim().toLowerCase();
+      return !deletedUserIds.includes(u.id) && !deletedUserIds.includes(key);
+    });
   },
 
   setGoogleUserAccessTier: (userId, accessTier) => {
@@ -2278,7 +2428,6 @@ export const StorageService = {
       accessTier: 'trial'
     });
     StorageService.broadcastGoogleUsersToCloud().catch(() => {});
-    return updated;
   },
 
   checkFeatureAccess: (user, featureId) => {
@@ -2450,6 +2599,11 @@ export const StorageService = {
       if (updated) {
         localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
         IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
+        try {
+          const gUsersOnly = currentUsers.filter(u => StorageService.isGoogleUser(u));
+          localStorage.setItem(GOOGLE_USERS_KEY, JSON.stringify(gUsersOnly));
+          IDBStorageService.setItem(GOOGLE_USERS_KEY, gUsersOnly).catch(() => {});
+        } catch (e) {}
       }
 
       // Re-broadcast merged list to Cloud KV so Supabase is always fully synchronized
