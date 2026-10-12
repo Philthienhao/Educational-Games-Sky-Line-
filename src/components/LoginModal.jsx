@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Lock, User, Sparkles, ShieldCheck, ArrowRight, AlertCircle, 
-  BookOpen, Mail, CheckCircle2, X, Globe, Compass, 
+  BookOpen, Mail, CheckCircle2, X, Compass, 
   GraduationCap, Award, PhoneCall, ExternalLink, MessageCircle, 
-  Heart, Star, ChevronRight, Zap, Gift
+  Heart, Star, ChevronRight, Zap, Gift, Gamepad2, FileSpreadsheet,
+  Users, Clock, Cloud, Camera, Layers, CheckSquare
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { SoundFX } from '../utils/sound';
@@ -25,28 +26,28 @@ export function LoginModal({ onLoginSuccess }) {
   const [googleError, setGoogleError] = useState('');
   const [showQuickGmailModal, setShowQuickGmailModal] = useState(false);
 
-  // Slogan Carousel Index
+  // Slogan Carousel Index (Universal for all subjects)
   const [sloganIndex, setSloganIndex] = useState(0);
   const slogans = [
     {
-      title: "Người Thầy Truyền Cảm Hứng",
-      subtitle: "Chắp cánh những ước mơ - Khơi dậy niềm đam mê học tập bất tận của học trò.",
-      tag: "Sứ Mạng Người Thầy"
-    },
-    {
-      title: "Hệ Sinh Thái Số Toàn Diện",
-      subtitle: "Bộ công cụ giáo dục đỉnh cao dành riêng cho giáo viên hiện đại và sáng tạo.",
-      tag: "Giáo Dục 4.0"
-    },
-    {
-      title: "Khơi Nguồn Tri Thức Địa Lí",
-      subtitle: "Khám phá thế giới đa chiều với bản đồ 3D tương tác cùng Thầy Hảo Địa Lí.",
-      tag: "Chuyên Môn Đỉnh Cao"
+      title: "Hệ Sinh Thái Dạy Học Toàn Diện",
+      subtitle: "Bộ công cụ giáo dục đỉnh cao dành riêng cho giáo viên sáng tạo của TẤT CẢ các bộ môn.",
+      tag: "Dành Cho Mọi Môn Học"
     },
     {
       title: "Lớp Học Hạnh Phúc & Hào Hứng",
-      subtitle: "Hơn 30+ tựa game tương tác đa giác quan, biến mỗi tiết học thành ngày hội.",
+      subtitle: "Hơn 30+ tựa game tương tác đa giác quan, biến mỗi tiết học thành ngày hội của học trò.",
       tag: "Trải Nghiệm Đột Phá"
+    },
+    {
+      title: "Người Thầy Truyền Cảm Hứng",
+      subtitle: "Chắp cánh những ước mơ - Khơi dậy niềm đam mê học tập bất tận của thế hệ trẻ.",
+      tag: "Sứ Mạng Người Thầy"
+    },
+    {
+      title: "Tiết Kiệm 80% Thời Gian Soạn Bài",
+      subtitle: "Tạo game tức thì từ file Excel/Word có sẵn, tối ưu hóa bài giảng với công nghệ AI.",
+      tag: "Tự Động Hóa Giảng Dạy"
     }
   ];
 
@@ -57,6 +58,64 @@ export function LoginModal({ onLoginSuccess }) {
     }, 4200);
     return () => clearInterval(timer);
   }, [slogans.length]);
+
+  // System Core Capabilities (Structured as Notes for Teachers)
+  const systemFeaturesNotes = [
+    {
+      icon: <Gamepad2 size={20} color="#38bdf8" />,
+      bg: 'rgba(56, 189, 248, 0.15)',
+      border: 'rgba(56, 189, 248, 0.3)',
+      badge: '30+ Game Tương Tác',
+      badgeColor: '#38bdf8',
+      title: 'Kho Game Giáo Dục Đa Dạng',
+      desc: 'Nghiêng đầu Camera AI, Kéo co đối kháng 2 đội, Đua vịt/rùa, Rồng lửa, Chiếc hộp bí ẩn, Lật hình ghi nhớ... phù hợp khởi động và củng cố bài học.'
+    },
+    {
+      icon: <FileSpreadsheet size={20} color="#10b981" />,
+      bg: 'rgba(16, 185, 129, 0.15)',
+      border: 'rgba(16, 185, 129, 0.3)',
+      badge: 'Excel / Word 30s',
+      badgeColor: '#10b981',
+      title: 'Tùy Biến Câu Hỏi Mọi Môn Học',
+      desc: 'Tải file mẫu Excel chuẩn bị sẵn, dán câu hỏi trắc nghiệm của bất kỳ môn nào (Toán, Văn, Anh, KHTN, Sử, Địa, GDCD, Tiểu học) là tạo game ngay.'
+    },
+    {
+      icon: <Users size={20} color="#fbbf24" />,
+      bg: 'rgba(245, 158, 11, 0.15)',
+      border: 'rgba(245, 158, 11, 0.3)',
+      badge: 'Quản Lý Lớp Học',
+      badgeColor: '#fbbf24',
+      title: 'Gọi Tên & Chia Nhóm Công Bằng',
+      desc: 'Vòng quay may mắn, Phi hành gia vũ trụ, Đua xe gọi tên ngẫu nhiên. Tự động chia tổ/nhóm học tập đối kháng chỉ bằng 1 cú nhấp chuột.'
+    },
+    {
+      icon: <Clock size={20} color="#f43f5e" />,
+      bg: 'rgba(244, 63, 94, 0.15)',
+      border: 'rgba(244, 63, 94, 0.3)',
+      badge: 'Tiện Ích Giảng Đường',
+      badgeColor: '#f43f5e',
+      title: 'Đồng Hồ Đếm Giờ Sinh Động',
+      desc: 'Đếm ngược thảo luận nhóm với hiệu ứng kịch tính (Bom nổ, Pháo hoa, Tên lửa phóng) kèm âm thanh sống động khuấy động lớp học.'
+    },
+    {
+      icon: <Cloud size={20} color="#a855f7" />,
+      bg: 'rgba(168, 85, 247, 0.15)',
+      border: 'rgba(168, 85, 247, 0.3)',
+      badge: 'Lưu Trữ Đám Mây',
+      badgeColor: '#a855f7',
+      title: 'Kho Game Cá Nhân & Trình Chiếu',
+      desc: 'Tự động lưu trữ không giới hạn các bài game đã soạn. Trình chiếu trực tiếp trên máy chiếu lớp học, TV thông minh hoặc bảng tương tác.'
+    },
+    {
+      icon: <Camera size={20} color="#06b6d4" />,
+      bg: 'rgba(6, 182, 212, 0.15)',
+      border: 'rgba(6, 182, 212, 0.3)',
+      badge: 'Công Nghệ AI',
+      badgeColor: '#06b6d4',
+      title: 'AI Camera & Thể Dục Tương Tác',
+      desc: 'Nhận diện chuyển động cơ thể không chạm qua Webcam học đường, mang lại trải nghiệm học tập thể chất trong nhà hào hứng cho học sinh.'
+    }
+  ];
 
   // Initialize Google Identity Services if available
   useEffect(() => {
@@ -264,9 +323,9 @@ export function LoginModal({ onLoginSuccess }) {
         position: 'relative',
         zIndex: 10,
         width: '100%',
-        maxWidth: '1240px',
-        minHeight: '680px',
-        background: 'rgba(11, 23, 38, 0.75)',
+        maxWidth: '1260px',
+        minHeight: '700px',
+        background: 'rgba(11, 23, 38, 0.78)',
         backdropFilter: 'blur(28px)',
         WebkitBackdropFilter: 'blur(28px)',
         border: '1.5px solid rgba(255, 255, 255, 0.12)',
@@ -279,46 +338,36 @@ export function LoginModal({ onLoginSuccess }) {
       }}>
 
         {/* ========================================================
-            LEFT COLUMN: INSPIRATIONAL DIGITAL EDUCATION & GEOGRAPHY
+            LEFT COLUMN: UNIVERSAL EDUCATIONAL SYSTEM CAPABILITIES (NOTE FORMAT)
            ======================================================== */}
         <div style={{
-          flex: '1 1 540px',
-          padding: '44px 40px',
+          flex: '1 1 560px',
+          padding: '38px 36px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: 'linear-gradient(155deg, rgba(15, 33, 55, 0.9) 0%, rgba(7, 21, 33, 0.95) 100%)',
+          background: 'linear-gradient(155deg, rgba(15, 33, 55, 0.92) 0%, rgba(7, 21, 33, 0.96) 100%)',
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           position: 'relative',
           overflow: 'hidden'
         }}>
 
-          {/* Background Vector Compass & Grid Pattern */}
-          <div style={{
-            position: 'absolute',
-            top: '-60px',
-            right: '-60px',
-            opacity: 0.05,
-            pointerEvents: 'none'
-          }}>
-            <Globe size={320} color="#38bdf8" />
-          </div>
-
           {/* Top Brand Header */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '18px' }}>
               <div style={{
-                width: '54px',
-                height: '54px',
+                width: '52px',
+                height: '52px',
                 borderRadius: '18px',
                 background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 8px 24px rgba(13, 148, 136, 0.45)',
-                border: '1.5px solid rgba(255, 255, 255, 0.25)'
+                border: '1.5px solid rgba(255, 255, 255, 0.25)',
+                flexShrink: 0
               }}>
-                <Globe size={30} color="#ffffff" />
+                <BookOpen size={28} color="#ffffff" />
               </div>
               <div>
                 <div style={{ 
@@ -334,12 +383,12 @@ export function LoginModal({ onLoginSuccess }) {
                   color: '#2dd4bf',
                   letterSpacing: '0.5px'
                 }}>
-                  <Sparkles size={12} color="#fde047" /> AI & 3D EDUCATION ECOSYSTEM
+                  <Sparkles size={12} color="#fde047" /> HỆ SINH THÁI DẠY HỌC TƯƠNG TÁC ĐA MÔN
                 </div>
                 <h1 style={{
                   fontSize: '1.45rem',
                   fontWeight: 900,
-                  margin: '4px 0 0 0',
+                  margin: '3px 0 0 0',
                   letterSpacing: '-0.3px',
                   background: 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 70%, #38bdf8 100%)',
                   WebkitBackgroundClip: 'text',
@@ -350,27 +399,27 @@ export function LoginModal({ onLoginSuccess }) {
               </div>
             </div>
 
-            {/* Central Graphic: 3D Earth Geography & Digital Classroom */}
+            {/* Universal Smart Classroom Banner */}
             <div style={{
               position: 'relative',
-              borderRadius: '24px',
+              borderRadius: '20px',
               overflow: 'hidden',
-              margin: '18px 0 24px 0',
+              marginBottom: '18px',
               border: '1.5px solid rgba(56, 189, 248, 0.25)',
-              boxShadow: '0 16px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(13, 148, 136, 0.2)',
+              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(13, 148, 136, 0.15)',
               background: '#040b12',
-              maxHeight: '260px',
+              maxHeight: '175px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
               <img 
-                src="/assets/login_education_hero.jpg" 
-                alt="3D Interactive Geography & Digital Education" 
+                src="/assets/universal_education_hero.jpg" 
+                alt="Universal Interactive Digital Education Ecosystem" 
                 style={{
                   width: '100%',
                   height: '100%',
-                  maxHeight: '260px',
+                  maxHeight: '175px',
                   objectFit: 'cover',
                   objectPosition: 'center',
                   display: 'block',
@@ -380,16 +429,16 @@ export function LoginModal({ onLoginSuccess }) {
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(180deg, rgba(7, 21, 33, 0.1) 0%, rgba(7, 21, 33, 0.85) 100%)',
+                background: 'linear-gradient(180deg, rgba(7, 21, 33, 0.15) 0%, rgba(7, 21, 33, 0.85) 100%)',
                 pointerEvents: 'none'
               }} />
 
-              {/* Float Badge on Image */}
+              {/* Float Pill on Image */}
               <div style={{
                 position: 'absolute',
-                bottom: '14px',
-                left: '16px',
-                right: '16px',
+                bottom: '10px',
+                left: '12px',
+                right: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -398,22 +447,22 @@ export function LoginModal({ onLoginSuccess }) {
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(15, 23, 42, 0.85)',
+                  gap: '6px',
+                  background: 'rgba(15, 23, 42, 0.88)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(56, 189, 248, 0.35)',
-                  padding: '6px 14px',
-                  borderRadius: '16px',
-                  fontSize: '0.8rem',
+                  padding: '5px 12px',
+                  borderRadius: '14px',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   color: '#e0f2fe'
                 }}>
-                  <Compass size={16} color="#38bdf8" /> Chuyên Môn Địa Lí & Kho Game Tương Tác
+                  <Layers size={14} color="#38bdf8" /> Ứng Dụng Cho Mọi Môn Học: Toán, Văn, Anh, KHTN...
                 </div>
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '4px',
                   background: 'rgba(16, 185, 129, 0.25)',
                   border: '1px solid rgba(16, 185, 129, 0.5)',
                   padding: '4px 10px',
@@ -422,31 +471,30 @@ export function LoginModal({ onLoginSuccess }) {
                   fontWeight: 900,
                   color: '#6ee7b7'
                 }}>
-                  <Star size={12} fill="#10b981" /> 30+ BÀI GIẢNG 3D
+                  <Star size={12} fill="#10b981" /> 30+ GAME ĐỈNH CAO
                 </div>
               </div>
             </div>
 
-            {/* Dynamic Slogan Slider / Carousel dedicated to Teachers */}
+            {/* Slogan Banner */}
             <div style={{
-              background: 'rgba(15, 28, 46, 0.75)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '20px',
-              padding: '16px 20px',
-              minHeight: '94px',
+              background: 'rgba(15, 28, 46, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '16px',
+              padding: '12px 16px',
+              marginBottom: '18px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              position: 'relative',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+              boxShadow: '0 6px 18px rgba(0, 0, 0, 0.2)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                 <span style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.68rem',
                   fontWeight: 900,
                   color: '#38bdf8',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.8px',
+                  letterSpacing: '0.6px',
                   background: 'rgba(56, 189, 248, 0.15)',
                   padding: '2px 8px',
                   borderRadius: '8px'
@@ -459,8 +507,8 @@ export function LoginModal({ onLoginSuccess }) {
                       key={idx}
                       onClick={() => setSloganIndex(idx)}
                       style={{
-                        width: idx === sloganIndex ? '20px' : '6px',
-                        height: '6px',
+                        width: idx === sloganIndex ? '18px' : '6px',
+                        height: '5px',
                         borderRadius: '3px',
                         background: idx === sloganIndex ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
                         transition: 'all 0.3s ease',
@@ -472,16 +520,15 @@ export function LoginModal({ onLoginSuccess }) {
               </div>
 
               <h3 style={{
-                fontSize: '1.05rem',
+                fontSize: '0.98rem',
                 fontWeight: 900,
                 color: '#ffffff',
-                margin: '2px 0 3px 0',
-                transition: 'opacity 0.3s ease'
+                margin: '2px 0 2px 0'
               }}>
                 "{slogans[sloganIndex].title}"
               </h3>
               <p style={{
-                fontSize: '0.82rem',
+                fontSize: '0.78rem',
                 color: '#94a3b8',
                 margin: 0,
                 lineHeight: 1.4,
@@ -491,73 +538,103 @@ export function LoginModal({ onLoginSuccess }) {
               </p>
             </div>
 
-            {/* Feature Highlights Grid */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '10px',
-              marginTop: '16px'
-            }}>
+            {/* SECTION: FUNCTIONAL NOTES (DẠNG NOTE CÁC TÍNH NĂNG CHỦ YẾU) */}
+            <div>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-                padding: '10px 14px',
-                borderRadius: '16px'
+                gap: '8px',
+                marginBottom: '12px',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                color: '#2dd4bf',
+                textTransform: 'uppercase',
+                letterSpacing: '0.6px'
               }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '10px',
-                  background: 'rgba(13, 148, 136, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Globe size={18} color="#2dd4bf" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f1f5f9' }}>Địa Lí 3D Tương Tác</div>
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Bản đồ, địa cầu, cấu tạo Trái Đất</div>
-                </div>
+                <CheckSquare size={16} color="#2dd4bf" />
+                <span>CÁC CHỨC NĂNG CHỦ YẾU CỦA HỆ THỐNG:</span>
               </div>
 
+              {/* Notes Grid (2 columns of structured notes) */}
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                background: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-                padding: '10px 14px',
-                borderRadius: '16px'
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                gap: '10px'
               }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '10px',
-                  background: 'rgba(245, 158, 11, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <Award size={18} color="#fbbf24" />
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f1f5f9' }}>30+ Game Giáo Dục</div>
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Nghiêng đầu, kéo co, đua vịt...</div>
-                </div>
+                {systemFeaturesNotes.map((note, idx) => (
+                  <div 
+                    key={idx}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: `1px solid ${note.border}`,
+                      borderRadius: '16px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '10px',
+                          background: note.bg,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}>
+                          {note.icon}
+                        </div>
+                        <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#f8fafc' }}>
+                          {note.title}
+                        </span>
+                      </div>
+                      <span style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 900,
+                        color: note.badgeColor,
+                        background: note.bg,
+                        padding: '2px 6px',
+                        borderRadius: '6px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {note.badge}
+                      </span>
+                    </div>
+
+                    <p style={{
+                      fontSize: '0.73rem',
+                      color: '#94a3b8',
+                      margin: '2px 0 0 0',
+                      lineHeight: 1.4,
+                      fontWeight: 500
+                    }}>
+                      {note.desc}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
+
           </div>
 
-          {/* Left Footer: Creator Tag */}
+          {/* Left Footer: Creator Tag & Mission */}
           <div style={{
-            marginTop: '24px',
-            paddingTop: '16px',
+            marginTop: '20px',
+            paddingTop: '14px',
             borderTop: '1px solid rgba(255, 255, 255, 0.08)',
             display: 'flex',
             alignItems: 'center',
@@ -567,25 +644,26 @@ export function LoginModal({ onLoginSuccess }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 overflow: 'hidden',
                 border: '2px solid #0d9488',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                flexShrink: 0
               }}>
                 <img 
                   src="/assets/thayhaodiali.jpg" 
-                  alt="Thầy Hảo Địa Lí" 
+                  alt="Thầy Hảo" 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   onError={(e) => { e.target.src = '/assets/thayhao_assistant_avatar.png'; }}
                 />
               </div>
               <div>
                 <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f8fafc' }}>
-                  Thầy Hảo Địa Lí
+                  Thầy Hảo
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
                   Tác giả & Quản trị hệ thống
                 </div>
               </div>
@@ -602,7 +680,7 @@ export function LoginModal({ onLoginSuccess }) {
               borderRadius: '10px',
               fontWeight: 700
             }}>
-              <Heart size={12} color="#f43f5e" fill="#f43f5e" /> Đồng hành cùng giáo viên Việt Nam
+              <Heart size={12} color="#f43f5e" fill="#f43f5e" /> Đồng hành cùng giáo viên toàn quốc
             </div>
           </div>
 
@@ -612,8 +690,8 @@ export function LoginModal({ onLoginSuccess }) {
             RIGHT COLUMN: LUXURY GLASSMORPHISM LOGIN CARD
            ======================================================== */}
         <div style={{
-          flex: '1 1 480px',
-          padding: '44px 38px',
+          flex: '1 1 460px',
+          padding: '40px 36px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -678,7 +756,7 @@ export function LoginModal({ onLoginSuccess }) {
                 lineHeight: 1.5,
                 fontWeight: 500
               }}>
-                Vui lòng chọn phương thức đăng nhập thuận tiện nhất để tiếp cận kho học liệu và trò chơi tương tác.
+                Đăng nhập ngay để tiếp cận kho 30+ game giáo dục đỉnh cao và bộ công cụ tương tác dành cho mọi bộ môn.
               </p>
             </div>
 
@@ -1035,7 +1113,7 @@ export function LoginModal({ onLoginSuccess }) {
               fontWeight: 600,
               lineHeight: 1.5
             }}>
-              📌 <em>Hỗ trợ tài khoản trọn gói: Liên hệ <strong>Thầy Hảo Địa Lí</strong></em>
+              📌 <em>Hỗ trợ tài khoản trọn gói: Liên hệ <strong>Thầy Hảo</strong></em>
             </p>
 
             {/* Quick Contact Action Buttons: Zalo Pulse + Hotline */}
@@ -1113,7 +1191,7 @@ export function LoginModal({ onLoginSuccess }) {
               color: '#64748b',
               marginTop: '12px'
             }}>
-              Bản quyền © 2026 Hệ Thống Đồ Nghề Dạy Học • Thầy Hảo Địa Lí
+              Bản quyền © 2026 Hệ Thống Đồ Nghề Dạy Học • Thầy Hảo
             </div>
           </div>
 
