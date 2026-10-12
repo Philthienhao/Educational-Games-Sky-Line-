@@ -40,6 +40,11 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
   const [googleFilter, setGoogleFilter] = useState('all'); // 'all' | 'pending' | 'used' | 'unlimited'
   const [googleSearchQuery, setGoogleSearchQuery] = useState('');
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+  const [googleClientId, setGoogleClientId] = useState(
+    localStorage.getItem('gvd_google_client_id') || '407408718192-oemcce3p2h8g1u4s8h48f93j2a3r89h3.apps.googleusercontent.com'
+  );
+  const [showGoogleConfig, setShowGoogleConfig] = useState(false);
+  const [googleConfigSaved, setGoogleConfigSaved] = useState(false);
 
   // Payment Status Management Filter & Search State
   const [paymentFilter, setPaymentFilter] = useState('all'); // 'all' | 'unpaid' | 'paid'
@@ -337,6 +342,27 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
               {/* Quick Stat Badges & Cloud Sync Button */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 <button
+                  onClick={() => setShowGoogleConfig(!showGoogleConfig)}
+                  style={{
+                    background: showGoogleConfig ? 'rgba(56, 189, 248, 0.25)' : 'rgba(255, 255, 255, 0.08)',
+                    border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                    color: '#38bdf8',
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer'
+                  }}
+                  title="Cài đặt mã Google Client ID để liên kết Google OAuth trực tiếp"
+                >
+                  <Sparkles size={14} color="#fde047" />
+                  <span>{showGoogleConfig ? 'Đóng Cài Đặt Google' : '⚙️ Google Client ID'}</span>
+                </button>
+
+                <button
                   onClick={handleSyncCloudGoogleUsers}
                   disabled={isSyncingGoogle}
                   style={{
@@ -416,6 +442,95 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                 </div>
               </div>
             </div>
+
+            {/* Collapsible Google OAuth Client ID Configuration Panel */}
+            {showGoogleConfig && (
+              <div style={{
+                marginBottom: '20px',
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(13, 148, 136, 0.12) 100%)',
+                border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                borderRadius: '18px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={16} color="#fde047" />
+                    Cấu Hình Google OAuth Client ID (Google Cloud Console)
+                  </h4>
+                  {googleConfigSaved && (
+                    <span style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 800 }}>
+                      ✓ Đã lưu cấu hình thành công!
+                    </span>
+                  )}
+                </div>
+
+                <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+                  Để tính năng <strong>Đăng nhập tự động 1 chạm bằng Google</strong> hoạt động trên tên miền của Thầy/Cô, mã Client ID bên dưới bắt buộc phải được tạo trong <strong>Google Cloud Console</strong> và thêm tên miền vào danh sách <code>Authorized JavaScript origins</code>.
+                </p>
+
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={googleClientId}
+                    onChange={(e) => {
+                      setGoogleClientId(e.target.value);
+                      setGoogleConfigSaved(false);
+                    }}
+                    placeholder="Nhập mã Client ID (VD: xxxxxxxx.apps.googleusercontent.com)"
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                      color: '#ffffff',
+                      fontSize: '0.84rem',
+                      fontWeight: 700,
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cleanId = googleClientId.trim();
+                      localStorage.setItem('gvd_google_client_id', cleanId);
+                      setGoogleConfigSaved(true);
+                      setTimeout(() => setGoogleConfigSaved(false), 3000);
+                    }}
+                    style={{
+                      padding: '10px 18px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontWeight: 800,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Lưu Client ID
+                  </button>
+                </div>
+
+                <div style={{
+                  padding: '10px 14px',
+                  background: 'rgba(15, 23, 42, 0.7)',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  fontSize: '0.74rem',
+                  color: '#94a3b8'
+                }}>
+                  <strong style={{ color: '#f8fafc' }}>Các tên miền cần dán vào mục "Authorized JavaScript origins" trên Google Cloud:</strong>
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '6px', flexWrap: 'wrap' }}>
+                    <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '6px', color: '#38bdf8' }}>https://eduvth.vercel.app</code>
+                    <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '6px', color: '#38bdf8' }}>https://donghedayhoc.vercel.app</code>
+                    <code style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '6px', color: '#38bdf8' }}>http://localhost:3000</code>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Filter Tabs & Search Bar */}
             <div style={{
