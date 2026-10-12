@@ -354,6 +354,25 @@ const INITIAL_USERS = [
     subject: 'Giáo viên',
     school: 'Trường TH Vĩnh Thanh',
     createdAt: '2026-10-09'
+  },
+  {
+    id: 'user_google_1791775138073_831n6',
+    username: 'phamthithanhthao0103@gmail.com',
+    email: 'phamthithanhthao0103@gmail.com',
+    password: '',
+    name: 'Phạm Thị Thanh Thảo',
+    role: 'teacher',
+    subject: 'Giáo viên',
+    school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
+    authProvider: 'google',
+    accessTier: 'trial',
+    status: 'trial_expired',
+    trialLimit: 1,
+    totalTrialsUsed: 1,
+    paymentStatus: 'unpaid',
+    isPaid: false,
+    createdAt: '2026-10-12T03:18:58.073Z',
+    updatedAt: '2026-10-12T03:19:36.464Z'
   }
 ];
 
