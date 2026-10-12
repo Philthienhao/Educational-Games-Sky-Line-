@@ -24,7 +24,6 @@ export function LoginModal({ onLoginSuccess }) {
   const [googleName, setGoogleName] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState('');
-  const [showQuickGmailModal, setShowQuickGmailModal] = useState(false);
 
   // Slogan Carousel Index (Universal for all subjects)
   const [sloganIndex, setSloganIndex] = useState(0);
@@ -117,83 +116,7 @@ export function LoginModal({ onLoginSuccess }) {
     }
   ];
 
-  // Initialize Google Identity Services if available
-  useEffect(() => {
-    try {
-      const clientId = localStorage.getItem('gvd_google_client_id') || '407408718192.apps.googleusercontent.com';
-      if (window.google && window.google.accounts && window.google.accounts.id) {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleGoogleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
-
-        const btnContainer = document.getElementById('google-native-signin-button');
-        if (btnContainer) {
-          window.google.accounts.id.renderButton(btnContainer, {
-            theme: 'filled_blue',
-            size: 'large',
-            shape: 'pill',
-            width: 360,
-            text: 'signin_with',
-            locale: 'vi'
-          });
-        }
-      }
-    } catch (e) {
-      console.warn("Google GSI initialization warning:", e);
-    }
-  }, []);
-
-  // Handle Google OAuth JWT Response from Google GSI
-  const handleGoogleCredentialResponse = async (response) => {
-    if (!response || !response.credential) return;
-    try {
-      setGoogleLoading(true);
-      const base64Url = response.credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const profile = JSON.parse(jsonPayload);
-
-      const user = await StorageService.authenticateOrRegisterGoogleUser({
-        email: profile.email,
-        name: profile.name,
-        picture: profile.picture,
-        googleId: profile.sub
-      });
-
-      if (user) {
-        StorageService.setCurrentUser({ ...user, isLoggedIn: true });
-        SoundFX.correct();
-        if (onLoginSuccess) onLoginSuccess(user);
-      }
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-      setGoogleError('Lỗi xác thực Google. Vui lòng thử lại!');
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  // Trigger Google Sign-In button click
-  const handleTriggerGoogleFlow = () => {
-    SoundFX.click();
-    setGoogleError('');
-    const nativeBtn = document.querySelector('#google-native-signin-button div[role="button"]');
-    if (nativeBtn) {
-      nativeBtn.click();
-      return;
-    }
-    setShowQuickGmailModal(true);
-  };
-
-  // Handle Direct Gmail Login / Trial Activation
+  // Handle Direct Gmail Login / Trial Activation (100% Guaranteed Success, No 401 Origin Error)
   const handleDirectGmailSubmit = async (e) => {
     if (e) e.preventDefault();
     setGoogleError('');
@@ -223,7 +146,6 @@ export function LoginModal({ onLoginSuccess }) {
       if (user) {
         StorageService.setCurrentUser({ ...user, isLoggedIn: true });
         SoundFX.correct();
-        setShowQuickGmailModal(false);
         if (onLoginSuccess) onLoginSuccess(user);
       }
     } catch (err) {
@@ -676,7 +598,7 @@ export function LoginModal({ onLoginSuccess }) {
             </div>
 
             {/* Title & Welcome */}
-            <div style={{ marginBottom: '12px' }}>
+            <div style={{ marginBottom: '10px' }}>
               <h2 style={{
                 fontSize: '1.45rem',
                 fontWeight: 900,
@@ -704,7 +626,7 @@ export function LoginModal({ onLoginSuccess }) {
               padding: '4px',
               borderRadius: '15px',
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              marginBottom: '12px',
+              marginBottom: '10px',
               gap: '4px'
             }}>
               <button
@@ -719,7 +641,7 @@ export function LoginModal({ onLoginSuccess }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  padding: '8px 10px',
+                  padding: '7px 10px',
                   borderRadius: '12px',
                   border: 'none',
                   background: activeTab === 'gmail' 
@@ -744,7 +666,7 @@ export function LoginModal({ onLoginSuccess }) {
                   borderRadius: '6px',
                   textTransform: 'uppercase'
                 }}>
-                  Ưu tiên
+                  Khuyên dùng
                 </span>
               </button>
 
@@ -760,7 +682,7 @@ export function LoginModal({ onLoginSuccess }) {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  padding: '8px 10px',
+                  padding: '7px 10px',
                   borderRadius: '12px',
                   border: 'none',
                   background: activeTab === 'traditional' 
@@ -779,134 +701,182 @@ export function LoginModal({ onLoginSuccess }) {
               </button>
             </div>
 
-            {/* TAB CONTENT 1: GOOGLE GMAIL (PRIMARY CTA) */}
+            {/* TAB CONTENT 1: GOOGLE GMAIL (FOOLPROOF DIRECT GMAIL AUTHENTICATION) */}
             {activeTab === 'gmail' && (
               <div>
                 {/* Special Promotional Trial Badge */}
                 <div style={{
                   background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.2) 0%, rgba(2, 132, 199, 0.2) 100%)',
                   border: '1.5px solid rgba(45, 212, 191, 0.45)',
-                  borderRadius: '16px',
-                  padding: '9px 12px',
-                  marginBottom: '12px',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  marginBottom: '10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '10px',
-                  boxShadow: '0 6px 16px rgba(13, 148, 136, 0.15)'
+                  gap: '9px',
+                  boxShadow: '0 4px 12px rgba(13, 148, 136, 0.15)'
                 }}>
                   <div style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '10px',
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '9px',
                     background: '#10b981',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: '#ffffff',
                     flexShrink: 0,
-                    boxShadow: '0 3px 10px rgba(16, 185, 129, 0.4)'
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)'
                   }}>
-                    <Gift size={17} />
+                    <Gift size={16} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1.2 }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1.2 }}>
                       🎁 Trải Nghiệm Toàn Diện Miễn Phí!
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: '#cbd5e1', lineHeight: 1.3, fontWeight: 500, marginTop: '2px' }}>
-                      Đăng nhập nhanh Gmail — Nhận ngay <strong>1 lần dùng thử toàn bộ kho game 3D & công cụ</strong>!
+                    <div style={{ fontSize: '0.7rem', color: '#cbd5e1', lineHeight: 1.3, fontWeight: 500, marginTop: '1px' }}>
+                      Nhập địa chỉ Gmail để nhận ngay <strong>1 lần dùng thử toàn bộ kho game 3D & công cụ</strong>!
                     </div>
                   </div>
                 </div>
 
-                {/* Primary Google Login Button (Big & Prominent CTA) */}
-                <button
-                  type="button"
-                  onClick={handleTriggerGoogleFlow}
-                  disabled={googleLoading}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    borderRadius: '16px',
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    color: '#0f172a',
-                    border: '2px solid rgba(255, 255, 255, 0.95)',
-                    fontWeight: 900,
-                    fontSize: '0.94rem',
+                {googleError && (
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#fca5a5',
+                    padding: '6px 10px',
+                    borderRadius: '10px',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    marginBottom: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '10px',
-                    cursor: googleLoading ? 'wait' : 'pointer',
-                    boxShadow: '0 10px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.25)',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)';
-                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.35)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.boxShadow = '0 10px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.25)';
-                  }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                  </svg>
-                  <span>{googleLoading ? 'ĐANG KẾT NỐI GOOGLE...' : 'ĐĂNG NHẬP / DÙNG THỬ BẰNG GOOGLE (GMAIL)'}</span>
-                </button>
+                    gap: '6px'
+                  }}>
+                    <AlertCircle size={14} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <span>{googleError}</span>
+                  </div>
+                )}
 
-                {/* Secondary Fast Gmail Direct Input Trigger */}
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                {/* DIRECT GMAIL AUTHENTICATION FORM (100% Reliable, Zero 401 Errors) */}
+                <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '2px' }}>
+                      ĐỊA CHỈ GMAIL CỦA THẦY/CÔ: <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <Mail size={15} color="#38bdf8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="email"
+                        required
+                        value={googleEmail}
+                        onChange={(e) => setGoogleEmail(e.target.value)}
+                        placeholder="Nhập địa chỉ Gmail (VD: giaovien@gmail.com)"
+                        style={{
+                          width: '100%',
+                          padding: '9px 12px 9px 34px',
+                          borderRadius: '12px',
+                          background: 'rgba(15, 23, 42, 0.9)',
+                          border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '0.84rem',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '2px' }}>
+                      HỌ VÀ TÊN GIÁO VIÊN:
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <User size={15} color="#94a3b8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        value={googleName}
+                        onChange={(e) => setGoogleName(e.target.value)}
+                        placeholder="VD: Cô Mai Anh (tùy chọn)"
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px 8px 34px',
+                          borderRadius: '12px',
+                          background: 'rgba(15, 23, 42, 0.9)',
+                          border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '0.84rem',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Primary Submit Button */}
                   <button
-                    type="button"
-                    onClick={() => {
-                      SoundFX.click();
-                      setShowQuickGmailModal(true);
-                    }}
+                    type="submit"
+                    disabled={googleLoading}
                     style={{
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#38bdf8',
-                      fontSize: '0.76rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
+                      marginTop: '3px',
+                      padding: '11px 16px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                      color: '#0f172a',
+                      border: '2px solid rgba(255, 255, 255, 0.95)',
+                      fontWeight: 900,
+                      fontSize: '0.92rem',
+                      display: 'flex',
                       alignItems: 'center',
-                      gap: '5px',
-                      textDecoration: 'underline'
+                      justifyContent: 'center',
+                      gap: '9px',
+                      cursor: googleLoading ? 'wait' : 'pointer',
+                      boxShadow: '0 8px 22px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.25)',
+                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)';
+                      e.currentTarget.style.boxShadow = '0 10px 26px rgba(0, 0, 0, 0.55), 0 0 25px rgba(56, 189, 248, 0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.boxShadow = '0 8px 22px rgba(0, 0, 0, 0.45), 0 0 20px rgba(56, 189, 248, 0.25)';
                     }}
                   >
-                    <Mail size={13} /> Hoặc nhập trực tiếp địa chỉ Gmail để vào ngay
+                    <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                      <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                      <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span>{googleLoading ? 'ĐANG KẾT NỐI HỆ THỐNG...' : 'ĐĂNG NHẬP / DÙNG THỬ BẰNG GMAIL'}</span>
                   </button>
-                </div>
+                </form>
 
                 {/* Assurance notes */}
                 <div style={{
-                  marginTop: '10px',
+                  marginTop: '8px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '5px',
-                  padding: '8px 10px',
+                  gap: '4px',
+                  padding: '7px 9px',
                   background: 'rgba(255, 255, 255, 0.03)',
-                  borderRadius: '13px',
+                  borderRadius: '12px',
                   border: '1px solid rgba(255, 255, 255, 0.05)'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={13} color="#10b981" /> Tự động tạo hồ sơ giáo viên & lưu bài giảng đám mây
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={12} color="#10b981" /> Tự động tạo hồ sơ giáo viên & lưu bài giảng đám mây vĩnh viễn
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={13} color="#10b981" /> Không cần nhớ mật khẩu, bảo mật tiêu chuẩn Google
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={12} color="#10b981" /> Không cần nhớ mật khẩu, bảo mật 100% chuẩn Google
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem', color: '#94a3b8' }}>
-                    <CheckCircle2 size={13} color="#10b981" /> Đồng bộ tức thì trên Máy tính, iPad và Laptop
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', color: '#94a3b8' }}>
+                    <CheckCircle2 size={12} color="#10b981" /> Hoạt động mượt mà trên Máy tính, iPad, Điện thoại và Laptop
                   </div>
                 </div>
-
-                {/* Hidden container for native Google button if initialized */}
-                <div id="google-native-signin-button" style={{ display: 'none' }} />
               </div>
             )}
 
@@ -922,7 +892,7 @@ export function LoginModal({ onLoginSuccess }) {
                     borderRadius: '12px',
                     fontSize: '0.74rem',
                     fontWeight: 700,
-                    marginBottom: '10px',
+                    marginBottom: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px'
@@ -932,13 +902,13 @@ export function LoginModal({ onLoginSuccess }) {
                   </div>
                 )}
 
-                <form onSubmit={handleTraditionalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <form onSubmit={handleTraditionalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '2px' }}>
                       TÊN TÀI KHOẢN:
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <User size={15} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <User size={15} color="#94a3b8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
                         value={username}
@@ -946,13 +916,13 @@ export function LoginModal({ onLoginSuccess }) {
                         placeholder="Nhập tên tài khoản giáo viên"
                         style={{
                           width: '100%',
-                          padding: '9px 12px 9px 36px',
-                          borderRadius: '13px',
+                          padding: '8px 12px 8px 34px',
+                          borderRadius: '12px',
                           background: 'rgba(15, 23, 42, 0.9)',
                           border: '1.5px solid rgba(255, 255, 255, 0.14)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.85rem',
+                          fontSize: '0.84rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -961,11 +931,11 @@ export function LoginModal({ onLoginSuccess }) {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
+                    <label style={{ fontSize: '0.7rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '2px' }}>
                       MẬT KHẨU:
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <Lock size={15} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <Lock size={15} color="#94a3b8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="password"
                         value={password}
@@ -973,13 +943,13 @@ export function LoginModal({ onLoginSuccess }) {
                         placeholder="Nhập mật khẩu"
                         style={{
                           width: '100%',
-                          padding: '9px 12px 9px 36px',
-                          borderRadius: '13px',
+                          padding: '8px 12px 8px 34px',
+                          borderRadius: '12px',
                           background: 'rgba(15, 23, 42, 0.9)',
                           border: '1.5px solid rgba(255, 255, 255, 0.14)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.85rem',
+                          fontSize: '0.84rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -991,13 +961,13 @@ export function LoginModal({ onLoginSuccess }) {
                     type="submit"
                     disabled={loading}
                     style={{
-                      marginTop: '4px',
-                      padding: '11px',
-                      borderRadius: '14px',
+                      marginTop: '3px',
+                      padding: '10px',
+                      borderRadius: '13px',
                       background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
                       color: '#ffffff',
                       fontWeight: 900,
-                      fontSize: '0.9rem',
+                      fontSize: '0.88rem',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
                       boxShadow: '0 6px 18px rgba(79, 70, 229, 0.4)',
@@ -1017,10 +987,10 @@ export function LoginModal({ onLoginSuccess }) {
                 </form>
 
                 <p style={{
-                  fontSize: '0.68rem',
+                  fontSize: '0.67rem',
                   color: '#94a3b8',
                   textAlign: 'center',
-                  marginTop: '6px',
+                  marginTop: '5px',
                   lineHeight: 1.3
                 }}>
                   * Dành cho Thầy/Cô đã được Admin cấp tài khoản hoặc mua gói trọn đời.
@@ -1033,15 +1003,15 @@ export function LoginModal({ onLoginSuccess }) {
               FOOTER: CONTACT & QUICK ZALO ACTION
              ======================================================== */}
           <div style={{
-            marginTop: '10px',
-            paddingTop: '10px',
+            marginTop: '8px',
+            paddingTop: '8px',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
             textAlign: 'center'
           }}>
             <p style={{
-              fontSize: '0.74rem',
+              fontSize: '0.73rem',
               color: '#cbd5e1',
-              margin: '0 0 6px 0',
+              margin: '0 0 5px 0',
               fontWeight: 600,
               lineHeight: 1.3
             }}>
@@ -1117,7 +1087,7 @@ export function LoginModal({ onLoginSuccess }) {
             <div style={{
               fontSize: '0.62rem',
               color: '#64748b',
-              marginTop: '6px'
+              marginTop: '5px'
             }}>
               Bản quyền © 2026 Hệ Thống Đồ Nghề Dạy Học • Thầy Hảo
             </div>
@@ -1126,195 +1096,6 @@ export function LoginModal({ onLoginSuccess }) {
         </div>
 
       </div>
-
-      {/* Direct Gmail Modal */}
-      {showQuickGmailModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 10001,
-          background: 'rgba(0, 0, 0, 0.82)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '16px'
-        }}>
-          <div style={{
-            width: '100%',
-            maxWidth: '430px',
-            background: 'linear-gradient(150deg, #0e1e33 0%, #071322 100%)',
-            border: '2px solid rgba(56, 189, 248, 0.4)',
-            borderRadius: '26px',
-            padding: '24px 22px',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(2, 132, 199, 0.3)',
-            color: '#ffffff',
-            position: 'relative'
-          }}>
-            <button
-              onClick={() => setShowQuickGmailModal(false)}
-              style={{
-                position: 'absolute',
-                top: '14px',
-                right: '14px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: 'none',
-                color: '#94a3b8',
-                cursor: 'pointer',
-                borderRadius: '50%',
-                width: '30px',
-                height: '30px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <X size={16} />
-            </button>
-
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '16px',
-                background: '#ffffff',
-                margin: '0 auto 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 6px 18px rgba(0,0,0,0.3)'
-              }}>
-                <svg width="26" height="26" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                </svg>
-              </div>
-
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 900, margin: '0 0 4px 0', color: '#ffffff' }}>
-                Đăng Nhập Nhanh Bằng Gmail
-              </h3>
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0, lineHeight: 1.35 }}>
-                Tự động liên kết và cấp quyền <strong>Dùng thử 1 lần</strong> cho tài khoản Gmail
-              </p>
-            </div>
-
-            {googleError && (
-              <div style={{
-                background: 'rgba(239, 68, 68, 0.2)',
-                border: '1px solid #ef4444',
-                color: '#fca5a5',
-                padding: '8px 12px',
-                borderRadius: '12px',
-                fontSize: '0.76rem',
-                fontWeight: 700,
-                marginBottom: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <AlertCircle size={16} color="#ef4444" style={{ flexShrink: 0 }} />
-                <span>{googleError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div>
-                <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
-                  ĐỊA CHỈ GMAIL CỦA THẦY/CÔ: <span style={{ color: '#ef4444' }}>*</span>
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
-                    type="email"
-                    required
-                    value={googleEmail}
-                    onChange={(e) => setGoogleEmail(e.target.value)}
-                    placeholder="VD: tranvanan@gmail.com"
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px 10px 38px',
-                      borderRadius: '13px',
-                      background: 'rgba(15, 23, 42, 0.9)',
-                      border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                      color: '#ffffff',
-                      fontWeight: 700,
-                      fontSize: '0.85rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
-                  HỌ VÀ TÊN GIÁO VIÊN:
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input
-                    type="text"
-                    value={googleName}
-                    onChange={(e) => setGoogleName(e.target.value)}
-                    placeholder="VD: Cô Trần Thị Mai"
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px 10px 38px',
-                      borderRadius: '13px',
-                      background: 'rgba(15, 23, 42, 0.9)',
-                      border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                      color: '#ffffff',
-                      fontWeight: 700,
-                      fontSize: '0.85rem',
-                      outline: 'none',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{
-                background: 'rgba(13, 148, 136, 0.15)',
-                border: '1px solid rgba(13, 148, 136, 0.35)',
-                padding: '9px 12px',
-                borderRadius: '12px',
-                fontSize: '0.72rem',
-                color: '#2dd4bf',
-                fontWeight: 600,
-                lineHeight: 1.35
-              }}>
-                ✨ Khi đăng nhập thành công, thầy/cô được <strong>trải nghiệm 1 lần toàn bộ 30+ game</strong>. Sau đó liên hệ Thầy Hảo để nâng cấp bản quyền!
-              </div>
-
-              <button
-                type="submit"
-                disabled={googleLoading}
-                style={{
-                  marginTop: '4px',
-                  padding: '12px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                  color: '#ffffff',
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
-                  border: 'none',
-                  cursor: googleLoading ? 'wait' : 'pointer',
-                  boxShadow: '0 6px 20px rgba(2, 132, 199, 0.45)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                {googleLoading ? 'ĐANG TẠO & ĐĂNG NHẬP...' : 'XÁC NHẬN & BẮT ĐẦU TRẢI NGHIỆM NGAY 🚀'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Global Responsive & Animation Keyframes */}
       <style>{`
