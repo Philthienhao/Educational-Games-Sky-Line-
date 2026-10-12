@@ -66,6 +66,14 @@
 ## 13. UI Cleanliness: Exclusion of Floating AI Co-Pilot Widgets
 - **Do NOT Re-introduce Floating AI Co-Pilot Widgets**: Do not render or re-introduce the floating draggable pill widget `Trợ Lí Thầy Hảo PRO 3.6` (`AICoPilotWidget`) or the redundant `AI Tạo Bài Tập Mới` banner button.
 - Keep the main workspace interface clean, professional, and uncluttered, focusing directly on the educational game catalog, homeroom management, and teaching tools.
+## 14. Single-Viewport Login & Modal Invariant (Zero Vertical Scroll on Laptop/PC)
+- **100% Single-Viewport Constraint**: The Login Page (`LoginModal.jsx`), full-screen modals, and game arenas MUST ALWAYS fit completely within a single computer screen viewport without ANY vertical scrolling (`overflow: hidden` on screens with `height >= 580px`).
+- **Adaptive Dimension Guardrails**:
+  - The login container card MUST be bounded by `height: min(95vh, 675px)` and `maxHeight: calc(100vh - 20px)`.
+  - Spacing and padding MUST use responsive clamp tokens (e.g. `padding: clamp(12px, 2vh, 24px)`, `gap: clamp(6px, 1.5vh, 12px)`).
+  - Feature note cards and descriptions MUST enforce concise multi-line clamps (`-webkit-line-clamp: 2; overflow: hidden`) to prevent unpredictable height expansion.
+  - Only on mobile or screens with `height < 580px` or `width < 960px` is `overflow-y: auto` permitted.
 
-
-
+## 15. Universal Subject-Neutral Standard (Tính Đa Môn Học Toàn Diện)
+- **Universal Agnostic Presentation**: The educational workspace, login page, feature overviews, and system banners MUST remain 100% subject-neutral and universally welcoming to teachers of ALL subjects (Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử, Địa lí, GDCD, Tin học, Mỹ thuật, Thể dục, Tiểu học...).
+- **Author Identity vs. Subject Content**: "Thầy Hảo" MUST only be represented as the platform's founder, author, and technical administrator ("Tác giả & Quản trị hệ thống"). Never brand or restrict the system's global identity, feature overviews, or login graphics to a single subject (such as Geography / Địa Lí).
