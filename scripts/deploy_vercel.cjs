@@ -13,7 +13,8 @@ try {
     const deploymentId = match[0];
     console.log(`✅ Deployment ID: ${deploymentId}`);
 
-    console.log('🔗 Binding production aliases eduvth.vercel.app, giao-vien-sky-line.vercel.app, magnificatedu.vercel.app...');
+    console.log('🔗 Binding production aliases donghedayhoc.vercel.app, eduvth.vercel.app, giao-vien-sky-line.vercel.app, magnificatedu.vercel.app...');
+    execSync(`npx vercel alias set ${deploymentId} donghedayhoc.vercel.app`, { stdio: 'inherit' });
     execSync(`npx vercel alias set ${deploymentId} eduvth.vercel.app`, { stdio: 'inherit' });
     execSync(`npx vercel alias set ${deploymentId} giao-vien-sky-line.vercel.app`, { stdio: 'inherit' });
     execSync(`npx vercel alias set ${deploymentId} magnificatedu.vercel.app`, { stdio: 'inherit' });
