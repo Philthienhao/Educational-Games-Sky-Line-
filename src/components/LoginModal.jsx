@@ -783,7 +783,7 @@ export function LoginModal({ onLoginSuccess }) {
               </button>
             </div>
 
-            {/* TAB CONTENT 1: GOOGLE / GMAIL (HYBRID ONE-CLICK & FAST GMAIL ENTRY) */}
+            {/* TAB CONTENT 1: GOOGLE / GMAIL */}
             {activeTab === 'gmail' && (
               <div>
                 {/* Error Banner */}
@@ -792,7 +792,7 @@ export function LoginModal({ onLoginSuccess }) {
                     background: 'rgba(239, 68, 68, 0.15)',
                     border: '1px solid rgba(239, 68, 68, 0.4)',
                     color: '#fca5a5',
-                    padding: '7px 12px',
+                    padding: '7px 10px',
                     borderRadius: '11px',
                     fontSize: '0.74rem',
                     fontWeight: 700,
@@ -806,101 +806,29 @@ export function LoginModal({ onLoginSuccess }) {
                   </div>
                 )}
 
-                {/* Helpful Guidance Notice */}
-                {googleNotice && (
-                  <div style={{
-                    background: 'rgba(2, 132, 199, 0.12)',
-                    border: '1px solid rgba(2, 132, 199, 0.35)',
-                    color: '#38bdf8',
-                    padding: '7px 12px',
-                    borderRadius: '11px',
-                    fontSize: '0.72rem',
-                    fontWeight: 600,
-                    marginBottom: '10px',
-                    lineHeight: 1.35
-                  }}>
-                    {googleNotice}
-                  </div>
-                )}
-
-                {/* Primary Action: Official One-Click Google Button */}
-                <button
-                  type="button"
-                  onClick={handleTriggerGoogleOAuth}
-                  disabled={googleLoading}
-                  style={{
-                    width: '100%',
-                    padding: '11px 16px',
-                    borderRadius: '14px',
-                    background: '#ffffff',
-                    color: '#1f2937',
-                    border: '1.5px solid rgba(255, 255, 255, 0.9)',
-                    fontWeight: 800,
-                    fontSize: '0.88rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '10px',
-                    cursor: googleLoading ? 'wait' : 'pointer',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35), 0 0 16px rgba(255, 255, 255, 0.15)',
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    marginBottom: '12px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.45)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.35)';
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-                  </svg>
-                  <span>{googleLoading ? 'ĐANG KẾT NỐI TỰ ĐỘNG...' : 'ĐĂNG NHẬP NHANH VỚI GOOGLE'}</span>
-                </button>
-
-                {/* Subtle Clean Divider */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  margin: '0 0 12px 0'
-                }}>
-                  <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-                  <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    hoặc nhập nhanh địa chỉ gmail
-                  </span>
-                  <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.1)' }} />
-                </div>
-
-                {/* Fast Guaranteed Gmail Entry Form */}
-                <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                {/* Direct Fast Gmail Entry Form */}
+                <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '11px', marginTop: '4px' }}>
                   <div>
-                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
-                      ĐỊA CHỈ GMAIL CỦA THẦY/CÔ:
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
+                      ĐỊA CHỈ GMAIL CỦA THẦY/CÔ: <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <Mail size={15} color="#38bdf8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <Mail size={16} color="#38bdf8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="email"
                         required
                         value={googleEmail}
                         onChange={(e) => setGoogleEmail(e.target.value)}
-                        placeholder="VD: giaovien@gmail.com"
+                        placeholder="Nhập địa chỉ Gmail (VD: giaovien@gmail.com)"
                         style={{
                           width: '100%',
-                          padding: '9px 12px 9px 34px',
-                          borderRadius: '12px',
+                          padding: '11px 14px 11px 38px',
+                          borderRadius: '13px',
                           background: 'rgba(15, 23, 42, 0.9)',
-                          border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                          border: '1.5px solid rgba(56, 189, 248, 0.4)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.84rem',
+                          fontSize: '0.88rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -909,11 +837,11 @@ export function LoginModal({ onLoginSuccess }) {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '3px' }}>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
                       HỌ VÀ TÊN GIÁO VIÊN:
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <User size={15} color="#94a3b8" style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
                         value={googleName}
@@ -921,13 +849,13 @@ export function LoginModal({ onLoginSuccess }) {
                         placeholder="VD: Cô Mai Anh (tùy chọn)"
                         style={{
                           width: '100%',
-                          padding: '9px 12px 9px 34px',
-                          borderRadius: '12px',
+                          padding: '10px 14px 10px 38px',
+                          borderRadius: '13px',
                           background: 'rgba(15, 23, 42, 0.9)',
-                          border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                          border: '1.5px solid rgba(255, 255, 255, 0.14)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: '0.84rem',
+                          fontSize: '0.88rem',
                           outline: 'none',
                           boxSizing: 'border-box'
                         }}
@@ -940,54 +868,43 @@ export function LoginModal({ onLoginSuccess }) {
                     type="submit"
                     disabled={googleLoading}
                     style={{
-                      marginTop: '3px',
-                      padding: '11px 16px',
-                      borderRadius: '13px',
+                      marginTop: '6px',
+                      padding: '12px 18px',
+                      borderRadius: '14px',
                       background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
                       color: '#ffffff',
                       border: 'none',
                       fontWeight: 900,
-                      fontSize: '0.88rem',
+                      fontSize: '0.92rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
+                      gap: '10px',
                       cursor: googleLoading ? 'wait' : 'pointer',
-                      boxShadow: '0 6px 20px rgba(2, 132, 199, 0.4)',
+                      boxShadow: '0 6px 22px rgba(2, 132, 199, 0.45)',
                       transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 8px 24px rgba(2, 132, 199, 0.55)';
+                      e.currentTarget.style.boxShadow = '0 8px 26px rgba(2, 132, 199, 0.6)';
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 6px 20px rgba(2, 132, 199, 0.4)';
+                      e.currentTarget.style.boxShadow = '0 6px 22px rgba(2, 132, 199, 0.45)';
                     }}
                   >
-                    <span>{googleLoading ? 'ĐANG KẾT NỐI HỆ THỐNG...' : 'VÀO LỚP & TRẢI NGHIỆM NGAY 🚀'}</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                      <path fill="#ffffff" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                      <path fill="#ffffff" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                      <path fill="#ffffff" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                      <path fill="#ffffff" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span>{googleLoading ? 'ĐANG KẾT NỐI HỆ THỐNG...' : 'ĐĂNG NHẬP / DÙNG THỬ BẰNG GMAIL 🚀'}</span>
                   </button>
                 </form>
 
                 {/* Hidden Official GSI Mount Node for Native Google Rendering */}
                 <div id="gsi-official-container" style={{ display: 'none' }} />
-
-                {/* Subtle Assurance Note */}
-                <div style={{
-                  marginTop: '10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 10px',
-                  background: 'rgba(16, 185, 129, 0.08)',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
-                  fontSize: '0.68rem',
-                  color: '#34d399'
-                }}>
-                  <Gift size={13} color="#10b981" style={{ flexShrink: 0 }} />
-                  <span>Tự động cấp quyền trải nghiệm toàn bộ kho game 3D & công cụ cho giáo viên mới.</span>
-                </div>
               </div>
             )}
 
