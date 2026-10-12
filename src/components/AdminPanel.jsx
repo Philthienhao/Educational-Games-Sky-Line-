@@ -257,7 +257,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
             boxShadow: adminTab === 'google-accounts' ? '0 4px 14px rgba(2, 132, 199, 0.35)' : undefined
           }}
         >
-          <Mail size={18} /> Duyệt Tài Khoản Gmail (Google OAuth) {users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@')))).length > 0 && `(${users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@')))).length})`}
+          <Mail size={18} /> Duyệt Tài Khoản Gmail (Google OAuth) {users.filter(u => StorageService.isGoogleUser(u)).length > 0 && `(${users.filter(u => StorageService.isGoogleUser(u)).length})`}
         </button>
 
         <button 
@@ -265,7 +265,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
           onClick={() => setAdminTab('accounts')}
           style={{ borderRadius: '16px', padding: '12px 22px', fontWeight: 800 }}
         >
-          <Users size={18} /> Tài Khoản Giáo Viên Cấp Thủ Công ({users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao' && u.authProvider !== 'google').length})
+          <Users size={18} /> Tài Khoản Giáo Viên Cấp Thủ Công ({users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao' && !StorageService.isGoogleUser(u)).length})
         </button>
 
         <button 
@@ -282,7 +282,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
 
       {/* TAB 0: Google OAuth Accounts Management & Approval */}
       {adminTab === 'google-accounts' && (() => {
-        const googleUsers = users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@'))));
+        const googleUsers = users.filter(u => StorageService.isGoogleUser(u)).map(u => StorageService.normalizeGoogleUser(u));
         
         const pendingCount = googleUsers.filter(u => {
           const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;

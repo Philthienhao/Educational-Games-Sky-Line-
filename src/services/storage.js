@@ -2192,9 +2192,47 @@ export const StorageService = {
     return targetUser;
   },
 
+  isGoogleUser: (user) => {
+    if (!user) return false;
+    if (user.authProvider === 'google') return true;
+    if (user.email && String(user.email).trim().toLowerCase().includes('@')) return true;
+    if (user.username && String(user.username).trim().toLowerCase().includes('@')) return true;
+    if (user.id && String(user.id).toLowerCase().startsWith('user_google_')) return true;
+    return false;
+  },
+
+  normalizeGoogleUser: (user) => {
+    if (!user) return user;
+    if (!StorageService.isGoogleUser(user)) return user;
+
+    const email = String(user.email || user.username || '').trim().toLowerCase();
+    const isUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true || user.paymentStatus === 'paid';
+    const totalTrials = Number(user.totalTrialsUsed) || (user.status === 'trial_expired' || user.status === 'da_dung_thu' ? 1 : 0);
+    const status = isUnlimited ? 'unlimited' : (totalTrials >= 1 ? 'trial_expired' : (user.status || 'trial'));
+
+    return {
+      ...user,
+      authProvider: 'google',
+      email: email,
+      username: user.username || email,
+      role: user.role || 'teacher',
+      subject: user.subject || 'Giáo viên',
+      school: user.school || 'Hệ Thống Hỗ Trợ Dạy Và Học',
+      accessTier: isUnlimited ? 'unlimited' : 'trial',
+      status: status,
+      trialLimit: user.trialLimit || 1,
+      totalTrialsUsed: totalTrials,
+      paymentStatus: isUnlimited ? 'paid' : (user.paymentStatus || 'unpaid'),
+      isPaid: isUnlimited,
+      usedFeatures: user.usedFeatures || {}
+    };
+  },
+
   getGoogleUsers: () => {
     const users = StorageService.getUsers();
-    return users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@'))));
+    return users
+      .filter(u => StorageService.isGoogleUser(u))
+      .map(u => StorageService.normalizeGoogleUser(u));
   },
 
   setGoogleUserAccessTier: (userId, accessTier) => {
@@ -2234,7 +2272,7 @@ export const StorageService = {
     if (isUnlimited) return { allowed: true, isUnlimited: true };
 
     // Traditional pre-created teacher accounts are not limited
-    if (user.authProvider !== 'google' && !user.email) {
+    if (!StorageService.isGoogleUser(user)) {
       return { allowed: true, isUnlimited: true };
     }
 
@@ -2260,7 +2298,7 @@ export const StorageService = {
     const isAdmin = user.role === 'admin' || user.username === 'philthienhao' || user.id === 'user_admin';
     if (isAdmin) return user;
     if (user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true) return user;
-    if (user.authProvider !== 'google' && !user.email) return user;
+    if (!StorageService.isGoogleUser(user)) return user;
 
     const usedFeatures = { ...(user.usedFeatures || {}) };
     usedFeatures[featureId] = (usedFeatures[featureId] || 0) + 1;
@@ -2279,8 +2317,58 @@ export const StorageService = {
 
   broadcastGoogleUsersToCloud: async () => {
     try {
-      const gUsers = StorageService.getGoogleUsers();
-      await CloudStorageService.saveUserPrivateCloudData('system_global', 'google_users', gUsers);
+      // 1. Fetch current cloud Google users from Supabase user_data
+      const rawCloudData = await CloudStorageService.getUserPrivateCloudData('system_global', 'google_users');
+      const cloudList = Array.isArray(rawCloudData) ? rawCloudData : [];
+
+      // 2. Fetch local Google users
+      const localUsers = StorageService.getGoogleUsers();
+
+      // 3. Safe Merge: Key by email/username
+      const map = new Map();
+
+      // Populate with existing cloud data first
+      cloudList.forEach(u => {
+        if (StorageService.isGoogleUser(u)) {
+          const norm = StorageService.normalizeGoogleUser(u);
+          const key = String(norm.email || norm.username).trim().toLowerCase();
+          if (key) map.set(key, norm);
+        }
+      });
+
+      // Overlay with local users (merging state)
+      localUsers.forEach(u => {
+        if (StorageService.isGoogleUser(u)) {
+          const norm = StorageService.normalizeGoogleUser(u);
+          const key = String(norm.email || norm.username).trim().toLowerCase();
+          if (!key) return;
+
+          if (map.has(key)) {
+            const existing = map.get(key);
+            const isUnlimited = existing.accessTier === 'unlimited' || norm.accessTier === 'unlimited' || existing.isPaid || norm.isPaid;
+            const hasUsedTrial = existing.status === 'trial_expired' || norm.status === 'trial_expired' || (Number(existing.totalTrialsUsed) || 0) >= 1 || (Number(norm.totalTrialsUsed) || 0) >= 1;
+
+            map.set(key, {
+              ...existing,
+              ...norm,
+              accessTier: isUnlimited ? 'unlimited' : 'trial',
+              status: isUnlimited ? 'unlimited' : (hasUsedTrial ? 'trial_expired' : 'trial'),
+              isPaid: isUnlimited,
+              paymentStatus: isUnlimited ? 'paid' : (norm.paymentStatus || existing.paymentStatus || 'unpaid'),
+              totalTrialsUsed: Math.max(Number(existing.totalTrialsUsed) || 0, Number(norm.totalTrialsUsed) || 0),
+              usedFeatures: { ...(existing.usedFeatures || {}), ...(norm.usedFeatures || {}) },
+              updatedAt: new Date().toISOString()
+            });
+          } else {
+            map.set(key, norm);
+          }
+        }
+      });
+
+      const mergedList = Array.from(map.values());
+      if (mergedList.length > 0) {
+        await CloudStorageService.saveUserPrivateCloudData('system_global', 'google_users', mergedList);
+      }
     } catch (e) {
       console.warn("broadcastGoogleUsersToCloud error:", e);
     }
@@ -2288,37 +2376,70 @@ export const StorageService = {
 
   syncGoogleUsersWithCloud: async () => {
     try {
+      // 1. Fetch from Supabase user_data (system_global_google_users)
       const cloudGUsers = await CloudStorageService.getUserPrivateCloudData('system_global', 'google_users');
-      if (Array.isArray(cloudGUsers) && cloudGUsers.length > 0) {
-        let currentUsers = StorageService.getUsers();
-        let updated = false;
+      const cloudList = Array.isArray(cloudGUsers) ? cloudGUsers : [];
 
-        cloudGUsers.forEach(cu => {
-          if (!cu || !cu.username) return;
-          const cuEmail = String(cu.email || cu.username).trim().toLowerCase();
-          const idx = currentUsers.findIndex(u => (u.email && u.email.trim().toLowerCase() === cuEmail) || (u.username && u.username.trim().toLowerCase() === cuEmail));
+      // 2. Fetch all users from Supabase teachers_users
+      const allCloudUsers = await CloudStorageService.getCloudUsers();
+      const googleUsersFromDb = (Array.isArray(allCloudUsers) ? allCloudUsers : []).filter(u => StorageService.isGoogleUser(u));
 
-          if (idx === -1) {
-            currentUsers.push(cu);
-            updated = true;
-          } else {
-            const local = currentUsers[idx];
-            const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
-            const cloudTime = cu.updatedAt ? new Date(cu.updatedAt).getTime() : 0;
-            if (cloudTime > localTime) {
-              currentUsers[idx] = { ...local, ...cu };
-              updated = true;
-            }
-          }
+      // 3. Combine both sources
+      const allFoundGoogleUsers = [...cloudList, ...googleUsersFromDb];
+
+      let currentUsers = StorageService.getUsers();
+      let updated = false;
+
+      allFoundGoogleUsers.forEach(cu => {
+        if (!StorageService.isGoogleUser(cu)) return;
+        const norm = StorageService.normalizeGoogleUser(cu);
+        const cleanKey = String(norm.email || norm.username).trim().toLowerCase();
+        if (!cleanKey) return;
+
+        const idx = currentUsers.findIndex(u => {
+          if (!u) return false;
+          const uEmail = String(u.email || '').trim().toLowerCase();
+          const uName = String(u.username || '').trim().toLowerCase();
+          return uEmail === cleanKey || uName === cleanKey;
         });
 
-        if (updated) {
-          localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
-          IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
+        if (idx === -1) {
+          currentUsers.push(norm);
+          updated = true;
+        } else {
+          const local = currentUsers[idx];
+          // Merge rich Google properties into local user without erasing trial usage
+          const isUnlimited = local.accessTier === 'unlimited' || norm.accessTier === 'unlimited' || local.isPaid || norm.isPaid;
+          const hasUsedTrial = local.status === 'trial_expired' || norm.status === 'trial_expired' || (Number(local.totalTrialsUsed) || 0) >= 1 || (Number(norm.totalTrialsUsed) || 0) >= 1;
+
+          currentUsers[idx] = {
+            ...local,
+            ...norm,
+            authProvider: 'google',
+            email: norm.email || local.email || cleanKey,
+            accessTier: isUnlimited ? 'unlimited' : 'trial',
+            status: isUnlimited ? 'unlimited' : (hasUsedTrial ? 'trial_expired' : 'trial'),
+            isPaid: isUnlimited,
+            paymentStatus: isUnlimited ? 'paid' : (norm.paymentStatus || local.paymentStatus || 'unpaid'),
+            totalTrialsUsed: Math.max(Number(local.totalTrialsUsed) || 0, Number(norm.totalTrialsUsed) || 0),
+            usedFeatures: { ...(local.usedFeatures || {}), ...(norm.usedFeatures || {}) }
+          };
+          updated = true;
         }
+      });
+
+      if (updated) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+        IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
       }
+
+      // Re-broadcast merged list to Cloud KV so Supabase is always fully synchronized
+      StorageService.broadcastGoogleUsersToCloud().catch(() => {});
+
+      return StorageService.getGoogleUsers();
     } catch (e) {
       console.warn("syncGoogleUsersWithCloud error:", e);
+      return StorageService.getGoogleUsers();
     }
   },
 

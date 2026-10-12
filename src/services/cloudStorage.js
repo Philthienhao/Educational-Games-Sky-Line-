@@ -87,6 +87,20 @@ export const CloudStorageService = {
         if (uName === 'co_hoa' || uName === 'thay_nam' || uName === 'bachhat' || uId === 'user_bach_hat') return false;
         if (deletedIds.includes(uId) || deletedIds.includes(uName)) return false;
         return true;
+      }).map(u => {
+        const uName = String(u.username || '').trim().toLowerCase();
+        const uId = String(u.id || '').trim().toLowerCase();
+        if (uName.includes('@') || uId.startsWith('user_google_') || u.authProvider === 'google') {
+          return {
+            ...u,
+            authProvider: 'google',
+            email: u.email || u.username,
+            accessTier: u.accessTier || 'trial',
+            status: u.status || 'trial',
+            trialLimit: u.trialLimit || 1
+          };
+        }
+        return u;
       });
     };
 

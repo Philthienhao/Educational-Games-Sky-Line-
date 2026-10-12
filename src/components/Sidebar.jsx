@@ -360,7 +360,7 @@ export function Sidebar({
                     <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
                       💎 Không giới hạn
                     </span>
-                  ) : (currentUser?.authProvider === 'google' || currentUser?.email) ? (
+                  ) : (currentUser?.authProvider === 'google' || currentUser?.email || (currentUser?.username && String(currentUser.username).includes('@'))) ? (
                     (currentUser?.status === 'trial_expired' || (currentUser?.totalTrialsUsed || 0) >= 1) ? (
                       <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
                         🚫 Đã dùng thử
