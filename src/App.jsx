@@ -40,12 +40,11 @@ import { ParentMeetingSupport } from './components/ParentMeetingSupport';
 import { LoginModal } from './components/LoginModal';
 import { UserManagementModal } from './components/UserManagementModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
+import { TrialUpgradeModal } from './components/TrialUpgradeModal';
 import StudentPickerManager from './components/StudentPickerManager';
 import ClassroomTimerManager from './components/ClassroomTimerManager';
 import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
 import { FloatingAiAssistantWidget } from './components/FloatingAiAssistantWidget';
-import { AICoPilotWidget } from './components/AICoPilotWidget';
-import { AISettingsModal } from './components/AISettingsModal';
 import { AIQuestionGeneratorModal } from './components/AIQuestionGeneratorModal';
 import { IndoorPEDanceGame } from './components/games/IndoorPEDanceGame';
 import { StorageService } from './services/storage';
@@ -97,10 +96,49 @@ export function App() {
   const [isUserManagementOpen, setIsUserManagementOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
-  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
+  const [trialModalInfo, setTrialModalInfo] = useState({
+    isOpen: false,
+    featureName: '',
+    featureId: ''
+  });
+
+  const handlePlayGameWithTrialCheck = (game, isSaved = false) => {
+    if (!game) return;
+    const featureId = game.engineType || game.gameType || game.id || 'game';
+    const featureName = game.title || game.name || game.lessonTitle || 'Trò chơi tương tác';
+
+    // Verify trial or access rights
+    const access = StorageService.checkFeatureAccess(currentUser, featureId);
+    if (!access.allowed) {
+      setTrialModalInfo({
+        isOpen: true,
+        featureName,
+        featureId
+      });
+      return;
+    }
+
+    // If it's a trial play, consume the trial
+    if (access.isTrial) {
+      const updatedUser = StorageService.consumeFeatureTrial(currentUser, featureId, featureName);
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
+      }
+    }
+
+    if (isSaved) {
+      StorageService.incrementPlayCount(game.id, true);
+      setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
+    } else {
+      StorageService.incrementPlayCount(game.id, false);
+      setBaseGames(StorageService.getBaseGames());
+    }
+
+    setPlayingGame(game);
+  };
 
   const handleApplyAIGameQuestions = (aiQuestions, targetGameType = 'tug-of-war-dual', targetGameTitle = null, autoLaunch = true) => {
     if (!aiQuestions || aiQuestions.length === 0) return;
@@ -147,7 +185,7 @@ export function App() {
     setSavedGames(prev => [newAiGame, ...prev]);
 
     if (autoLaunch) {
-      setPlayingGame(newAiGame);
+      handlePlayGameWithTrialCheck(newAiGame, true);
     }
   };
 
@@ -261,9 +299,30 @@ export function App() {
 
   const handleSaveAndPlay = (savedGameData) => {
     const activeUserId = currentUser?.id || StorageService.getCurrentUser()?.id || 'user_admin';
+    const featureId = savedGameData?.engineType || savedGameData?.gameType || 'game_custom';
+    const featureName = savedGameData?.title || 'Trò chơi tự tạo';
+
     const saved = StorageService.saveTeacherGame(activeUserId, savedGameData);
     const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
     setSavedGames(updatedGames);
+
+    const access = StorageService.checkFeatureAccess(currentUser, featureId);
+    if (!access.allowed) {
+      setTrialModalInfo({
+        isOpen: true,
+        featureName,
+        featureId
+      });
+      return;
+    }
+
+    if (access.isTrial) {
+      const updatedUser = StorageService.consumeFeatureTrial(currentUser, featureId, featureName);
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
+      }
+    }
+
     setPlayingGame(saved || savedGameData);
     const gameName = saved?.title || savedGameData?.title || 'Cá Nhân';
     alert(`✨ Đã tự động lưu bài game "${gameName}" vào "Kho Game Của Tôi" để Thầy/Cô có thể dùng lại bất cứ lúc nào!`);
@@ -504,27 +563,6 @@ export function App() {
                   >
                     <BookmarkCheck size={18} /> Kho Game Của Tôi ({savedGames.length})
                   </button>
-
-                  <button 
-                    onClick={() => setIsAdminCreateGameOpen(true)}
-                    style={{
-                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      padding: '12px 20px',
-                      borderRadius: '16px',
-                      fontWeight: 800,
-                      fontSize: '0.88rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      boxShadow: '0 6px 18px rgba(2, 132, 199, 0.3)',
-                      transition: 'all 0.25s ease'
-                    }}
-                  >
-                    <Sparkles size={18} color="#fde047" /> AI Tạo Bài Tập Mới
-                  </button>
                 </div>
               </div>
             </div>
@@ -575,11 +613,7 @@ export function App() {
                   key={game.id}
                   game={game}
                   currentUser={currentUser}
-                  onPlay={(template) => {
-                    StorageService.incrementPlayCount(template.id, false);
-                    setBaseGames(StorageService.getBaseGames());
-                    setPlayingGame(template);
-                  }}
+                  onPlay={(template) => handlePlayGameWithTrialCheck(template, false)}
                   onCustomize={(template) => setEditingGameTemplate(template)}
                   onDelete={handleDeleteBaseGame}
                 />
@@ -601,11 +635,7 @@ export function App() {
         {activeTab === 'call-student' && (
           <StudentPickerManager 
             currentUser={currentUser} 
-            onPlay={(game) => {
-              StorageService.incrementPlayCount(game.id, false);
-              setBaseGames(StorageService.getBaseGames());
-              setPlayingGame(game);
-            }}
+            onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
             onCustomize={(template) => setEditingGameTemplate(template)}
             onNavigateToHomeroom={() => setActiveTab('homeroom')}
           />
@@ -615,11 +645,7 @@ export function App() {
         {activeTab === 'timer' && (
           <ClassroomTimerManager 
             currentUser={currentUser}
-            onPlay={(game) => {
-              StorageService.incrementPlayCount(game.id, false);
-              setBaseGames(StorageService.getBaseGames());
-              setPlayingGame(game);
-            }}
+            onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
           />
         )}
 
@@ -630,7 +656,24 @@ export function App() {
 
         {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
         {activeTab === 'indoor-pe-dance' && (
-          <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
+          !StorageService.checkFeatureAccess(currentUser, 'indoor-pe-dance').allowed ? (
+            <div style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '24px', margin: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ef4444' }}>Bạn Đã Sử Dụng Hết Lượt Trải Nghiệm Dùng Thử</h2>
+              <p style={{ color: '#475569', margin: '12px auto 24px auto', maxWidth: '500px', fontSize: '0.95rem', fontWeight: 600 }}>
+                Hệ thống giáo dục Sky-Line là nền tảng đóng phí. Bạn đã trải nghiệm dùng thử 1 lần. Hãy liên hệ Thầy Hảo để nâng cấp tài khoản Không Giới Hạn!
+              </p>
+              <button 
+                onClick={() => setTrialModalInfo({ isOpen: true, featureName: 'Thể Dục Trong Nhà AI', featureId: 'indoor-pe-dance' })}
+                className="btn btn-primary"
+                style={{ padding: '12px 28px', fontSize: '0.95rem', borderRadius: '14px', fontWeight: 800 }}
+              >
+                Xem Bảng Nâng Cấp Không Giới Hạn
+              </button>
+            </div>
+          ) : (
+            <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
+          )
         )}
 
         {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
@@ -638,11 +681,7 @@ export function App() {
           <TeacherLibrary 
             savedGames={savedGames}
             currentUser={currentUser}
-            onPlayGame={(savedGame) => {
-              StorageService.incrementPlayCount(savedGame.id, true);
-              setSavedGames(StorageService.getTeacherSavedGames(currentUser?.id));
-              setPlayingGame(savedGame);
-            }}
+            onPlayGame={(savedGame) => handlePlayGameWithTrialCheck(savedGame, true)}
             onEditGame={(savedGame) => setEditingGameTemplate(savedGame)}
             onDeleteGame={handleDeleteSavedGame}
             onBrowseCatalog={() => setActiveTab('catalog')}
@@ -986,20 +1025,6 @@ export function App() {
         </div>
       )}
 
-      {/* Omnipresent Gemini AI Co-Pilot Widget */}
-      <AICoPilotWidget 
-        activeTab={activeTab}
-        onOpenAISettings={() => setIsAISettingsOpen(true)}
-        onApplyAIGameQuestions={handleApplyAIGameQuestions}
-        onSelectTab={(tabId) => setActiveTab(tabId)}
-      />
-
-      {/* Gemini AI Settings Modal */}
-      <AISettingsModal 
-        isOpen={isAISettingsOpen}
-        onClose={() => setIsAISettingsOpen(false)}
-      />
-
       {/* Zero-File AI Question Generator Modal */}
       <AIQuestionGeneratorModal 
         isOpen={isAIGeneratorOpen}
@@ -1018,10 +1043,23 @@ export function App() {
         onClose={() => setIsAiWidgetOpen(false)}
         currentUser={currentUser}
         onSelectTab={(tabId) => setActiveTab(tabId)}
-        onPlayGame={(gameObj) => setPlayingGame(gameObj)}
+        onPlayGame={(gameObj) => handlePlayGameWithTrialCheck(gameObj, false)}
         onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
         onOpenUserManagement={() => setIsUserManagementOpen(true)}
         savedGames={savedGames}
+      />
+
+      {/* Trial Expired / Unlimited Upgrade Modal */}
+      <TrialUpgradeModal 
+        isOpen={trialModalInfo.isOpen}
+        onClose={() => setTrialModalInfo(prev => ({ ...prev, isOpen: false }))}
+        featureName={trialModalInfo.featureName}
+        currentUser={currentUser}
+        onRefreshUser={async () => {
+          await StorageService.syncGoogleUsersWithCloud();
+          const refreshed = StorageService.getCurrentUser();
+          setCurrentUser(refreshed);
+        }}
       />
 
     </div>

@@ -63,4 +63,9 @@
 - **Top-Level Variable Declaration Safety**: In `StudentSilhouetteGame.jsx`, `totalStudents` (`students.length`), `dynamicCols`, and `dynamicRows` MUST be declared explicitly before the component `return (...)` statement to prevent `ReferenceError: totalStudents is not defined` crashes at runtime.
 - **Robust FileReader & Canvas Cutout Upload**: Manual student photo upload handlers MUST reset the file input value (`fileInputRef.current.value = ''`) after reading and execute canvas body pose silhouette extraction asynchronously with a safety fallback timeout.
 
+## 13. UI Cleanliness: Exclusion of Floating AI Co-Pilot Widgets
+- **Do NOT Re-introduce Floating AI Co-Pilot Widgets**: Do not render or re-introduce the floating draggable pill widget `Trợ Lí Thầy Hảo PRO 3.6` (`AICoPilotWidget`) or the redundant `AI Tạo Bài Tập Mới` banner button.
+- Keep the main workspace interface clean, professional, and uncluttered, focusing directly on the educational game catalog, homeroom management, and teaching tools.
+
+
 

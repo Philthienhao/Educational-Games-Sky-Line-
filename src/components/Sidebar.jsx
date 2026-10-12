@@ -352,10 +352,25 @@ export function Sidebar({
                 <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {currentUser?.name || 'Giáo Viên'}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                   <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
                     {isAdmin ? 'ADMIN' : 'GIÁO VIÊN'}
                   </span>
+                  {isAdmin ? null : (currentUser?.accessTier === 'unlimited' || currentUser?.isPaid === true) ? (
+                    <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
+                      💎 Không giới hạn
+                    </span>
+                  ) : (currentUser?.authProvider === 'google' || currentUser?.email) ? (
+                    (currentUser?.status === 'trial_expired' || (currentUser?.totalTrialsUsed || 0) >= 1) ? (
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
+                        🚫 Đã dùng thử
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
+                        ⏳ Dùng thử (1 lần)
+                      </span>
+                    )
+                  ) : null}
                   <span style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 800 }}>
                     @{currentUser?.username}
                   </span>

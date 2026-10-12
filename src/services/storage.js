@@ -1409,6 +1409,9 @@ export const StorageService = {
             }
           }
         }).catch(() => {});
+
+        // Asynchronously pull Google OAuth Users from 24/7 Cloud KV Store
+        StorageService.syncGoogleUsersWithCloud().catch(() => {});
       } catch (e) {
         console.warn("StorageService.init users warning:", e);
       }
@@ -2120,6 +2123,202 @@ export const StorageService = {
     const curr = StorageService.getCurrentUser();
     if (curr && (curr.id === targetId || curr.username === targetUsername)) {
       localStorage.removeItem(CURRENT_USER_KEY);
+    }
+  },
+
+  // --- Google OAuth (Gmail) & 1-Time Trial Access Management Engine ---
+  authenticateOrRegisterGoogleUser: async (googleProfile) => {
+    if (!googleProfile || !googleProfile.email) return null;
+
+    const cleanEmail = String(googleProfile.email).trim().toLowerCase();
+    const cleanName = (googleProfile.name || cleanEmail.split('@')[0] || 'Giáo Viên').trim();
+    const avatar = googleProfile.picture || '';
+
+    // Un-blacklist this email if it was previously deleted
+    StorageService.removeDeletedUserId(cleanEmail);
+
+    let users = StorageService.getUsers();
+    let targetUser = users.find(u => {
+      if (!u) return false;
+      const uEmail = u.email ? String(u.email).trim().toLowerCase() : '';
+      const uName = u.username ? String(u.username).trim().toLowerCase() : '';
+      return uEmail === cleanEmail || uName === cleanEmail;
+    });
+
+    if (targetUser) {
+      // Existing user: preserve trial status, accessTier, and existing permissions
+      const updated = {
+        ...targetUser,
+        name: targetUser.name || cleanName,
+        avatar: targetUser.avatar || avatar,
+        email: cleanEmail,
+        authProvider: 'google',
+        lastLoginAt: new Date().toISOString()
+      };
+      targetUser = StorageService.updateUser(targetUser.id, updated);
+    } else {
+      // New user: grant 1-time Trial (Dùng thử 1 lần duy nhất cho toàn bộ hệ thống)
+      const newUser = {
+        id: `user_google_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        username: cleanEmail,
+        email: cleanEmail,
+        name: cleanName,
+        avatar: avatar,
+        role: 'teacher',
+        subject: 'Giáo viên',
+        school: 'Hệ Thống Hỗ Trợ Dạy Và Học',
+        authProvider: 'google',
+        accessTier: 'trial', // 'trial' (Dùng thử) | 'unlimited' (Không giới hạn)
+        status: 'trial',     // 'trial' (Đang dùng thử / Chờ duyệt) | 'trial_expired' (Đã dùng thử) | 'unlimited' (Không giới hạn)
+        trialLimit: 1,
+        usedFeatures: {},
+        totalTrialsUsed: 0,
+        paymentStatus: 'unpaid',
+        isPaid: false,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
+      };
+
+      users.push(newUser);
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      IDBStorageService.clearAndSaveAllUsers(users).catch(() => {});
+      CloudStorageService.createOrUpdateCloudUser(newUser).catch(() => {});
+      targetUser = newUser;
+    }
+
+    // Broadcast Google OAuth account list to 24/7 cloud KV for Admin cross-device visibility
+    StorageService.broadcastGoogleUsersToCloud().catch(() => {});
+
+    return targetUser;
+  },
+
+  getGoogleUsers: () => {
+    const users = StorageService.getUsers();
+    return users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@'))));
+  },
+
+  setGoogleUserAccessTier: (userId, accessTier) => {
+    const isUnlimited = accessTier === 'unlimited';
+    const updatedData = {
+      accessTier: isUnlimited ? 'unlimited' : 'trial',
+      status: isUnlimited ? 'unlimited' : 'trial',
+      paymentStatus: isUnlimited ? 'paid' : 'unpaid',
+      isPaid: isUnlimited,
+      approvedAt: isUnlimited ? new Date().toISOString() : null,
+      approvedBy: isUnlimited ? 'admin' : null
+    };
+
+    const updatedUser = StorageService.updateUser(userId, updatedData);
+    StorageService.broadcastGoogleUsersToCloud().catch(() => {});
+    return updatedUser;
+  },
+
+  resetUserTrial: (userId) => {
+    const updated = StorageService.updateUser(userId, {
+      usedFeatures: {},
+      totalTrialsUsed: 0,
+      status: 'trial',
+      accessTier: 'trial'
+    });
+    StorageService.broadcastGoogleUsersToCloud().catch(() => {});
+    return updated;
+  },
+
+  checkFeatureAccess: (user, featureId) => {
+    if (!user) return { allowed: false, reason: 'not_logged_in' };
+
+    const isAdmin = user.role === 'admin' || user.username === 'philthienhao' || user.id === 'user_admin';
+    if (isAdmin) return { allowed: true, isUnlimited: true };
+
+    const isUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true;
+    if (isUnlimited) return { allowed: true, isUnlimited: true };
+
+    // Traditional pre-created teacher accounts are not limited
+    if (user.authProvider !== 'google' && !user.email) {
+      return { allowed: true, isUnlimited: true };
+    }
+
+    // Google Trial Account Check: 1-time platform trial limit
+    const totalTrialsUsed = Number(user.totalTrialsUsed || 0);
+    const isExpired = user.status === 'trial_expired' || user.status === 'da_dung_thu' || totalTrialsUsed >= 1;
+
+    if (isExpired) {
+      return { 
+        allowed: false, 
+        reason: 'trial_expired', 
+        remaining: 0, 
+        usedCount: totalTrialsUsed || 1, 
+        featureId 
+      };
+    }
+
+    return { allowed: true, isTrial: true, remaining: 1, featureId };
+  },
+
+  consumeFeatureTrial: (user, featureId, featureName) => {
+    if (!user) return user;
+    const isAdmin = user.role === 'admin' || user.username === 'philthienhao' || user.id === 'user_admin';
+    if (isAdmin) return user;
+    if (user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true) return user;
+    if (user.authProvider !== 'google' && !user.email) return user;
+
+    const usedFeatures = { ...(user.usedFeatures || {}) };
+    usedFeatures[featureId] = (usedFeatures[featureId] || 0) + 1;
+    const totalTrialsUsed = (user.totalTrialsUsed || 0) + 1;
+
+    const updatedUser = StorageService.updateUser(user.id, {
+      usedFeatures,
+      totalTrialsUsed,
+      status: 'trial_expired',
+      lastFeatureTried: { id: featureId, name: featureName, at: new Date().toISOString() }
+    });
+
+    StorageService.broadcastGoogleUsersToCloud().catch(() => {});
+    return updatedUser || user;
+  },
+
+  broadcastGoogleUsersToCloud: async () => {
+    try {
+      const gUsers = StorageService.getGoogleUsers();
+      await CloudStorageService.saveUserPrivateCloudData('system_global', 'google_users', gUsers);
+    } catch (e) {
+      console.warn("broadcastGoogleUsersToCloud error:", e);
+    }
+  },
+
+  syncGoogleUsersWithCloud: async () => {
+    try {
+      const cloudGUsers = await CloudStorageService.getUserPrivateCloudData('system_global', 'google_users');
+      if (Array.isArray(cloudGUsers) && cloudGUsers.length > 0) {
+        let currentUsers = StorageService.getUsers();
+        let updated = false;
+
+        cloudGUsers.forEach(cu => {
+          if (!cu || !cu.username) return;
+          const cuEmail = String(cu.email || cu.username).trim().toLowerCase();
+          const idx = currentUsers.findIndex(u => (u.email && u.email.trim().toLowerCase() === cuEmail) || (u.username && u.username.trim().toLowerCase() === cuEmail));
+
+          if (idx === -1) {
+            currentUsers.push(cu);
+            updated = true;
+          } else {
+            const local = currentUsers[idx];
+            const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+            const cloudTime = cu.updatedAt ? new Date(cu.updatedAt).getTime() : 0;
+            if (cloudTime > localTime) {
+              currentUsers[idx] = { ...local, ...cu };
+              updated = true;
+            }
+          }
+        });
+
+        if (updated) {
+          localStorage.setItem(USERS_KEY, JSON.stringify(currentUsers));
+          IDBStorageService.clearAndSaveAllUsers(currentUsers).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn("syncGoogleUsersWithCloud error:", e);
     }
   },
 

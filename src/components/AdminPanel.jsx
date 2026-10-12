@@ -1,5 +1,30 @@
-import React, { useState } from 'react';
-import { ShieldCheck, UserPlus, KeyRound, Trash2, Edit3, PlusCircle, Gamepad2, Users, AlertTriangle, X, CheckCircle2, Eye, Building, Check, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  ShieldCheck, 
+  UserPlus, 
+  KeyRound, 
+  Trash2, 
+  Edit3, 
+  PlusCircle, 
+  Gamepad2, 
+  Users, 
+  AlertTriangle, 
+  X, 
+  CheckCircle2, 
+  Eye, 
+  Building, 
+  Check, 
+  Search, 
+  Filter,
+  Mail,
+  Sparkles,
+  RefreshCw,
+  RotateCcw,
+  CheckCircle,
+  Clock,
+  Lock,
+  Unlock
+} from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { HomeroomManager } from './HomeroomManager';
 import { SoundFX } from '../utils/sound';
@@ -8,12 +33,24 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
   const [users, setUsers] = useState(() => StorageService.getUsers());
   const [baseGames, setBaseGames] = useState(() => (Array.isArray(propBaseGames) && propBaseGames.length > 0) ? propBaseGames : StorageService.getBaseGames());
   const [showAddUserModal, setShowAddUserModal] = useState(false);
-  const [adminTab, setAdminTab] = useState('accounts'); // 'accounts' | 'homerooms' | 'games'
+  const [adminTab, setAdminTab] = useState('google-accounts'); // 'google-accounts' | 'accounts' | 'homerooms' | 'games'
   const [selectedHomeroomTeacherId, setSelectedHomeroomTeacherId] = useState(null);
+
+  // Google OAuth Users Filter & Search State
+  const [googleFilter, setGoogleFilter] = useState('all'); // 'all' | 'pending' | 'used' | 'unlimited'
+  const [googleSearchQuery, setGoogleSearchQuery] = useState('');
+  const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
 
   // Payment Status Management Filter & Search State
   const [paymentFilter, setPaymentFilter] = useState('all'); // 'all' | 'unpaid' | 'paid'
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Auto-sync Google Accounts with 24/7 cloud DB on mount
+  useEffect(() => {
+    StorageService.syncGoogleUsersWithCloud().then(() => {
+      setUsers(StorageService.getUsers());
+    }).catch(() => {});
+  }, []);
 
   const allHomeroomClasses = StorageService.getAllHomeroomClassesForAdmin() || [];
   const selectedHomeroomObj = (allHomeroomClasses.length > 0) 
@@ -41,6 +78,43 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
       StorageService.deleteBaseGame(game.id);
       setBaseGames(StorageService.getBaseGames());
       SoundFX.click();
+    }
+  };
+
+  // Toggle Google User Access Tier (Cho phép không giới hạn vs Dùng thử)
+  const handleToggleGoogleUnlimited = (user) => {
+    if (!user) return;
+    const isCurrentlyUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true;
+    const nextTier = isCurrentlyUnlimited ? 'trial' : 'unlimited';
+    StorageService.setGoogleUserAccessTier(user.id, nextTier);
+    setUsers(StorageService.getUsers());
+    if (nextTier === 'unlimited') {
+      SoundFX.correct();
+    } else {
+      SoundFX.click();
+    }
+  };
+
+  // Reset Google User Trial Experience (Cấp lại 1 lượt dùng thử)
+  const handleResetGoogleTrial = (user) => {
+    if (!user) return;
+    StorageService.resetUserTrial(user.id);
+    setUsers(StorageService.getUsers());
+    SoundFX.correct();
+    alert(`✨ Đã cấp lại 1 lượt dùng thử cho tài khoản: ${user.name} (${user.email || user.username})!`);
+  };
+
+  // Cloud Sync for Google OAuth Users
+  const handleSyncCloudGoogleUsers = async () => {
+    setIsSyncingGoogle(true);
+    try {
+      await StorageService.syncGoogleUsersWithCloud();
+      setUsers(StorageService.getUsers());
+      SoundFX.correct();
+    } catch (e) {
+      console.warn("Cloud sync error:", e);
+    } finally {
+      setIsSyncingGoogle(false);
     }
   };
 
@@ -171,13 +245,27 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
       </div>
 
       {/* Admin Navigation Sub-Tabs */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <button 
+          className={`btn ${adminTab === 'google-accounts' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setAdminTab('google-accounts')}
+          style={{ 
+            borderRadius: '16px', 
+            padding: '12px 22px', 
+            fontWeight: 800,
+            background: adminTab === 'google-accounts' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : undefined,
+            boxShadow: adminTab === 'google-accounts' ? '0 4px 14px rgba(2, 132, 199, 0.35)' : undefined
+          }}
+        >
+          <Mail size={18} /> Duyệt Tài Khoản Gmail (Google OAuth) {users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@')))).length > 0 && `(${users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@')))).length})`}
+        </button>
+
         <button 
           className={`btn ${adminTab === 'accounts' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => setAdminTab('accounts')}
           style={{ borderRadius: '16px', padding: '12px 22px', fontWeight: 800 }}
         >
-          <Users size={18} /> Danh Sách Tài Khoản Giáo Viên
+          <Users size={18} /> Tài Khoản Giáo Viên Cấp Thủ Công ({users.filter(u => u.role !== 'admin' && u.username !== 'philthienhao' && u.authProvider !== 'google').length})
         </button>
 
         <button 
@@ -191,6 +279,538 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
           🎮 Quản Lý & Xóa Game Hệ Thống ({baseGames.length} game)
         </button>
       </div>
+
+      {/* TAB 0: Google OAuth Accounts Management & Approval */}
+      {adminTab === 'google-accounts' && (() => {
+        const googleUsers = users.filter(u => u && (u.authProvider === 'google' || (u.email && u.email.includes('@'))));
+        
+        const pendingCount = googleUsers.filter(u => {
+          const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
+          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
+          return !isUnlimited && !isUsed;
+        }).length;
+
+        const usedCount = googleUsers.filter(u => {
+          const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
+          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
+          return !isUnlimited && isUsed;
+        }).length;
+
+        const unlimitedCount = googleUsers.filter(u => {
+          return u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
+        }).length;
+
+        const displayedGoogleUsers = googleUsers.filter(u => {
+          const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
+          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
+          const isPending = !isUnlimited && !isUsed;
+
+          if (googleFilter === 'pending' && !isPending) return false;
+          if (googleFilter === 'used' && !isUsed) return false;
+          if (googleFilter === 'unlimited' && !isUnlimited) return false;
+
+          if (googleSearchQuery.trim()) {
+            const q = googleSearchQuery.toLowerCase().trim();
+            const matchName = (u.name || '').toLowerCase().includes(q);
+            const matchEmail = (u.email || u.username || '').toLowerCase().includes(q);
+            return matchName || matchEmail;
+          }
+          return true;
+        });
+
+        return (
+          <div className="glass-panel" style={{ padding: '28px' }}>
+            {/* Header & Quick Stats */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
+                  <Mail size={22} color="#0284c7" />
+                  Duyệt Tài Khoản Gmail Tự Đăng Ký ({googleUsers.length} tài khoản)
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  Quản lý quyền trải nghiệm dùng thử 1 lần và bật cấp quyền "Không Giới Hạn" cho giáo viên.
+                </p>
+              </div>
+
+              {/* Quick Stat Badges & Cloud Sync Button */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <button
+                  onClick={handleSyncCloudGoogleUsers}
+                  disabled={isSyncingGoogle}
+                  style={{
+                    background: 'rgba(2, 132, 199, 0.15)',
+                    border: '1.5px solid rgba(2, 132, 199, 0.4)',
+                    color: '#0284c7',
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    fontWeight: 800,
+                    fontSize: '0.82rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: isSyncingGoogle ? 'not-allowed' : 'pointer'
+                  }}
+                  title="Kéo danh sách tài khoản Gmail mới nhất từ Cloud Server"
+                >
+                  <RefreshCw size={14} className={isSyncingGoogle ? 'spin-animation' : ''} />
+                  <span>{isSyncingGoogle ? 'Đang đồng bộ...' : 'Đồng bộ từ Cloud'}</span>
+                </button>
+
+                <div 
+                  onClick={() => setGoogleFilter(googleFilter === 'pending' ? 'all' : 'pending')}
+                  style={{
+                    background: googleFilter === 'pending' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(245, 158, 11, 0.12)',
+                    border: '1.5px solid rgba(245, 158, 11, 0.45)',
+                    borderRadius: '12px',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Lọc tài khoản Đang chờ duyệt"
+                >
+                  <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 800 }}>⏳ Đang chờ duyệt:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#f59e0b' }}>{pendingCount}</span>
+                </div>
+
+                <div 
+                  onClick={() => setGoogleFilter(googleFilter === 'used' ? 'all' : 'used')}
+                  style={{
+                    background: googleFilter === 'used' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(239, 68, 68, 0.12)',
+                    border: '1.5px solid rgba(239, 68, 68, 0.45)',
+                    borderRadius: '12px',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Lọc tài khoản Đã dùng thử (hết 1 lượt)"
+                >
+                  <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 800 }}>🚫 Đã dùng thử:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#ef4444' }}>{usedCount}</span>
+                </div>
+
+                <div 
+                  onClick={() => setGoogleFilter(googleFilter === 'unlimited' ? 'all' : 'unlimited')}
+                  style={{
+                    background: googleFilter === 'unlimited' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.12)',
+                    border: '1.5px solid rgba(16, 185, 129, 0.45)',
+                    borderRadius: '12px',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  title="Lọc tài khoản Không giới hạn"
+                >
+                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 800 }}>💎 Không giới hạn:</span>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#10b981' }}>{unlimitedCount}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Tabs & Search Bar */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '18px',
+              padding: '12px 16px',
+              background: 'rgba(255, 255, 255, 0.04)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={() => setGoogleFilter('all')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: googleFilter === 'all' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(255, 255, 255, 0.08)',
+                    color: '#ffffff'
+                  }}
+                >
+                  Tất Cả ({googleUsers.length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setGoogleFilter('pending')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: googleFilter === 'pending' ? '1.5px solid #d97706' : '1px solid rgba(245, 158, 11, 0.25)',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: googleFilter === 'pending' ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)' : 'rgba(245, 158, 11, 0.1)',
+                    color: googleFilter === 'pending' ? '#ffffff' : '#fbbf24'
+                  }}
+                >
+                  ⏳ Đang chờ duyệt ({pendingCount})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setGoogleFilter('used')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: googleFilter === 'used' ? '1.5px solid #dc2626' : '1px solid rgba(239, 68, 68, 0.25)',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: googleFilter === 'used' ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'rgba(239, 68, 68, 0.1)',
+                    color: googleFilter === 'used' ? '#ffffff' : '#f87171'
+                  }}
+                >
+                  🚫 Đã dùng thử ({usedCount})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setGoogleFilter('unlimited')}
+                  style={{
+                    padding: '7px 14px',
+                    borderRadius: '10px',
+                    border: googleFilter === 'unlimited' ? '1.5px solid #059669' : '1px solid rgba(16, 185, 129, 0.25)',
+                    cursor: 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    background: googleFilter === 'unlimited' ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : 'rgba(16, 185, 129, 0.1)',
+                    color: googleFilter === 'unlimited' ? '#ffffff' : '#34d399'
+                  }}
+                >
+                  💎 Không giới hạn ({unlimitedCount})
+                </button>
+              </div>
+
+              {/* Search Box */}
+              <div style={{ position: 'relative', minWidth: '240px', flex: '1', maxWidth: '340px' }}>
+                <Search size={16} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                <input
+                  type="text"
+                  value={googleSearchQuery}
+                  onChange={(e) => setGoogleSearchQuery(e.target.value)}
+                  placeholder="Tìm theo tên hoặc email Gmail..."
+                  style={{
+                    width: '100%',
+                    padding: '8px 30px 8px 36px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                {googleSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setGoogleSearchQuery('')}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255,255,255,0.6)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      display: 'flex'
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Google Accounts Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ 
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
+                    borderBottom: '2px solid #0ea5e9', 
+                    color: '#ffffff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                  }}>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Giáo Viên (Google OAuth)</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Địa Chỉ Gmail</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Ngày Đăng Ký</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'center' }}>Trạng Thái Hiện Tại</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff' }}>Chi Tiết Dùng Thử</th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'center', minWidth: '220px' }}>
+                      Cấp Quyền Không Giới Hạn
+                    </th>
+                    <th style={{ padding: '14px 16px', fontWeight: 900, color: '#ffffff', textAlign: 'right' }}>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedGoogleUsers.map((u, idx) => {
+                    const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
+                    const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
+                    const isPending = !isUnlimited && !isUsed;
+
+                    const createdDateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN', {
+                      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    }) : 'Mới đăng ký';
+
+                    return (
+                      <tr 
+                        key={u.id}
+                        style={{ 
+                          borderBottom: '1px solid rgba(15, 23, 42, 0.08)',
+                          background: isUnlimited ? 'rgba(16, 185, 129, 0.05)' : (idx % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : '#ffffff'),
+                          transition: 'background 0.2s'
+                        }}
+                      >
+                        {/* Name + Picture */}
+                        <td style={{ padding: '14px 16px', fontWeight: 800, color: '#0f172a' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            {u.picture ? (
+                              <img 
+                                src={u.picture} 
+                                alt={u.name} 
+                                style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #0284c7' }} 
+                              />
+                            ) : (
+                              <div style={{
+                                width: '34px',
+                                height: '34px',
+                                borderRadius: '50%',
+                                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                                color: '#ffffff',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 900,
+                                fontSize: '0.85rem'
+                              }}>
+                                {u.name?.charAt(0) || 'G'}
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>{u.name}</div>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0284c7', background: 'rgba(2, 132, 199, 0.1)', padding: '1px 6px', borderRadius: '6px' }}>
+                                Google OAuth
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Gmail */}
+                        <td style={{ padding: '14px 16px', color: '#0284c7', fontWeight: 800 }}>
+                          <code>{u.email || u.username}</code>
+                        </td>
+
+                        {/* Created At */}
+                        <td style={{ padding: '14px 16px', color: '#475569', fontSize: '0.85rem', fontWeight: 700 }}>
+                          <div>{createdDateStr}</div>
+                          {u.lastLoginAt && (
+                            <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>
+                              Đăng nhập: {new Date(u.lastLoginAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Status (Đã dùng thử / Đang chờ duyệt / Không giới hạn) */}
+                        <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                          {isUnlimited ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              fontSize: '0.82rem',
+                              fontWeight: 900,
+                              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                              color: '#ffffff',
+                              padding: '5px 12px',
+                              borderRadius: '20px',
+                              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.35)'
+                            }}>
+                              💎 Không giới hạn
+                            </span>
+                          ) : isUsed ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              fontSize: '0.82rem',
+                              fontWeight: 900,
+                              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                              color: '#ffffff',
+                              padding: '5px 12px',
+                              borderRadius: '20px',
+                              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.35)'
+                            }}>
+                              🚫 Đã dùng thử
+                            </span>
+                          ) : (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              fontSize: '0.82rem',
+                              fontWeight: 900,
+                              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                              color: '#ffffff',
+                              padding: '5px 12px',
+                              borderRadius: '20px',
+                              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.35)'
+                            }}>
+                              ⏳ Đang chờ duyệt
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Trial Details */}
+                        <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#334155', fontWeight: 700 }}>
+                          {isUnlimited ? (
+                            <span style={{ color: '#059669', fontWeight: 800 }}>Đã mở khóa 100% tính năng</span>
+                          ) : u.lastFeatureTried ? (
+                            <div>
+                              <div style={{ color: '#ef4444', fontWeight: 800 }}>Đã dùng: {u.lastFeatureTried.name || u.lastFeatureTried.id}</div>
+                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                                Lúc: {new Date(u.lastFeatureTried.at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </div>
+                          ) : (
+                            <span style={{ color: '#d97706', fontWeight: 800 }}>Chưa dùng (Còn 1 lượt trải nghiệm)</span>
+                          )}
+                        </td>
+
+                        {/* Nút Cấp Quyền Không Giới Hạn (Toggle & Action Button) */}
+                        <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                            {/* Toggle Switch */}
+                            <label 
+                              style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', position: 'relative' }}
+                              title={isUnlimited ? 'Bấm để hủy quyền Không giới hạn' : 'Bấm để CẤP QUYỀN KHÔNG GIỚI HẠN'}
+                            >
+                              <input 
+                                type="checkbox" 
+                                checked={isUnlimited} 
+                                onChange={() => handleToggleGoogleUnlimited(u)}
+                                style={{ display: 'none' }}
+                              />
+                              <div style={{
+                                width: '46px',
+                                height: '24px',
+                                background: isUnlimited ? '#10b981' : '#cbd5e1',
+                                borderRadius: '12px',
+                                position: 'relative',
+                                transition: 'background 0.2s ease',
+                                boxShadow: isUnlimited ? '0 2px 8px rgba(16, 185, 129, 0.4)' : 'none'
+                              }}>
+                                <div style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  background: '#ffffff',
+                                  borderRadius: '50%',
+                                  position: 'absolute',
+                                  top: '3px',
+                                  left: isUnlimited ? '25px' : '3px',
+                                  transition: 'left 0.2s ease',
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                }} />
+                              </div>
+                            </label>
+
+                            {/* Direct Action Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleGoogleUnlimited(u)}
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                fontWeight: 900,
+                                fontSize: '0.82rem',
+                                background: isUnlimited 
+                                  ? 'rgba(16, 185, 129, 0.15)' 
+                                  : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                                color: isUnlimited ? '#059669' : '#ffffff',
+                                border: isUnlimited ? '1.5px solid rgba(16, 185, 129, 0.4)' : 'none',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                boxShadow: isUnlimited ? 'none' : '0 4px 12px rgba(2, 132, 199, 0.35)',
+                                transition: 'all 0.2s ease'
+                              }}
+                            >
+                              {isUnlimited ? (
+                                <>
+                                  <CheckCircle2 size={16} /> Đã Cho Phép
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles size={16} color="#fde047" /> Cho phép không giới hạn
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Thao Tác (Cấp lại lượt, Xóa) */}
+                        <td style={{ padding: '14px 16px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                            <button 
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => handleResetGoogleTrial(u)}
+                              title="Cấp lại 1 lượt dùng thử cho giáo viên này"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', padding: '6px 10px' }}
+                            >
+                              <RotateCcw size={13} />
+                              Cấp lại trial
+                            </button>
+                            <button 
+                              className="btn btn-danger btn-sm"
+                              onClick={() => setUserToDelete(u)}
+                              title="Xóa tài khoản này"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.78rem', padding: '6px 10px' }}
+                            >
+                              <Trash2 size={13} />
+                              Xóa
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {displayedGoogleUsers.length === 0 && (
+                    <tr>
+                      <td colSpan={7} style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b', fontWeight: 700 }}>
+                        <Mail size={40} style={{ opacity: 0.4, marginBottom: '10px' }} />
+                        <div style={{ fontSize: '1.05rem', color: '#0f172a', fontWeight: 800 }}>Chưa có tài khoản Gmail nào phù hợp với bộ lọc</div>
+                        <p style={{ margin: '6px 0 0 0', fontSize: '0.88rem', color: '#64748b' }}>
+                          Khi giáo viên bấm đăng ký / đăng nhập tự động bằng Google, danh sách tài khoản sẽ xuất hiện tại đây.
+                        </p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* TAB 1: Account Management */}
       {adminTab === 'accounts' && (() => {
