@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   Presentation, 
   Search, 
@@ -17,7 +17,12 @@ import {
   FolderOpen,
   FolderPlus,
   Download,
-  Upload
+  Upload,
+  Eye,
+  Maximize2,
+  Minimize2,
+  Play,
+  Sparkles
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
@@ -61,6 +66,82 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
   const [slideBook, setSlideBook] = useState('Kết Nối Tri Thức');
   const [slideDriveUrl, setSlideDriveUrl] = useState('');
   const [slideDesc, setSlideDesc] = useState('');
+
+  // Modal 3: In-App Slide Presentation Theater Mode (Xem trực tiếp Slide bài giảng)
+  const [activeTheaterSlide, setActiveTheaterSlide] = useState(null);
+  const [isSlideFullScreen, setIsSlideFullScreen] = useState(false);
+  const [customSlidePdf, setCustomSlidePdf] = useState(null);
+  const [isTheaterLoading, setIsTheaterLoading] = useState(false);
+  const slideFileInputRef = useRef(null);
+
+  // Keyboard navigation & ESC listener for Theater Mode
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (isSlideFullScreen) {
+          setIsSlideFullScreen(false);
+        } else if (activeTheaterSlide) {
+          setActiveTheaterSlide(null);
+          setCustomSlidePdf(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeTheaterSlide, isSlideFullScreen]);
+
+  // Open Slide Theater Modal
+  const handleOpenSlideTheater = (slide) => {
+    if (!slide) return;
+    setActiveTheaterSlide(slide);
+    setIsSlideFullScreen(false);
+    setCustomSlidePdf(null);
+    setIsTheaterLoading(true);
+  };
+
+  // Upload Custom PDF/PPTX from Computer for instant classroom projection
+  const handleCustomSlideUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      const blobUrl = URL.createObjectURL(file);
+      setCustomSlidePdf(blobUrl);
+      setIsTheaterLoading(false);
+      triggerToast(`📂 Đã nạp thành công slide PDF: "${file.name}"!`);
+    } else {
+      triggerToast('ℹ️ Khuyên dùng file xuất PDF để trình chiếu trực tiếp sắc nét và mượt mà nhất!');
+    }
+  };
+
+  // Helper to intelligently resolve In-App Embed URL for Slides
+  const getEmbedSlideUrl = (slide) => {
+    if (!slide) return null;
+    if (customSlidePdf) return customSlidePdf;
+    if (slide.pdfUrl) return slide.pdfUrl;
+
+    const url = (slide.driveUrl || '').trim();
+    if (!url) return null;
+
+    // Google Slides Presentation: /edit... -> /embed
+    const gSlidesMatch = url.match(/docs\.google\.com\/presentation\/d\/([a-zA-Z0-9_-]+)/);
+    if (gSlidesMatch && gSlidesMatch[1]) {
+      return `https://docs.google.com/presentation/d/${gSlidesMatch[1]}/embed?start=false&loop=false&delayms=3000`;
+    }
+
+    // Google Drive File: /view... -> /preview
+    const gDriveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (gDriveMatch && gDriveMatch[1]) {
+      return `https://drive.google.com/file/d/${gDriveMatch[1]}/preview`;
+    }
+
+    // Canva: .../view -> .../view?embed
+    if (url.includes('canva.com/design/') && !url.includes('embed')) {
+      const cleanUrl = url.split('?')[0];
+      return `${cleanUrl}?embed`;
+    }
+
+    return url;
+  };
 
   // Load Per-User Account Data strictly from StorageService with Cloud Sync
   useEffect(() => {
@@ -1035,17 +1116,42 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
               </div>
 
               <div style={{ paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* DIRECT IN-APP PRESENTATION BUTTON */}
+                <button
+                  onClick={() => handleOpenSlideTheater(slide)}
+                  style={{
+                    background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '12px 18px',
+                    borderRadius: '14px',
+                    fontWeight: 900,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Eye size={18} />
+                  CHIẾU SLIDE TRỰC TIẾP
+                </button>
+
                 <a
                   href={slide.driveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                    color: '#ffffff',
-                    padding: '10px 16px',
+                    background: 'rgba(2, 132, 199, 0.2)',
+                    color: '#38bdf8',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    padding: '9px 16px',
                     borderRadius: '14px',
                     fontWeight: 800,
-                    fontSize: '0.88rem',
+                    fontSize: '0.84rem',
                     textDecoration: 'none',
                     display: 'flex',
                     alignItems: 'center',
@@ -1053,9 +1159,9 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                     gap: '8px'
                   }}
                 >
-                  <Presentation size={16} />
-                  MỞ SLIDE TRÊN GOOGLE DRIVE
-                  <ExternalLink size={14} />
+                  <Presentation size={15} />
+                  Mở Trên Google Drive / Tab Mới
+                  <ExternalLink size={13} />
                 </a>
 
                 <button
@@ -1519,6 +1625,353 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 3: IN-APP SLIDE PRESENTATION THEATER MODAL (Chiếu Slide Trực Tiếp) */}
+      {/* ========================================================================= */}
+      {activeTheaterSlide && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(15, 23, 42, 0.92)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: isSlideFullScreen ? 0 : '16px'
+        }}>
+          {/* Hidden File Input for Custom Slide Upload */}
+          <input
+            type="file"
+            ref={slideFileInputRef}
+            accept="application/pdf,.pdf"
+            style={{ display: 'none' }}
+            onChange={handleCustomSlideUpload}
+          />
+
+          <div style={{
+            background: '#0f172a',
+            borderRadius: isSlideFullScreen ? 0 : '24px',
+            width: isSlideFullScreen ? '100vw' : 'min(98vw, 1500px)',
+            height: isSlideFullScreen ? '100vh' : '94vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 25px 80px rgba(0,0,0,0.7)',
+            border: isSlideFullScreen ? 'none' : '2px solid #0d9488',
+            transition: 'all 0.25s ease'
+          }}>
+            {/* Theater Header */}
+            <div style={{
+              padding: '14px 24px',
+              background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #0369a1 100%)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              flexWrap: 'wrap',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+              zIndex: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: '280px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Presentation size={24} color="#ffffff" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      background: 'rgba(255, 255, 255, 0.25)',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      fontSize: '0.74rem',
+                      fontWeight: 800
+                    }}>
+                      🎓 {activeTheaterSlide.grade || 'Lớp'} • {activeTheaterSlide.subject || 'Bài Giảng'}
+                    </span>
+                    <span style={{
+                      background: '#10b981',
+                      color: '#ffffff',
+                      padding: '2px 8px',
+                      borderRadius: '8px',
+                      fontSize: '0.74rem',
+                      fontWeight: 900
+                    }}>
+                      ⚡ TRÌNH CHIẾU TRỰC TIẾP
+                    </span>
+                    {activeTheaterSlide.slidesCount && (
+                      <span style={{
+                        background: 'rgba(0,0,0,0.3)',
+                        padding: '2px 8px',
+                        borderRadius: '8px',
+                        fontSize: '0.74rem',
+                        fontWeight: 700
+                      }}>
+                        📄 {activeTheaterSlide.slidesCount} slide
+                      </span>
+                    )}
+                  </div>
+                  <h3 style={{
+                    fontSize: '1.15rem',
+                    fontWeight: 900,
+                    margin: '3px 0 0 0',
+                    lineHeight: 1.3,
+                    color: '#ffffff'
+                  }}>
+                    🖥️ {activeTheaterSlide.title}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Header Right Actions */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                {/* Upload Local Slide button */}
+                <button
+                  onClick={() => slideFileInputRef.current?.click()}
+                  title="Nạp file slide PDF từ máy tính của bạn"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Upload size={14} /> Nạp File Máy
+                </button>
+
+                {/* Direct Download PDF Button */}
+                {activeTheaterSlide.pdfUrl && (
+                  <a
+                    href={activeTheaterSlide.pdfUrl}
+                    download
+                    style={{
+                      background: '#ffffff',
+                      color: '#0f766e',
+                      border: 'none',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      fontWeight: 800,
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      textDecoration: 'none',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}
+                  >
+                    <Download size={15} /> Tải PDF Slide
+                  </a>
+                )}
+
+                {/* Open in New Window / Tab */}
+                <a
+                  href={getEmbedSlideUrl(activeTheaterSlide) || activeTheaterSlide.driveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Mở toàn màn hình trong tab mới (cho máy chiếu thứ hai)"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: '#ffffff',
+                    padding: '8px 12px',
+                    borderRadius: '10px',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <ExternalLink size={14} /> Tab Mới
+                </a>
+
+                {/* Fullscreen Toggle */}
+                <button
+                  onClick={() => setIsSlideFullScreen(!isSlideFullScreen)}
+                  title={isSlideFullScreen ? 'Thu nhỏ cửa sổ' : 'Phóng toàn màn hình'}
+                  style={{
+                    background: isSlideFullScreen ? '#f59e0b' : 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    color: '#ffffff',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isSlideFullScreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                </button>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => {
+                    setActiveTheaterSlide(null);
+                    setCustomSlidePdf(null);
+                  }}
+                  title="Đóng (phím Esc)"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.9)',
+                    border: 'none',
+                    color: '#ffffff',
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)'
+                  }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Theater Body */}
+            <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#1e293b' }}>
+              {isTheaterLoading && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'rgba(15, 23, 42, 0.88)',
+                  backdropFilter: 'blur(8px)',
+                  zIndex: 25,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '14px',
+                  color: '#ffffff',
+                  padding: '24px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '20px',
+                    background: 'rgba(13, 148, 136, 0.25)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <RefreshCw size={32} className="spin-icon" color="#2dd4bf" />
+                  </div>
+                  <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#f0fdfa' }}>
+                    Đang nạp slide bài giảng trực tiếp...
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#99f6e4', maxWidth: '420px', lineHeight: 1.5 }}>
+                    Hệ thống đang mở slide trên màn hình. Thầy cô có thể lật trang, xem thumbnail hoặc phóng toàn màn hình để chiếu trên lớp.
+                  </p>
+                </div>
+              )}
+
+              {getEmbedSlideUrl(activeTheaterSlide) ? (
+                <iframe
+                  key={getEmbedSlideUrl(activeTheaterSlide)}
+                  src={
+                    (getEmbedSlideUrl(activeTheaterSlide) || '').endsWith('.pdf')
+                      ? `${getEmbedSlideUrl(activeTheaterSlide)}#toolbar=1&navpanes=1&statusbar=1&view=FitH`
+                      : getEmbedSlideUrl(activeTheaterSlide)
+                  }
+                  onLoad={() => setIsTheaterLoading(false)}
+                  onError={() => setIsTheaterLoading(false)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    display: 'block',
+                    background: '#525659'
+                  }}
+                  title={activeTheaterSlide.title}
+                />
+              ) : (
+                <div style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '30px',
+                  textAlign: 'center',
+                  gap: '16px'
+                }}>
+                  <Presentation size={48} color="#94a3b8" />
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                    Chưa Có File Trình Chiếu Nhúng Cho Bài Giảng Này
+                  </h3>
+                  <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '480px', margin: 0 }}>
+                    Thầy cô có thể chọn tệp PDF bài giảng có sẵn trong máy tính để trình chiếu trực tiếp ngay bây giờ.
+                  </p>
+                  <button
+                    onClick={() => slideFileInputRef.current?.click()}
+                    style={{
+                      background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '12px 24px',
+                      borderRadius: '12px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Upload size={18} /> Chọn File Slide Từ Máy Tính Để Chiếu
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Keyboard Hint Bar */}
+            <div style={{
+              padding: '10px 24px',
+              background: '#090d16',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.82rem',
+              color: '#94a3b8',
+              flexWrap: 'wrap',
+              gap: '10px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#2dd4bf', fontWeight: 800 }}>💡 Mẹo chiếu trên lớp:</span>
+                <span>Dùng phím mũi tên <b>[←] [→]</b> hoặc <b>[Page Up] [Page Down]</b> trên bàn phím / bút chỉ laser để chuyển slide.</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span>Bấm <b>[Esc]</b> để đóng cửa sổ trình chiếu</span>
+              </div>
+            </div>
+
           </div>
         </div>
       )}

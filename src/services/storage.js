@@ -1168,6 +1168,21 @@ const INITIAL_SAVED_GAMES = [
 
 const INITIAL_ADMIN_SLIDES = [
   {
+    id: 'slide_bai4_lienminhchauau',
+    title: 'Địa Lí 7 - Bài 4: Liên minh Châu Âu',
+    subject: 'Địa Lí',
+    grade: 'Lớp 7',
+    lesson: 'Bài 4',
+    bookSeries: 'Kết Nối Tri Thức',
+    author: 'Thầy Hảo Địa Lí',
+    slidesCount: 36,
+    fileType: 'pdf',
+    pdfUrl: '/slides/bai4_lienminhchauau.pdf',
+    driveUrl: 'https://drive.google.com',
+    description: 'Slide bài giảng tương tác Địa Lí 7 Bài 4: Liên minh Châu Âu (36 slide chuẩn, sắc nét, hỗ trợ trình chiếu trực tiếp trên hệ thống)',
+    createdAt: '2026-10-14'
+  },
+  {
     id: 'slide_hao_1',
     title: 'Địa Lý 12 - Bài 1: Vị trí địa lý và phạm vi lãnh thổ Việt Nam',
     subject: 'Địa Lý',
@@ -3635,18 +3650,26 @@ export const StorageService = {
     StorageService.init();
     const effectiveId = StorageService.getEffectiveUserId(userId);
     const key = `gvd_user_slides_${effectiveId}`;
+    let list = [];
     try {
       const data = localStorage.getItem(key);
       if (data !== null) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) list = parsed;
+      } else if (effectiveId === 'user_admin') {
+        list = [...INITIAL_ADMIN_SLIDES];
       }
     } catch (e) {}
 
-    if (effectiveId === 'user_admin') {
-      return INITIAL_ADMIN_SLIDES;
+    // Seamlessly ensure Bài 4: Liên minh Châu Âu is available for immediate viewing
+    if (!list.some(s => s.id === 'slide_bai4_lienminhchauau')) {
+      const bai4 = INITIAL_ADMIN_SLIDES.find(s => s.id === 'slide_bai4_lienminhchauau');
+      if (bai4) {
+        list = [bai4, ...list];
+      }
     }
-    return [];
+
+    return list;
   },
 
   saveLectureSlides: (userId, slides) => {
