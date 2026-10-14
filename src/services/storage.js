@@ -3655,7 +3655,11 @@ export const StorageService = {
       const data = localStorage.getItem(key);
       if (data !== null) {
         const parsed = JSON.parse(data);
-        if (Array.isArray(parsed)) list = parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          list = parsed;
+        } else if (effectiveId === 'user_admin') {
+          list = [...INITIAL_ADMIN_SLIDES];
+        }
       } else if (effectiveId === 'user_admin') {
         list = [...INITIAL_ADMIN_SLIDES];
       }

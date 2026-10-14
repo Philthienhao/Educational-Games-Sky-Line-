@@ -33,10 +33,10 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
   const currentUserName = resolvedUser?.name || 'Giáo Viên';
 
   // Array of Teacher-Created Grade Folders [{ id, grade, title, driveUrl, createdAt }, ...]
-  const [gradeFoldersList, setGradeFoldersList] = useState([]);
+  const [gradeFoldersList, setGradeFoldersList] = useState(() => StorageService.getGradeDriveFolders(effectiveUserId));
 
   // Array of Teacher-Created Individual Lecture Slides [{ id, title, grade, subject, lesson, bookSeries, driveUrl, description }, ...]
-  const [slidesList, setSlidesList] = useState([]);
+  const [slidesList, setSlidesList] = useState(() => StorageService.getLectureSlides(effectiveUserId));
 
   // Filters state for individual slides
   const [selectedGradeFilter, setSelectedGradeFilter] = useState('Tất cả');

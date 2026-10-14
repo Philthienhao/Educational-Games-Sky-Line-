@@ -8,6 +8,9 @@ dist
 *.mov
 *.MP4
 *.MOV
+*.pptx
+*.ppt
+LSDL7.pdf
 textbooks_local_backup
 slide
 SGK
