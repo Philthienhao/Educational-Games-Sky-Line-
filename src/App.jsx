@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Gamepad2, 
   Sparkles, 
@@ -24,31 +24,60 @@ import {
 } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { GameCard } from './components/GameCard';
-import { TeacherLibrary } from './components/TeacherLibrary';
-import { AdminPanel } from './components/AdminPanel';
-import { HomeroomManager } from './components/HomeroomManager';
-import { RoleSwitcher } from './components/RoleSwitcher';
-import { QuestionEditorModal } from './components/QuestionEditorModal';
-import { AdminCreateGameModal } from './components/AdminCreateGameModal';
-import { ClassroomPlayModal } from './components/ClassroomPlayModal';
-import { TextbookDownloadManager } from './components/TextbookDownloadManager';
-import { LectureSlideManager } from './components/LectureSlideManager';
-import { SKLWebLinksManager } from './components/SKLWebLinksManager';
-import { VirtualLabManager } from './components/VirtualLabManager';
-import { GeoExperimentsView } from './components/GeoExperimentsView';
-import { ParentMeetingSupport } from './components/ParentMeetingSupport';
 import { LoginModal } from './components/LoginModal';
-import { UserManagementModal } from './components/UserManagementModal';
-import { ChangePasswordModal } from './components/ChangePasswordModal';
-import { TrialUpgradeModal } from './components/TrialUpgradeModal';
-import StudentPickerManager from './components/StudentPickerManager';
-import ClassroomTimerManager from './components/ClassroomTimerManager';
-import { AiSystemAssistantModal } from './components/AiSystemAssistantModal';
-import { FloatingAiAssistantWidget } from './components/FloatingAiAssistantWidget';
-import { AIQuestionGeneratorModal } from './components/AIQuestionGeneratorModal';
-import { IndoorPEDanceGame } from './components/games/IndoorPEDanceGame';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
+
+// Code-split Tab Views & Modals via React.lazy
+const TeacherLibrary = React.lazy(() => import('./components/TeacherLibrary').then(m => ({ default: m.TeacherLibrary })));
+const AdminPanel = React.lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const HomeroomManager = React.lazy(() => import('./components/HomeroomManager').then(m => ({ default: m.HomeroomManager })));
+const RoleSwitcher = React.lazy(() => import('./components/RoleSwitcher').then(m => ({ default: m.RoleSwitcher })));
+const QuestionEditorModal = React.lazy(() => import('./components/QuestionEditorModal').then(m => ({ default: m.QuestionEditorModal })));
+const AdminCreateGameModal = React.lazy(() => import('./components/AdminCreateGameModal').then(m => ({ default: m.AdminCreateGameModal })));
+const ClassroomPlayModal = React.lazy(() => import('./components/ClassroomPlayModal').then(m => ({ default: m.ClassroomPlayModal })));
+const TextbookDownloadManager = React.lazy(() => import('./components/TextbookDownloadManager').then(m => ({ default: m.TextbookDownloadManager })));
+const LectureSlideManager = React.lazy(() => import('./components/LectureSlideManager').then(m => ({ default: m.LectureSlideManager })));
+const SKLWebLinksManager = React.lazy(() => import('./components/SKLWebLinksManager').then(m => ({ default: m.SKLWebLinksManager })));
+const VirtualLabManager = React.lazy(() => import('./components/VirtualLabManager').then(m => ({ default: m.VirtualLabManager })));
+const GeoExperimentsView = React.lazy(() => import('./components/GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView })));
+const ParentMeetingSupport = React.lazy(() => import('./components/ParentMeetingSupport').then(m => ({ default: m.ParentMeetingSupport })));
+const UserManagementModal = React.lazy(() => import('./components/UserManagementModal').then(m => ({ default: m.UserManagementModal })));
+const ChangePasswordModal = React.lazy(() => import('./components/ChangePasswordModal').then(m => ({ default: m.ChangePasswordModal })));
+const TrialUpgradeModal = React.lazy(() => import('./components/TrialUpgradeModal').then(m => ({ default: m.TrialUpgradeModal })));
+const StudentPickerManager = React.lazy(() => import('./components/StudentPickerManager'));
+const ClassroomTimerManager = React.lazy(() => import('./components/ClassroomTimerManager'));
+const AiSystemAssistantModal = React.lazy(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
+const FloatingAiAssistantWidget = React.lazy(() => import('./components/FloatingAiAssistantWidget').then(m => ({ default: m.FloatingAiAssistantWidget })));
+const AIQuestionGeneratorModal = React.lazy(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
+const IndoorPEDanceGame = React.lazy(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
+
+function ViewLoadingFallback() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '340px',
+      gap: '14px',
+      color: '#0d9488',
+      padding: '40px'
+    }}>
+      <div style={{
+        width: '42px',
+        height: '42px',
+        border: '3px solid rgba(13, 148, 136, 0.2)',
+        borderTopColor: '#0d9488',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#64748b' }}>
+        Đang tải giao diện...
+      </span>
+    </div>
+  );
+}
 
 export function App() {
   const [currentUser, setCurrentUser] = useState(() => {
@@ -77,11 +106,9 @@ export function App() {
   };
 
   const [baseGames, setBaseGames] = useState(() => {
-    StorageService.init();
     return StorageService.getBaseGames();
   });
   const [savedGames, setSavedGames] = useState(() => {
-    StorageService.init();
     const user = StorageService.getCurrentUser();
     return StorageService.getTeacherSavedGames(user?.id);
   });
@@ -367,7 +394,7 @@ export function App() {
   };
 
   // Filter Categories by Game Themes & Formats
-  const categories = [
+  const categories = useMemo(() => [
     'Tất cả',
     'Gọi tên và chia nhóm',
     'Đối kháng Đội nhóm',
@@ -379,49 +406,51 @@ export function App() {
     'Hành động & Phản xạ',
     'Thử thách phiêu lưu',
     'Khám phá 3D'
-  ];
+  ], []);
 
-  const filteredBaseGames = (baseGames || []).filter(game => {
-    if (!game || typeof game !== 'object') return false;
-    if (game.engineType === 'classroom-timer' || game.id === 'classroom-timer-game') return false;
+  const filteredBaseGames = useMemo(() => {
+    return (baseGames || []).filter(game => {
+      if (!game || typeof game !== 'object') return false;
+      if (game.engineType === 'classroom-timer' || game.id === 'classroom-timer-game') return false;
 
-    const isPickerGame = game.isStudentPicker || 
-                         game.category === 'Gọi tên và chia nhóm' || 
-                         game.category === 'Kho game gọi tên học sinh' || 
-                         ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
+      const isPickerGame = game.isStudentPicker || 
+                           game.category === 'Gọi tên và chia nhóm' || 
+                           game.category === 'Kho game gọi tên học sinh' || 
+                           ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game.engineType);
 
-    const isToolGame = game.isClassroomTool || 
-                       game.category === 'Công cụ Lớp học' || 
-                       game.engineType === 'classroom-timer' || 
-                       game.id === 'classroom-timer-game';
+      const isToolGame = game.isClassroomTool || 
+                         game.category === 'Công cụ Lớp học' || 
+                         game.engineType === 'classroom-timer' || 
+                         game.id === 'classroom-timer-game';
 
-    // Filter out tool games if user selected a specific non-tool category
-    if (isToolGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Công cụ Lớp học') {
-      return false;
-    }
+      // Filter out tool games if user selected a specific non-tool category
+      if (isToolGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Công cụ Lớp học') {
+        return false;
+      }
 
-    // Filter out picker games if user selected a specific non-picker category
-    if (isPickerGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Gọi tên và chia nhóm' && selectedCategory !== 'Kho game gọi tên học sinh') {
-      return false;
-    }
+      // Filter out picker games if user selected a specific non-picker category
+      if (isPickerGame && selectedCategory !== 'Tất cả' && selectedCategory !== 'Gọi tên và chia nhóm' && selectedCategory !== 'Kho game gọi tên học sinh') {
+        return false;
+      }
 
-    const gCategory = game.category || '';
-    const gSubject = game.subject || '';
-    const matchesCategory = selectedCategory === 'Tất cả' || 
-                            gCategory === selectedCategory || 
-                            gSubject === selectedCategory;
+      const gCategory = game.category || '';
+      const gSubject = game.subject || '';
+      const matchesCategory = selectedCategory === 'Tất cả' || 
+                              gCategory === selectedCategory || 
+                              gSubject === selectedCategory;
 
-    const sTerm = (searchTerm || '').trim().toLowerCase();
-    const gTitle = String(game.title || game.name || game.lessonTitle || '').toLowerCase();
-    const gDesc = String(game.description || '').toLowerCase();
-    const gTags = Array.isArray(game.tags) ? game.tags : [];
+      const sTerm = (searchTerm || '').trim().toLowerCase();
+      const gTitle = String(game.title || game.name || game.lessonTitle || '').toLowerCase();
+      const gDesc = String(game.description || '').toLowerCase();
+      const gTags = Array.isArray(game.tags) ? game.tags : [];
 
-    const matchesSearch = !sTerm || 
-                          gTitle.includes(sTerm) || 
-                          gDesc.includes(sTerm) ||
-                          gTags.some(t => String(t || '').toLowerCase().includes(sTerm));
-    return matchesCategory && matchesSearch;
-  });
+      const matchesSearch = !sTerm || 
+                            gTitle.includes(sTerm) || 
+                            gDesc.includes(sTerm) ||
+                            gTags.some(t => String(t || '').toLowerCase().includes(sTerm));
+      return matchesCategory && matchesSearch;
+    });
+  }, [baseGames, selectedCategory, searchTerm]);
 
   if (!currentUser) {
     return <LoginModal onLoginSuccess={handleLoginSuccess} />;
@@ -631,111 +660,112 @@ export function App() {
           </div>
         )}
 
-        {/* View 2: Gọi Tên Học Sinh (Student Picker System) */}
-        {activeTab === 'call-student' && (
-          <StudentPickerManager 
-            currentUser={currentUser} 
-            onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-            onCustomize={(template) => setEditingGameTemplate(template)}
-            onNavigateToHomeroom={() => setActiveTab('homeroom')}
-          />
-        )}
+        <React.Suspense fallback={<ViewLoadingFallback />}>
+          {/* View 2: Gọi Tên Học Sinh (Student Picker System) */}
+          {activeTab === 'call-student' && (
+            <StudentPickerManager 
+              currentUser={currentUser} 
+              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+              onCustomize={(template) => setEditingGameTemplate(template)}
+              onNavigateToHomeroom={() => setActiveTab('homeroom')}
+            />
+          )}
 
-        {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
-        {activeTab === 'timer' && (
-          <ClassroomTimerManager 
-            currentUser={currentUser}
-            onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-          />
-        )}
+          {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
+          {activeTab === 'timer' && (
+            <ClassroomTimerManager 
+              currentUser={currentUser}
+              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+            />
+          )}
 
-        {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
-        {activeTab === 'homeroom' && (
-          <HomeroomManager currentUser={currentUser} />
-        )}
+          {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
+          {activeTab === 'homeroom' && (
+            <HomeroomManager currentUser={currentUser} />
+          )}
 
-        {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
-        {activeTab === 'indoor-pe-dance' && (
-          !StorageService.checkFeatureAccess(currentUser, 'indoor-pe-dance').allowed ? (
-            <div style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '24px', margin: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
-              <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ef4444' }}>Bạn Đã Sử Dụng Hết Lượt Trải Nghiệm Dùng Thử</h2>
-              <p style={{ color: '#475569', margin: '12px auto 24px auto', maxWidth: '500px', fontSize: '0.95rem', fontWeight: 600 }}>
-                Hệ thống giáo dục Sky-Line là nền tảng đóng phí. Bạn đã trải nghiệm dùng thử 1 lần. Hãy liên hệ Thầy Hảo để nâng cấp tài khoản Không Giới Hạn!
-              </p>
-              <button 
-                onClick={() => setTrialModalInfo({ isOpen: true, featureName: 'Thể Dục Trong Nhà AI', featureId: 'indoor-pe-dance' })}
-                className="btn btn-primary"
-                style={{ padding: '12px 28px', fontSize: '0.95rem', borderRadius: '14px', fontWeight: 800 }}
-              >
-                Xem Bảng Nâng Cấp Không Giới Hạn
-              </button>
-            </div>
-          ) : (
-            <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
-          )
-        )}
+          {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
+          {activeTab === 'indoor-pe-dance' && (
+            !StorageService.checkFeatureAccess(currentUser, 'indoor-pe-dance').allowed ? (
+              <div style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '24px', margin: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ef4444' }}>Bạn Đã Sử Dụng Hết Lượt Trải Nghiệm Dùng Thử</h2>
+                <p style={{ color: '#475569', margin: '12px auto 24px auto', maxWidth: '500px', fontSize: '0.95rem', fontWeight: 600 }}>
+                  Hệ thống giáo dục Sky-Line là nền tảng đóng phí. Bạn đã trải nghiệm dùng thử 1 lần. Hãy liên hệ Thầy Hảo để nâng cấp tài khoản Không Giới Hạn!
+                </p>
+                <button 
+                  onClick={() => setTrialModalInfo({ isOpen: true, featureName: 'Thể Dục Trong Nhà AI', featureId: 'indoor-pe-dance' })}
+                  className="btn btn-primary"
+                  style={{ padding: '12px 28px', fontSize: '0.95rem', borderRadius: '14px', fontWeight: 800 }}
+                >
+                  Xem Bảng Nâng Cấp Không Giới Hạn
+                </button>
+              </div>
+            ) : (
+              <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
+            )
+          )}
 
-        {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
-        {activeTab === 'my-games' && (
-          <TeacherLibrary 
-            savedGames={savedGames}
-            currentUser={currentUser}
-            onPlayGame={(savedGame) => handlePlayGameWithTrialCheck(savedGame, true)}
-            onEditGame={(savedGame) => setEditingGameTemplate(savedGame)}
-            onDeleteGame={handleDeleteSavedGame}
-            onBrowseCatalog={() => setActiveTab('catalog')}
-            onUpdateLessonTitle={handleUpdateLessonTitle}
-            onRefreshGames={(synced) => setSavedGames(synced)}
-            onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
-          />
-        )}
+          {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
+          {activeTab === 'my-games' && (
+            <TeacherLibrary 
+              savedGames={savedGames}
+              currentUser={currentUser}
+              onPlayGame={(savedGame) => handlePlayGameWithTrialCheck(savedGame, true)}
+              onEditGame={(savedGame) => setEditingGameTemplate(savedGame)}
+              onDeleteGame={handleDeleteSavedGame}
+              onBrowseCatalog={() => setActiveTab('catalog')}
+              onUpdateLessonTitle={handleUpdateLessonTitle}
+              onRefreshGames={(synced) => setSavedGames(synced)}
+              onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
+            />
+          )}
 
-        {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
-        {activeTab === 'textbook-download' && (
-          <TextbookDownloadManager 
-            searchTerm={searchTerm} 
-            onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
-            onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
-          />
-        )}
+          {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
+          {activeTab === 'textbook-download' && (
+            <TextbookDownloadManager 
+              searchTerm={searchTerm} 
+              onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
+              onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
+            />
+          )}
 
-        {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
-        {activeTab === 'virtual-lab' && (
-          <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
-        )}
+          {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
+          {activeTab === 'virtual-lab' && (
+            <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
+          )}
 
+          {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
+          {activeTab === 'geo-experiments' && (
+            <GeoExperimentsView currentUser={currentUser} />
+          )}
 
-        {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
-        {activeTab === 'geo-experiments' && (
-          <GeoExperimentsView currentUser={currentUser} />
-        )}
+          {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
+          {activeTab === 'lecture-slides' && (
+            <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+          )}
 
-        {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
-        {activeTab === 'lecture-slides' && (
-          <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
-        )}
+          {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager) */}
+          {activeTab === 'skl-web-links' && (
+            <SKLWebLinksManager currentUser={currentUser} />
+          )}
 
-        {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager) */}
-        {activeTab === 'skl-web-links' && (
-          <SKLWebLinksManager currentUser={currentUser} />
-        )}
+          {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}
+          {activeTab === 'parent-meeting' && (
+            <ParentMeetingSupport currentUser={currentUser} />
+          )}
 
-        {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}
-        {activeTab === 'parent-meeting' && (
-          <ParentMeetingSupport currentUser={currentUser} />
-        )}
-
-        {/* View 7: Quản Trị Admin */}
-        {activeTab === 'admin' && (currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin') && (
-          <AdminPanel 
-            baseGames={baseGames}
-            onAddGame={handleAdminAddGame}
-            onDeleteGame={handleDeleteBaseGame}
-            onOpenUserManagement={() => setIsUserManagementOpen(true)}
-            onOpenCreateGame={() => setIsAdminCreateGameOpen(true)}
-          />
-        )}
+          {/* View 7: Quản Trị Admin */}
+          {activeTab === 'admin' && (currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin') && (
+            <AdminPanel 
+              baseGames={baseGames}
+              onAddGame={handleAdminAddGame}
+              onDeleteGame={handleDeleteBaseGame}
+              onOpenUserManagement={() => setIsUserManagementOpen(true)}
+              onOpenCreateGame={() => setIsAdminCreateGameOpen(true)}
+            />
+          )}
+        </React.Suspense>
 
         {/* Footer */}
         <footer style={{ padding: '24px', textAlign: 'center', color: '#334155', fontSize: '0.92rem', fontWeight: 600, borderTop: '1.5px solid rgba(13, 148, 136, 0.2)', marginTop: '40px', background: 'rgba(255, 255, 255, 0.8)', borderRadius: '16px' }}>
@@ -745,48 +775,50 @@ export function App() {
       </main>
 
       {/* Modals */}
-      <RoleSwitcher 
-        isOpen={isRoleSwitcherOpen}
-        onClose={() => setIsRoleSwitcherOpen(false)}
-        currentUser={currentUser}
-        onSelectUser={handleSelectUser}
-      />
+      <React.Suspense fallback={null}>
+        <RoleSwitcher 
+          isOpen={isRoleSwitcherOpen}
+          onClose={() => setIsRoleSwitcherOpen(false)}
+          currentUser={currentUser}
+          onSelectUser={handleSelectUser}
+        />
 
-      <QuestionEditorModal 
-        isOpen={!!editingGameTemplate}
-        onClose={() => setEditingGameTemplate(null)}
-        gameTemplate={editingGameTemplate}
-        currentUser={currentUser}
-        onSaveToMyGames={handleSaveToMyGames}
-        onSaveAndPlay={handleSaveAndPlay}
-      />
+        <QuestionEditorModal 
+          isOpen={!!editingGameTemplate}
+          onClose={() => setEditingGameTemplate(null)}
+          gameTemplate={editingGameTemplate}
+          currentUser={currentUser}
+          onSaveToMyGames={handleSaveToMyGames}
+          onSaveAndPlay={handleSaveAndPlay}
+        />
 
-      <AdminCreateGameModal 
-        isOpen={isAdminCreateGameOpen}
-        onClose={() => setIsAdminCreateGameOpen(false)}
-        onAddGame={handleAdminAddGame}
-      />
+        <AdminCreateGameModal 
+          isOpen={isAdminCreateGameOpen}
+          onClose={() => setIsAdminCreateGameOpen(false)}
+          onAddGame={handleAdminAddGame}
+        />
 
-      <UserManagementModal 
-        isOpen={isUserManagementOpen}
-        onClose={() => setIsUserManagementOpen(false)}
-        currentUser={currentUser}
-      />
-
-      <ChangePasswordModal 
-        isOpen={isChangePasswordOpen}
-        onClose={() => setIsChangePasswordOpen(false)}
-        currentUser={currentUser}
-        onUserUpdated={(updatedUser) => setCurrentUser(updatedUser)}
-      />
-
-      {playingGame && (
-        <ClassroomPlayModal 
-          game={playingGame}
-          onClose={() => setPlayingGame(null)}
+        <UserManagementModal 
+          isOpen={isUserManagementOpen}
+          onClose={() => setIsUserManagementOpen(false)}
           currentUser={currentUser}
         />
-      )}
+
+        <ChangePasswordModal 
+          isOpen={isChangePasswordOpen}
+          onClose={() => setIsChangePasswordOpen(false)}
+          currentUser={currentUser}
+          onUserUpdated={(updatedUser) => setCurrentUser(updatedUser)}
+        />
+
+        {playingGame && (
+          <ClassroomPlayModal 
+            game={playingGame}
+            onClose={() => setPlayingGame(null)}
+            currentUser={currentUser}
+          />
+        )}
+      </React.Suspense>
 
       {/* Mobile Bottom App Navigation Bar */}
       <div className="mobile-bottom-nav">
@@ -1026,41 +1058,43 @@ export function App() {
       )}
 
       {/* Zero-File AI Question Generator Modal */}
-      <AIQuestionGeneratorModal 
-        isOpen={isAIGeneratorOpen}
-        onClose={() => setIsAIGeneratorOpen(false)}
-        onApplyQuestions={handleApplyAIGameQuestions}
-      />
+      <React.Suspense fallback={null}>
+        <AIQuestionGeneratorModal 
+          isOpen={isAIGeneratorOpen}
+          onClose={() => setIsAIGeneratorOpen(false)}
+          onApplyQuestions={handleApplyAIGameQuestions}
+        />
 
-      {/* Floating AI System Assistant & Contact Widget */}
-      <FloatingAiAssistantWidget 
-        onOpenSearchModal={() => setIsAiWidgetOpen(true)}
-      />
+        {/* Floating AI System Assistant & Contact Widget */}
+        <FloatingAiAssistantWidget 
+          onOpenSearchModal={() => setIsAiWidgetOpen(true)}
+        />
 
-      {/* Interactive AI System Assistant & FAQ Search Modal */}
-      <AiSystemAssistantModal 
-        isOpen={isAiWidgetOpen}
-        onClose={() => setIsAiWidgetOpen(false)}
-        currentUser={currentUser}
-        onSelectTab={(tabId) => setActiveTab(tabId)}
-        onPlayGame={(gameObj) => handlePlayGameWithTrialCheck(gameObj, false)}
-        onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
-        onOpenUserManagement={() => setIsUserManagementOpen(true)}
-        savedGames={savedGames}
-      />
+        {/* Interactive AI System Assistant & FAQ Search Modal */}
+        <AiSystemAssistantModal 
+          isOpen={isAiWidgetOpen}
+          onClose={() => setIsAiWidgetOpen(false)}
+          currentUser={currentUser}
+          onSelectTab={(tabId) => setActiveTab(tabId)}
+          onPlayGame={(gameObj) => handlePlayGameWithTrialCheck(gameObj, false)}
+          onOpenAdminCreateGame={() => setIsAdminCreateGameOpen(true)}
+          onOpenUserManagement={() => setIsUserManagementOpen(true)}
+          savedGames={savedGames}
+        />
 
-      {/* Trial Expired / Unlimited Upgrade Modal */}
-      <TrialUpgradeModal 
-        isOpen={trialModalInfo.isOpen}
-        onClose={() => setTrialModalInfo(prev => ({ ...prev, isOpen: false }))}
-        featureName={trialModalInfo.featureName}
-        currentUser={currentUser}
-        onRefreshUser={async () => {
-          await StorageService.syncGoogleUsersWithCloud();
-          const refreshed = StorageService.getCurrentUser();
-          setCurrentUser(refreshed);
-        }}
-      />
+        {/* Trial Expired / Unlimited Upgrade Modal */}
+        <TrialUpgradeModal 
+          isOpen={trialModalInfo.isOpen}
+          onClose={() => setTrialModalInfo(prev => ({ ...prev, isOpen: false }))}
+          featureName={trialModalInfo.featureName}
+          currentUser={currentUser}
+          onRefreshUser={async () => {
+            await StorageService.syncGoogleUsersWithCloud();
+            const refreshed = StorageService.getCurrentUser();
+            setCurrentUser(refreshed);
+          }}
+        />
+      </React.Suspense>
 
     </div>
   );

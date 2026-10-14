@@ -1,5 +1,4 @@
-import * as XLSX from 'xlsx';
-import { parseUniversalFile } from './universalParser';
+import { parseUniversalFile, getXLSX } from './universalParser';
 
 export { parseUniversalFile };
 
@@ -14,7 +13,8 @@ function removeAccents(str = '') {
 }
 
 // 1. Export Fruit Ninja / Bắt Bóng Bóng Excel Template
-export function downloadFruitNinjaExcelTemplate() {
+export async function downloadFruitNinjaExcelTemplate() {
+  const XLSX = await getXLSX();
   const sampleData = [
     {
       'STT': 1,
@@ -68,7 +68,8 @@ export function downloadFruitNinjaExcelTemplate() {
 }
 
 // 2. Export Game Nghiêng Đầu Chuẩn Excel Template (Only 2 options: A & B)
-export function downloadHeadTiltExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Nghieng_Dau_Chuan') {
+export async function downloadHeadTiltExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Nghieng_Dau_Chuan') {
+  const XLSX = await getXLSX();
   const sampleData = [
     {
       'STT': 1,
@@ -128,7 +129,8 @@ export function downloadHeadTiltExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Nghieng_D
 }
 
 // 3. Export Game Đua Vịt & Đua Rùa Student List Excel Template
-export function downloadStudentListExcelTemplate(gameTitle = 'Mau_Danh_Sach_Hoc_Sinh_Dua_Vit_Dua_Rua') {
+export async function downloadStudentListExcelTemplate(gameTitle = 'Mau_Danh_Sach_Hoc_Sinh_Dua_Vit_Dua_Rua') {
+  const XLSX = await getXLSX();
   const sampleData = [
     { 'STT': 1, 'Họ và tên học sinh': 'Nguyễn Văn An', 'Ghi chú / Nhóm': 'Lớp 10A1' },
     { 'STT': 2, 'Họ và tên học sinh': 'Trần Thị Bình', 'Ghi chú / Nhóm': 'Lớp 10A1' },
@@ -155,7 +157,7 @@ export function downloadStudentListExcelTemplate(gameTitle = 'Mau_Danh_Sach_Hoc_
 }
 
 // 4. Main Export Function Router
-export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType = '') {
+export async function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType = '') {
   const normTitle = removeAccents(gameTitle);
   const normEngine = removeAccents(engineType);
 
@@ -240,6 +242,7 @@ export function downloadExcelTemplate(gameTitle = 'Mau_Cau_Hoi_Game', engineType
     }
   ];
 
+  const XLSX = await getXLSX();
   const worksheet = XLSX.utils.json_to_sheet(sampleData);
 
   worksheet['!cols'] = [

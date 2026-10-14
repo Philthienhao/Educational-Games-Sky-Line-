@@ -30,12 +30,7 @@ if ('serviceWorker' in navigator) {
   }).catch(() => {});
 }
 
-// Clear any old Vite asset caches
-if ('caches' in window) {
-  caches.keys().then(names => {
-    names.forEach(name => caches.delete(name));
-  }).catch(() => {});
-}
+// Mobile stale Service Workers cleanup
 
 const performHardPurgeAndReload = async () => {
   try {

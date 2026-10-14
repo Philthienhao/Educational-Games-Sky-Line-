@@ -1703,15 +1703,32 @@ export const StorageService = {
   syncAllUserDataFromCloud: async (userId) => {
     if (!userId) return false;
     try {
+      // Concurrently query all 6 cloud data sets in parallel for instant response time
+      const [
+        cloudDeletedIdsRes,
+        cloudGamesRes,
+        cloudHomeroomRes,
+        cloudSlidesRes,
+        cloudFoldersRes,
+        cloudWebLinksRes
+      ] = await Promise.allSettled([
+        CloudStorageService.getUserPrivateCloudData(userId, 'deleted_game_ids'),
+        CloudStorageService.getUserPrivateCloudData(userId, 'saved_games'),
+        CloudStorageService.getUserPrivateCloudData(userId, 'homeroom'),
+        CloudStorageService.getUserPrivateCloudData(userId, 'slides'),
+        CloudStorageService.getUserPrivateCloudData(userId, 'grade_folders'),
+        CloudStorageService.getUserPrivateCloudData(userId, 'web_links')
+      ]);
+
       // 0. Deleted Game IDs Sync
-      const cloudDeletedIds = await CloudStorageService.getUserPrivateCloudData(userId, 'deleted_game_ids');
+      const cloudDeletedIds = cloudDeletedIdsRes.status === 'fulfilled' ? cloudDeletedIdsRes.value : null;
       if (Array.isArray(cloudDeletedIds) && cloudDeletedIds.length > 0) {
         cloudDeletedIds.forEach(id => StorageService.addDeletedGameId(userId, id));
       }
       const deletedIds = StorageService.getDeletedGameIds(userId);
 
       // 1. Saved Games
-      const cloudGames = await CloudStorageService.getUserPrivateCloudData(userId, 'saved_games');
+      const cloudGames = cloudGamesRes.status === 'fulfilled' ? cloudGamesRes.value : null;
       if (Array.isArray(cloudGames) && cloudGames.length > 0) {
         if (!Array.isArray(runtimeSavedGamesCache)) runtimeSavedGamesCache = [];
         let updated = false;
@@ -1740,7 +1757,7 @@ export const StorageService = {
       }
 
       // 2. Homeroom Class
-      const cloudHomeroom = await CloudStorageService.getUserPrivateCloudData(userId, 'homeroom');
+      const cloudHomeroom = cloudHomeroomRes.status === 'fulfilled' ? cloudHomeroomRes.value : null;
       if (cloudHomeroom && typeof cloudHomeroom === 'object' && Array.isArray(cloudHomeroom.students) && cloudHomeroom.isCustomized) {
         // Always sanitize unwanted test students
         cloudHomeroom.students = cloudHomeroom.students.filter(s => !isUnwantedTestStudent(s));
@@ -1776,7 +1793,7 @@ export const StorageService = {
       }
 
       // 3. Lecture Slides
-      const cloudSlides = await CloudStorageService.getUserPrivateCloudData(userId, 'slides');
+      const cloudSlides = cloudSlidesRes.status === 'fulfilled' ? cloudSlidesRes.value : null;
       if (Array.isArray(cloudSlides) && cloudSlides.length > 0) {
         const key = `gvd_user_slides_${userId}`;
         const localStr = localStorage.getItem(key);
@@ -1793,7 +1810,7 @@ export const StorageService = {
       }
 
       // 4. Grade Drive Folders
-      const cloudFolders = await CloudStorageService.getUserPrivateCloudData(userId, 'grade_folders');
+      const cloudFolders = cloudFoldersRes.status === 'fulfilled' ? cloudFoldersRes.value : null;
       if (Array.isArray(cloudFolders) && cloudFolders.length > 0) {
         const key = `gvd_user_grade_folders_${userId}`;
         const localStr = localStorage.getItem(key);
@@ -1810,7 +1827,7 @@ export const StorageService = {
       }
 
       // 5. SKL Web Links
-      const cloudWebLinks = await CloudStorageService.getUserPrivateCloudData(userId, 'web_links');
+      const cloudWebLinks = cloudWebLinksRes.status === 'fulfilled' ? cloudWebLinksRes.value : null;
       if (Array.isArray(cloudWebLinks) && cloudWebLinks.length > 0) {
         const key = `gvd_user_web_links_${userId}`;
         const localStr = localStorage.getItem(key);

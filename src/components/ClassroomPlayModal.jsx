@@ -1,41 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap } from 'lucide-react';
-import { WheelOfFortuneGame } from './games/WheelOfFortuneGame';
-import { TugOfWarGame } from './games/TugOfWarGame';
-import { MillionaireGame } from './games/MillionaireGame';
-import { MysteryBoxGame } from './games/MysteryBoxGame';
-import { PictureFlipGame } from './games/PictureFlipGame';
-import { CrosswordGame } from './games/CrosswordGame';
-import { KnowledgeTrainGame } from './games/KnowledgeTrainGame';
-import { FlashcardGame } from './games/FlashcardGame';
-import { FruitNinjaGame } from './games/FruitNinjaGame';
-import { CarRaceGame } from './games/CarRaceGame';
-import { MinesweeperGame } from './games/MinesweeperGame';
-import { FlyingWordsGame } from './games/FlyingWordsGame';
-import { MatchingPairsGame } from './games/MatchingPairsGame';
-import { DuckRaceGame } from './games/DuckRaceGame';
-import { TurtleRaceGame } from './games/TurtleRaceGame';
-import { JungleRescueGame } from './games/JungleRescueGame';
-import { TugOfWarDualGame } from './games/TugOfWarDualGame';
-import { JeopardyGame } from './games/JeopardyGame';
-import { HeadTiltGame } from './games/HeadTiltGame';
-import { PoseImitationGame } from './games/PoseImitationGame';
-import { ClawMachineGame } from './games/ClawMachineGame';
-import { AstronautExplorerGame } from './games/AstronautExplorerGame';
-import { MagicHatGame } from './games/MagicHatGame';
-import { MagicGrimoireGame } from './games/MagicGrimoireGame';
-import { TowerBuilderGame } from './games/TowerBuilderGame';
-import { MarioRaceGame } from './games/MarioRaceGame';
-import { IndoorPEDanceGame } from './games/IndoorPEDanceGame';
-import { BouncingWordsGame } from './games/BouncingWordsGame';
-import { MathSackRaceGame } from './games/MathSackRaceGame';
-import { PirateShipBattleGame } from './games/PirateShipBattleGame';
-import { ClassroomTimerGame } from './games/ClassroomTimerGame';
-import { GeoExperimentsView } from './GeoExperimentsView';
-import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
-import { StudentGroupDividerGame } from './games/StudentGroupDividerGame';
-import { MarbleRaceGame } from './games/MarbleRaceGame';
+// Code-Split Game Engines: dynamically loaded on demand with React.lazy
+const WheelOfFortuneGame = React.lazy(() => import('./games/WheelOfFortuneGame').then(m => ({ default: m.WheelOfFortuneGame || m.default })));
+const TugOfWarGame = React.lazy(() => import('./games/TugOfWarGame').then(m => ({ default: m.TugOfWarGame || m.default })));
+const MillionaireGame = React.lazy(() => import('./games/MillionaireGame').then(m => ({ default: m.MillionaireGame || m.default })));
+const MysteryBoxGame = React.lazy(() => import('./games/MysteryBoxGame').then(m => ({ default: m.MysteryBoxGame || m.default })));
+const PictureFlipGame = React.lazy(() => import('./games/PictureFlipGame').then(m => ({ default: m.PictureFlipGame || m.default })));
+const CrosswordGame = React.lazy(() => import('./games/CrosswordGame').then(m => ({ default: m.CrosswordGame || m.default })));
+const KnowledgeTrainGame = React.lazy(() => import('./games/KnowledgeTrainGame').then(m => ({ default: m.KnowledgeTrainGame || m.default })));
+const FlashcardGame = React.lazy(() => import('./games/FlashcardGame').then(m => ({ default: m.FlashcardGame || m.default })));
+const FruitNinjaGame = React.lazy(() => import('./games/FruitNinjaGame').then(m => ({ default: m.FruitNinjaGame || m.default })));
+const CarRaceGame = React.lazy(() => import('./games/CarRaceGame').then(m => ({ default: m.CarRaceGame || m.default })));
+const MinesweeperGame = React.lazy(() => import('./games/MinesweeperGame').then(m => ({ default: m.MinesweeperGame || m.default })));
+const FlyingWordsGame = React.lazy(() => import('./games/FlyingWordsGame').then(m => ({ default: m.FlyingWordsGame || m.default })));
+const MatchingPairsGame = React.lazy(() => import('./games/MatchingPairsGame').then(m => ({ default: m.MatchingPairsGame || m.default })));
+const DuckRaceGame = React.lazy(() => import('./games/DuckRaceGame').then(m => ({ default: m.DuckRaceGame || m.default })));
+const TurtleRaceGame = React.lazy(() => import('./games/TurtleRaceGame').then(m => ({ default: m.TurtleRaceGame || m.default })));
+const JungleRescueGame = React.lazy(() => import('./games/JungleRescueGame').then(m => ({ default: m.JungleRescueGame || m.default })));
+const TugOfWarDualGame = React.lazy(() => import('./games/TugOfWarDualGame').then(m => ({ default: m.TugOfWarDualGame || m.default })));
+const JeopardyGame = React.lazy(() => import('./games/JeopardyGame').then(m => ({ default: m.JeopardyGame || m.default })));
+const HeadTiltGame = React.lazy(() => import('./games/HeadTiltGame').then(m => ({ default: m.HeadTiltGame || m.default })));
+const PoseImitationGame = React.lazy(() => import('./games/PoseImitationGame').then(m => ({ default: m.PoseImitationGame || m.default })));
+const ClawMachineGame = React.lazy(() => import('./games/ClawMachineGame').then(m => ({ default: m.ClawMachineGame || m.default })));
+const AstronautExplorerGame = React.lazy(() => import('./games/AstronautExplorerGame').then(m => ({ default: m.AstronautExplorerGame || m.default })));
+const MagicHatGame = React.lazy(() => import('./games/MagicHatGame').then(m => ({ default: m.MagicHatGame || m.default })));
+const MagicGrimoireGame = React.lazy(() => import('./games/MagicGrimoireGame').then(m => ({ default: m.MagicGrimoireGame || m.default })));
+const TowerBuilderGame = React.lazy(() => import('./games/TowerBuilderGame').then(m => ({ default: m.TowerBuilderGame || m.default })));
+const MarioRaceGame = React.lazy(() => import('./games/MarioRaceGame').then(m => ({ default: m.MarioRaceGame || m.default })));
+const IndoorPEDanceGame = React.lazy(() => import('./games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame || m.default })));
+const BouncingWordsGame = React.lazy(() => import('./games/BouncingWordsGame').then(m => ({ default: m.BouncingWordsGame || m.default })));
+const MathSackRaceGame = React.lazy(() => import('./games/MathSackRaceGame').then(m => ({ default: m.MathSackRaceGame || m.default })));
+const PirateShipBattleGame = React.lazy(() => import('./games/PirateShipBattleGame').then(m => ({ default: m.PirateShipBattleGame || m.default })));
+const ClassroomTimerGame = React.lazy(() => import('./games/ClassroomTimerGame').then(m => ({ default: m.ClassroomTimerGame || m.default })));
+const GeoExperimentsView = React.lazy(() => import('./GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView || m.default })));
+const InteractiveExperimentCanvas = React.lazy(() => import('./experiments/InteractiveExperimentCanvas').then(m => ({ default: m.InteractiveExperimentCanvas || m.default })));
+const StudentGroupDividerGame = React.lazy(() => import('./games/StudentGroupDividerGame').then(m => ({ default: m.StudentGroupDividerGame || m.default })));
+const MarbleRaceGame = React.lazy(() => import('./games/MarbleRaceGame').then(m => ({ default: m.MarbleRaceGame || m.default })));
+
+function GameLoadingFallback() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+      minHeight: '340px',
+      color: '#ffffff',
+      gap: '16px',
+      padding: '40px'
+    }}>
+      <div style={{
+        width: '46px',
+        height: '46px',
+        border: '4px solid rgba(255, 255, 255, 0.2)',
+        borderTopColor: '#00a896',
+        borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc' }}>
+        Đang khởi động trò chơi...
+      </span>
+    </div>
+  );
+}
 
 const TEAM_COLORS = [
   '#ef4444', '#3b82f6', '#f59e0b', '#10b981',
@@ -307,7 +337,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
 
     return (
       <GameErrorBoundary key={engineType}>
-        {component}
+        <React.Suspense fallback={<GameLoadingFallback />}>
+          {component}
+        </React.Suspense>
       </GameErrorBoundary>
     );
   };
@@ -333,43 +365,45 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
           flexDirection: 'column',
           overflow: 'hidden'
         }}>
-          {engineType === 'duck-race' ? (
-            <DuckRaceGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'turtle-race' ? (
-            <TurtleRaceGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'claw-machine' ? (
-            <ClawMachineGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'astronaut-explorer' ? (
-            <AstronautExplorerGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'magic-hat' ? (
-            <MagicHatGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'magic-grimoire' ? (
-            <MagicGrimoireGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'tower-builder' ? (
-            <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'mario-race' ? (
-            <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'indoor-pe-dance' ? (
-            <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />
-          ) : engineType === 'jungle-rescue' ? (
-            <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'bouncing-words' ? (
-            <BouncingWordsGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'math-sack-race' ? (
-            <MathSackRaceGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'pirate-ship-battle' ? (
-            <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />
-          ) : engineType === 'classroom-timer' ? (
-            <ClassroomTimerGame onClose={onClose} />
-          ) : engineType === 'geo-3d-model' ? (
-            <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
-          ) : engineType === 'student-group-divider' ? (
-            <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
-          ) : engineType === 'marble-race' ? (
-            <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />
-          ) : (
-            renderGameEngine()
-          )}
+          <React.Suspense fallback={<GameLoadingFallback />}>
+            {engineType === 'duck-race' ? (
+              <DuckRaceGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'turtle-race' ? (
+              <TurtleRaceGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'claw-machine' ? (
+              <ClawMachineGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'astronaut-explorer' ? (
+              <AstronautExplorerGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'magic-hat' ? (
+              <MagicHatGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'magic-grimoire' ? (
+              <MagicGrimoireGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'tower-builder' ? (
+              <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'mario-race' ? (
+              <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'indoor-pe-dance' ? (
+              <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />
+            ) : engineType === 'jungle-rescue' ? (
+              <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'bouncing-words' ? (
+              <BouncingWordsGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'math-sack-race' ? (
+              <MathSackRaceGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'pirate-ship-battle' ? (
+              <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />
+            ) : engineType === 'classroom-timer' ? (
+              <ClassroomTimerGame onClose={onClose} />
+            ) : engineType === 'geo-3d-model' ? (
+              <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
+            ) : engineType === 'student-group-divider' ? (
+              <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
+            ) : engineType === 'marble-race' ? (
+              <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />
+            ) : (
+              renderGameEngine()
+            )}
+          </React.Suspense>
         </div>
       </GameErrorBoundary>,
       document.body

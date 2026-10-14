@@ -1,5 +1,19 @@
-import * as XLSX from 'xlsx';
-import mammoth from 'mammoth';
+// Lazy dynamic loaders for heavy document parsing libraries
+let _xlsxPromise = null;
+export async function getXLSX() {
+  if (!_xlsxPromise) {
+    _xlsxPromise = import('xlsx');
+  }
+  return _xlsxPromise;
+}
+
+let _mammothPromise = null;
+export async function getMammoth() {
+  if (!_mammothPromise) {
+    _mammothPromise = import('mammoth').then(m => m.default || m);
+  }
+  return _mammothPromise;
+}
 
 /**
  * Extract plain text from PDF files using pdfjs-dist
@@ -222,7 +236,8 @@ function finalizeQuestion(qObj) {
 /**
  * Smart Excel / CSV Table Parser (Handles any column arrangement)
  */
-export function extractQuestionsFromExcelBuffer(arrayBuffer) {
+export async function extractQuestionsFromExcelBuffer(arrayBuffer) {
+  const XLSX = await getXLSX();
   const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
   const firstSheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[firstSheetName];
@@ -366,7 +381,7 @@ export async function parseUniversalFile(file) {
   // 1. Excel / CSV Formats (.xlsx, .xls, .csv, .ods)
   if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv') || fileName.endsWith('.ods')) {
     const buffer = await file.arrayBuffer();
-    const questions = extractQuestionsFromExcelBuffer(buffer);
+    const questions = await extractQuestionsFromExcelBuffer(buffer);
     if (!questions || questions.length === 0) {
       throw new Error('Không tìm thấy câu hỏi hợp lệ trong tệp Excel/CSV.');
     }
@@ -377,6 +392,7 @@ export async function parseUniversalFile(file) {
   if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
     try {
       const buffer = await file.arrayBuffer();
+      const mammoth = await getMammoth();
       const result = await mammoth.extractRawText({ arrayBuffer: buffer });
       const text = result.value || '';
       const questions = extractQuestionsFromText(text);
@@ -430,7 +446,7 @@ export const parseUploadedFile = parseUniversalFile;
 /**
  * Generate official Homeroom Student Roster Sample Excel File (.xlsx)
  */
-export function downloadHomeroomSampleExcel() {
+export async function downloadHomeroomSampleExcel() {
   const sampleData = [
     {
       "STT": 1,
@@ -499,6 +515,7 @@ export function downloadHomeroomSampleExcel() {
     }
   ];
 
+  const XLSX = await getXLSX();
   const worksheet = XLSX.utils.json_to_sheet(sampleData);
   
   // Set column widths
@@ -531,6 +548,7 @@ export async function parseStudentRosterFile(file) {
 
   // 1. Excel & CSV files
   if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv') || fileName.endsWith('.ods')) {
+    const XLSX = await getXLSX();
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
     const firstSheetName = workbook.SheetNames[0];
@@ -791,6 +809,7 @@ export async function parseStudentRosterFile(file) {
   let rawText = '';
   if (fileName.endsWith('.docx') || fileName.endsWith('.doc')) {
     const buffer = await file.arrayBuffer();
+    const mammoth = await getMammoth();
     const res = await mammoth.extractRawText({ arrayBuffer: buffer });
     rawText = res.value || '';
   } else if (fileName.endsWith('.pdf')) {

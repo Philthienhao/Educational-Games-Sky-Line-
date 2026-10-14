@@ -6,11 +6,6 @@
     <title>ĐỒ NGHỀ DẠY HỌC - Thầy Hảo Địa Lí</title>
     <meta name="description" content="Nền tảng kho game giáo dục cho giáo viên: Tùy biến câu hỏi bằng Excel, lưu game cá nhân, quản lý tài khoản giáo viên và bảng điều khiển Admin sáng tạo." />
     
-    <!-- HTTP Cache-Control for Immediate Live Updates -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-
     <!-- PWA & Mobile App Settings -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#071521" />
@@ -26,36 +21,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
     <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-    <!-- Tailwind CSS with preflight disabled to preserve existing game UI while enabling modern utility classes -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        corePlugins: {
-          preflight: false,
-        }
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      // Purge all stale Service Workers and browser caches on load to ensure newest features load 100%
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for (let registration of registrations) {
-            registration.unregister();
-          }
-        });
-      }
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) {
-            caches.delete(name);
-          }
-        });
-      }
-    </script>
   </body>
 </html>

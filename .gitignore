@@ -55,6 +55,8 @@ build/
 # Exclude heavy 5GB PDF scans from Vercel static deployment (deploy pre-extracted 3MB text in public/textbook_texts instead)
 public/textbooks/SGK_*
 public/textbooks/*.pdf
+!public/textbooks/LSDL7.pdf
+!public/LSDL7.pdf
 .env*
 
 # Ignore heavy scratch media & test files

@@ -366,15 +366,17 @@ export const CloudStorageService = {
 
     let successCount = 0;
 
-    // 1. If Supabase configured, save directly to Supabase REST API (100% 24/7 persistent)
-    if (url && key) {
+    // 1. Supabase REST API (persistent 24/7)
+    const saveSupabase = async () => {
+      if (!url || !key) return false;
       try {
         const payload = {
           key: storageKey,
           data: data,
           updated_at: new Date().toISOString()
         };
-
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
         const res = await fetch(`${url}/rest/v1/user_data`, {
           method: 'POST',
           headers: {
@@ -383,54 +385,61 @@ export const CloudStorageService = {
             'Content-Type': 'application/json',
             'Prefer': 'resolution=merge-duplicates'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: controller.signal
         });
-
-        if (res.ok) successCount++;
+        clearTimeout(timeoutId);
+        return res.ok;
       } catch (e) {
-        console.warn(`Supabase saveUserPrivateCloudData error (${dataType}):`, e);
+        return false;
       }
-    }
+    };
 
-    // 2. Primary Vercel Serverless Endpoint (/api/storage)
-    const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4500);
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        signal: controller.signal
-      });
-      clearTimeout(timeoutId);
-      if (res.ok) successCount++;
-    } catch (e) {
-      console.warn(`saveUserPrivateCloudData warning (${dataType}):`, e.message || e);
-    }
-
-    // 3. Fallback direct push to Redundant KV Cloud endpoints
-    const fallbackUrls = [
-      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
-      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
-    ];
-
-    for (const fUrl of fallbackUrls) {
+    // 2. Vercel Serverless Endpoint (/api/storage)
+    const saveVercel = async () => {
+      const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-        const fRes = await fetch(fUrl, {
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
-        if (fRes.ok) successCount++;
-      } catch (e) {}
-    }
+        return res.ok;
+      } catch (e) {
+        return false;
+      }
+    };
 
-    return successCount > 0;
+    // Concurrently trigger primary saves
+    const [sbOk, vcOk] = await Promise.all([saveSupabase(), saveVercel()]);
+    if (sbOk) successCount++;
+    if (vcOk) successCount++;
+
+    // 3. Fallback direct push to Redundant KV Cloud endpoints in parallel (non-blocking)
+    const fallbackUrls = [
+      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
+      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
+    ];
+
+    fallbackUrls.forEach(fUrl => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      fetch(fUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        signal: controller.signal
+      }).then(fRes => {
+        clearTimeout(timeoutId);
+        if (fRes && fRes.ok) successCount++;
+      }).catch(() => {});
+    });
+
+    return successCount > 0 || sbOk || vcOk;
   },
 
   /**
@@ -443,15 +452,19 @@ export const CloudStorageService = {
 
     const { url, key } = getSupabaseCredentials();
 
-    // 1. If Supabase configured, query Supabase REST API directly
+    // 1. Primary: If Supabase configured, query Supabase REST API directly
     if (url && key) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
         const res = await fetch(`${url}/rest/v1/user_data?key=eq.${encodeURIComponent(storageKey)}&select=data`, {
           headers: {
             'apikey': key,
             'Authorization': `Bearer ${key}`
-          }
+          },
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (res.ok) {
           const rows = await res.json();
@@ -460,7 +473,7 @@ export const CloudStorageService = {
           }
         }
       } catch (e) {
-        console.warn(`Supabase getUserPrivateCloudData error (${dataType}):`, e);
+        console.warn(`Supabase getUserPrivateCloudData error (${dataType}):`, e.message || e);
       }
     }
 
@@ -468,7 +481,7 @@ export const CloudStorageService = {
     const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       const res = await fetch(endpoint, { signal: controller.signal });
       clearTimeout(timeoutId);
       if (res.ok) {
@@ -481,30 +494,35 @@ export const CloudStorageService = {
       console.warn(`getUserPrivateCloudData warning (${dataType}):`, e.message || e);
     }
 
-    // 3. Fallback direct query to Redundant KV Cloud endpoints
+    // 3. Fallback direct query to Redundant KV Cloud endpoints in parallel
     const fallbackUrls = [
       `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
       `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
     ];
 
-    for (const fUrl of fallbackUrls) {
-      try {
+    try {
+      const kvPromises = fallbackUrls.map(async (fUrl) => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-        const res = await fetch(fUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          const rawText = await res.text();
-          if (rawText && rawText.trim()) {
-            try {
-              return JSON.parse(rawText);
-            } catch (e) {
-              return rawText;
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        try {
+          const res = await fetch(fUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (res.ok) {
+            const rawText = await res.text();
+            if (rawText && rawText.trim()) {
+              try {
+                return JSON.parse(rawText);
+              } catch (e) {
+                return rawText;
+              }
             }
           }
-        }
-      } catch (e) {}
-    }
+        } catch (e) {}
+        throw new Error('KV miss');
+      });
+
+      return await Promise.any(kvPromises);
+    } catch (e) {}
 
     return null;
   }

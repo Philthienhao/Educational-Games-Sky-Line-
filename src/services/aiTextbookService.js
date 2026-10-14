@@ -5,20 +5,8 @@ if (typeof globalThis.DOMMatrix === 'undefined') {
   };
 }
 
-import * as XLSX from 'xlsx';
-import mammoth from 'mammoth';
-import * as pdfjsLib from 'pdfjs-dist';
 import textbookCatalog from './textbookCatalog.json' with { type: 'json' };
 import { getCurriculumQuestions } from './curriculumQuestionBank.js';
-
-// Set PDF.js worker fallback if needed
-try {
-  if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '3.11.174'}/pdf.worker.min.mjs`;
-  }
-} catch (e) {
-  console.warn('PDF.js worker setup fallback');
-}
 
 /**
  * Built-In Textbook Catalog Registry
@@ -195,6 +183,7 @@ export async function extractTextFromTextbookFile(file) {
   // 2. Word Document (.docx)
   else if (fileName.endsWith('.docx')) {
     try {
+      const mammoth = (await import('mammoth')).default || (await import('mammoth'));
       const arrayBuffer = await file.arrayBuffer();
       const result = await mammoth.extractRawText({ arrayBuffer });
       rawText = result.value || '';
@@ -214,6 +203,7 @@ export async function extractTextFromTextbookFile(file) {
   // 4. Excel Document (.xlsx, .xls)
   else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
     try {
+      const XLSX = await import('xlsx');
       const data = await file.arrayBuffer();
       const workbook = XLSX.read(data, { type: 'array' });
       let fullText = '';
@@ -229,6 +219,10 @@ export async function extractTextFromTextbookFile(file) {
   // 5. PDF Document (.pdf)
   else if (fileName.endsWith('.pdf')) {
     try {
+      const pdfjsLib = await import('pdfjs-dist');
+      if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || '3.11.174'}/pdf.worker.min.mjs`;
+      }
       const arrayBuffer = await file.arrayBuffer();
       const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
       const pdf = await loadingTask.promise;
