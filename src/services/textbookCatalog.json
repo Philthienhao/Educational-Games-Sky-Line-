@@ -1502,10 +1502,12 @@
   },
   {
     "id": "sgk_wpr3rk9",
-    "title": "Lich su va dia ly 7 - ket noi tri thuc voi cuoc song",
+    "title": "Lịch sử và Địa lí 7 - Kết nối tri thức với cuộc sống",
     "fileName": "SGK_lop_7/Lich_su_va_dia_ly_7_ket_noi_tri_thuc_voi_cuoc_song.pdf",
+    "pdfUrl": "/textbooks/LSDL7.pdf",
+    "hasLocalPdf": true,
     "grade": "Lớp 7",
-    "subject": "Lich",
+    "subject": "Lịch Sử & Địa Lý",
     "textPath": "/textbook_texts/sgk_wpr3rk9.txt",
     "charCount": 3053
   },
