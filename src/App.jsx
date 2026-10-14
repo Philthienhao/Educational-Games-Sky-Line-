@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Gamepad2, 
   Sparkles, 
@@ -132,7 +132,7 @@ export function App() {
     featureId: ''
   });
 
-  const handlePlayGameWithTrialCheck = (game, isSaved = false) => {
+  const handlePlayGameWithTrialCheck = useCallback((game, isSaved = false) => {
     if (!game) return;
     const featureId = game.engineType || game.gameType || game.id || 'game';
     const featureName = game.title || game.name || game.lessonTitle || 'Trò chơi tương tác';
@@ -165,7 +165,7 @@ export function App() {
     }
 
     setPlayingGame(game);
-  };
+  }, [currentUser]);
 
   const handleApplyAIGameQuestions = (aiQuestions, targetGameType = 'tug-of-war-dual', targetGameTitle = null, autoLaunch = true) => {
     if (!aiQuestions || aiQuestions.length === 0) return;
@@ -378,12 +378,20 @@ export function App() {
     setIsAdminCreateGameOpen(false);
   };
 
-  const handleDeleteBaseGame = (gameId) => {
+  const handlePlayBaseGame = useCallback((template) => {
+    handlePlayGameWithTrialCheck(template, false);
+  }, [handlePlayGameWithTrialCheck]);
+
+  const handleCustomizeBaseGame = useCallback((template) => {
+    setEditingGameTemplate(template);
+  }, []);
+
+  const handleDeleteBaseGame = useCallback((gameId) => {
     if (window.confirm('CẢNH BÁO ADMIN: Bạn có chắc muốn xóa vĩnh viễn mẫu game này khỏi hệ thống chung không?')) {
       StorageService.deleteBaseGame(gameId);
       setBaseGames(StorageService.getBaseGames());
     }
-  };
+  }, []);
 
   const handleSelectUser = (user) => {
     const activeUser = { ...user, isLoggedIn: true };
@@ -642,8 +650,8 @@ export function App() {
                   key={game.id}
                   game={game}
                   currentUser={currentUser}
-                  onPlay={(template) => handlePlayGameWithTrialCheck(template, false)}
-                  onCustomize={(template) => setEditingGameTemplate(template)}
+                  onPlay={handlePlayBaseGame}
+                  onCustomize={handleCustomizeBaseGame}
                   onDelete={handleDeleteBaseGame}
                 />
               ))}

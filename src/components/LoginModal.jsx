@@ -309,15 +309,14 @@ export function LoginModal({ onLoginSuccess }) {
       color: '#ffffff'
     }}>
 
-      {/* Dynamic Glowing Ambient Aura Lights */}
+      {/* Dynamic Glowing Ambient Aura Lights (Soft Radial Gradient without GPU-blocking filter) */}
       <div style={{
         position: 'fixed',
         top: '-15%',
         left: '-10%',
         width: '560px',
         height: '560px',
-        background: 'radial-gradient(circle, rgba(2, 132, 199, 0.28) 0%, rgba(13, 148, 136, 0.08) 60%, transparent 80%)',
-        filter: 'blur(100px)',
+        background: 'radial-gradient(circle, rgba(2, 132, 199, 0.22) 0%, rgba(13, 148, 136, 0.08) 40%, transparent 70%)',
         pointerEvents: 'none',
         zIndex: 1
       }} />
@@ -328,8 +327,7 @@ export function LoginModal({ onLoginSuccess }) {
         right: '-10%',
         width: '580px',
         height: '580px',
-        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(168, 85, 247, 0.08) 60%, transparent 80%)',
-        filter: 'blur(100px)',
+        background: 'radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(168, 85, 247, 0.06) 40%, transparent 70%)',
         pointerEvents: 'none',
         zIndex: 1
       }} />
@@ -344,9 +342,9 @@ export function LoginModal({ onLoginSuccess }) {
           maxWidth: '1160px',
           height: 'min(94vh, 660px)',
           maxHeight: 'calc(100vh - 20px)',
-          background: 'rgba(10, 20, 32, 0.88)',
-          backdropFilter: 'blur(30px)',
-          WebkitBackdropFilter: 'blur(30px)',
+          background: 'rgba(10, 20, 32, 0.94)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           border: '1.5px solid rgba(255, 255, 255, 0.12)',
           borderRadius: '28px',
           boxShadow: '0 30px 80px rgba(0, 0, 0, 0.85), 0 0 50px rgba(2, 132, 199, 0.15)',

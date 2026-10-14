@@ -5,7 +5,7 @@ import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
 import { getGameThumbnail } from '../utils/gameThumbnails';
 
-export function GameCard({ 
+function GameCardComponent({ 
   game, 
   isSavedGame = false, 
   currentUser, 
@@ -47,7 +47,7 @@ export function GameCard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 10px 28px -6px rgba(13, 148, 136, 0.35)',
+          boxShadow: '0 6px 18px -4px rgba(13, 148, 136, 0.25)',
           overflow: 'hidden'
         }}
       >
@@ -61,11 +61,10 @@ export function GameCard({
               height: '100%',
               objectFit: 'cover',
               position: 'absolute',
-              inset: 0,
-              transition: 'transform 0.5s ease',
-              filter: 'brightness(1.02)'
+              inset: 0
             }}
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               // Fallback if image load fails
               e.target.style.display = 'none';
@@ -93,25 +92,24 @@ export function GameCard({
           fontWeight: 800, 
           textTransform: 'uppercase', 
           color: '#ffffff',
-          background: 'rgba(15, 23, 42, 0.65)',
-          backdropFilter: 'blur(10px)',
+          background: 'rgba(15, 23, 42, 0.85)',
           padding: '5px 12px',
           borderRadius: '14px',
           letterSpacing: '0.06em',
           border: '1px solid rgba(255, 255, 255, 0.25)',
           zIndex: 2,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.25)'
         }}>
           {game.category || 'Game Giáo Dục'}
         </span>
 
         {/* Saved / Play Count Badge Floating Top Right */}
         {isSavedGame ? (
-          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#0d9488', color: '#ffffff', fontWeight: 900, border: '1px solid rgba(255,255,255,0.4)', zIndex: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#0d9488', color: '#ffffff', fontWeight: 900, border: '1px solid rgba(255,255,255,0.4)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
             ĐÃ LƯU
           </span>
         ) : (
-          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 800, background: 'rgba(15, 23, 42, 0.65)', padding: '5px 12px', borderRadius: '14px', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.25)', zIndex: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}>
+          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 800, background: 'rgba(15, 23, 42, 0.85)', padding: '5px 12px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.25)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
             {typeof game.playsCount === 'number' ? game.playsCount : 0} Lượt chơi
           </span>
         )}
@@ -124,13 +122,12 @@ export function GameCard({
           width: '38px',
           height: '38px',
           borderRadius: '12px',
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(10px)',
+          background: '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '1.4rem',
-          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.20)',
           border: '1.5px solid rgba(255,255,255,0.9)',
           zIndex: 2
         }}>
@@ -275,3 +272,6 @@ export function GameCard({
     </div>
   );
 }
+
+export const GameCard = React.memo(GameCardComponent);
+
