@@ -110,9 +110,9 @@ export function TrialUpgradeModal({ isOpen, onClose, currentUser, featureName })
           borderRadius: '16px',
           border: '1px solid rgba(255, 255, 255, 0.08)'
         }}>
-          Thầy/cô <strong style={{ color: '#38bdf8' }}>{currentUser?.name || currentUser?.email}</strong> đã hoàn thành <strong style={{ color: '#fbbf24' }}>1 lần trải nghiệm dùng thử</strong> {featureName ? `cho trò chơi "${featureName}"` : 'trên hệ thống'}.
+          Thầy/cô <strong style={{ color: '#38bdf8' }}>{currentUser?.name || currentUser?.email}</strong> đã hoàn thành <strong style={{ color: '#fbbf24' }}>1 lần trải nghiệm dùng thử</strong> {featureName ? `cho "${featureName}"` : 'cho tính năng này'}.
           <br /><br />
-          Vì đây là nền tảng <strong>đóng phí bản quyền</strong> dành riêng cho giáo viên, tài khoản cần được Admin duyệt <strong>"Không giới hạn"</strong> để tiếp tục sử dụng tất cả trò chơi, bài giảng và kho giáo cụ toàn trường.
+          ✨ <em>Lưu ý:</em> Thầy/cô vẫn có thể <strong>trải nghiệm thử 1 lần các trò chơi và công cụ khác</strong> chưa dùng trên hệ thống! Để mở khóa toàn bộ hệ thống <strong>"Không giới hạn"</strong> vĩnh viễn, vui lòng liên hệ Admin Thầy Hảo.
         </p>
 
         {/* Benefits Preview */}

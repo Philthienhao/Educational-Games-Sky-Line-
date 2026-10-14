@@ -20,7 +20,8 @@ import {
   User,
   LogOut,
   LogIn,
-  KeyRound
+  KeyRound,
+  Lock
 } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { GameCard } from './components/GameCard';
@@ -79,6 +80,105 @@ function ViewLoadingFallback() {
   );
 }
 
+// Reusable Top-Level Component for Locked Trial Features (Compliant with AGENTS.md Rule 1)
+function FeatureLockedScreen({ featureName, featureId, onOpenUpgrade, onBrowseCatalog }) {
+  return (
+    <div style={{
+      maxWidth: '680px',
+      margin: '40px auto',
+      padding: '44px 28px',
+      textAlign: 'center',
+      background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+      borderRadius: '26px',
+      border: '2px solid rgba(239, 68, 68, 0.25)',
+      boxShadow: '0 20px 50px rgba(15, 23, 42, 0.08), 0 0 30px rgba(245, 158, 11, 0.1)',
+      fontFamily: 'Montserrat, system-ui, sans-serif'
+    }}>
+      <div style={{
+        width: '74px',
+        height: '74px',
+        margin: '0 auto 18px auto',
+        borderRadius: '24px',
+        background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 10px 25px rgba(245, 158, 11, 0.35)',
+        border: '2px solid #ffffff'
+      }}>
+        <Lock size={38} color="#ffffff" />
+      </div>
+
+      <div style={{ marginBottom: '12px' }}>
+        <span style={{
+          display: 'inline-block',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid #ef4444',
+          color: '#dc2626',
+          fontSize: '0.78rem',
+          fontWeight: 900,
+          padding: '4px 14px',
+          borderRadius: '20px',
+          letterSpacing: '0.5px'
+        }}>
+          🚫 ĐÃ SỬ DỤNG HẾT 1 LẦN DÙNG THỬ
+        </span>
+      </div>
+
+      <h2 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', margin: '0 0 12px 0' }}>
+        {featureName || 'Chức Năng Dạy Học'}
+      </h2>
+
+      <p style={{ color: '#475569', fontSize: '0.94rem', lineHeight: 1.6, margin: '0 auto 24px auto', maxWidth: '520px', fontWeight: 600 }}>
+        Thầy/Cô đã hoàn thành <strong>1 lần trải nghiệm dùng thử</strong> cho chức năng này.
+        <br />
+        ✨ Thầy/Cô vẫn có thể <strong>dùng thử 1 lần các trò chơi và công cụ khác</strong> chưa sử dụng! Để mở khóa toàn bộ hệ thống <strong>"Không giới hạn"</strong> vĩnh viễn, vui lòng liên hệ Admin Thầy Hảo.
+      </p>
+
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => onOpenUpgrade({ isOpen: true, featureName, featureId })}
+          className="btn btn-primary"
+          style={{
+            padding: '12px 26px',
+            fontSize: '0.94rem',
+            borderRadius: '14px',
+            fontWeight: 800,
+            background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+            boxShadow: '0 6px 18px rgba(13, 148, 136, 0.35)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          <Sparkles size={18} />
+          Nâng Cấp Tài Khoản Không Giới Hạn
+        </button>
+
+        {onBrowseCatalog && (
+          <button
+            onClick={onBrowseCatalog}
+            className="btn btn-secondary"
+            style={{
+              padding: '12px 22px',
+              fontSize: '0.94rem',
+              borderRadius: '14px',
+              fontWeight: 700,
+              background: '#f1f5f9',
+              border: '1.5px solid #cbd5e1',
+              color: '#334155',
+              cursor: 'pointer'
+            }}
+          >
+            Trải Nghiệm Trò Chơi Khác
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     StorageService.init();
@@ -96,14 +196,51 @@ export function App() {
     return 'catalog';
   });
 
-  const setActiveTab = (newTab) => {
+  const toolFeatures = useMemo(() => ({
+    'timer': 'Đồng Hồ Bấm Giờ',
+    'call-student': 'Gọi Tên & Chia Nhóm',
+    'geo-experiments': 'Mô Hình Mô Phỏng 3D Địa Lí',
+    'virtual-lab': 'Mô Phỏng Thí Nghiệm KHTN',
+    'lecture-slides': 'Slide Bài Giảng',
+    'textbook-download': 'Đọc & Tải Sách Giáo Khoa',
+    'parent-meeting': 'Hỗ Trợ Họp Phụ Huynh',
+    'indoor-pe-dance': 'Thử Thách Thể Dục AI',
+    'homeroom': 'Lớp Chủ Nhiệm',
+    'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên'
+  }), []);
+
+  const setActiveTab = useCallback((newTab) => {
+    if (toolFeatures[newTab]) {
+      const access = StorageService.checkFeatureAccess(currentUser, newTab);
+      if (!access.allowed) {
+        setTrialModalInfo({
+          isOpen: true,
+          featureName: toolFeatures[newTab],
+          featureId: newTab
+        });
+      }
+    }
+
     setActiveTabState(newTab);
     try {
       if (window.location.hash !== `#${newTab}`) {
         window.location.hash = newTab;
       }
     } catch (e) {}
-  };
+  }, [currentUser, toolFeatures]);
+
+  // Consume 1-time trial for functional tool tabs on first entry
+  useEffect(() => {
+    if (toolFeatures[activeTab]) {
+      const access = StorageService.checkFeatureAccess(currentUser, activeTab);
+      if (access.isTrial) {
+        const updated = StorageService.consumeFeatureTrial(currentUser, activeTab, toolFeatures[activeTab]);
+        if (updated) {
+          setCurrentUser(updated);
+        }
+      }
+    }
+  }, [activeTab, currentUser, toolFeatures]);
 
   const [baseGames, setBaseGames] = useState(() => {
     return StorageService.getBaseGames();
@@ -671,44 +808,63 @@ export function App() {
         <React.Suspense fallback={<ViewLoadingFallback />}>
           {/* View 2: Gọi Tên Học Sinh (Student Picker System) */}
           {activeTab === 'call-student' && (
-            <StudentPickerManager 
-              currentUser={currentUser} 
-              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-              onCustomize={(template) => setEditingGameTemplate(template)}
-              onNavigateToHomeroom={() => setActiveTab('homeroom')}
-            />
+            !StorageService.checkFeatureAccess(currentUser, 'call-student').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Gọi Tên & Chia Nhóm Học Sinh"
+                featureId="call-student"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <StudentPickerManager 
+                currentUser={currentUser} 
+                onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+                onCustomize={(template) => setEditingGameTemplate(template)}
+                onNavigateToHomeroom={() => setActiveTab('homeroom')}
+              />
+            )
           )}
 
           {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
           {activeTab === 'timer' && (
-            <ClassroomTimerManager 
-              currentUser={currentUser}
-              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-            />
+            !StorageService.checkFeatureAccess(currentUser, 'timer').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Đồng Hồ Bấm Giờ Lớp Học"
+                featureId="timer"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <ClassroomTimerManager 
+                currentUser={currentUser}
+                onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+              />
+            )
           )}
 
           {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
           {activeTab === 'homeroom' && (
-            <HomeroomManager currentUser={currentUser} />
+            !StorageService.checkFeatureAccess(currentUser, 'homeroom').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Quản Lý Lớp Chủ Nhiệm"
+                featureId="homeroom"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <HomeroomManager currentUser={currentUser} />
+            )
           )}
 
           {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
           {activeTab === 'indoor-pe-dance' && (
             !StorageService.checkFeatureAccess(currentUser, 'indoor-pe-dance').allowed ? (
-              <div style={{ padding: '60px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '24px', margin: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🔒</div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#ef4444' }}>Bạn Đã Sử Dụng Hết Lượt Trải Nghiệm Dùng Thử</h2>
-                <p style={{ color: '#475569', margin: '12px auto 24px auto', maxWidth: '500px', fontSize: '0.95rem', fontWeight: 600 }}>
-                  Hệ thống giáo dục Sky-Line là nền tảng đóng phí. Bạn đã trải nghiệm dùng thử 1 lần. Hãy liên hệ Thầy Hảo để nâng cấp tài khoản Không Giới Hạn!
-                </p>
-                <button 
-                  onClick={() => setTrialModalInfo({ isOpen: true, featureName: 'Thể Dục Trong Nhà AI', featureId: 'indoor-pe-dance' })}
-                  className="btn btn-primary"
-                  style={{ padding: '12px 28px', fontSize: '0.95rem', borderRadius: '14px', fontWeight: 800 }}
-                >
-                  Xem Bảng Nâng Cấp Không Giới Hạn
-                </button>
-              </div>
+              <FeatureLockedScreen 
+                featureName="Thử Thách Thể Dục AI Camera"
+                featureId="indoor-pe-dance"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
             ) : (
               <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
             )
@@ -731,36 +887,90 @@ export function App() {
 
           {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
           {activeTab === 'textbook-download' && (
-            <TextbookDownloadManager 
-              searchTerm={searchTerm} 
-              onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
-              onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
-            />
+            !StorageService.checkFeatureAccess(currentUser, 'textbook-download').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Đọc & Tải Sách Giáo Khoa"
+                featureId="textbook-download"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <TextbookDownloadManager 
+                searchTerm={searchTerm} 
+                onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
+                onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
+              />
+            )
           )}
 
           {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
           {activeTab === 'virtual-lab' && (
-            <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
+            !StorageService.checkFeatureAccess(currentUser, 'virtual-lab').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Mô Phỏng Thí Nghiệm KHTN"
+                featureId="virtual-lab"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
+            )
           )}
 
           {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
           {activeTab === 'geo-experiments' && (
-            <GeoExperimentsView currentUser={currentUser} />
+            !StorageService.checkFeatureAccess(currentUser, 'geo-experiments').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Mô Hình Mô Phỏng 3D Địa Lí"
+                featureId="geo-experiments"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <GeoExperimentsView currentUser={currentUser} />
+            )
           )}
 
           {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
           {activeTab === 'lecture-slides' && (
-            <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+            !StorageService.checkFeatureAccess(currentUser, 'lecture-slides').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Kho Slide Bài Giảng"
+                featureId="lecture-slides"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
+            )
           )}
 
           {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager) */}
           {activeTab === 'skl-web-links' && (
-            <SKLWebLinksManager currentUser={currentUser} />
+            !StorageService.checkFeatureAccess(currentUser, 'skl-web-links').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Kho Địa Chỉ Web Giáo Viên"
+                featureId="skl-web-links"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <SKLWebLinksManager currentUser={currentUser} />
+            )
           )}
 
           {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}
           {activeTab === 'parent-meeting' && (
-            <ParentMeetingSupport currentUser={currentUser} />
+            !StorageService.checkFeatureAccess(currentUser, 'parent-meeting').allowed ? (
+              <FeatureLockedScreen 
+                featureName="Hỗ Trợ Họp Phụ Huynh"
+                featureId="parent-meeting"
+                onOpenUpgrade={setTrialModalInfo}
+                onBrowseCatalog={() => setActiveTab('catalog')}
+              />
+            ) : (
+              <ParentMeetingSupport currentUser={currentUser} />
+            )
           )}
 
           {/* View 7: Quản Trị Admin */}

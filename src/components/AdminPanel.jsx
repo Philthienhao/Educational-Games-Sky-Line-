@@ -293,14 +293,14 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
         
         const pendingCount = googleUsers.filter(u => {
           const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
-          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
-          return !isUnlimited && !isUsed;
+          const uCount = Object.keys(u.usedFeatures || {}).length;
+          return !isUnlimited && uCount === 0;
         }).length;
 
         const usedCount = googleUsers.filter(u => {
           const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
-          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
-          return !isUnlimited && isUsed;
+          const uCount = Object.keys(u.usedFeatures || {}).length;
+          return !isUnlimited && uCount > 0;
         }).length;
 
         const unlimitedCount = googleUsers.filter(u => {
@@ -309,8 +309,9 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
 
         const displayedGoogleUsers = googleUsers.filter(u => {
           const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
-          const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
-          const isPending = !isUnlimited && !isUsed;
+          const uCount = Object.keys(u.usedFeatures || {}).length;
+          const isPending = !isUnlimited && uCount === 0;
+          const isUsed = !isUnlimited && uCount > 0;
 
           if (googleFilter === 'pending' && !isPending) return false;
           if (googleFilter === 'used' && !isUsed) return false;
@@ -682,8 +683,10 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                 <tbody>
                   {displayedGoogleUsers.map((u, idx) => {
                     const isUnlimited = u.accessTier === 'unlimited' || u.status === 'unlimited' || u.isPaid === true;
-                    const isUsed = u.status === 'trial_expired' || u.status === 'da_dung_thu' || (Number(u.totalTrialsUsed) || 0) >= 1;
-                    const isPending = !isUnlimited && !isUsed;
+                    const usedFeatures = (u.usedFeatures && typeof u.usedFeatures === 'object') ? u.usedFeatures : {};
+                    const usedCount = Object.keys(usedFeatures).length;
+                    const isUsed = !isUnlimited && usedCount > 0;
+                    const isPending = !isUnlimited && usedCount === 0;
 
                     const createdDateStr = u.createdAt ? new Date(u.createdAt).toLocaleDateString('vi-VN', {
                       day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
@@ -771,13 +774,13 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                               gap: '5px',
                               fontSize: '0.82rem',
                               fontWeight: 900,
-                              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
                               color: '#ffffff',
                               padding: '5px 12px',
                               borderRadius: '20px',
-                              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.35)'
+                              boxShadow: '0 2px 8px rgba(2, 132, 199, 0.35)'
                             }}>
-                              🚫 Đã dùng thử
+                              ⏳ Đã thử ({usedCount} mục)
                             </span>
                           ) : (
                             <span style={{
@@ -792,7 +795,7 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                               borderRadius: '20px',
                               boxShadow: '0 2px 8px rgba(245, 158, 11, 0.35)'
                             }}>
-                              ⏳ Đang chờ duyệt
+                              ✨ Mới đăng ký
                             </span>
                           )}
                         </td>
@@ -800,16 +803,34 @@ export function AdminPanel({ onOpenCreateGame, onOpenUserManagement, baseGames: 
                         {/* Trial Details */}
                         <td style={{ padding: '14px 16px', fontSize: '0.85rem', color: '#334155', fontWeight: 700 }}>
                           {isUnlimited ? (
-                            <span style={{ color: '#059669', fontWeight: 800 }}>Đã mở khóa 100% tính năng</span>
-                          ) : u.lastFeatureTried ? (
+                            <span style={{ color: '#059669', fontWeight: 800 }}>Đã mở khóa 100% tính năng & game</span>
+                          ) : usedCount > 0 ? (
                             <div>
-                              <div style={{ color: '#ef4444', fontWeight: 800 }}>Đã dùng: {u.lastFeatureTried.name || u.lastFeatureTried.id}</div>
-                              <div style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                                Lúc: {new Date(u.lastFeatureTried.at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                              <div style={{ color: '#0369a1', fontWeight: 800, marginBottom: '4px' }}>
+                                Đã trải nghiệm {usedCount} mục (mỗi mục 1 lần):
                               </div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxWidth: '320px' }}>
+                                {Object.keys(usedFeatures).map(fId => (
+                                  <span key={fId} style={{
+                                    fontSize: '0.72rem',
+                                    background: 'rgba(2, 132, 199, 0.1)',
+                                    color: '#0369a1',
+                                    padding: '2px 6px',
+                                    borderRadius: '6px',
+                                    fontWeight: 800
+                                  }}>
+                                    ✓ {StorageService.getFeatureDisplayName(fId)}
+                                  </span>
+                                ))}
+                              </div>
+                              {u.lastFeatureTried?.at && (
+                                <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+                                  Gần nhất: {new Date(u.lastFeatureTried.at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                </div>
+                              )}
                             </div>
                           ) : (
-                            <span style={{ color: '#d97706', fontWeight: 800 }}>Chưa dùng (Còn 1 lượt trải nghiệm)</span>
+                            <span style={{ color: '#d97706', fontWeight: 800 }}>Chưa dùng mục nào (Được thử mỗi game/tính năng 1 lần)</span>
                           )}
                         </td>
 

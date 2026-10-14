@@ -1,9 +1,10 @@
 import React from 'react';
-import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight } from 'lucide-react';
+import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
 import { getGameThumbnail } from '../utils/gameThumbnails';
+import { StorageService } from '../services/storage';
 
 function GameCardComponent({ 
   game, 
@@ -22,6 +23,15 @@ function GameCardComponent({
   const handleCustomize = onCustomize || onEditTemplate;
   const handleDelete = onDelete || onDeleteBaseGame;
   const thumbnailUrl = getGameThumbnail(game);
+
+  const featureId = String(game?.engineType || game?.gameType || game?.id || 'game').toLowerCase().trim();
+  const isTrialUsed = Boolean(
+    currentUser &&
+    StorageService.isGoogleUser(currentUser) &&
+    currentUser.accessTier !== 'unlimited' &&
+    !currentUser.isPaid &&
+    (currentUser.usedFeatures?.[featureId] || 0) >= 1
+  );
 
   return (
     <div 
@@ -103,8 +113,12 @@ function GameCardComponent({
           {game.category || 'Game Giáo Dục'}
         </span>
 
-        {/* Saved / Play Count Badge Floating Top Right */}
-        {isSavedGame ? (
+        {/* Saved / Play Count / Trial Lock Badge Floating Top Right */}
+        {isTrialUsed ? (
+          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 900, background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', padding: '5px 12px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.4)', zIndex: 2, boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Lock size={12} /> Đã dùng thử
+          </span>
+        ) : isSavedGame ? (
           <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#0d9488', color: '#ffffff', fontWeight: 900, border: '1px solid rgba(255,255,255,0.4)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
             ĐÃ LƯU
           </span>
@@ -192,16 +206,17 @@ function GameCardComponent({
               fontWeight: 800, 
               fontSize: '0.95rem',
               padding: '12px 20px',
-              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              boxShadow: '0 6px 18px rgba(13, 148, 136, 0.35)'
+              background: isTrialUsed ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)' : 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              boxShadow: isTrialUsed ? '0 4px 14px rgba(100, 116, 139, 0.3)' : '0 6px 18px rgba(13, 148, 136, 0.35)',
+              border: isTrialUsed ? '1.5px solid rgba(255, 255, 255, 0.25)' : 'none'
             }}
             onClick={() => {
               try { SoundFX.click(); } catch(e) {}
               if (handlePlay) handlePlay(game);
             }}
           >
-            <Play size={18} fill="#fff" />
-            <span>{isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay'}</span>
+            {isTrialUsed ? <Lock size={18} color="#ffffff" /> : <Play size={18} fill="#fff" />}
+            <span>{isTrialUsed ? 'Đã Dùng Thử (Cần Nâng Cấp)' : (isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay')}</span>
             <ArrowRight size={16} />
           </button>
 

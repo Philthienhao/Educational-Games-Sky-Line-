@@ -2361,14 +2361,62 @@ export const StorageService = {
     return false;
   },
 
+  getFeatureDisplayName: (featureId) => {
+    const clean = String(featureId || '').toLowerCase().trim();
+    const map = {
+      'duck-race': 'Đua Vịt Gọi Tên',
+      'turtle-race': 'Đua Rùa Gọi Tên',
+      'marble-race': 'Đua Bi Sinh Tử',
+      'wheel-of-fortune': 'Vòng Quay May Mắn',
+      'millionaire': 'Ai Là Triệu Phú',
+      'jeopardy': 'Đấu Trường Jeopardy',
+      'tug-of-war-dual': 'Kéo Co 2 Đội',
+      'tower-builder': 'Xây Tháp Tri Thức',
+      'car-race': 'Đua Xe Vượt Chướng Ngại Vật',
+      'pirate-ship-battle': 'Bắn Tàu Cướp Biển',
+      'magic-hat': 'Chiếc Mũ Ma Thuật',
+      'claw-machine': 'Gắp Thú Bông Gọi Tên',
+      'astronaut-explorer': 'Phi Hành Gia Thám Hiểm',
+      'magic-grimoire': 'Cổ Thư Triệu Hồi',
+      'student-group-divider': 'Chia Nhóm Học Sinh',
+      'indoor-pe-dance': 'Thử Thách Thể Dục AI',
+      'bouncing-words': 'Bóng Nảy Tìm Từ',
+      'flying-words': 'Bay Qua Từ Khóa',
+      'knowledge-train': 'Đoàn Tàu Tri Thức',
+      'fruit-ninja': 'Chém Trái Cây Tri Thức',
+      'math-sack-race': 'Đua Bao Bố Toán Học',
+      'minesweeper': 'Dò Mìn Tri Thức',
+      'picture-flip': 'Lật Hình Bí Mật',
+      'flashcard': 'Thẻ Ghi Nhớ Flashcard',
+      'matching-pairs': 'Nối Cặp Tương Ứng',
+      'crossword': 'Giải Ô Chữ Bí Mật',
+      'pose-imitation': 'Bắt Chước Dáng Điệu AI',
+      'head-tilt': 'Nghiêng Đầu Trả Lời AI',
+      'mario-race': 'Đua Xe Nấm Mario',
+      'mystery-box': 'Chiếc Hộp Bí Mật',
+      'timer': 'Đồng Hồ Bấm Giờ Lớp Học',
+      'classroom-timer': 'Đồng Hồ Bấm Giờ Lớp Học',
+      'call-student': 'Gọi Tên & Chia Nhóm Học Sinh',
+      'geo-experiments': 'Mô Hình Mô Phỏng 3D Địa Lí',
+      'virtual-lab': 'Mô Phỏng Thí Nghiệm KHTN',
+      'lecture-slides': 'Slide Bài Giảng',
+      'textbook-download': 'Đọc & Tải Sách Giáo Khoa',
+      'parent-meeting': 'Hỗ Trợ Họp Phụ Huynh',
+      'homeroom': 'Lớp Chủ Nhiệm',
+      'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên'
+    };
+    return map[clean] || featureId || 'Trò chơi / Tính năng';
+  },
+
   normalizeGoogleUser: (user) => {
     if (!user) return user;
     if (!StorageService.isGoogleUser(user)) return user;
 
     const email = String(user.email || user.username || '').trim().toLowerCase();
     const isUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true || user.paymentStatus === 'paid';
-    const totalTrials = Number(user.totalTrialsUsed) || (user.status === 'trial_expired' || user.status === 'da_dung_thu' ? 1 : 0);
-    const status = isUnlimited ? 'unlimited' : (totalTrials >= 1 ? 'trial_expired' : (user.status || 'trial'));
+    const usedFeatures = (user.usedFeatures && typeof user.usedFeatures === 'object') ? user.usedFeatures : {};
+    const totalTrials = Object.values(usedFeatures).reduce((sum, v) => sum + (Number(v) || 0), Number(user.totalTrialsUsed) || 0);
+    const status = isUnlimited ? 'unlimited' : 'trial';
 
     return {
       ...user,
@@ -2380,11 +2428,11 @@ export const StorageService = {
       school: user.school || 'Hệ Thống Hỗ Trợ Dạy Và Học',
       accessTier: isUnlimited ? 'unlimited' : 'trial',
       status: status,
-      trialLimit: user.trialLimit || 1,
+      trialLimit: 1, // 1 use per specific feature/game
       totalTrialsUsed: totalTrials,
       paymentStatus: isUnlimited ? 'paid' : (user.paymentStatus || 'unpaid'),
       isPaid: isUnlimited,
-      usedFeatures: user.usedFeatures || {}
+      usedFeatures: usedFeatures
     };
   },
 
@@ -2468,51 +2516,66 @@ export const StorageService = {
     const isAdmin = user.role === 'admin' || user.username === 'philthienhao' || user.id === 'user_admin';
     if (isAdmin) return { allowed: true, isUnlimited: true };
 
-    const isUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true;
+    const isUnlimited = user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true || user.paymentStatus === 'paid';
     if (isUnlimited) return { allowed: true, isUnlimited: true };
 
-    // Traditional pre-created teacher accounts are not limited
+    // Traditional pre-created seed teacher accounts are not limited
     if (!StorageService.isGoogleUser(user)) {
       return { allowed: true, isUnlimited: true };
     }
 
-    // Google Trial Account Check: 1-time platform trial limit
-    const totalTrialsUsed = Number(user.totalTrialsUsed || 0);
-    const isExpired = user.status === 'trial_expired' || user.status === 'da_dung_thu' || totalTrialsUsed >= 1;
+    // Google Trial Account Check: 1 trial per specific feature/game
+    const normFeatureId = String(featureId || 'game').trim().toLowerCase();
+    const usedFeatures = (user.usedFeatures && typeof user.usedFeatures === 'object') ? user.usedFeatures : {};
+    const usedCount = Number(usedFeatures[normFeatureId] || 0);
 
-    if (isExpired) {
+    if (usedCount >= 1) {
       return { 
         allowed: false, 
-        reason: 'trial_expired', 
+        reason: 'feature_trial_expired', 
         remaining: 0, 
-        usedCount: totalTrialsUsed || 1, 
-        featureId 
+        usedCount, 
+        featureId: normFeatureId,
+        featureName: StorageService.getFeatureDisplayName(normFeatureId)
       };
     }
 
-    return { allowed: true, isTrial: true, remaining: 1, featureId };
+    return { allowed: true, isTrial: true, remaining: 1, featureId: normFeatureId, featureName: StorageService.getFeatureDisplayName(normFeatureId) };
   },
 
   consumeFeatureTrial: (user, featureId, featureName) => {
     if (!user) return user;
     const isAdmin = user.role === 'admin' || user.username === 'philthienhao' || user.id === 'user_admin';
     if (isAdmin) return user;
-    if (user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true) return user;
+    if (user.accessTier === 'unlimited' || user.status === 'unlimited' || user.isPaid === true || user.paymentStatus === 'paid') return user;
     if (!StorageService.isGoogleUser(user)) return user;
 
-    const usedFeatures = { ...(user.usedFeatures || {}) };
-    usedFeatures[featureId] = (usedFeatures[featureId] || 0) + 1;
-    const totalTrialsUsed = (user.totalTrialsUsed || 0) + 1;
+    const normFeatureId = String(featureId || 'game').trim().toLowerCase();
+    const usedFeatures = { ...((user.usedFeatures && typeof user.usedFeatures === 'object') ? user.usedFeatures : {}) };
+    usedFeatures[normFeatureId] = (Number(usedFeatures[normFeatureId]) || 0) + 1;
+    const totalTrialsUsed = Object.values(usedFeatures).reduce((sum, v) => sum + (Number(v) || 0), 0);
+
+    const friendlyName = featureName || StorageService.getFeatureDisplayName(normFeatureId);
 
     const updatedUser = StorageService.updateUser(user.id, {
       usedFeatures,
       totalTrialsUsed,
-      status: 'trial_expired',
-      lastFeatureTried: { id: featureId, name: featureName, at: new Date().toISOString() }
+      status: user.accessTier === 'unlimited' ? 'unlimited' : 'trial',
+      lastFeatureTried: { id: normFeatureId, name: friendlyName, at: new Date().toISOString() }
     });
 
+    try {
+      const curStr = localStorage.getItem(CURRENT_USER_KEY);
+      if (curStr) {
+        const curObj = JSON.parse(curStr);
+        if (curObj && curObj.id === user.id) {
+          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({ ...curObj, usedFeatures, totalTrialsUsed }));
+        }
+      }
+    } catch (e) {}
+
     StorageService.broadcastGoogleUsersToCloud().catch(() => {});
-    return updatedUser || user;
+    return updatedUser || { ...user, usedFeatures, totalTrialsUsed };
   },
 
   broadcastGoogleUsersToCloud: async () => {
@@ -2546,17 +2609,25 @@ export const StorageService = {
           if (map.has(key)) {
             const existing = map.get(key);
             const isUnlimited = existing.accessTier === 'unlimited' || norm.accessTier === 'unlimited' || existing.isPaid || norm.isPaid;
-            const hasUsedTrial = existing.status === 'trial_expired' || norm.status === 'trial_expired' || (Number(existing.totalTrialsUsed) || 0) >= 1 || (Number(norm.totalTrialsUsed) || 0) >= 1;
+            
+            // Deep merge usedFeatures
+            const mergedUsedFeatures = { ...(existing.usedFeatures || {}) };
+            if (norm.usedFeatures && typeof norm.usedFeatures === 'object') {
+              Object.entries(norm.usedFeatures).forEach(([fid, cnt]) => {
+                mergedUsedFeatures[fid] = Math.max(Number(mergedUsedFeatures[fid] || 0), Number(cnt || 0));
+              });
+            }
+            const totalTrials = Object.values(mergedUsedFeatures).reduce((sum, v) => sum + (Number(v) || 0), 0);
 
             map.set(key, {
               ...existing,
               ...norm,
               accessTier: isUnlimited ? 'unlimited' : 'trial',
-              status: isUnlimited ? 'unlimited' : (hasUsedTrial ? 'trial_expired' : 'trial'),
+              status: isUnlimited ? 'unlimited' : 'trial',
               isPaid: isUnlimited,
               paymentStatus: isUnlimited ? 'paid' : (norm.paymentStatus || existing.paymentStatus || 'unpaid'),
-              totalTrialsUsed: Math.max(Number(existing.totalTrialsUsed) || 0, Number(norm.totalTrialsUsed) || 0),
-              usedFeatures: { ...(existing.usedFeatures || {}), ...(norm.usedFeatures || {}) },
+              totalTrialsUsed: totalTrials,
+              usedFeatures: mergedUsedFeatures,
               updatedAt: new Date().toISOString()
             });
           } else {
@@ -2610,7 +2681,15 @@ export const StorageService = {
           const local = currentUsers[idx];
           // Merge rich Google properties into local user without erasing trial usage
           const isUnlimited = local.accessTier === 'unlimited' || norm.accessTier === 'unlimited' || local.isPaid || norm.isPaid;
-          const hasUsedTrial = local.status === 'trial_expired' || norm.status === 'trial_expired' || (Number(local.totalTrialsUsed) || 0) >= 1 || (Number(norm.totalTrialsUsed) || 0) >= 1;
+
+          // Deep merge usedFeatures
+          const mergedUsedFeatures = { ...(local.usedFeatures || {}) };
+          if (norm.usedFeatures && typeof norm.usedFeatures === 'object') {
+            Object.entries(norm.usedFeatures).forEach(([fid, cnt]) => {
+              mergedUsedFeatures[fid] = Math.max(Number(mergedUsedFeatures[fid] || 0), Number(cnt || 0));
+            });
+          }
+          const totalTrials = Object.values(mergedUsedFeatures).reduce((sum, v) => sum + (Number(v) || 0), 0);
 
           currentUsers[idx] = {
             ...local,
@@ -2618,11 +2697,11 @@ export const StorageService = {
             authProvider: 'google',
             email: norm.email || local.email || cleanKey,
             accessTier: isUnlimited ? 'unlimited' : 'trial',
-            status: isUnlimited ? 'unlimited' : (hasUsedTrial ? 'trial_expired' : 'trial'),
+            status: isUnlimited ? 'unlimited' : 'trial',
             isPaid: isUnlimited,
             paymentStatus: isUnlimited ? 'paid' : (norm.paymentStatus || local.paymentStatus || 'unpaid'),
-            totalTrialsUsed: Math.max(Number(local.totalTrialsUsed) || 0, Number(norm.totalTrialsUsed) || 0),
-            usedFeatures: { ...(local.usedFeatures || {}), ...(norm.usedFeatures || {}) }
+            totalTrialsUsed: totalTrials,
+            usedFeatures: mergedUsedFeatures
           };
           updated = true;
         }

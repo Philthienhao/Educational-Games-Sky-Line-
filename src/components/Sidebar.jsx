@@ -216,6 +216,20 @@ export function Sidebar({
                   {item.count > 0 && (
                     <span className="menu-count-badge">{item.count}</span>
                   )}
+                  {item.id !== 'catalog' && item.id !== 'my-games' && currentUser && StorageService.isGoogleUser(currentUser) && currentUser.accessTier !== 'unlimited' && !currentUser.isPaid && (currentUser.usedFeatures?.[item.id] || 0) >= 1 && (
+                    <span style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.4)',
+                      color: '#dc2626',
+                      fontSize: '0.62rem',
+                      fontWeight: 900,
+                      padding: '2px 6px',
+                      borderRadius: '6px',
+                      marginLeft: 'auto'
+                    }}>
+                      🔒 Đã thử
+                    </span>
+                  )}
                   {item.badge && (
                     <span style={{
                       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -361,15 +375,14 @@ export function Sidebar({
                       💎 Không giới hạn
                     </span>
                   ) : (currentUser?.authProvider === 'google' || currentUser?.email || (currentUser?.username && String(currentUser.username).includes('@'))) ? (
-                    (currentUser?.status === 'trial_expired' || (currentUser?.totalTrialsUsed || 0) >= 1) ? (
-                      <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
-                        🚫 Đã dùng thử
-                      </span>
-                    ) : (
-                      <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
-                        ⏳ Dùng thử (1 lần)
-                      </span>
-                    )
+                    (() => {
+                      const usedCount = Object.keys(currentUser?.usedFeatures || {}).length;
+                      return (
+                        <span style={{ fontSize: '0.68rem', fontWeight: 900, background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#ffffff', padding: '1px 6px', borderRadius: '6px' }}>
+                          {usedCount > 0 ? `⏳ Dùng thử (${usedCount} đã thử)` : '⏳ Dùng thử (1 lần/mục)'}
+                        </span>
+                      );
+                    })()
                   ) : null}
                   <span style={{ fontSize: '0.7rem', color: '#0284c7', fontWeight: 800 }}>
                     @{currentUser?.username}
