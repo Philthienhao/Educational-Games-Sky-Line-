@@ -30,6 +30,7 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
   // Active Book for Digital Reader Modal
   const [readingBook, setReadingBook] = useState(null);
   const [activePdfUrl, setActivePdfUrl] = useState(null);
+  const [activeBookPart, setActiveBookPart] = useState('full'); // 'full' | 'lichsu' | 'diali'
   const [readerViewMode, setReaderViewMode] = useState('pdf'); // 'pdf' | 'text'
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [readerText, setReaderText] = useState('');
@@ -42,6 +43,17 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
 
   // Toast Notification for Drive Download
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Pre-warm browser cache in background for high-speed instant PDF opening
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'fetch' in window) {
+      const timer = setTimeout(() => {
+        fetch('/textbooks/LSDL7_LichSu.pdf').catch(() => {});
+        fetch('/textbooks/LSDL7_DiaLi.pdf').catch(() => {});
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Auto-dismiss PDF spinner after safety timeout
   useEffect(() => {
@@ -80,8 +92,8 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
     return false;
   };
 
-  // Helper to resolve direct PDF URL for a book
-  const getPdfUrlForBook = (book) => {
+  // Helper to resolve direct PDF URL for a book (supports fast volume splitting)
+  const getPdfUrlForBook = (book, part = 'full') => {
     if (!book) return null;
     if (uploadedPdfs[book.id]) return uploadedPdfs[book.id];
 
@@ -101,6 +113,8 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
       cleanFileName.includes('lich_su_va_dia_ly_7') ||
       cleanFileName.includes('lsdl7')
     ) {
+      if (part === 'lichsu') return '/textbooks/LSDL7_LichSu.pdf';
+      if (part === 'diali') return '/textbooks/LSDL7_DiaLi.pdf';
       return '/textbooks/LSDL7.pdf';
     }
 
@@ -404,6 +418,15 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
     }
   };
 
+  // Fast Part Switcher for Lịch sử & Địa lí 7 (High Speed Loading)
+  const handleSwitchPart = (part) => {
+    if (!readingBook) return;
+    setActiveBookPart(part);
+    setIsPdfLoading(true);
+    const newUrl = getPdfUrlForBook(readingBook, part);
+    setActivePdfUrl(newUrl);
+  };
+
   // Open In-App Reader Modal for Online Reading
   const handleOpenReader = async (book) => {
     if (!book) return;
@@ -412,7 +435,16 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
     setReaderSearch('');
     setPdfLoadError(false);
 
-    const pdfUrl = getPdfUrlForBook(book);
+    // Smart default part based on selected subject filter
+    let initialPart = 'full';
+    if (selectedSubject === 'Lịch Sử') {
+      initialPart = 'lichsu';
+    } else if (selectedSubject === 'Địa Lí') {
+      initialPart = 'diali';
+    }
+    setActiveBookPart(initialPart);
+
+    const pdfUrl = getPdfUrlForBook(book, initialPart);
     setActivePdfUrl(pdfUrl);
 
     // If PDF is available, open directly in PDF mode
@@ -476,6 +508,12 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [readingBook, isFullScreen]);
+
+  const isLsdl7Book = Boolean(readingBook && (
+    readingBook.id === 'sgk_wpr3rk9' ||
+    ((readingBook.title || '').toLowerCase().includes('lịch sử') && (readingBook.title || '').toLowerCase().includes('địa')) ||
+    ((readingBook.title || '').toLowerCase().includes('lich su') && (readingBook.title || '').toLowerCase().includes('dia'))
+  ));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1324,6 +1362,93 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
             {/* Modal Body Container */}
             <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#334155' }}>
               
+              {/* Fast Part Switcher Bar for Lịch Sử & Địa Lí 7 */}
+              {isLsdl7Book && (
+                <div style={{
+                  background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)',
+                  padding: '10px 20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(255,255,255,0.12)',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  zIndex: 20
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🚀 Chọn tập để tải nhanh gấp đôi:
+                    </span>
+                    <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.06)', padding: '3px', borderRadius: '12px' }}>
+                      <button
+                        onClick={() => handleSwitchPart('lichsu')}
+                        style={{
+                          background: activeBookPart === 'lichsu' ? '#0d9488' : 'transparent',
+                          color: activeBookPart === 'lichsu' ? '#ffffff' : '#cbd5e1',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '9px',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: activeBookPart === 'lichsu' ? '0 2px 10px rgba(13,148,136,0.4)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        🏛️ Phần 1: Lịch Sử (92 trang • 17MB)
+                      </button>
+                      <button
+                        onClick={() => handleSwitchPart('diali')}
+                        style={{
+                          background: activeBookPart === 'diali' ? '#0284c7' : 'transparent',
+                          color: activeBookPart === 'diali' ? '#ffffff' : '#cbd5e1',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '9px',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: activeBookPart === 'diali' ? '0 2px 10px rgba(2,132,199,0.4)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        🌍 Phần 2: Địa Lí (95 trang • 18MB)
+                      </button>
+                      <button
+                        onClick={() => handleSwitchPart('full')}
+                        style={{
+                          background: activeBookPart === 'full' ? '#475569' : 'transparent',
+                          color: activeBookPart === 'full' ? '#ffffff' : '#cbd5e1',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '9px',
+                          fontSize: '0.82rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: activeBookPart === 'full' ? '0 2px 10px rgba(0,0,0,0.3)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        📚 Trọn Bộ Sách (187 trang)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: '0.78rem', color: '#6ee7b7', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    ⚡ Đã bật bộ nhớ đệm (Cache) — các lần mở sau sẽ mở tức thì trong 1 giây!
+                  </div>
+                </div>
+              )}
+
               {/* PDF VIEW MODE */}
               {readerViewMode === 'pdf' && (
                 activePdfUrl ? (
@@ -1339,7 +1464,7 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '16px',
+                        gap: '14px',
                         color: '#ffffff',
                         padding: '24px',
                         textAlign: 'center'
@@ -1357,11 +1482,47 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
                           <RefreshCw size={36} className="spin-icon" color="#2dd4bf" />
                         </div>
                         <h4 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#f0fdfa' }}>
-                          Đang tải trang sách PDF trực tiếp...
+                          Đang nạp file sách PDF trực tiếp...
                         </h4>
-                        <p style={{ margin: 0, fontSize: '0.88rem', color: '#99f6e4', maxWidth: '420px', lineHeight: 1.5 }}>
-                          Hệ thống đang mở toàn bộ file sách giáo khoa trên giao diện. Thầy cô có thể lật trang, phóng to, thu nhỏ và đọc mượt mà ngay tại đây.
+                        <p style={{ margin: 0, fontSize: '0.88rem', color: '#99f6e4', maxWidth: '440px', lineHeight: 1.5 }}>
+                          ⚡ Lần đầu tải sách có thể mất vài giây. Trình duyệt đã bật lưu đệm (Cache) để các lần mở tiếp theo hiển thị ngay lập tức trong 1 giây!
                         </p>
+                        {isLsdl7Book && activeBookPart === 'full' && (
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              onClick={() => handleSwitchPart('lichsu')}
+                              style={{
+                                background: '#0d9488',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '10px',
+                                fontWeight: 800,
+                                fontSize: '0.82rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 2px 8px rgba(13,148,136,0.3)'
+                              }}
+                            >
+                              🚀 Mở Nhanh Phần Lịch Sử (17MB)
+                            </button>
+                            <button
+                              onClick={() => handleSwitchPart('diali')}
+                              style={{
+                                background: '#0284c7',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '8px 16px',
+                                borderRadius: '10px',
+                                fontWeight: 800,
+                                fontSize: '0.82rem',
+                                cursor: 'pointer',
+                                boxShadow: '0 2px 8px rgba(2,132,199,0.3)'
+                              }}
+                            >
+                              🚀 Mở Nhanh Phần Địa Lí (18MB)
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                     <iframe

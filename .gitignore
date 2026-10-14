@@ -57,6 +57,10 @@ public/textbooks/SGK_*
 public/textbooks/*.pdf
 !public/textbooks/LSDL7.pdf
 !public/LSDL7.pdf
+!public/textbooks/LSDL7_LichSu.pdf
+!public/LSDL7_LichSu.pdf
+!public/textbooks/LSDL7_DiaLi.pdf
+!public/LSDL7_DiaLi.pdf
 .env*
 
 # Ignore heavy scratch media & test files
