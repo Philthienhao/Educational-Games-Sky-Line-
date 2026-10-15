@@ -13,6 +13,22 @@ export function LoginModal({ onLoginSuccess }) {
   // Navigation tab: 'gmail' (primary default) vs 'traditional' (school / admin account)
   const [activeTab, setActiveTab] = useState('gmail');
 
+  // Mobile Screen & Responsive Detection (<= 768px)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth <= 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Traditional Account State
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -295,6 +311,773 @@ export function LoginModal({ onLoginSuccess }) {
     }
   ];
 
+  // ========================================================
+  // DEDICATED MOBILE INTERFACE (PHONES & TABLETS <= 768px)
+  // ========================================================
+  if (isMobile) {
+    return (
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        width: '100vw',
+        height: '100vh',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        background: 'radial-gradient(circle at 50% 10%, #0d233a 0%, #06121c 55%, #02070c 100%)',
+        fontFamily: "'Montserrat', system-ui, -apple-system, sans-serif",
+        color: '#ffffff',
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box'
+      }}>
+        {/* Dynamic Glowing Ambient Aura Lights */}
+        <div style={{
+          position: 'fixed',
+          top: '-10%',
+          left: '-10%',
+          width: '320px',
+          height: '320px',
+          background: 'radial-gradient(circle, rgba(2, 132, 199, 0.28) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }} />
+        <div style={{
+          position: 'fixed',
+          bottom: '-10%',
+          right: '-10%',
+          width: '320px',
+          height: '320px',
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, transparent 70%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }} />
+
+        {/* Mobile Content Container */}
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: '480px',
+          margin: '0 auto',
+          padding: '16px 14px 28px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          boxSizing: 'border-box'
+        }}>
+
+          {/* Top Brand Header (Native Mobile App Bar) */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '4px 2px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '13px',
+                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 6px 18px rgba(2, 132, 199, 0.45)',
+                border: '1.5px solid rgba(255, 255, 255, 0.25)',
+                flexShrink: 0
+              }}>
+                <BookOpen size={20} color="#ffffff" />
+              </div>
+              <div>
+                <div style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '4px',
+                  background: 'rgba(2, 132, 199, 0.2)',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  padding: '2px 7px',
+                  borderRadius: '8px',
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  color: '#38bdf8'
+                }}>
+                  <Sparkles size={10} color="#fde047" /> MỌI MÔN HỌC
+                </div>
+                <h1 style={{
+                  fontSize: '1.05rem',
+                  fontWeight: 900,
+                  margin: '2px 0 0 0',
+                  letterSpacing: '-0.3px',
+                  color: '#ffffff'
+                }}>
+                  ĐỒ NGHỀ DẠY HỌC
+                </h1>
+              </div>
+            </div>
+
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '0.66rem',
+              color: '#34d399',
+              background: 'rgba(16, 185, 129, 0.15)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
+              padding: '4px 8px',
+              borderRadius: '10px',
+              fontWeight: 800
+            }}>
+              <ShieldCheck size={13} color="#10b981" /> Bảo mật
+            </div>
+          </div>
+
+          {/* Inspirational Slogan Card (Mini) */}
+          <div style={{
+            background: 'rgba(13, 27, 45, 0.75)',
+            border: '1px solid rgba(56, 189, 248, 0.25)',
+            borderRadius: '16px',
+            padding: '10px 14px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span style={{
+                fontSize: '0.62rem',
+                fontWeight: 800,
+                color: '#38bdf8',
+                background: 'rgba(56, 189, 248, 0.15)',
+                padding: '1px 6px',
+                borderRadius: '6px'
+              }}>
+                {slogans[sloganIndex].tag}
+              </span>
+              <div style={{ display: 'flex', gap: '3px' }}>
+                {slogans.map((_, idx) => (
+                  <div 
+                    key={idx}
+                    onClick={() => setSloganIndex(idx)}
+                    style={{
+                      width: idx === sloganIndex ? '12px' : '4px',
+                      height: '4px',
+                      borderRadius: '2px',
+                      background: idx === sloganIndex ? '#38bdf8' : 'rgba(255, 255, 255, 0.2)',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.25 }}>
+              "{slogans[sloganIndex].title}"
+            </div>
+            <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '2px', lineHeight: 1.3 }}>
+              {slogans[sloganIndex].subtitle}
+            </div>
+          </div>
+
+          {/* Mobile Segmented Tab Switcher (Touch-friendly 46px height) */}
+          <div style={{
+            display: 'flex',
+            background: 'rgba(15, 23, 42, 0.85)',
+            padding: '4px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            gap: '6px'
+          }}>
+            <button
+              type="button"
+              onClick={() => {
+                SoundFX.click();
+                setActiveTab('gmail');
+              }}
+              style={{
+                flex: 1,
+                minHeight: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 10px',
+                borderRadius: '13px',
+                border: 'none',
+                background: activeTab === 'gmail' 
+                  ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' 
+                  : 'transparent',
+                color: activeTab === 'gmail' ? '#ffffff' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+                boxShadow: activeTab === 'gmail' ? '0 4px 14px rgba(2, 132, 199, 0.4)' : 'none'
+              }}
+            >
+              <Zap size={14} color={activeTab === 'gmail' ? '#fde047' : '#94a3b8'} />
+              <span>Google / Gmail</span>
+              <span style={{
+                background: activeTab === 'gmail' ? '#10b981' : 'rgba(255,255,255,0.1)',
+                color: '#ffffff',
+                fontSize: '0.55rem',
+                fontWeight: 900,
+                padding: '1px 5px',
+                borderRadius: '5px'
+              }}>
+                Nhanh
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                SoundFX.click();
+                setActiveTab('traditional');
+              }}
+              style={{
+                flex: 1,
+                minHeight: '44px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 10px',
+                borderRadius: '13px',
+                border: 'none',
+                background: activeTab === 'traditional' 
+                  ? 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)' 
+                  : 'transparent',
+                color: activeTab === 'traditional' ? '#ffffff' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.84rem',
+                cursor: 'pointer',
+                boxShadow: activeTab === 'traditional' ? '0 4px 14px rgba(79, 70, 229, 0.4)' : 'none'
+              }}
+            >
+              <Lock size={13} color={activeTab === 'traditional' ? '#ffffff' : '#94a3b8'} />
+              <span>Tài Khoản Trường</span>
+            </button>
+          </div>
+
+          {/* Main Mobile Auth Card */}
+          <div style={{
+            background: 'rgba(10, 20, 32, 0.95)',
+            border: '1.5px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '22px',
+            padding: '20px 16px',
+            boxShadow: '0 12px 35px rgba(0, 0, 0, 0.7)'
+          }}>
+
+            {/* TAB 1: GMAIL / GOOGLE LOGIN */}
+            {activeTab === 'gmail' && (
+              <div>
+                {/* One-Tap Native Google OAuth Button */}
+                <button
+                  type="button"
+                  onClick={handleTriggerGoogleOAuth}
+                  style={{
+                    width: '100%',
+                    minHeight: '46px',
+                    borderRadius: '13px',
+                    background: '#ffffff',
+                    color: '#1f2937',
+                    border: '1.5px solid #e5e7eb',
+                    fontWeight: 800,
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    marginBottom: '14px'
+                  }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                    <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                  </svg>
+                  <span>TIẾP TỤC VỚI GOOGLE</span>
+                </button>
+
+                {/* Divider */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  margin: '0 0 14px 0'
+                }}>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.12)' }} />
+                  <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase' }}>
+                    HOẶC ĐIỀN NHANH GMAIL
+                  </span>
+                  <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.12)' }} />
+                </div>
+
+                {googleNotice && (
+                  <div style={{
+                    background: 'rgba(2, 132, 199, 0.18)',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    color: '#e0f2fe',
+                    padding: '8px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.74rem',
+                    marginBottom: '10px',
+                    lineHeight: 1.35
+                  }}>
+                    {googleNotice}
+                  </div>
+                )}
+
+                {googleError && (
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#fca5a5',
+                    padding: '8px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <AlertCircle size={15} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <span>{googleError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleDirectGmailSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
+                      ĐỊA CHỈ GMAIL CỦA THẦY/CÔ: <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <Mail size={16} color="#38bdf8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="email"
+                        required
+                        value={googleEmail}
+                        onChange={(e) => setGoogleEmail(e.target.value)}
+                        placeholder="Nhập địa chỉ Gmail của Thầy/Cô"
+                        style={{
+                          width: '100%',
+                          minHeight: '48px',
+                          padding: '12px 14px 12px 38px',
+                          borderRadius: '13px',
+                          background: 'rgba(15, 23, 42, 0.95)',
+                          border: '1.5px solid rgba(56, 189, 248, 0.4)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '16px', // 16px to prevent iOS Safari auto-zoom
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
+                      HỌ VÀ TÊN GIÁO VIÊN:
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        value={googleName}
+                        onChange={(e) => setGoogleName(e.target.value)}
+                        placeholder="VD: Cô Mai Anh (tùy chọn)"
+                        style={{
+                          width: '100%',
+                          minHeight: '48px',
+                          padding: '12px 14px 12px 38px',
+                          borderRadius: '13px',
+                          background: 'rgba(15, 23, 42, 0.95)',
+                          border: '1.5px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '16px', // 16px to prevent iOS Safari auto-zoom
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={googleLoading}
+                    style={{
+                      marginTop: '4px',
+                      minHeight: '50px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: '0.92rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      cursor: googleLoading ? 'wait' : 'pointer',
+                      boxShadow: '0 6px 20px rgba(2, 132, 199, 0.45)'
+                    }}
+                  >
+                    <span>{googleLoading ? 'ĐANG KẾT NỐI...' : 'VÀO HỆ THỐNG / DÙNG THỬ 🚀'}</span>
+                  </button>
+                </form>
+
+                <p style={{
+                  fontSize: '0.68rem',
+                  color: '#94a3b8',
+                  textAlign: 'center',
+                  marginTop: '10px',
+                  lineHeight: 1.3
+                }}>
+                  ✨ Tự động tạo hồ sơ dùng thử ngay tức khắc, không cần nhớ mật khẩu.
+                </p>
+              </div>
+            )}
+
+            {/* TAB 2: TRADITIONAL ACCOUNT LOGIN */}
+            {activeTab === 'traditional' && (
+              <div>
+                {errorMsg && (
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#fca5a5',
+                    padding: '8px 10px',
+                    borderRadius: '12px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <AlertCircle size={15} color="#ef4444" style={{ flexShrink: 0 }} />
+                    <span>{errorMsg}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleTraditionalLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
+                      TÊN TÀI KHOẢN GIÁO VIÊN: <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <User size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Nhập tên tài khoản giáo viên"
+                        style={{
+                          width: '100%',
+                          minHeight: '48px',
+                          padding: '12px 14px 12px 38px',
+                          borderRadius: '13px',
+                          background: 'rgba(15, 23, 42, 0.95)',
+                          border: '1.5px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '16px', // 16px prevents iOS Safari auto-zoom
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#cbd5e1', display: 'block', marginBottom: '4px' }}>
+                      MẬT KHẨU: <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Nhập mật khẩu"
+                        style={{
+                          width: '100%',
+                          minHeight: '48px',
+                          padding: '12px 42px 12px 38px',
+                          borderRadius: '13px',
+                          background: 'rgba(15, 23, 42, 0.95)',
+                          border: '1.5px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          fontWeight: 700,
+                          fontSize: '16px', // 16px prevents iOS Safari auto-zoom
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
+                          padding: '4px',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                      marginTop: '4px',
+                      minHeight: '50px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
+                      color: '#ffffff',
+                      fontWeight: 900,
+                      fontSize: '0.92rem',
+                      border: 'none',
+                      cursor: loading ? 'wait' : 'pointer',
+                      boxShadow: '0 6px 20px rgba(79, 70, 229, 0.45)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    {loading ? 'ĐANG XÁC THỰC...' : (
+                      <>
+                        <span>ĐĂNG NHẬP HỆ THỐNG</span>
+                        <ArrowRight size={16} />
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <p style={{
+                  fontSize: '0.68rem',
+                  color: '#94a3b8',
+                  textAlign: 'center',
+                  marginTop: '10px',
+                  lineHeight: 1.3
+                }}>
+                  * Dành cho Thầy/Cô đã được cấp tài khoản hoặc đăng ký gói bản quyền.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Feature Highlights Cards (Horizontal Swipeable / Snap) */}
+          <div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '8px',
+              padding: '0 4px'
+            }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                🌟 TÍNH NĂNG NỔI BẬT
+              </span>
+              <span style={{ fontSize: '0.64rem', color: '#64748b' }}>
+                Vuốt sang để xem ➡️
+              </span>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              overflowX: 'auto',
+              scrollSnapType: 'x mandatory',
+              WebkitOverflowScrolling: 'touch',
+              paddingBottom: '6px'
+            }}>
+              {coreFeatures.map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    flex: '0 0 85%',
+                    scrollSnapAlign: 'start',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: `1px solid ${item.border}`,
+                    borderRadius: '16px',
+                    padding: '12px 14px',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '10px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <div style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '11px',
+                    background: item.bg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', marginBottom: '2px' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#ffffff' }}>
+                        {item.title}
+                      </span>
+                      <span style={{
+                        fontSize: '0.58rem',
+                        fontWeight: 800,
+                        color: item.badgeColor,
+                        background: item.bg,
+                        padding: '1px 5px',
+                        borderRadius: '5px',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {item.badge}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: 0, lineHeight: 1.3 }}>
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Footer & Quick Support Actions */}
+          <div style={{
+            marginTop: '6px',
+            paddingTop: '12px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              flexWrap: 'wrap'
+            }}>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>
+                Hỗ trợ 24/7:
+              </span>
+
+              {/* Zalo Button */}
+              <a
+                href="https://zalo.me/0387806954"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  padding: '6px 14px',
+                  borderRadius: '11px',
+                  textDecoration: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  boxShadow: '0 3px 10px rgba(2, 132, 199, 0.35)'
+                }}
+              >
+                <span style={{
+                  background: '#ffffff',
+                  color: '#0284c7',
+                  borderRadius: '4px',
+                  fontWeight: 900,
+                  fontSize: '0.58rem',
+                  padding: '1px 4px'
+                }}>
+                  Zalo
+                </span>
+                <span>0387806954</span>
+              </a>
+
+              {/* Facebook Button */}
+              <a
+                href="https://www.facebook.com/phil.thienhao"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  color: '#cbd5e1',
+                  padding: '6px 12px',
+                  borderRadius: '11px',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  border: '1px solid rgba(255, 255, 255, 0.12)'
+                }}
+              >
+                <ExternalLink size={12} color="#38bdf8" />
+                <span>Facebook</span>
+              </a>
+            </div>
+
+            {/* Author Profile Signature */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '6px 0'
+            }}>
+              <div style={{
+                width: '26px',
+                height: '26px',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '1.5px solid #0284c7',
+                flexShrink: 0
+              }}>
+                <img 
+                  src="/assets/thayhaodiali.jpg" 
+                  alt="Thầy Hảo" 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => { e.target.src = '/assets/thayhao_assistant_avatar.png'; }}
+                />
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 600 }}>
+                Thầy Hảo • <span style={{ color: '#38bdf8' }}>Đồng hành cùng giáo viên toàn quốc</span> ❤️
+              </div>
+            </div>
+
+            <div style={{ fontSize: '0.62rem', color: '#64748b' }}>
+              Bản quyền © 2026 Hệ Thống Đồ Nghề Dạy Học
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================================
+  // DESKTOP & LAPTOP INTERFACE (STRICT RULE 14: SINGLE VIEWPORT)
+  // ========================================================
   return (
     <div style={{
       position: 'fixed',
