@@ -347,6 +347,7 @@ export function App() {
     else if (engineType === 'crossword') { icon = '🧩'; defaultName = 'Ô Chữ Khóa Bí Mật'; }
     else if (engineType === 'pose-imitation') { icon = '🏃‍♂️'; defaultName = 'Bắt Chước Tư Thế Camera'; }
     else if (engineType === 'indoor-pe-dance') { icon = '🏃‍♂️'; defaultName = 'Thử thách thể dục'; }
+    else if (engineType === 'mosquito-slayer') { icon = '🦟'; defaultName = 'Dũng Sĩ Diệt Muỗi'; }
 
     const titleText = targetGameTitle || `${defaultName} (AI - ${new Date().toLocaleDateString('vi-VN')})`;
 

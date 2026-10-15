@@ -134,6 +134,7 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
 
     if (rawTitle.includes('bắt chước')) effectiveEngineType = 'pose-imitation';
     else if (rawTitle.includes('nghiêng đầu')) effectiveEngineType = 'head-tilt';
+    else if (rawTitle.includes('diệt muỗi') || rawTitle.includes('đập muỗi') || rawTitle.includes('muỗi') || rawId.includes('mosquito')) effectiveEngineType = 'mosquito-slayer';
     else if (rawTitle.includes('kéo co đôi') || rawTitle.includes('kéo co kiến thức')) effectiveEngineType = 'tug-of-war-dual';
     else if (rawTitle.includes('kéo co')) effectiveEngineType = 'tug-of-war';
     else if (rawTitle.includes('triệu phú')) effectiveEngineType = 'millionaire';

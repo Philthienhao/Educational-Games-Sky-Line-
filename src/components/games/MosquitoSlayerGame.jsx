@@ -1873,3 +1873,5 @@ export function MosquitoSlayerGame({
     </div>
   );
 }
+
+export default MosquitoSlayerGame;

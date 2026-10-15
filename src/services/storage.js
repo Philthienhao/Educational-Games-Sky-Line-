@@ -580,6 +580,39 @@ const INITIAL_BASE_GAMES = [
     ]
   },
   {
+    id: 'mosquito-slayer-game',
+    title: 'Dũng Sĩ Diệt Muỗi',
+    subtitle: 'Tương Tác Camera Đập Muỗi Đối Kháng 2 Đội',
+    category: 'Tương tác AI Camera',
+    icon: '🦟',
+    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
+    description: 'Màn hình chia 2 đội Xanh - Vàng. Các chú muỗi mang đáp án A-B-C-D bay lượn tự do. Học sinh vung tay đập trúng chú muỗi mang đáp án đúng trên webcam để ghi điểm ngoạn mục!',
+    engineType: 'mosquito-slayer',
+    playsCount: 0,
+    defaultQuestions: [
+      {
+        question: 'Thủ đô của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam là gì?',
+        options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'],
+        correct: 'A'
+      },
+      {
+        question: 'Đỉnh núi nào cao nhất thế giới hiện nay?',
+        options: ['Phan Xi Păng', 'K2', 'Everest', 'Phú Sĩ'],
+        correct: 'C'
+      },
+      {
+        question: 'Khí nào chiếm thể tích lớn nhất trong bầu khí quyển Trái Đất?',
+        options: ['Khí Nitơ', 'Khí Ôxi', 'Khí Hiđrô', 'Khí Cacbonic'],
+        correct: 'A'
+      },
+      {
+        question: 'Hành tinh nào gần Mặt Trời nhất trong Hệ Mặt Trời?',
+        options: ['Sao Kim', 'Trái Đất', 'Sao Hỏa', 'Sao Thủy'],
+        correct: 'D'
+      }
+    ]
+  },
+  {
     id: 'mario-race-game',
     title: 'Mario Phiêu Lưu Tri Thức',
     subtitle: 'Cuộc Đua Chướng Ngại Vật Retro 8-bit',
@@ -973,6 +1006,41 @@ const INITIAL_SAVED_GAMES = [
     engineType: 'indoor-pe-dance',
     description: 'Chức năng thể dục lớp học ngày mưa: Trình chiếu video động tác mẫu và nhận diện khung xương học sinh qua Camera để chấm điểm 100 theo thời gian thực!',
     questions: [],
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_mosquito_slayer',
+    userId: 'user_admin',
+    baseGameId: 'mosquito-slayer-game',
+    title: '🦟 Dũng Sĩ Diệt Muỗi',
+    lessonTitle: '🦟 Dũng Sĩ Diệt Muỗi',
+    subject: 'Khoa Học / KHTN',
+    gradient: 'linear-gradient(135deg, #0ea5e9 0%, #10b981 100%)',
+    icon: '🦟',
+    engineType: 'mosquito-slayer',
+    description: 'Game camera tương tác đập muỗi đối kháng 2 đội. Học sinh vung tay đập trúng chú muỗi mang đáp án đúng trên webcam để ghi điểm ngoạn mục!',
+    questions: [
+      {
+        question: 'Thủ đô của nước Cộng hòa Xã hội Chủ nghĩa Việt Nam là gì?',
+        options: ['Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Huế'],
+        correct: 'A'
+      },
+      {
+        question: 'Đỉnh núi nào cao nhất thế giới hiện nay?',
+        options: ['Phan Xi Păng', 'K2', 'Everest', 'Phú Sĩ'],
+        correct: 'C'
+      },
+      {
+        question: 'Khí nào chiếm thể tích lớn nhất trong bầu khí quyển Trái Đất?',
+        options: ['Khí Nitơ', 'Khí Ôxi', 'Khí Hiđrô', 'Khí Cacbonic'],
+        correct: 'A'
+      },
+      {
+        question: 'Hành tinh nào gần Mặt Trời nhất trong Hệ Mặt Trời?',
+        options: ['Sao Kim', 'Trái Đất', 'Sao Hỏa', 'Sao Thủy'],
+        correct: 'D'
+      }
+    ],
     updatedAt: new Date().toISOString().split('T')[0]
   },
   {
@@ -3019,6 +3087,7 @@ export const StorageService = {
     else if (rawTitleStr.includes('đồng hồ') || rawTitleStr.includes('đếm ngược') || rawIdStr.includes('classroom-timer')) resolvedEngineType = 'classroom-timer';
     else if (rawTitleStr.includes('bắt chước')) resolvedEngineType = 'pose-imitation';
     else if (rawTitleStr.includes('nghiêng đầu')) resolvedEngineType = 'head-tilt';
+    else if (rawTitleStr.includes('diệt muỗi') || rawTitleStr.includes('đập muỗi') || rawTitleStr.includes('muỗi') || rawIdStr.includes('mosquito')) resolvedEngineType = 'mosquito-slayer';
     else if (rawTitleStr.includes('kéo co đôi') || rawTitleStr.includes('kéo co kiến thức')) resolvedEngineType = 'tug-of-war-dual';
     else if (rawTitleStr.includes('kéo co')) resolvedEngineType = 'tug-of-war';
     else if (rawTitleStr.includes('triệu phú')) resolvedEngineType = 'millionaire';

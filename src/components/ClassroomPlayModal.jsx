@@ -37,6 +37,7 @@ const GeoExperimentsView = React.lazy(() => import('./GeoExperimentsView').then(
 const InteractiveExperimentCanvas = React.lazy(() => import('./experiments/InteractiveExperimentCanvas').then(m => ({ default: m.InteractiveExperimentCanvas || m.default })));
 const StudentGroupDividerGame = React.lazy(() => import('./games/StudentGroupDividerGame').then(m => ({ default: m.StudentGroupDividerGame || m.default })));
 const MarbleRaceGame = React.lazy(() => import('./games/MarbleRaceGame').then(m => ({ default: m.MarbleRaceGame || m.default })));
+const MosquitoSlayerGame = React.lazy(() => import('./games/MosquitoSlayerGame').then(m => ({ default: m.MosquitoSlayerGame || m.default })));
 
 function GameLoadingFallback() {
   return (
@@ -300,6 +301,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'indoor-pe-dance':
         component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;
         break;
+      case 'mosquito-slayer':
+        component = <MosquitoSlayerGame {...commonProps} game={game} onClose={onClose} />;
+        break;
       case 'bouncing-words':
         component = <BouncingWordsGame {...commonProps} game={game} onClose={onClose} />;
         break;
@@ -344,7 +348,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -384,6 +388,8 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
               <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
             ) : engineType === 'indoor-pe-dance' ? (
               <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />
+            ) : engineType === 'mosquito-slayer' ? (
+              <MosquitoSlayerGame {...commonProps} game={game} onClose={onClose} />
             ) : engineType === 'jungle-rescue' ? (
               <JungleRescueGame {...commonProps} game={game} onClose={onClose} />
             ) : engineType === 'bouncing-words' ? (

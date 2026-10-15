@@ -1,5 +1,7 @@
 export const GAME_THUMBNAILS = {
   'indoor-pe-dance': '/thumbnails/thumb_pe_dance.jpg',
+  'mosquito-slayer': '/thumbnails/thumb_mosquito_slayer.jpg',
+  'mosquito-slayer-game': '/thumbnails/thumb_mosquito_slayer.jpg',
   'pose-imitation': '/thumbnails/thumb_pose_imitation.jpg',
   'head-tilt': '/thumbnails/thumb_head_tilt.jpg',
   'mario-race': '/thumbnails/thumb_mario_race.jpg',
