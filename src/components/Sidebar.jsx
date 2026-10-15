@@ -216,20 +216,7 @@ export function Sidebar({
                   {item.count > 0 && (
                     <span className="menu-count-badge">{item.count}</span>
                   )}
-                  {item.id !== 'catalog' && item.id !== 'my-games' && currentUser && StorageService.isGoogleUser(currentUser) && currentUser.accessTier !== 'unlimited' && !currentUser.isPaid && (currentUser.usedFeatures?.[item.id] || 0) >= 1 && (
-                    <span style={{
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      border: '1px solid rgba(239, 68, 68, 0.4)',
-                      color: '#dc2626',
-                      fontSize: '0.62rem',
-                      fontWeight: 900,
-                      padding: '2px 6px',
-                      borderRadius: '6px',
-                      marginLeft: 'auto'
-                    }}>
-                      🔒 Đã thử
-                    </span>
-                  )}
+
                   {item.badge && (
                     <span style={{
                       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',

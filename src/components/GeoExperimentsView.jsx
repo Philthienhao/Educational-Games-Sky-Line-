@@ -18,11 +18,19 @@ import {
 import defaultExperiments from '../services/experimentCatalog.json';
 import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
 
-export function GeoExperimentsView({ currentUser }) {
+export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
   const [activeExperiment, setActiveExperiment] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
   const handleLaunchExperiment = (exp, extraProps = {}) => {
+    if (!exp) return;
+    const featId = exp.interactiveType || exp.id || 'geo_sim';
+    const featName = exp.title || 'Mô hình mô phỏng 3D';
+
+    if (onCheckTrialOrRun && !onCheckTrialOrRun(featId, featName)) {
+      return;
+    }
+
     try {
       if (!document.fullscreenElement) {
         const docEl = document.documentElement;

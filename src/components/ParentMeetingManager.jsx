@@ -18,11 +18,25 @@ import {
 import { DeskNameCardGenerator } from './DeskNameCardGenerator';
 import { StudentSilhouetteGame } from './StudentSilhouetteGame';
 
-export function ParentMeetingManager({ currentUser, classData }) {
+export function ParentMeetingManager({ currentUser, classData, onCheckTrialOrRun, onOpenUpgrade }) {
   const [activeSubTab, setActiveSubTab] = useState('desk_name_cards'); // 'desk_name_cards' | 'silhouette_game' | 'honors_showcase'
   const [showDeskNameCardModal, setShowDeskNameCardModal] = useState(false);
 
   const students = classData?.students || [];
+
+  const handleSelectSubTab = (tabId) => {
+    if (tabId === 'silhouette_game') {
+      if (onCheckTrialOrRun && !onCheckTrialOrRun('parent-meeting:silhouette', 'Trò Chơi Đoán Bóng Tìm Con')) return;
+    } else if (tabId === 'honors_showcase') {
+      if (onCheckTrialOrRun && !onCheckTrialOrRun('parent-meeting:honors', 'Bảng Vinh Danh Nề Nếp Học Sinh')) return;
+    }
+    setActiveSubTab(tabId);
+  };
+
+  const handleOpenDeskNameCards = () => {
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('parent-meeting:letter', 'Tạo Bảng Tên Để Bàn & Thư Yêu Thương')) return;
+    setShowDeskNameCardModal(true);
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -58,7 +72,7 @@ export function ParentMeetingManager({ currentUser, classData }) {
 
         {/* Quick Action Trigger */}
         <button
-          onClick={() => setShowDeskNameCardModal(true)}
+          onClick={handleOpenDeskNameCards}
           style={{
             background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
             color: '#ffffff', border: 'none', borderRadius: '16px',
@@ -90,7 +104,7 @@ export function ParentMeetingManager({ currentUser, classData }) {
         </button>
 
         <button
-          onClick={() => setActiveSubTab('silhouette_game')}
+          onClick={() => handleSelectSubTab('silhouette_game')}
           style={{
             borderRadius: '16px', padding: '12px 22px', fontWeight: 900, fontSize: '0.92rem',
             background: activeSubTab === 'silhouette_game' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : '#ffffff',
@@ -104,7 +118,7 @@ export function ParentMeetingManager({ currentUser, classData }) {
         </button>
 
         <button
-          onClick={() => setActiveSubTab('honors_showcase')}
+          onClick={() => handleSelectSubTab('honors_showcase')}
           style={{
             borderRadius: '16px', padding: '12px 22px', fontWeight: 900, fontSize: '0.92rem',
             background: activeSubTab === 'honors_showcase' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#ffffff',

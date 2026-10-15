@@ -19,7 +19,7 @@ import {
 import { ExperimentService } from '../services/experimentService';
 import { InteractiveExperimentCanvas, detectExperimentInteractiveType } from './experiments/InteractiveExperimentCanvas';
 
-export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
+export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTrialOrRun, onOpenUpgrade }) {
   const [experiments, setExperiments] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [selectedSubject, setSelectedSubject] = useState('all');
@@ -29,6 +29,14 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments }) {
   const [activeExperiment, setActiveExperiment] = useState(null);
 
   const handleLaunchExperiment = (exp, extraProps = {}) => {
+    if (!exp) return;
+    const featId = exp.id || exp.interactiveType || 'virtual_lab';
+    const featName = exp.title || 'Mô phỏng thí nghiệm';
+
+    if (onCheckTrialOrRun && !onCheckTrialOrRun(featId, featName)) {
+      return;
+    }
+
     try {
       if (!document.fullscreenElement) {
         const docEl = document.documentElement;

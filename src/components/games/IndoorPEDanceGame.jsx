@@ -25,7 +25,7 @@ const PRESET_VIDEOS = [
   }
 ];
 
-export function IndoorPEDanceGame({ onClose, title = 'Thử thách thể dục' }) {
+export function IndoorPEDanceGame({ onClose, title = 'Thử thách thể dục', currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
   // Video Selection
   const [selectedVideo, setSelectedVideo] = useState(PRESET_VIDEOS[0]);
   const [customVideoName, setCustomVideoName] = useState('');
@@ -256,6 +256,9 @@ export function IndoorPEDanceGame({ onClose, title = 'Thử thách thể dục' 
   const handleTogglePlay = () => {
     if (sampleVideoRef.current) {
       if (sampleVideoRef.current.paused) {
+        if (onCheckTrialOrRun && !onCheckTrialOrRun('indoor-pe-dance', 'Thử Thách Thể Dục AI Camera')) {
+          return;
+        }
         sampleVideoRef.current.play().then(() => {
           setIsPlaying(true);
         }).catch(err => {
@@ -269,6 +272,9 @@ export function IndoorPEDanceGame({ onClose, title = 'Thử thách thể dục' 
   };
 
   const handleRestartVideo = () => {
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('indoor-pe-dance', 'Thử Thách Thể Dục AI Camera')) {
+      return;
+    }
     if (sampleVideoRef.current) {
       sampleVideoRef.current.currentTime = 0;
       sampleVideoRef.current.play().catch(() => {});

@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
-export function LectureSlideManager({ searchTerm = '', currentUser }) {
+export function LectureSlideManager({ searchTerm = '', currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
   // Strictly resolve userId safely
   const resolvedUser = currentUser || StorageService.getCurrentUser();
   const effectiveUserId = StorageService.getEffectiveUserId(currentUser?.id || resolvedUser?.id);
@@ -93,6 +93,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
   // Open Slide Theater Modal
   const handleOpenSlideTheater = (slide) => {
     if (!slide) return;
+
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('lecture-slides:view', `Xem Slide: ${slide.title}`)) {
+      return;
+    }
+
     setActiveTheaterSlide(slide);
     setIsSlideFullScreen(false);
     setCustomSlidePdf(null);
@@ -1144,6 +1149,11 @@ export function LectureSlideManager({ searchTerm = '', currentUser }) {
                   href={slide.driveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    if (onCheckTrialOrRun && !onCheckTrialOrRun('lecture-slides:download', `Tải Slide: ${slide.title}`)) {
+                      e.preventDefault();
+                    }
+                  }}
                   style={{
                     background: 'rgba(2, 132, 199, 0.2)',
                     color: '#38bdf8',

@@ -29,29 +29,49 @@ import { LoginModal } from './components/LoginModal';
 import { StorageService } from './services/storage';
 import { IDBStorageService } from './services/idbStorage';
 
-// Code-split Tab Views & Modals via React.lazy
-const TeacherLibrary = React.lazy(() => import('./components/TeacherLibrary').then(m => ({ default: m.TeacherLibrary })));
-const AdminPanel = React.lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
-const HomeroomManager = React.lazy(() => import('./components/HomeroomManager').then(m => ({ default: m.HomeroomManager })));
-const RoleSwitcher = React.lazy(() => import('./components/RoleSwitcher').then(m => ({ default: m.RoleSwitcher })));
-const QuestionEditorModal = React.lazy(() => import('./components/QuestionEditorModal').then(m => ({ default: m.QuestionEditorModal })));
-const AdminCreateGameModal = React.lazy(() => import('./components/AdminCreateGameModal').then(m => ({ default: m.AdminCreateGameModal })));
-const ClassroomPlayModal = React.lazy(() => import('./components/ClassroomPlayModal').then(m => ({ default: m.ClassroomPlayModal })));
-const TextbookDownloadManager = React.lazy(() => import('./components/TextbookDownloadManager').then(m => ({ default: m.TextbookDownloadManager })));
-const LectureSlideManager = React.lazy(() => import('./components/LectureSlideManager').then(m => ({ default: m.LectureSlideManager })));
-const SKLWebLinksManager = React.lazy(() => import('./components/SKLWebLinksManager').then(m => ({ default: m.SKLWebLinksManager })));
-const VirtualLabManager = React.lazy(() => import('./components/VirtualLabManager').then(m => ({ default: m.VirtualLabManager })));
-const GeoExperimentsView = React.lazy(() => import('./components/GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView })));
-const ParentMeetingSupport = React.lazy(() => import('./components/ParentMeetingSupport').then(m => ({ default: m.ParentMeetingSupport })));
-const UserManagementModal = React.lazy(() => import('./components/UserManagementModal').then(m => ({ default: m.UserManagementModal })));
-const ChangePasswordModal = React.lazy(() => import('./components/ChangePasswordModal').then(m => ({ default: m.ChangePasswordModal })));
-const TrialUpgradeModal = React.lazy(() => import('./components/TrialUpgradeModal').then(m => ({ default: m.TrialUpgradeModal })));
-const StudentPickerManager = React.lazy(() => import('./components/StudentPickerManager'));
-const ClassroomTimerManager = React.lazy(() => import('./components/ClassroomTimerManager'));
-const AiSystemAssistantModal = React.lazy(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
-const FloatingAiAssistantWidget = React.lazy(() => import('./components/FloatingAiAssistantWidget').then(m => ({ default: m.FloatingAiAssistantWidget })));
-const AIQuestionGeneratorModal = React.lazy(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
-const IndoorPEDanceGame = React.lazy(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
+// Helper for robust code-splitting with auto-retry on dynamic chunk loading
+function lazyWithRetry(componentImport) {
+  return React.lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      console.warn('Chunk load error, retrying once...', error);
+      try {
+        return await componentImport();
+      } catch (retryError) {
+        if (typeof window !== 'undefined' && !sessionStorage.getItem('chunk_reload_retry')) {
+          sessionStorage.setItem('chunk_reload_retry', 'true');
+          window.location.reload();
+        }
+        throw retryError;
+      }
+    }
+  });
+}
+
+// Code-split Tab Views & Modals via lazyWithRetry
+const TeacherLibrary = lazyWithRetry(() => import('./components/TeacherLibrary').then(m => ({ default: m.TeacherLibrary })));
+const AdminPanel = lazyWithRetry(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const HomeroomManager = lazyWithRetry(() => import('./components/HomeroomManager').then(m => ({ default: m.HomeroomManager })));
+const RoleSwitcher = lazyWithRetry(() => import('./components/RoleSwitcher').then(m => ({ default: m.RoleSwitcher })));
+const QuestionEditorModal = lazyWithRetry(() => import('./components/QuestionEditorModal').then(m => ({ default: m.QuestionEditorModal })));
+const AdminCreateGameModal = lazyWithRetry(() => import('./components/AdminCreateGameModal').then(m => ({ default: m.AdminCreateGameModal })));
+const ClassroomPlayModal = lazyWithRetry(() => import('./components/ClassroomPlayModal').then(m => ({ default: m.ClassroomPlayModal })));
+const TextbookDownloadManager = lazyWithRetry(() => import('./components/TextbookDownloadManager').then(m => ({ default: m.TextbookDownloadManager })));
+const LectureSlideManager = lazyWithRetry(() => import('./components/LectureSlideManager').then(m => ({ default: m.LectureSlideManager })));
+const SKLWebLinksManager = lazyWithRetry(() => import('./components/SKLWebLinksManager').then(m => ({ default: m.SKLWebLinksManager })));
+const VirtualLabManager = lazyWithRetry(() => import('./components/VirtualLabManager').then(m => ({ default: m.VirtualLabManager })));
+const GeoExperimentsView = lazyWithRetry(() => import('./components/GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView })));
+const ParentMeetingSupport = lazyWithRetry(() => import('./components/ParentMeetingSupport').then(m => ({ default: m.ParentMeetingSupport })));
+const UserManagementModal = lazyWithRetry(() => import('./components/UserManagementModal').then(m => ({ default: m.UserManagementModal })));
+const ChangePasswordModal = lazyWithRetry(() => import('./components/ChangePasswordModal').then(m => ({ default: m.ChangePasswordModal })));
+const TrialUpgradeModal = lazyWithRetry(() => import('./components/TrialUpgradeModal').then(m => ({ default: m.TrialUpgradeModal })));
+const StudentPickerManager = lazyWithRetry(() => import('./components/StudentPickerManager'));
+const ClassroomTimerManager = lazyWithRetry(() => import('./components/ClassroomTimerManager'));
+const AiSystemAssistantModal = lazyWithRetry(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
+const FloatingAiAssistantWidget = lazyWithRetry(() => import('./components/FloatingAiAssistantWidget').then(m => ({ default: m.FloatingAiAssistantWidget })));
+const AIQuestionGeneratorModal = lazyWithRetry(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
+const IndoorPEDanceGame = lazyWithRetry(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
 
 function ViewLoadingFallback() {
   return (
@@ -210,37 +230,36 @@ export function App() {
   }), []);
 
   const setActiveTab = useCallback((newTab) => {
-    if (toolFeatures[newTab]) {
-      const access = StorageService.checkFeatureAccess(currentUser, newTab);
-      if (!access.allowed) {
-        setTrialModalInfo({
-          isOpen: true,
-          featureName: toolFeatures[newTab],
-          featureId: newTab
-        });
-      }
-    }
-
     setActiveTabState(newTab);
     try {
       if (window.location.hash !== `#${newTab}`) {
         window.location.hash = newTab;
       }
     } catch (e) {}
-  }, [currentUser, toolFeatures]);
+  }, []);
 
-  // Consume 1-time trial for functional tool tabs on first entry
-  useEffect(() => {
-    if (toolFeatures[activeTab]) {
-      const access = StorageService.checkFeatureAccess(currentUser, activeTab);
-      if (access.isTrial) {
-        const updated = StorageService.consumeFeatureTrial(currentUser, activeTab, toolFeatures[activeTab]);
-        if (updated) {
-          setCurrentUser(updated);
-        }
+  // Standardized trial checker & runner for sub-features across major categories
+  const handleCheckTrialOrRun = useCallback((featureId, featureName, onAllowedCallback) => {
+    const access = StorageService.checkFeatureAccess(currentUser, featureId);
+    if (!access.allowed) {
+      setTrialModalInfo({
+        isOpen: true,
+        featureName: featureName || access.featureName || 'Chức năng',
+        featureId
+      });
+      return false;
+    }
+    if (access.isTrial) {
+      const updatedUser = StorageService.consumeFeatureTrial(currentUser, featureId, featureName);
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
       }
     }
-  }, [activeTab, currentUser, toolFeatures]);
+    if (onAllowedCallback) {
+      onAllowedCallback();
+    }
+    return true;
+  }, [currentUser]);
 
   const [baseGames, setBaseGames] = useState(() => {
     return StorageService.getBaseGames();
@@ -806,68 +825,41 @@ export function App() {
         )}
 
         <React.Suspense fallback={<ViewLoadingFallback />}>
-          {/* View 2: Gọi Tên Học Sinh (Student Picker System) */}
+          {/* View 2: Gọi Tên Học Sinh (Student Picker System - Each mode has 1 trial) */}
           {activeTab === 'call-student' && (
-            !StorageService.checkFeatureAccess(currentUser, 'call-student').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Gọi Tên & Chia Nhóm Học Sinh"
-                featureId="call-student"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <StudentPickerManager 
-                currentUser={currentUser} 
-                onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-                onCustomize={(template) => setEditingGameTemplate(template)}
-                onNavigateToHomeroom={() => setActiveTab('homeroom')}
-              />
-            )
+            <StudentPickerManager 
+              currentUser={currentUser} 
+              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+              onCustomize={(template) => setEditingGameTemplate(template)}
+              onNavigateToHomeroom={() => setActiveTab('homeroom')}
+            />
           )}
 
-          {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager) */}
+          {/* View 3: Đồng Hồ Bấm Giờ (Classroom Timer Manager - Each timer mode has 1 trial) */}
           {activeTab === 'timer' && (
-            !StorageService.checkFeatureAccess(currentUser, 'timer').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Đồng Hồ Bấm Giờ Lớp Học"
-                featureId="timer"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <ClassroomTimerManager 
-                currentUser={currentUser}
-                onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
-              />
-            )
+            <ClassroomTimerManager 
+              currentUser={currentUser}
+              onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
+            />
           )}
 
-          {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System) */}
+          {/* View 3: Lớp Chủ Nhiệm (Homeroom Management System - Create/import class 1 trial) */}
           {activeTab === 'homeroom' && (
-            !StorageService.checkFeatureAccess(currentUser, 'homeroom').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Quản Lý Lớp Chủ Nhiệm"
-                featureId="homeroom"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <HomeroomManager currentUser={currentUser} />
-            )
+            <HomeroomManager 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+            />
           )}
 
-          {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game) */}
+          {/* View 3.8: Thể Dục Trong Nhà AI Camera (Indoor PE Motion Tracking Game - 1 trial) */}
           {activeTab === 'indoor-pe-dance' && (
-            !StorageService.checkFeatureAccess(currentUser, 'indoor-pe-dance').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Thử Thách Thể Dục AI Camera"
-                featureId="indoor-pe-dance"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <IndoorPEDanceGame onClose={() => setActiveTab('catalog')} />
-            )
+            <IndoorPEDanceGame 
+              currentUser={currentUser}
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+              onClose={() => setActiveTab('catalog')} 
+            />
           )}
 
           {/* View 4: Kho Game Của Tôi (Teacher Saved Library) */}
@@ -885,92 +877,63 @@ export function App() {
             />
           )}
 
-          {/* View 5: Tải File SGK (Textbook Catalog Manager) */}
+          {/* View 5: Tải File SGK (Textbook Catalog Manager - Reading & downloading have 1 trial) */}
           {activeTab === 'textbook-download' && (
-            !StorageService.checkFeatureAccess(currentUser, 'textbook-download').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Đọc & Tải Sách Giáo Khoa"
-                featureId="textbook-download"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <TextbookDownloadManager 
-                searchTerm={searchTerm} 
-                onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
-                onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
-              />
-            )
+            <TextbookDownloadManager 
+              currentUser={currentUser}
+              searchTerm={searchTerm} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+              onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
+              onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
+            />
           )}
 
-          {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager) */}
+          {/* View 5.5: Thí Nghiệm Trực Quan (Virtual Lab Manager - Each experiment has 1 trial) */}
           {activeTab === 'virtual-lab' && (
-            !StorageService.checkFeatureAccess(currentUser, 'virtual-lab').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Mô Phỏng Thí Nghiệm KHTN"
-                featureId="virtual-lab"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <VirtualLabManager currentUser={currentUser} onOpenGeoExperiments={() => setActiveTab('geo-experiments')} />
-            )
+            <VirtualLabManager 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+              onOpenGeoExperiments={() => setActiveTab('geo-experiments')} 
+            />
           )}
 
-          {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View) */}
+          {/* View 5.8: Thí Nghiệm Địa Lý 6 (Dedicated Geography Experiments View - Each 3D sim has 1 trial) */}
           {activeTab === 'geo-experiments' && (
-            !StorageService.checkFeatureAccess(currentUser, 'geo-experiments').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Mô Hình Mô Phỏng 3D Địa Lí"
-                featureId="geo-experiments"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <GeoExperimentsView currentUser={currentUser} />
-            )
+            <GeoExperimentsView 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+            />
           )}
 
-          {/* View 6: Slide Bài Giảng (Lecture Slide Manager) */}
+          {/* View 6: Slide Bài Giảng (Lecture Slide Manager - Slide viewing & downloading have 1 trial) */}
           {activeTab === 'lecture-slides' && (
-            !StorageService.checkFeatureAccess(currentUser, 'lecture-slides').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Kho Slide Bài Giảng"
-                featureId="lecture-slides"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <LectureSlideManager searchTerm={searchTerm} currentUser={currentUser} />
-            )
+            <LectureSlideManager 
+              searchTerm={searchTerm} 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+            />
           )}
 
-          {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager) */}
+          {/* View 6.2: Địa Chỉ Web (Per-User Web Bookmarks Manager - Adding links has 1 trial) */}
           {activeTab === 'skl-web-links' && (
-            !StorageService.checkFeatureAccess(currentUser, 'skl-web-links').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Kho Địa Chỉ Web Giáo Viên"
-                featureId="skl-web-links"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <SKLWebLinksManager currentUser={currentUser} />
-            )
+            <SKLWebLinksManager 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+            />
           )}
 
-          {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support) */}
+          {/* View 6.5: Hỗ Trợ Họp Phụ Huynh (Parent-Teacher Meeting Support - Each tool has 1 trial) */}
           {activeTab === 'parent-meeting' && (
-            !StorageService.checkFeatureAccess(currentUser, 'parent-meeting').allowed ? (
-              <FeatureLockedScreen 
-                featureName="Hỗ Trợ Họp Phụ Huynh"
-                featureId="parent-meeting"
-                onOpenUpgrade={setTrialModalInfo}
-                onBrowseCatalog={() => setActiveTab('catalog')}
-              />
-            ) : (
-              <ParentMeetingSupport currentUser={currentUser} />
-            )
+            <ParentMeetingSupport 
+              currentUser={currentUser} 
+              onCheckTrialOrRun={handleCheckTrialOrRun}
+              onOpenUpgrade={setTrialModalInfo}
+            />
           )}
 
           {/* View 7: Quản Trị Admin */}

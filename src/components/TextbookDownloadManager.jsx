@@ -21,7 +21,14 @@ const GRADE_DRIVE_MAP = {
   'Lớp 12': 'https://drive.google.com/drive/folders/1zbW3nydN65mavsdP2mGz3jGVR0vNH8rO?usp=drive_link',
 };
 
-export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onOpenGeoExperiments }) {
+export function TextbookDownloadManager({ 
+  currentUser,
+  searchTerm = '', 
+  onOpenVirtualLab, 
+  onOpenGeoExperiments,
+  onCheckTrialOrRun,
+  onOpenUpgrade
+}) {
   const [selectedGrade, setSelectedGrade] = useState('Tất cả');
   const [selectedSubject, setSelectedSubject] = useState('Tất cả các môn');
   const [localSearch, setLocalSearch] = useState('');
@@ -378,6 +385,11 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
   // Bulletproof PDF File Download Handler
   const handleDownloadPdf = async (book) => {
     if (!book) return;
+
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('textbook:download', `Tải Sách: ${book.title}`)) {
+      return;
+    }
+
     const fileId = book.id || book.fileName;
     const targetDriveUrl = getDriveUrlForBook(book);
     const gradeName = book.grade || 'Lớp';
@@ -430,6 +442,11 @@ export function TextbookDownloadManager({ searchTerm = '', onOpenVirtualLab, onO
   // Open In-App Reader Modal for Online Reading
   const handleOpenReader = async (book) => {
     if (!book) return;
+
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('textbook:reader', `Đọc Sách: ${book.title}`)) {
+      return;
+    }
+
     setReadingBook(book);
     setIsFullScreen(false);
     setReaderSearch('');

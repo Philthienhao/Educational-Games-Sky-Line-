@@ -432,7 +432,7 @@ function WebLinkModal({ isOpen, onClose, onSave, editingLink }) {
   );
 }
 
-export function SKLWebLinksManager({ currentUser }) {
+export function SKLWebLinksManager({ currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
   const [webLinks, setWebLinks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Tất cả');
@@ -671,6 +671,7 @@ export function SKLWebLinksManager({ currentUser }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
           <button
             onClick={() => {
+              if (onCheckTrialOrRun && !onCheckTrialOrRun('skl-web-links:add', 'Thêm Địa Chỉ Web Giáo Viên')) return;
               setEditingLink(null);
               setIsModalOpen(true);
             }}

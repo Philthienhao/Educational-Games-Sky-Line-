@@ -2,13 +2,18 @@ import React from 'react';
 import { StorageService } from '../services/storage';
 import { ParentMeetingManager } from './ParentMeetingManager';
 
-export function ParentMeetingSupport({ currentUser }) {
+export function ParentMeetingSupport({ currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
   const teacherId = currentUser?.id || 'guest_user';
   const classData = StorageService.getTeacherHomeroom(teacherId);
 
   return (
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
-      <ParentMeetingManager currentUser={currentUser} classData={classData} />
+      <ParentMeetingManager 
+        currentUser={currentUser} 
+        classData={classData} 
+        onCheckTrialOrRun={onCheckTrialOrRun}
+        onOpenUpgrade={onOpenUpgrade}
+      />
     </div>
   );
 }

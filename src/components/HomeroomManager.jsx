@@ -21,7 +21,7 @@ export function calculateStudentConductScore(student, pointRules) {
   return Math.max(0, base + totalRewardsPts - totalViolationsPts);
 }
 
-export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
+export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onCheckTrialOrRun, onOpenUpgrade }) {
   const teacherId = readOnlyAdminClass ? readOnlyAdminClass.teacher.id : currentUser?.id;
   const isReadOnlyAdmin = !!readOnlyAdminClass;
 
@@ -387,6 +387,11 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('homeroom:create-class', 'Khôi Phục / Tạo Lớp Chủ Nhiệm')) {
+      e.target.value = '';
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
@@ -414,6 +419,11 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
     const file = e.target.files[0];
     if (!file) return;
 
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('homeroom:create-class', 'Tạo & Nạp Danh Sách Lớp Chủ Nhiệm')) {
+      e.target.value = '';
+      return;
+    }
+
     setIsProcessingFile(true);
     setStatusMsg({ type: '', text: '' });
 
@@ -439,6 +449,9 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null }) {
 
   // Add New Student
   const handleAddStudent = () => {
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('homeroom:create-class', 'Tạo & Thêm Học Sinh Lớp Chủ Nhiệm')) {
+      return;
+    }
     const newSt = {
       id: `st_${Date.now()}`,
       studentId: `HS10${(classData.students.length + 1).toString().padStart(2, '0')}`,

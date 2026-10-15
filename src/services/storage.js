@@ -2403,7 +2403,27 @@ export const StorageService = {
       'textbook-download': 'Đọc & Tải Sách Giáo Khoa',
       'parent-meeting': 'Hỗ Trợ Họp Phụ Huynh',
       'homeroom': 'Lớp Chủ Nhiệm',
-      'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên'
+      'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên',
+      // Sub-features across major categories (1-time trial per sub-feature)
+      'homeroom:create-class': 'Tạo & Quản Lý Lớp Chủ Nhiệm',
+      'textbook:reader': 'Đọc Sách Giáo Khoa Trực Tuyến',
+      'textbook:download': 'Tải Sách Giáo Khoa File Gốc (.pdf)',
+      'lecture-slides:view': 'Trình Chiếu Slide Bài Giảng',
+      'lecture-slides:download': 'Tải Slide Bài Giảng',
+      'lecture-slides:add': 'Thêm Slide Bài Giảng Mới',
+      'parent-meeting:silhouette': 'Trò Chơi Đoán Bóng Tìm Con',
+      'parent-meeting:letter': 'Gửi Lời Yêu Thương Cho Con',
+      'parent-meeting:honors': 'Bảng Vinh Danh Nề Nếp',
+      'parent-meeting:slides': 'Slide Trình Chiếu Họp Phụ Huynh',
+      'skl-web-links:add': 'Thêm Địa Chỉ Web Giáo Viên',
+      'geo_solar_system': 'Mô Hình 3D Hệ Mặt Trời',
+      'geo_earth_sun_moon': 'Mô Hình 3D Trái Đất - Mặt Trời - Mặt Trăng',
+      'geo_plate_tectonics': 'Mô Hình 3D Kiến Tạo Mảng',
+      'geo_volcano': 'Mô Hình 3D Núi Lửa',
+      'geo_earthquake': 'Mô Hình 3D Động Đất',
+      'geo_water_cycle': 'Mô Hình 3D Vòng Tuần Hoàn Nước',
+      'geo_earth_structure': 'Mô Hình 3D Cấu Trúc Trái Đất',
+      'geo_glacial_river': 'Mô Hình 3D Sông Băng'
     };
     return map[clean] || featureId || 'Trò chơi / Tính năng';
   },
