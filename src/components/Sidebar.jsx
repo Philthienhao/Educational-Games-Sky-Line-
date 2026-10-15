@@ -60,7 +60,7 @@ export function Sidebar({
     const checkActive = () => {
       const active = document.body.classList.contains('is-experiment-active') ||
                      document.body.classList.contains('is-game-playing');
-      setIsOverlayActive(active);
+      setIsOverlayActive(prev => (prev !== active ? active : prev));
     };
 
     checkActive();

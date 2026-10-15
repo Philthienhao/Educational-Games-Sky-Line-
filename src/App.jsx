@@ -69,7 +69,6 @@ const TrialUpgradeModal = lazyWithRetry(() => import('./components/TrialUpgradeM
 const StudentPickerManager = lazyWithRetry(() => import('./components/StudentPickerManager'));
 const ClassroomTimerManager = lazyWithRetry(() => import('./components/ClassroomTimerManager'));
 const AiSystemAssistantModal = lazyWithRetry(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
-const FloatingAiAssistantWidget = lazyWithRetry(() => import('./components/FloatingAiAssistantWidget').then(m => ({ default: m.FloatingAiAssistantWidget })));
 const AIQuestionGeneratorModal = lazyWithRetry(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
 const IndoorPEDanceGame = lazyWithRetry(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
 
@@ -1255,11 +1254,6 @@ export function App() {
           isOpen={isAIGeneratorOpen}
           onClose={() => setIsAIGeneratorOpen(false)}
           onApplyQuestions={handleApplyAIGameQuestions}
-        />
-
-        {/* Floating AI System Assistant & Contact Widget */}
-        <FloatingAiAssistantWidget 
-          onOpenSearchModal={() => setIsAiWidgetOpen(true)}
         />
 
         {/* Interactive AI System Assistant & FAQ Search Modal */}

@@ -155,10 +155,14 @@ export function LoginModal({ onLoginSuccess }) {
     if (window.google?.accounts?.id) {
       setupGSI();
     } else {
+      let gsiRetries = 0;
       const interval = setInterval(() => {
+        gsiRetries++;
         if (window.google?.accounts?.id) {
           clearInterval(interval);
           setupGSI();
+        } else if (gsiRetries >= 8) {
+          clearInterval(interval);
         }
       }, 500);
       return () => {

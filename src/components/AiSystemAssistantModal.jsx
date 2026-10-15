@@ -78,6 +78,7 @@ export function AiSystemAssistantModal({
 
   // Master System Database Index (Catalog Games + Saved Games + Tools + Guides)
   const systemIndex = useMemo(() => {
+    if (!isOpen) return { games: [], tools: [], systemFaqs: [] };
     const allTeacherGames = StorageService.getTeacherSavedGames(currentUser?.id) || [];
     const games = [
       ...(savedGames.length > 0 ? savedGames : allTeacherGames)

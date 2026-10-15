@@ -131,7 +131,7 @@ export function MosquitoSVG({ team = 'blue', isDead = false, isStunned = false, 
  * Interactive Mosquito Target Component
  * Displays mosquito SVG + Option badge (A, B, C, D) + Answer Text Card
  */
-export function MosquitoTarget({
+export const MosquitoTarget = React.memo(function MosquitoTarget({
   id,
   team = 'blue',
   label = 'A',
@@ -251,7 +251,7 @@ export function MosquitoTarget({
       </div>
     </div>
   );
-}
+});
 
 /**
  * Top Scoreboard & Controls Header
@@ -1273,6 +1273,7 @@ export function MosquitoSlayerGame({
 
     let animId = null;
     let lastTime = performance.now();
+    let lastFrameTime = 0;
 
     // Prepare offscreen canvas for motion differencing
     let offscreenCanvas = motionCanvasRef.current;
@@ -1288,8 +1289,15 @@ export function MosquitoSlayerGame({
     const energyThreshold = sensitivity === 'high' ? 18 : (sensitivity === 'low' ? 38 : 26);
 
     const gameLoop = (currentTime) => {
-      const dt = Math.min(32, currentTime - lastTime);
+      animId = requestAnimationFrame(gameLoop);
+
+      // Throttle rendering and heavy math to ~30fps to keep browser ultra smooth and CPU low
+      if (currentTime - lastFrameTime < 32) {
+        return;
+      }
+      const dt = Math.min(40, currentTime - (lastTime || currentTime));
       lastTime = currentTime;
+      lastFrameTime = currentTime;
 
       // ----------------------------------------
       // 1. UPDATE FLYING MOSQUITOES PHYSICS
@@ -1358,8 +1366,8 @@ export function MosquitoSlayerGame({
           // Track motion pixels per mosquito bounding area
           const mosquitoHits = {};
 
-          for (let y = 12; y < H - 10; y += 2) {
-            for (let x = 8; x < W - 8; x += 2) {
+          for (let y = 12; y < H - 10; y += 3) {
+            for (let x = 8; x < W - 8; x += 3) {
               const idx = (y * W + x) * 4;
               const diff = Math.abs(currData[idx] - prevData[idx]) +
                            Math.abs(currData[idx + 1] - prevData[idx + 1]) +
@@ -1426,8 +1434,6 @@ export function MosquitoSlayerGame({
 
         prevFrameDataRef.current = currData;
       }
-
-      animId = requestAnimationFrame(gameLoop);
     };
 
     animId = requestAnimationFrame(gameLoop);
