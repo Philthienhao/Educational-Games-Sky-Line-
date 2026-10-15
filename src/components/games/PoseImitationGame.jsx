@@ -17,117 +17,83 @@ const getPoseImgUrl = (num) => {
   return `${base}/batchuocnhanhcohoilon/${num}.png`;
 };
 
-export function getStickmanPoseSVG(num, color = '#3b82f6') {
+export function getStickmanPoseSVG(numOrType, color = '#3b82f6') {
   const c = color;
   let bodyLines = '';
 
-  switch (num % 20) {
-    case 1:
-      bodyLines = `<path d="M 50 45 L 25 20 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 2:
-      bodyLines = `<path d="M 50 45 L 25 60 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 3:
-      bodyLines = `<path d="M 50 45 L 25 20 M 50 45 L 75 60" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 4:
-      bodyLines = `<path d="M 50 45 L 15 45 M 50 45 L 85 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 5:
-      bodyLines = `<path d="M 50 45 L 30 55 L 45 65 M 50 45 L 70 55 L 55 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 6:
-      bodyLines = `<path d="M 50 45 L 25 45 L 25 25 M 50 45 L 75 45 L 75 25" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 7:
-      bodyLines = `<path d="M 50 45 L 30 55 L 65 55 M 50 45 L 70 55 L 35 55" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 8:
-      bodyLines = `<path d="M 50 45 L 30 30 L 42 18 M 50 45 L 70 30 L 58 18" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 9:
-      bodyLines = `<path d="M 50 45 L 20 30 M 50 45 L 80 30" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 50 95 M 50 65 L 35 80 L 50 80" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 10:
-      bodyLines = `<path d="M 50 45 L 15 25 M 50 45 L 75 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 25 95 M 50 65 L 55 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 11:
-      bodyLines = `<path d="M 50 45 L 25 65 M 50 45 L 85 25" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 45 95 M 50 65 L 75 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 12:
-      bodyLines = `<path d="M 50 45 L 15 20 M 50 45 L 85 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 20 95 M 50 65 L 80 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 13:
-      bodyLines = `<path d="M 50 45 L 25 50 M 50 45 L 75 20" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 14:
-      bodyLines = `<path d="M 50 45 L 25 45 L 25 25 M 50 45 L 70 55 L 55 65" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 15:
-      bodyLines = `<path d="M 50 45 L 35 20 L 50 12 M 50 45 L 65 20 L 50 12" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 16:
-      bodyLines = `<path d="M 50 45 L 15 40 M 50 45 L 75 40 L 65 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 17:
-      bodyLines = `<path d="M 50 45 L 30 35 L 45 30 M 50 45 L 70 35 L 55 30" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 18:
-      bodyLines = `<path d="M 50 45 L 25 35 M 50 45 L 75 35" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 35 95 M 50 65 L 85 55" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    case 19:
-      bodyLines = `<path d="M 50 45 L 20 45 M 50 45 L 80 45" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 30 75 L 30 95 M 50 65 L 70 75 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
-    default:
-      bodyLines = `<path d="M 50 45 L 20 15 M 50 45 L 80 15" stroke="${c}" stroke-width="6" stroke-linecap="round"/>
-                   <path d="M 50 65 L 30 95 M 50 65 L 70 95" stroke="${c}" stroke-width="6" stroke-linecap="round"/>`;
-      break;
+  const id = typeof numOrType === 'number' ? ((numOrType - 1) % 4) + 1 : numOrType;
+
+  if (id === 1 || id === 'left_arm') {
+    // Left arm raised high (screen-left)
+    bodyLines = `<path d="M 50 45 L 20 18 M 50 45 L 75 60" stroke="${c}" stroke-width="7" stroke-linecap="round"/>`;
+  } else if (id === 2 || id === 'both_arms') {
+    // Both arms raised high V-shape
+    bodyLines = `<path d="M 50 45 L 20 18 M 50 45 L 80 18" stroke="${c}" stroke-width="7" stroke-linecap="round"/>`;
+  } else if (id === 3 || id === 'right_arm') {
+    // Right arm raised high (screen-right)
+    bodyLines = `<path d="M 50 45 L 25 60 M 50 45 L 80 18" stroke="${c}" stroke-width="7" stroke-linecap="round"/>`;
+  } else {
+    // Both arms spread wide horizontally
+    bodyLines = `<path d="M 50 45 L 12 45 M 50 45 L 88 45" stroke="${c}" stroke-width="7" stroke-linecap="round"/>`;
   }
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 110">
     <circle cx="50" cy="22" r="12" fill="${c}" />
     <path d="M 50 34 L 50 65" stroke="${c}" stroke-width="7" stroke-linecap="round" />
     ${bodyLines}
+    <path d="M 50 65 L 35 95 M 50 65 L 65 95" stroke="${c}" stroke-width="7" stroke-linecap="round"/>
   </svg>`;
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
-// 20 Pose Imitation Presets mapped directly to /batchuocnhanhcohoilon/1.png - 20.png
-const POSE_PRESETS_20 = Array.from({ length: 20 }, (_, i) => {
-  const num = i + 1;
-  return {
-    id: num,
-    name: `Động tác ${num}`,
-    image: getPoseImgUrl(num),
-    color: [
-      '#00a8ff', '#ff5252', '#10b981', '#8b5cf6', '#f59e0b',
-      '#ec4899', '#06b6d4', '#84cc16', '#3b82f6', '#d97706',
-      '#6366f1', '#14b8a6', '#f43f5e', '#a855f7', '#0284c7',
-      '#059669', '#ea580c', '#e11d48', '#0284c7', '#7c3aed'
-    ][i % 20]
-  };
-});
+// 4 Standard Upper-Body Poses mapped to Options A, B, C, D
+export const UPPER_BODY_POSES = [
+  {
+    id: 1,
+    key: 'A',
+    name: 'Động tác 1: Giơ tay trái',
+    shortName: 'Giơ tay trái',
+    icon: '🙋‍♂️',
+    image: getPoseImgUrl(16),
+    isMirroredImage: true,
+    color: '#0284c7', // Sky Blue
+    guideHint: 'Đưa tay trái lên cao hoặc nghiêng nhẹ sang trái'
+  },
+  {
+    id: 2,
+    key: 'B',
+    name: 'Động tác 2: Giơ cả 2 tay lên',
+    shortName: 'Giơ cả 2 tay',
+    icon: '🙌',
+    image: getPoseImgUrl(2),
+    isMirroredImage: false,
+    color: '#dc2626', // Red
+    guideHint: 'Đưa cả 2 tay lên cao hình chữ V'
+  },
+  {
+    id: 3,
+    key: 'C',
+    name: 'Động tác 3: Giơ tay phải',
+    shortName: 'Giơ tay phải',
+    icon: '🙋‍♀️',
+    image: getPoseImgUrl(16),
+    isMirroredImage: false,
+    color: '#16a34a', // Green
+    guideHint: 'Đưa tay phải lên cao hoặc nghiêng nhẹ sang phải'
+  },
+  {
+    id: 4,
+    key: 'D',
+    name: 'Động tác 4: Dang 2 tay ngang',
+    shortName: 'Dang 2 tay ngang',
+    icon: '👐',
+    image: getPoseImgUrl(4),
+    isMirroredImage: false,
+    color: '#9333ea', // Purple
+    guideHint: 'Mở rộng hai tay sang hai bên'
+  }
+];
 
 export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamIndex = 0, setActiveTeamIndex, onClose, lessonTitle, title }) {
   const fileInputRef = useRef(null);
@@ -205,7 +171,10 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
   const [selectedOption, setSelectedOption] = useState(null);
   const [answerState, setAnswerState] = useState(null); // 'correct' | 'wrong' | 'timeout'
 
-  // Temporal smoothing refs to avoid camera noise flicker
+  // Temporal smoothing refs to avoid camera noise flicker (Rule 16 compliant)
+  const prevFrameDataRef = useRef(null);
+  const bgModelRef = useRef(null);
+  const lastFrameTimeRef = useRef(0);
   const smoothedScoresRef = useRef([0, 0, 0, 0]);
   const holdCounterRef = useRef(0);
   const lastCandidateRef = useRef(null);
@@ -213,11 +182,10 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
   const currentQ = safeQuestions[currentQIndex % safeQuestions.length];
   const qOptions = currentQ.options || ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
 
-  // Map 4 options to 4 distinct pose images out of the 20 pose pool
+  // Map each option to the corresponding upper-body pose
   const currentQuestionPoses = useMemo(() => {
-    const startIndex = (currentQIndex * 4) % 20;
-    return qOptions.map((_, idx) => POSE_PRESETS_20[(startIndex + idx) % 20]);
-  }, [currentQIndex, qOptions]);
+    return qOptions.map((_, idx) => UPPER_BODY_POSES[idx % UPPER_BODY_POSES.length]);
+  }, [qOptions]);
 
   const correctOptionIdx = useMemo(() => {
     if (typeof currentQ.correct === 'number') return currentQ.correct;
@@ -288,7 +256,7 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
     }
   };
 
-  // Ultra-Stable High Accuracy Pose Recognition Engine (Noise Filtered & Smooth Hold)
+  // High-Performance Forgiving Relative-Accuracy Computer Vision Engine (30fps Throttled, Rule 16)
   useEffect(() => {
     if (screenMode !== 'playing' || answerState) return;
 
@@ -306,74 +274,135 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
         return;
       }
 
+      const now = performance.now();
+      // Throttle to 30fps (~33ms) per Rule 16
+      if (now - lastFrameTimeRef.current < 33) {
+        animFrameId = requestAnimationFrame(processPoseFrame);
+        return;
+      }
+      lastFrameTimeRef.current = now;
+
       const canvas = canvasRef.current || document.createElement('canvas');
       canvas.width = 160;
       canvas.height = 120;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
       if (ctx) {
-        ctx.drawImage(video, 0, 0, 160, 120);
+        // Draw mirrored so canvas horizontal coordinates match screen coordinates 1:1
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, -160, 0, 160, 120);
+        ctx.restore();
+
         const imgData = ctx.getImageData(0, 0, 160, 120);
         const data = imgData.data;
 
-        // Spatial motion & skin/body pixel density zones
-        let zoneTopLeft = 0;
-        let zoneTopRight = 0;
-        let zoneTopCenter = 0;
-        let zoneWideSides = 0;
+        // Initialize background baseline & prevFrame
+        if (!bgModelRef.current || bgModelRef.current.length !== data.length) {
+          bgModelRef.current = new Uint8Array(data);
+          prevFrameDataRef.current = new Uint8Array(data);
+          animFrameId = requestAnimationFrame(processPoseFrame);
+          return;
+        }
 
-        for (let y = 10; y < 105; y++) {
-          for (let x = 10; x < 150; x++) {
+        const bgData = bgModelRef.current;
+        const prevData = prevFrameDataRef.current;
+
+        let leftZoneActive = 0;
+        let rightZoneActive = 0;
+        let wideZoneActive = 0;
+        let totalMotion = 0;
+
+        for (let y = 8; y < 100; y += 2) {
+          for (let x = 6; x < 154; x += 2) {
             const idx = (y * 160 + x) * 4;
             const r = data[idx];
             const g = data[idx + 1];
             const b = data[idx + 2];
 
-            // Filter human body & motion pixels
-            const isBodyPixel = (r > 45 && g > 30 && b > 20 && Math.abs(r - g) > 8) || (r + g + b > 400);
+            const bgR = bgData[idx];
+            const bgG = bgData[idx + 1];
+            const bgB = bgData[idx + 2];
 
-            if (isBodyPixel) {
-              if (y < 42 && x < 65) zoneTopLeft += 1;
-              if (y < 42 && x > 95) zoneTopRight += 1;
-              if (y < 42 && x >= 55 && x <= 105) zoneTopCenter += 1;
-              if (x < 28 || x > 132) zoneWideSides += 1;
+            const prevR = prevData[idx];
+            const prevG = prevData[idx + 1];
+            const prevB = prevData[idx + 2];
+
+            // Motion difference
+            const motion = Math.abs(r - prevR) + Math.abs(g - prevG) + Math.abs(b - prevB);
+            totalMotion += motion;
+
+            // Background baseline difference
+            const bgDiff = Math.abs(r - bgR) + Math.abs(g - bgG) + Math.abs(b - bgB);
+
+            // True skin check (strictly rejects beige/cream/white walls)
+            const isSkin = (r > 48 && g > 32 && b > 20 && r > g && g > b && (r - g) >= 8 && (r - b) >= 12);
+
+            // Active foreground presence
+            const isForeground = (bgDiff > 28 && (isSkin || motion > 16 || bgDiff > 42));
+
+            if (isForeground) {
+              if (y < 55 && x < 68) leftZoneActive++;
+              if (y < 55 && x > 92) rightZoneActive++;
+              if (y >= 35 && y <= 95 && (x < 36 || x > 124)) wideZoneActive++;
             }
           }
         }
 
-        // Calculate raw candidate scores
-        const rawScores = [
-          Math.min(99, Math.round((zoneTopLeft / 500) * 100)),
-          Math.min(99, Math.round((zoneTopRight / 500) * 100)),
-          Math.min(99, Math.round((zoneTopCenter / 550) * 100)),
-          Math.min(99, Math.round((zoneWideSides / 650) * 100))
-        ];
+        // Update prevFrameData
+        prevData.set(data);
 
-        // Apply Exponential Moving Average (EMA) to smooth out camera flicker
+        // Adaptive background update when scene is relatively quiet
+        const sampledPixels = ((100 - 8) * (154 - 6)) / 4;
+        const avgMotion = totalMotion / sampledPixels;
+        if (avgMotion < 15) {
+          for (let i = 0; i < data.length; i += 8) {
+            bgData[i] = (bgData[i] * 24 + data[i]) / 25;
+            bgData[i + 1] = (bgData[i + 1] * 24 + data[i + 1]) / 25;
+            bgData[i + 2] = (bgData[i + 2] * 24 + data[i + 2]) / 25;
+          }
+        }
+
+        // Raw candidate scores for the 4 gestures (0: Left, 1: Both, 2: Right, 3: Wide)
+        const bothMin = Math.min(leftZoneActive, rightZoneActive);
+        const rawBoth = Math.min(99, Math.round((bothMin / 40) * 100));
+
+        const leftOnly = Math.max(0, leftZoneActive - Math.round(rightZoneActive * 0.65));
+        const rawLeft = Math.min(99, Math.round((leftOnly / 38) * 100));
+
+        const rightOnly = Math.max(0, rightZoneActive - Math.round(leftZoneActive * 0.65));
+        const rawRight = Math.min(99, Math.round((rightOnly / 38) * 100));
+
+        const rawWide = Math.min(99, Math.round((wideZoneActive / 45) * 100));
+
+        const rawScores = [rawLeft, rawBoth, rawRight, rawWide];
+
+        // Smooth scores with Exponential Moving Average (EMA)
         const smoothed = smoothedScoresRef.current.map((prev, i) => {
-          return Math.round(prev * 0.7 + rawScores[i] * 0.3);
+          return Math.round(prev * 0.55 + rawScores[i] * 0.45);
         });
         smoothedScoresRef.current = smoothed;
 
-        // Determine dominant pose candidate
+        // Evaluate dominant candidate among the available options in qOptions
         let bestCandidate = null;
         let highestScore = 0;
         let secondHighest = 0;
 
-        smoothed.forEach((score, idx) => {
+        for (let i = 0; i < qOptions.length; i++) {
+          const score = smoothed[i] || 0;
           if (score > highestScore) {
             secondHighest = highestScore;
             highestScore = score;
-            bestCandidate = idx;
+            bestCandidate = i;
           } else if (score > secondHighest) {
             secondHighest = score;
           }
-        });
+        }
 
-        // Require 85%+ score AND 15% margin over second place to prevent flickering
-        const isStableMatch = (highestScore >= 85) && ((highestScore - secondHighest) >= 12) && (bestCandidate < qOptions.length);
+        // Forgiving relative accuracy threshold: >= 25% with only >= 4% margin over second place
+        const isCandidateMatch = (highestScore >= 25) && ((highestScore - secondHighest) >= 4) && (bestCandidate < qOptions.length);
 
-        if (isStableMatch) {
+        if (isCandidateMatch) {
           if (lastCandidateRef.current === bestCandidate) {
             holdCounterRef.current += 1;
           } else {
@@ -382,23 +411,28 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
           }
 
           setDetectedPoseIdx(bestCandidate);
-          setPoseAccuracyScore(Math.min(98, highestScore + 4));
+          setPoseAccuracyScore(Math.min(98, highestScore + 10));
 
-          // Require holding pose continuously for 12 frames (~0.4s hold) to trigger selection
-          const progressPct = Math.min(100, Math.round((holdCounterRef.current / 12) * 100));
+          // Quick & responsive hold: 6 frames (~0.2s hold)
+          const progressPct = Math.min(100, Math.round((holdCounterRef.current / 6) * 100));
           setPoseHoldProgress(progressPct);
 
-          if (holdCounterRef.current >= 12) {
+          if (holdCounterRef.current >= 6) {
             handleChooseOption(bestCandidate);
             holdCounterRef.current = 0;
             lastCandidateRef.current = null;
           }
         } else {
-          holdCounterRef.current = 0;
-          lastCandidateRef.current = null;
-          setDetectedPoseIdx(null);
-          setPoseAccuracyScore(0);
-          setPoseHoldProgress(0);
+          holdCounterRef.current = Math.max(0, holdCounterRef.current - 1);
+          if (holdCounterRef.current === 0) {
+            lastCandidateRef.current = null;
+            setDetectedPoseIdx(null);
+            setPoseAccuracyScore(0);
+            setPoseHoldProgress(0);
+          } else {
+            const progressPct = Math.min(100, Math.round((holdCounterRef.current / 6) * 100));
+            setPoseHoldProgress(progressPct);
+          }
         }
       }
 
@@ -493,7 +527,7 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
           Bắt chước nhanh - Cơ hội lớn
         </h2>
         <p style={{ fontSize: '1.1rem', color: '#c7d2fe', fontWeight: 700, margin: '0 0 28px 0' }}>
-          {lessonTitle || title || 'Nhận diện camera AI chính xác 90%+ động tác mô phỏng'}
+          {lessonTitle || title || 'Nhận diện camera AI tương đối linh hoạt — Làm động tác gần giống là nhận'}
         </p>
 
         {/* Instructions Card */}
@@ -518,10 +552,10 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
             </div>
             <div>
               <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '0 0 4px 0', color: '#ffffff' }}>
-                Camera nhận diện 20 động tác mô phỏng ổn định 100%
+                Nhận diện thông minh với độ chính xác tương đối
               </h4>
               <p style={{ fontSize: '0.92rem', color: '#e0e7ff', margin: 0, lineHeight: 1.4 }}>
-                Tự động lọc nhiễu webcam, giữ tư thế trong 0.4s để chốt đáp án chính xác, hoàn toàn không bị nhảy đáp án.
+                Người chơi chỉ cần làm động tác gần giống (giơ tay trái, giơ cả 2 tay, giơ tay phải hoặc dang tay) trong ~0.2s là hệ thống tự động ghi nhận ngay lập tức.
               </p>
             </div>
           </div>
@@ -771,7 +805,7 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', flex: 1, justifyContent: 'center' }}>
             {qOptions.map((optText, idx) => {
               if (!isOptionValidForQuestion(qOptions, idx)) return null;
-              const poseInfo = currentQuestionPoses[idx] || POSE_PRESETS_20[idx % 20];
+              const poseInfo = currentQuestionPoses[idx] || UPPER_BODY_POSES[idx % UPPER_BODY_POSES.length];
               const isDetected = detectedPoseIdx === idx;
               const isSelected = selectedOption === idx;
 
@@ -830,19 +864,23 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
                         height: '115px', 
                         maxWidth: '118px', 
                         objectFit: 'contain',
-                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                        transform: poseInfo.isMirroredImage ? 'scaleX(-1)' : 'none'
                       }} 
                     />
                   </div>
 
                   {/* Option Text & Pose Label */}
-                  <div style={{ flex: 1, padding: '0 20px', textAlign: 'center', position: 'relative' }}>
-                    <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.25)', padding: '4px 14px', borderRadius: '12px', fontSize: '0.88rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                  <div style={{ flex: 1, padding: '0 18px', textAlign: 'center', position: 'relative' }}>
+                    <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.28)', padding: '4px 14px', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
                       {poseInfo.name}
                     </div>
                     <h3 style={{ fontSize: '1.65rem', fontWeight: 900, margin: 0, lineHeight: 1.3, textShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>
                       {optText}
                     </h3>
+                    <div style={{ fontSize: '0.86rem', opacity: 0.95, marginTop: '6px', fontWeight: 700, color: '#fef08a' }}>
+                      💡 {poseInfo.guideHint}
+                    </div>
 
                     {/* Smooth Progress Fill Bar on Active Pose Hold */}
                     {isDetected && !answerState && (
@@ -892,7 +930,8 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
                         height: '115px', 
                         maxWidth: '118px', 
                         objectFit: 'contain',
-                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                        filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+                        transform: poseInfo.isMirroredImage ? 'scaleX(-1)' : 'none'
                       }} 
                     />
                   </div>
@@ -928,7 +967,7 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
           )}
         </div>
 
-        {/* RIGHT COLUMN: CAMERA WEBCAM FEED & HIGH ACCURACY 90%+ HUD */}
+        {/* RIGHT COLUMN: CAMERA WEBCAM FEED & FORGIVING RELATIVE ACCURACY HUD */}
         <div style={{
           background: '#ffffff',
           borderRadius: '24px',
@@ -988,33 +1027,159 @@ export function PoseImitationGame({ questions, teams, onAddPoints, activeTeamInd
               </div>
             )}
 
-            {/* AI Real-Time Accuracy HUD Display Badge */}
-            {detectedPoseIdx !== null && !answerState && (
+            {/* Target Guide Zones on Camera Preview */}
+            {cameraActive && !answerState && (
+              <>
+                {/* Zone A: Tay Trái */}
+                {qOptions.length > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    left: '16px',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    background: detectedPoseIdx === 0 ? 'rgba(2, 132, 199, 0.95)' : 'rgba(15, 23, 42, 0.65)',
+                    border: detectedPoseIdx === 0 ? '2.5px solid #ffffff' : '1.5px dashed rgba(255,255,255,0.4)',
+                    boxShadow: detectedPoseIdx === 0 ? '0 0 20px #0284c7' : 'none',
+                    color: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease',
+                    zIndex: 5
+                  }}>
+                    <span>🙋‍♂️ A: Tay Trái</span>
+                  </div>
+                )}
+
+                {/* Zone B: Cả 2 Tay */}
+                {qOptions.length > 1 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    background: detectedPoseIdx === 1 ? 'rgba(220, 38, 38, 0.95)' : 'rgba(15, 23, 42, 0.65)',
+                    border: detectedPoseIdx === 1 ? '2.5px solid #ffffff' : '1.5px dashed rgba(255,255,255,0.4)',
+                    boxShadow: detectedPoseIdx === 1 ? '0 0 20px #dc2626' : 'none',
+                    color: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease',
+                    zIndex: 5
+                  }}>
+                    <span>🙌 B: Cả 2 Tay</span>
+                  </div>
+                )}
+
+                {/* Zone C: Tay Phải */}
+                {qOptions.length > 2 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    background: detectedPoseIdx === 2 ? 'rgba(22, 163, 74, 0.95)' : 'rgba(15, 23, 42, 0.65)',
+                    border: detectedPoseIdx === 2 ? '2.5px solid #ffffff' : '1.5px dashed rgba(255,255,255,0.4)',
+                    boxShadow: detectedPoseIdx === 2 ? '0 0 20px #16a34a' : 'none',
+                    color: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease',
+                    zIndex: 5
+                  }}>
+                    <span>🙋‍♀️ C: Tay Phải</span>
+                  </div>
+                )}
+
+                {/* Zone D: Dang Ngang (if 4 options) */}
+                {qOptions.length > 3 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '80px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    padding: '6px 12px',
+                    borderRadius: '12px',
+                    background: detectedPoseIdx === 3 ? 'rgba(147, 51, 234, 0.95)' : 'rgba(15, 23, 42, 0.65)',
+                    border: detectedPoseIdx === 3 ? '2.5px solid #ffffff' : '1.5px dashed rgba(255,255,255,0.4)',
+                    boxShadow: detectedPoseIdx === 3 ? '0 0 20px #9333ea' : 'none',
+                    color: '#ffffff',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.15s ease',
+                    zIndex: 5
+                  }}>
+                    <span>👐 D: Dang Ngang</span>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* AI Real-Time Forgiving Accuracy HUD Display Badge */}
+            {cameraActive && !answerState && (
               <div style={{
                 position: 'absolute',
-                bottom: '20px',
+                bottom: '16px',
                 background: 'rgba(15, 23, 42, 0.92)',
                 color: '#ffffff',
-                padding: '10px 22px',
+                padding: '8px 20px',
                 borderRadius: '24px',
                 fontWeight: 900,
-                fontSize: '0.95rem',
+                fontSize: '0.9rem',
                 backdropFilter: 'blur(8px)',
-                border: '2px solid #22c55e',
-                boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)',
+                border: detectedPoseIdx !== null ? '2px solid #22c55e' : '1px solid rgba(255,255,255,0.2)',
+                boxShadow: detectedPoseIdx !== null ? '0 6px 20px rgba(34, 197, 94, 0.4)' : 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px'
+                gap: '10px',
+                maxWidth: '90%',
+                zIndex: 6
               }}>
-                <Zap size={20} color="#22c55e" className="animate-pulse" />
-                <div>
-                  <div style={{ color: '#4ade80', fontSize: '0.82rem', textTransform: 'uppercase', fontWeight: 800 }}>
-                    🎯 KHỚP {poseAccuracyScore}% — ĐANG GIỮ: {poseHoldProgress}%
-                  </div>
-                  <div>
-                    {currentQuestionPoses[detectedPoseIdx]?.name}
-                  </div>
-                </div>
+                {detectedPoseIdx !== null ? (
+                  <>
+                    <Zap size={18} color="#22c55e" />
+                    <div>
+                      <div style={{ color: '#4ade80', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>
+                        🎯 ĐANG CHỌN: {currentQuestionPoses[detectedPoseIdx]?.shortName} ({poseAccuracyScore}%)
+                      </div>
+                      <div style={{
+                        marginTop: '4px',
+                        background: 'rgba(255,255,255,0.2)',
+                        borderRadius: '6px',
+                        height: '6px',
+                        overflow: 'hidden',
+                        width: '160px'
+                      }}>
+                        <div style={{
+                          height: '100%',
+                          width: `${poseHoldProgress}%`,
+                          background: '#22c55e',
+                          borderRadius: '6px',
+                          transition: 'width 0.1s linear'
+                        }} />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
+                    📷 Làm động tác gần giống để chọn đáp án (hoặc bấm chuột)
+                  </span>
+                )}
               </div>
             )}
           </div>
