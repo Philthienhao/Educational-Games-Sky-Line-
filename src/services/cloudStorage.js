@@ -5,11 +5,6 @@
 
 import { IDBStorageService } from './idbStorage.js';
 
-const KV_ENDPOINTS = [
-  'https://api.kvdb.io/skyline_gvd_users_eduvth_v1/users',
-  'https://api.kvdb.io/skyline_gvd_users_eduvth_v2/users'
-];
-
 // System Default Central Supabase Cloud DB Configuration
 const SYSTEM_DEFAULT_SUPABASE_URL = 'https://ebdzuzykdhyczqijxzjn.supabase.co';
 const SYSTEM_DEFAULT_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViZHp1enlrZGh5Y3pxaWp4empuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDY0MjYsImV4cCI6MjEwNDQyMjQyNn0.eWSpAG14uwGsX2OOd2IdM4dSFl-DSotE9DQaRnz7kQs';
@@ -104,51 +99,53 @@ export const CloudStorageService = {
       });
     };
 
-    // 1. Primary: Try Supabase REST API if configured
+    // 1. Primary: Try Supabase REST API with strict 1.8s timeout
     if (url && key) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1800);
         const response = await fetch(`${url}/rest/v1/teachers_users?select=*`, {
           headers: {
             'apikey': key,
             'Authorization': `Bearer ${key}`
-          }
+          },
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data) && data.length > 0) return filterDeletedUsers(data);
         }
       } catch (e) {
-        console.warn("Supabase getCloudUsers error:", e);
+        console.warn("Supabase getCloudUsers quick timeout:", e.message || e);
       }
     }
 
-    // 2. Secondary Cloud CDN Endpoint: Fetch directly from GitHub CDN
+    // 2. Secondary: Fast Local/Origin CDN Endpoint (/cloud_users.json)
     try {
-      const cdnUrl = 'https://raw.githubusercontent.com/Philthienhao/Educational-Games-Sky-Line-/main/public/cloud_users.json?t=' + Date.now();
-      const res = await fetch(cdnUrl, { cache: 'no-store' });
+      const localUrl = `/cloud_users.json?t=${Date.now()}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch(localUrl, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timeoutId);
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) return filterDeletedUsers(data);
       }
     } catch (e) {}
 
-    // 3. Multi-endpoint KV fallback strategy
-    for (const endpoint of KV_ENDPOINTS) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-        const response = await fetch(endpoint, { signal: controller.signal }).catch(() => null);
-        clearTimeout(timeoutId);
-
-        if (response && response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data) && data.length >= 0) return filterDeletedUsers(data);
-        }
-      } catch (e) {
-        console.warn("CloudStorageService endpoint fetch info:", e.message || e);
+    // 3. Fallback to GitHub CDN only if local origin unavailable
+    try {
+      const cdnUrl = 'https://raw.githubusercontent.com/Philthienhao/Educational-Games-Sky-Line-/main/public/cloud_users.json?t=' + Date.now();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(cdnUrl, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) return filterDeletedUsers(data);
       }
-    }
+    } catch (e) {}
 
     return [];
   },
@@ -322,14 +319,6 @@ export const CloudStorageService = {
         return true;
       });
 
-      KV_ENDPOINTS.forEach(endpoint => {
-        fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(filtered)
-        }).catch(() => {});
-      });
-
       const { url, key } = getSupabaseCredentials();
       if (url && key) {
         if (userId) {
@@ -419,31 +408,11 @@ export const CloudStorageService = {
     if (sbOk) successCount++;
     if (vcOk) successCount++;
 
-    // 3. Fallback direct push to Redundant KV Cloud endpoints in parallel (non-blocking)
-    const fallbackUrls = [
-      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
-      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
-    ];
-
-    fallbackUrls.forEach(fUrl => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-      fetch(fUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        signal: controller.signal
-      }).then(fRes => {
-        clearTimeout(timeoutId);
-        if (fRes && fRes.ok) successCount++;
-      }).catch(() => {});
-    });
-
     return successCount > 0 || sbOk || vcOk;
   },
 
   /**
-   * Get Teacher Private Data from Supabase, Vercel Serverless API, or Redundant Cloud KV DB
+   * Get Teacher Private Data from Supabase or Vercel Serverless API with strict 1.8s timeout
    */
   getUserPrivateCloudData: async (userId, dataType) => {
     if (!userId || !dataType) return null;
@@ -452,11 +421,11 @@ export const CloudStorageService = {
 
     const { url, key } = getSupabaseCredentials();
 
-    // 1. Primary: If Supabase configured, query Supabase REST API directly
+    // 1. Primary: If Supabase configured, query Supabase REST API directly with 1.8s timeout
     if (url && key) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 1800);
         const res = await fetch(`${url}/rest/v1/user_data?key=eq.${encodeURIComponent(storageKey)}&select=data`, {
           headers: {
             'apikey': key,
@@ -473,15 +442,15 @@ export const CloudStorageService = {
           }
         }
       } catch (e) {
-        console.warn(`Supabase getUserPrivateCloudData error (${dataType}):`, e.message || e);
+        // Fast fallback to Vercel endpoint
       }
     }
 
-    // 2. Vercel Serverless Endpoint (/api/storage)
+    // 2. Secondary: Vercel Serverless Endpoint (/api/storage) with 1.8s timeout
     const endpoint = `/api/storage?userId=${encodeURIComponent(cleanId)}&dataType=${encodeURIComponent(dataType)}`;
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 1800);
       const res = await fetch(endpoint, { signal: controller.signal });
       clearTimeout(timeoutId);
       if (res.ok) {
@@ -490,38 +459,6 @@ export const CloudStorageService = {
           return data;
         }
       }
-    } catch (e) {
-      console.warn(`getUserPrivateCloudData warning (${dataType}):`, e.message || e);
-    }
-
-    // 3. Fallback direct query to Redundant KV Cloud endpoints in parallel
-    const fallbackUrls = [
-      `https://api.kvdb.io/skyline_gvd_store_v1/${encodeURIComponent(storageKey)}`,
-      `https://api.kvdb.io/skyline_gvd_store_v2/${encodeURIComponent(storageKey)}`
-    ];
-
-    try {
-      const kvPromises = fallbackUrls.map(async (fUrl) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
-        try {
-          const res = await fetch(fUrl, { signal: controller.signal });
-          clearTimeout(timeoutId);
-          if (res.ok) {
-            const rawText = await res.text();
-            if (rawText && rawText.trim()) {
-              try {
-                return JSON.parse(rawText);
-              } catch (e) {
-                return rawText;
-              }
-            }
-          }
-        } catch (e) {}
-        throw new Error('KV miss');
-      });
-
-      return await Promise.any(kvPromises);
     } catch (e) {}
 
     return null;

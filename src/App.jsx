@@ -423,11 +423,21 @@ export function App() {
       } catch (e) {}
     };
 
+    const handleCloudDataSynced = () => {
+      const activeUser = StorageService.getCurrentUser();
+      if (activeUser?.id) {
+        const freshGames = StorageService.getTeacherSavedGames(activeUser.id);
+        setSavedGames(freshGames);
+      }
+    };
+
     window.addEventListener('hashchange', handleHashOrStateChange);
     window.addEventListener('popstate', handleHashOrStateChange);
+    window.addEventListener('gvd_cloud_data_synced', handleCloudDataSynced);
     return () => {
       window.removeEventListener('hashchange', handleHashOrStateChange);
       window.removeEventListener('popstate', handleHashOrStateChange);
+      window.removeEventListener('gvd_cloud_data_synced', handleCloudDataSynced);
     };
   }, []);
 

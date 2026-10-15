@@ -4,11 +4,6 @@
 const UPSTASH_REST_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || 'https://skyline-gvd-store.upstash.io';
 const UPSTASH_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '';
 
-const KV_SERVERS = [
-  'https://api.kvdb.io/skyline_gvd_store_v1',
-  'https://api.kvdb.io/skyline_gvd_store_v2'
-];
-
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || 'https://ebdzuzykdhyczqijxzjn.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.REACT_APP_SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViZHp1enlrZGh5Y3pxaWp4empuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NDY0MjYsImV4cCI6MjEwNDQyMjQyNn0.eWSpAG14uwGsX2OOd2IdM4dSFl-DSotE9DQaRnz7kQs';
 
@@ -88,6 +83,8 @@ export default async function handler(req, res) {
       // 2. Try Supabase REST DB if credentials configured
       if (SUPABASE_URL && SUPABASE_KEY) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000);
           const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/user_data`, {
             method: 'POST',
             headers: {
@@ -100,34 +97,15 @@ export default async function handler(req, res) {
               key: storageKey,
               data: bodyPayload,
               updated_at: updatedAt
-            })
+            }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
           if (sbRes.ok) savedSuccessfully = true;
         } catch (e) {
           console.warn("Supabase REST API POST warning:", e.message || e);
         }
       }
-
-      // 3. Broadcast to redundant 24/7 Cloud KV Servers
-      const kvPromises = KV_SERVERS.map(async (serverUrl) => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const kvRes = await fetch(`${serverUrl}/${encodeURIComponent(storageKey)}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: stringifiedPayload,
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          return kvRes.ok;
-        } catch (e) {
-          return false;
-        }
-      });
-
-      const kvResults = await Promise.all(kvPromises);
-      if (kvResults.some(r => r === true)) savedSuccessfully = true;
 
       return res.status(200).json({ success: true, key: storageKey, updatedAt });
     } catch (err) {
@@ -142,7 +120,7 @@ export default async function handler(req, res) {
       if (UPSTASH_REST_URL && UPSTASH_REST_TOKEN) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const timeoutId = setTimeout(() => controller.abort(), 1500);
           const upRes = await fetch(`${UPSTASH_REST_URL}/get/${encodeURIComponent(storageKey)}`, {
             headers: { 'Authorization': `Bearer ${UPSTASH_REST_TOKEN}` },
             signal: controller.signal
@@ -169,12 +147,16 @@ export default async function handler(req, res) {
       // 2. Try Supabase REST DB
       if (SUPABASE_URL && SUPABASE_KEY) {
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1800);
           const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/user_data?key=eq.${encodeURIComponent(storageKey)}&select=data`, {
             headers: {
               'apikey': SUPABASE_KEY,
               'Authorization': `Bearer ${SUPABASE_KEY}`
-            }
+            },
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
           if (sbRes.ok) {
             const rows = await sbRes.json();
             if (Array.isArray(rows) && rows.length > 0 && rows[0].data !== undefined) {
@@ -183,32 +165,6 @@ export default async function handler(req, res) {
           }
         } catch (e) {
           console.warn("Supabase REST API GET warning:", e.message || e);
-        }
-      }
-
-      // 3. Try redundant Cloud KV Servers sequentially
-      for (const serverUrl of KV_SERVERS) {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const kvRes = await fetch(`${serverUrl}/${encodeURIComponent(storageKey)}`, {
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-
-          if (kvRes.ok) {
-            const rawText = await kvRes.text();
-            if (rawText && rawText.trim()) {
-              try {
-                const parsedData = JSON.parse(rawText);
-                return res.status(200).json(sanitizeHomeroomData(parsedData));
-              } catch (e) {
-                return res.status(200).json(sanitizeHomeroomData(rawText));
-              }
-            }
-          }
-        } catch (e) {
-          console.warn(`KV Server GET warning (${serverUrl}):`, e.message || e);
         }
       }
 

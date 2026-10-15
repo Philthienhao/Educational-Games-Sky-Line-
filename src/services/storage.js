@@ -1374,6 +1374,9 @@ const INITIAL_SKL_WEB_LINKS = [
 ];
 
 let isStorageInitRunning = false;
+let hasSessionInitRun = false;
+let isCloudSyncRunning = false;
+let lastCloudSyncTime = 0;
 
 export const StorageService = {
   // Safe helper to extract active user ID without invoking StorageService.init() recursively
@@ -1392,6 +1395,7 @@ export const StorageService = {
   // Init storage safely without filling localStorage limit
   init: () => {
     if (isStorageInitRunning) return;
+    if (hasSessionInitRun) return; // Fast-path: already initialized in this browser session
     isStorageInitRunning = true;
 
     try {
@@ -1721,6 +1725,7 @@ export const StorageService = {
       console.warn("StorageService.init execution error:", e);
     } finally {
       isStorageInitRunning = false;
+      hasSessionInitRun = true;
     }
   },
 
@@ -1773,18 +1778,29 @@ export const StorageService = {
         }
       } catch (e) {}
 
-      try {
-        await StorageService.syncAllUserDataFromCloud(effectiveUserId);
-      } catch (e) {}
+      // NON-BLOCKING: run cloud sync in background so UI returns in 10ms!
+      setTimeout(() => {
+        StorageService.syncAllUserDataFromCloud(effectiveUserId).then(() => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('gvd_cloud_data_synced', { detail: { userId: effectiveUserId } }));
+          }
+        }).catch(() => {});
+      }, 50);
     }
 
-    // CRITICAL: Return only the current user's games (not all users')
+    // CRITICAL: Return immediately from fast local storage!
     return StorageService.getTeacherSavedGames(effectiveUserId);
   },
 
   // Cross-Device Universal Cloud Data Synchronization Engine
-  syncAllUserDataFromCloud: async (userId) => {
+  syncAllUserDataFromCloud: async (userId, force = false) => {
     if (!userId) return false;
+    const now = Date.now();
+    if (!force && (isCloudSyncRunning || now - lastCloudSyncTime < 10000)) {
+      return false; // Skip redundant rapid sync to avoid network congestion
+    }
+    isCloudSyncRunning = true;
+    lastCloudSyncTime = now;
     try {
       // Concurrently query all 6 cloud data sets in parallel for instant response time
       const [
@@ -1930,6 +1946,8 @@ export const StorageService = {
     } catch (e) {
       console.warn("syncAllUserDataFromCloud error:", e);
       return false;
+    } finally {
+      isCloudSyncRunning = false;
     }
   },
 
