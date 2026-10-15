@@ -91,3 +91,19 @@
 - **Universal Agnostic Presentation**: The educational workspace, login page, feature overviews, and system banners MUST remain 100% subject-neutral and universally welcoming to teachers of ALL subjects (Toán, Ngữ văn, Tiếng Anh, KHTN, Lịch sử, Địa lí, GDCD, Tin học, Mỹ thuật, Thể dục, Tiểu học...).
 - **Author Identity vs. Subject Content**: "Thầy Hảo" MUST only be represented as the platform's founder, author, and technical administrator ("Tác giả & Quản trị hệ thống"). Never brand or restrict the system's global identity, feature overviews, or login graphics to a single subject (such as Geography / Địa Lí).
 
+## 16. Zero Idle Resource & High-Performance Frame Rate Invariant (Nguyên Tắc Triệt Tiêu Giật Lag & Chặn Cảnh Báo Tài Nguyên Chrome)
+- **Strict No 24/7 Infinite Heavy CSS Animations (Cấm Animation Nặng Chạy Ngầm Vô Tận)**: 
+  - TUYỆT ĐỐI KHÔNG sử dụng `@keyframes` lặp vô tận (`infinite`) trên các thuộc tính ép trình duyệt phải rasterize lại liên tục bằng CPU/GPU như `box-shadow` (với blur/spread lớn), `filter: drop-shadow/blur()`, hoặc vẽ lại layout liên tục trên các thành phần nổi/toàn màn hình khi người dùng không tương tác.
+  - Khi người dùng ở trạng thái nghỉ (idle), mức tiêu thụ CPU của tab web bắt buộc phải ở mức **~0%**.
+- **Safe Single-Loop RAF Protocol (Quy Tắc An Toàn requestAnimationFrame)**:
+  - Mỗi vòng lặp render/game loop CHỈ ĐƯỢC PHÉP chứa đúng 1 điểm gọi `requestAnimationFrame(loop)`. TUYỆT ĐỐI KHÔNG đặt lệnh gọi RAF ở cả đầu và cuối hàm hoặc bên trong nhánh điều kiện rẽ nhánh dẫn đến nhân đôi vòng lặp (exponential RAF forking).
+  - Luôn luôn thu hồi và dọn dẹp sạch sẽ bằng `cancelAnimationFrame(animId)` trong return cleanup của `useEffect`.
+- **Bounded Polling Invariant (Nguyên Tắc Giới Hạn Chu Kỳ Polling setInterval)**:
+  - Mọi hàm `setInterval` dùng để chờ nạp SDK, script bên ngoài (như Google Accounts GSI, SDK bên thứ ba) BẮT BUỘC PHẢI có biến đếm số lần thử tối đa (`maxRetries`, tối đa 8 - 10 lần tương đương 4 - 5 giây) và phải tự động gọi `clearInterval` khi đạt ngưỡng để không bao giờ chạy ngầm vĩnh viễn trong nền.
+- **30fps State Throttle & React.memo for Interactive Game Loops**:
+  - Khi cập nhật vị trí tọa độ của nhiều đối tượng đồ họa (như muỗi bay, bóng nảy, vật thể camera), BẮT BUỘC PHẢI điều tiết nhịp tính toán và `setState` ở mức tối đa **30fps (~33ms/lần)** thay vì 60fps để tránh làm nghẽn luồng chính của React.
+  - Các component phần tử đồ họa động (như `MosquitoTarget`, `CardItem`) BẮT BUỘC PHẢI được bọc trong `React.memo` để tránh re-render dây chuyền toàn bộ cây DOM.
+- **State Change Guard in Observers & Listeners**:
+  - Trong các trình lắng nghe DOM (`MutationObserver`, resize, scroll), chỉ được gọi hàm cập nhật state khi giá trị mới thực sự khác giá trị cũ (`setState(prev => prev !== next ? next : prev)`).
+
+
