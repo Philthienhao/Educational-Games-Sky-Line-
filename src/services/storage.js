@@ -3119,8 +3119,14 @@ export const StorageService = {
     else if (rawTitleStr.includes('dò mìn')) resolvedEngineType = 'minesweeper';
     else if (rawTitleStr.includes('từ bay') || rawTitleStr.includes('từ ngữ biết bay')) resolvedEngineType = 'flying-words';
     else if (rawTitleStr.includes('nối ý') || rawTitleStr.includes('ghép cặp')) resolvedEngineType = 'matching-pairs';
-    else if (rawTitleStr.includes('đua vịt')) resolvedEngineType = 'duck-race';
-    else if (rawTitleStr.includes('đua rùa')) resolvedEngineType = 'turtle-race';
+    else if (rawTitleStr.includes('đua vịt') || rawIdStr.includes('duck')) resolvedEngineType = 'duck-race';
+    else if (rawTitleStr.includes('đua rùa') || rawIdStr.includes('turtle')) resolvedEngineType = 'turtle-race';
+    else if (rawTitleStr.includes('gắp thú') || rawIdStr.includes('claw-machine')) resolvedEngineType = 'claw-machine';
+    else if (rawTitleStr.includes('phi hành gia') || rawIdStr.includes('astronaut')) resolvedEngineType = 'astronaut-explorer';
+    else if (rawTitleStr.includes('chiếc mũ') || rawTitleStr.includes('hộp quà') || rawIdStr.includes('magic-hat')) resolvedEngineType = 'magic-hat';
+    else if (rawTitleStr.includes('cổ thư') || rawIdStr.includes('magic-grimoire')) resolvedEngineType = 'magic-grimoire';
+    else if (rawTitleStr.includes('chia nhóm') || rawIdStr.includes('student-group-divider')) resolvedEngineType = 'student-group-divider';
+    else if (rawTitleStr.includes('đua bi') || rawIdStr.includes('marble-race')) resolvedEngineType = 'marble-race';
     else if (rawTitleStr.includes('rừng xanh')) resolvedEngineType = 'jungle-rescue';
     else if (rawTitleStr.includes('jeopardy')) resolvedEngineType = 'jeopardy';
     else if (rawTitleStr.includes('mario')) resolvedEngineType = 'mario-race';
@@ -3134,16 +3140,27 @@ export const StorageService = {
       resolvedEngineType = rawGameData.baseGameId || 'wheel';
     }
 
+    const isPickerGame = Boolean(
+      rawGameData.isStudentPicker ||
+      ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(resolvedEngineType) ||
+      ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(rawGameData.baseGameId) ||
+      ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(rawGameData.id)
+    );
+
     const gameToSave = {
       ...rawGameData,
       id: gameId,
       userId: targetUserId || rawGameData.userId || 'user_admin',
-      title: rawGameData.title || rawGameData.lessonTitle || 'Bài Game Cá Nhân',
+      title: rawGameData.title || rawGameData.lessonTitle || (isPickerGame ? 'Đua Vịt Gọi Tên' : 'Bài Game Cá Nhân'),
       lessonTitle: rawGameData.lessonTitle || rawGameData.title || 'Bài Game Cá Nhân',
       questions: cleanQuestions,
+      students: Array.isArray(rawGameData.students) ? rawGameData.students : (Array.isArray(rawGameData.studentList) ? rawGameData.studentList.map((s, idx) => typeof s === 'string' ? { id: `st_${idx}`, name: s, note: '' } : s) : []),
+      studentList: Array.isArray(rawGameData.studentList) ? rawGameData.studentList : (Array.isArray(rawGameData.students) ? rawGameData.students.map(s => typeof s === 'string' ? s : (s.name || '')) : []),
+      isStudentPicker: isPickerGame,
+      category: isPickerGame ? 'Gọi tên và chia nhóm' : (rawGameData.category || 'Trắc nghiệm kịch tính'),
       engineType: resolvedEngineType,
-      icon: rawGameData.icon || '🎮',
-      gradient: rawGameData.gradient || 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+      icon: rawGameData.icon || (isPickerGame ? '🦆' : '🎮'),
+      gradient: rawGameData.gradient || (isPickerGame ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'),
       secretImage: safeSecretImage,
       bgImageUrl: safeSecretImage,
       isSaved: true,

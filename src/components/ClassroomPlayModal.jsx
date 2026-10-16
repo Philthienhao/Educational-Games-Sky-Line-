@@ -163,7 +163,30 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
   ]);
 
   const questions = game.questions || game.defaultQuestions || [];
-  const engineType = game.engineType || game.gameType || 'tug-of-war-dual';
+  let engineType = game.engineType || game.gameType;
+  if (!engineType || engineType === 'tug-of-war-dual') {
+    const rawId = String(game.baseGameId || game.id || '').toLowerCase();
+    const rawTitle = String(game.title || '').toLowerCase();
+    if (rawId.includes('duck-race') || rawTitle.includes('đua vịt') || rawTitle.includes('dua vit')) {
+      engineType = 'duck-race';
+    } else if (rawId.includes('turtle-race') || rawTitle.includes('đua rùa') || rawTitle.includes('dua rua')) {
+      engineType = 'turtle-race';
+    } else if (rawId.includes('marble-race') || rawTitle.includes('đua bi') || rawTitle.includes('dua bi')) {
+      engineType = 'marble-race';
+    } else if (rawId.includes('claw-machine') || rawTitle.includes('gắp thú') || rawTitle.includes('gap thu')) {
+      engineType = 'claw-machine';
+    } else if (rawId.includes('astronaut') || rawTitle.includes('phi hành gia') || rawTitle.includes('vũ trụ')) {
+      engineType = 'astronaut-explorer';
+    } else if (rawId.includes('magic-hat') || rawTitle.includes('mũ kỳ diệu') || rawTitle.includes('chiếc mũ')) {
+      engineType = 'magic-hat';
+    } else if (rawId.includes('magic-grimoire') || rawTitle.includes('cổ thư') || rawTitle.includes('sách ma thuật')) {
+      engineType = 'magic-grimoire';
+    } else if (rawId.includes('group-divider') || rawTitle.includes('chia nhóm')) {
+      engineType = 'student-group-divider';
+    } else if (!engineType) {
+      engineType = 'tug-of-war-dual';
+    }
+  }
 
   const handleAddPoints = (teamIndex, points) => {
     const targetIdx = (typeof teamIndex === 'number' && teamIndex >= 0) ? teamIndex : activeTeamIndex;

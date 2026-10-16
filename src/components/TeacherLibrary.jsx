@@ -6,6 +6,7 @@ import { StorageService } from '../services/storage';
 export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlayGame, onEditGame, onDeleteGame, onBrowseCatalog, onUpdateLessonTitle, onRefreshGames, onOpenAIGenerator }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
+  const [activeCategoryTab, setActiveCategoryTab] = useState('all'); // 'all' | 'quiz' | 'picker'
 
   // Fallback to direct StorageService read to ensure My Games is NEVER empty if data exists in localStorage
   const savedGames = useMemo(() => {
@@ -68,26 +69,53 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
     }
   };
 
-  const filteredGames = useMemo(() => {
-    const term = (searchTerm || '').toLowerCase().normalize('NFC').trim();
-
-    return (savedGames || []).filter(g => {
+  // Group games into all, quiz, and student picker
+  const { allGamesList, quizCount, pickerCount } = useMemo(() => {
+    let qCount = 0;
+    let pCount = 0;
+    const validGames = (savedGames || []).filter(g => {
       if (!g) return false;
-
-      // Filter out student-calling games and classroom tools from teacher's personal quiz game library
-      const isPicker = g.isStudentPicker || 
-                       g.category === 'Gọi tên và chia nhóm' || 
-                       g.category === 'Kho game gọi tên học sinh' || 
-                       g.category === 'Tương tác & Quay số' ||
-                       ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
-                       ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId);
-      
       const isTool = g.isClassroomTool || 
                      g.category === 'Công cụ Lớp học' || 
                      g.engineType === 'classroom-timer' || 
                      g.baseGameId === 'classroom-timer-game';
+      if (isTool) return false;
 
-      if (isPicker || isTool) return false;
+      const isPicker = Boolean(
+        g.isStudentPicker || 
+        g.category === 'Gọi tên và chia nhóm' || 
+        g.category === 'Kho game gọi tên học sinh' || 
+        ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+        ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId) ||
+        ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id) ||
+        /đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|hộp quà bí mật|cổ thư|chia nhóm/i.test(g.title || '')
+      );
+
+      if (isPicker) pCount++;
+      else qCount++;
+
+      return true;
+    });
+
+    return { allGamesList: validGames, quizCount: qCount, pickerCount: pCount };
+  }, [savedGames]);
+
+  const filteredGames = useMemo(() => {
+    const term = (searchTerm || '').toLowerCase().normalize('NFC').trim();
+
+    return allGamesList.filter(g => {
+      const isPicker = Boolean(
+        g.isStudentPicker || 
+        g.category === 'Gọi tên và chia nhóm' || 
+        g.category === 'Kho game gọi tên học sinh' || 
+        ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
+        ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.baseGameId) ||
+        ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id) ||
+        /đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|hộp quà bí mật|cổ thư|chia nhóm/i.test(g.title || '')
+      );
+
+      if (activeCategoryTab === 'quiz' && isPicker) return false;
+      if (activeCategoryTab === 'picker' && !isPicker) return false;
 
       if (!term) return true;
 
@@ -97,7 +125,7 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
       const d = (g.description || '').toLowerCase().normalize('NFC');
       return t.includes(term) || l.includes(term) || s.includes(term) || d.includes(term);
     });
-  }, [savedGames, searchTerm]);
+  }, [allGamesList, activeCategoryTab, searchTerm]);
 
   return (
     <div style={{ width: '100%' }}>
@@ -222,6 +250,99 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Category Tabs (Tất cả, Trắc nghiệm, Gọi tên) */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '20px',
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={() => setActiveCategoryTab('all')}
+          style={{
+            padding: '10px 18px',
+            borderRadius: '14px',
+            fontWeight: 800,
+            fontSize: '0.92rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            border: activeCategoryTab === 'all' ? '2px solid #0d9488' : '1px solid rgba(0,0,0,0.1)',
+            background: activeCategoryTab === 'all' ? 'linear-gradient(135deg, #0d9488 0%, #059669 100%)' : '#ffffff',
+            color: activeCategoryTab === 'all' ? '#ffffff' : '#334155',
+            boxShadow: activeCategoryTab === 'all' ? '0 4px 12px rgba(13, 148, 136, 0.25)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          🎮 Tất Cả Game <span style={{
+            background: activeCategoryTab === 'all' ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+            color: activeCategoryTab === 'all' ? '#ffffff' : '#475569',
+            padding: '2px 8px',
+            borderRadius: '999px',
+            fontSize: '0.8rem',
+            fontWeight: 900
+          }}>{allGamesList.length}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveCategoryTab('quiz')}
+          style={{
+            padding: '10px 18px',
+            borderRadius: '14px',
+            fontWeight: 800,
+            fontSize: '0.92rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            border: activeCategoryTab === 'quiz' ? '2px solid #8b5cf6' : '1px solid rgba(0,0,0,0.1)',
+            background: activeCategoryTab === 'quiz' ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)' : '#ffffff',
+            color: activeCategoryTab === 'quiz' ? '#ffffff' : '#334155',
+            boxShadow: activeCategoryTab === 'quiz' ? '0 4px 12px rgba(139, 92, 246, 0.25)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          📝 Game Trắc Nghiệm <span style={{
+            background: activeCategoryTab === 'quiz' ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+            color: activeCategoryTab === 'quiz' ? '#ffffff' : '#475569',
+            padding: '2px 8px',
+            borderRadius: '999px',
+            fontSize: '0.8rem',
+            fontWeight: 900
+          }}>{quizCount}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveCategoryTab('picker')}
+          style={{
+            padding: '10px 18px',
+            borderRadius: '14px',
+            fontWeight: 800,
+            fontSize: '0.92rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            border: activeCategoryTab === 'picker' ? '2px solid #f59e0b' : '1px solid rgba(0,0,0,0.1)',
+            background: activeCategoryTab === 'picker' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#ffffff',
+            color: activeCategoryTab === 'picker' ? '#ffffff' : '#334155',
+            boxShadow: activeCategoryTab === 'picker' ? '0 4px 12px rgba(245, 158, 11, 0.25)' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          🎯 Game Gọi Tên & Đua Top <span style={{
+            background: activeCategoryTab === 'picker' ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
+            color: activeCategoryTab === 'picker' ? '#ffffff' : '#475569',
+            padding: '2px 8px',
+            borderRadius: '999px',
+            fontSize: '0.8rem',
+            fontWeight: 900
+          }}>{pickerCount}</span>
+        </button>
       </div>
 
       {/* Filter / Search Bar */}

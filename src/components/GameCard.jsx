@@ -33,6 +33,18 @@ function GameCardComponent({
     (currentUser.usedFeatures?.[featureId] || 0) >= 1
   );
 
+  const isStudentPicker = Boolean(
+    game?.isStudentPicker || 
+    game?.category === 'Gọi tên và chia nhóm' || 
+    game?.category === 'Kho game gọi tên học sinh' || 
+    ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game?.engineType) || 
+    ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(game?.baseGameId) ||
+    ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(game?.id) ||
+    /đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|hộp quà bí mật|cổ thư|chia nhóm/i.test(game?.title || '')
+  );
+  const studentList = game?.students || game?.studentList || [];
+  const studentCount = Array.isArray(studentList) ? studentList.length : 0;
+
   return (
     <div 
       className="card-3d-glow"
@@ -187,7 +199,11 @@ function GameCardComponent({
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', color: '#64748b', marginBottom: '16px', fontWeight: 600 }}>
-            <span>Số câu hỏi: <strong style={{ color: '#0d9488', fontWeight: 800 }}>{(game.questions || game.defaultQuestions || []).length} câu</strong></span>
+            {isStudentPicker ? (
+              <span>Số học sinh: <strong style={{ color: '#0d9488', fontWeight: 800 }}>{studentCount > 0 ? `${studentCount} em` : 'Danh sách mẫu'}</strong></span>
+            ) : (
+              <span>Số câu hỏi: <strong style={{ color: '#0d9488', fontWeight: 800 }}>{(game.questions || game.defaultQuestions || []).length} câu</strong></span>
+            )}
             {isSavedGame && game.updatedAt && (
               <span>Cập nhật: <strong style={{ color: '#0f172a' }}>{game.updatedAt}</strong></span>
             )}
@@ -232,7 +248,7 @@ function GameCardComponent({
               }}
             >
               {isSavedGame ? <Edit3 size={16} color="#0d9488" /> : <Upload size={16} color="#0d9488" />}
-              <span>{isSavedGame ? 'Sửa Câu Hỏi' : '⚡ Soạn / Tải File (Excel, Word)'}</span>
+              <span>{isSavedGame ? (isStudentPicker ? 'Sửa Danh Sách' : 'Sửa Câu Hỏi') : (isStudentPicker ? '⚡ Tải Danh Sách Học Sinh' : '⚡ Soạn / Tải File (Excel, Word)')}</span>
             </button>
 
             {/* Download Offline Game Package (.html) */}
@@ -256,9 +272,9 @@ function GameCardComponent({
                 className="btn btn-secondary btn-sm"
                 onClick={() => {
                   try { SoundFX.click(); } catch(e) {}
-                  downloadExcelTemplate(game.title);
+                  downloadExcelTemplate(game.title, game.engineType);
                 }}
-                title="Tải tệp mẫu Excel về máy"
+                title={isStudentPicker ? "Tải tệp mẫu danh sách học sinh (.xlsx) về máy" : "Tải tệp mẫu Excel câu hỏi về máy"}
                 style={{ padding: '0 12px', background: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', border: '1.5px solid rgba(13, 148, 136, 0.3)' }}
               >
                 <FileSpreadsheet size={16} />
