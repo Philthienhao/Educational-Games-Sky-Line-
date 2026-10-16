@@ -260,17 +260,24 @@ export async function extractQuestionsFromExcelBuffer(arrayBuffer) {
   });
 
   if (studentNameKey) {
-    return rawJson.map((row, index) => {
+    const students = rawJson.map((row, index) => {
       const studentName = String(row[studentNameKey] || Object.values(row)[1] || Object.values(row)[0] || '').trim();
+      const note = String(row['Ghi chú / Nhóm'] || row['Ghi chú'] || row['Nhóm'] || row['Lớp'] || row['Ghi chu'] || '').trim();
       return {
         id: `student_${Date.now()}_${index}`,
-        question: studentName,
         name: studentName,
+        studentName: studentName,
+        question: studentName,
+        note: note,
+        explanation: note,
         options: ['Có mặt', 'Vắng mặt', '', ''],
         correct: 'A',
-        explanation: String(row['Ghi chú / Nhóm'] || row['Ghi chú'] || '').trim()
+        isStudent: true
       };
-    }).filter(s => s.question.length > 0);
+    }).filter(s => s.name && s.name.length > 0);
+
+    students.isStudentList = true;
+    return students;
   }
   
   let qKey = null;

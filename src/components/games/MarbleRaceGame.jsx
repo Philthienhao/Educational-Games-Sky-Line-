@@ -45,7 +45,7 @@ const DEFAULT_STUDENT_ROSTERS = {
   ]
 };
 
-export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
+export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questions }) {
   // --- Audio Synthesis Setup ---
   const audioCtxRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -150,6 +150,42 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints }) {
 
   const loadStudents = () => {
     try {
+      if (game?.students && Array.isArray(game.students) && game.students.length > 0) {
+        setSelectedClassName(game.title || 'Danh Sách Bài Game');
+        setStudents(game.students.map((s, idx) => ({
+          id: s.id || `s_${idx}`,
+          name: typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`),
+          avatar: s.avatar || null,
+          number: idx + 1,
+          color: MARBLE_COLORS[idx % MARBLE_COLORS.length]
+        })));
+        return;
+      }
+      if (game?.studentList && Array.isArray(game.studentList) && game.studentList.length > 0) {
+        setSelectedClassName(game.title || 'Danh Sách Bài Game');
+        setStudents(game.studentList.map((s, idx) => ({
+          id: `s_${idx}`,
+          name: typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`),
+          avatar: null,
+          number: idx + 1,
+          color: MARBLE_COLORS[idx % MARBLE_COLORS.length]
+        })));
+        return;
+      }
+      if (Array.isArray(questions) && questions.length > 0) {
+        const qNames = questions.map(q => typeof q === 'string' ? q : (q.name || q.question || '')).filter(Boolean);
+        if (qNames.length > 0 && !qNames[0].includes('Châu lục nào') && !qNames[0].includes('Thủ đô')) {
+          setSelectedClassName(game?.title || 'Danh Sách Bài Game');
+          setStudents(qNames.map((name, idx) => ({
+            id: `s_${idx}`,
+            name,
+            avatar: null,
+            number: idx + 1,
+            color: MARBLE_COLORS[idx % MARBLE_COLORS.length]
+          })));
+          return;
+        }
+      }
       const hr = StorageService.getTeacherHomeroom(currentUser?.id);
       if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
         const cleanStudents = hr.students.filter(s => !isUnwantedTestStudent(s));

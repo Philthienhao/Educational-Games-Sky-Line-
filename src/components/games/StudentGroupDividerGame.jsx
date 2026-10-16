@@ -122,14 +122,35 @@ export function StudentGroupDividerGame({ game, onClose, currentUser }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [manualRevealedIndices, setManualRevealedIndices] = useState([]);
 
-  // Auto load homeroom list if available
+  // Auto load roster if available from game or homeroom
   useEffect(() => {
+    if (game?.students && Array.isArray(game.students) && game.students.length > 0) {
+      const names = game.students.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+      if (names.length > 0) {
+        setStudentText(names.join('\n'));
+        return;
+      }
+    }
+    if (game?.studentList && Array.isArray(game.studentList) && game.studentList.length > 0) {
+      const names = game.studentList.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+      if (names.length > 0) {
+        setStudentText(names.join('\n'));
+        return;
+      }
+    }
+    if (game?.questions && Array.isArray(game.questions) && game.questions.length > 0) {
+      const names = game.questions.map(q => typeof q === 'string' ? q : (q.name || q.question || '')).filter(Boolean);
+      if (names.length > 0 && !names[0].includes('Châu lục nào') && !names[0].includes('Thủ đô')) {
+        setStudentText(names.join('\n'));
+        return;
+      }
+    }
     const hr = StorageService.getTeacherHomeroom(currentUser?.id);
     if (hr && hr.students && hr.students.length > 0) {
       const names = hr.students.map(s => s.name || s);
       setStudentText(names.join('\n'));
     }
-  }, [currentUser]);
+  }, [game, currentUser]);
 
   // Parse Student Names Array
   const parseNamesList = () => {

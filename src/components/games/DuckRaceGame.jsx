@@ -3,6 +3,7 @@ import { Trophy, RotateCcw, Volume2, VolumeX, Maximize, Settings, ArrowLeft, Edi
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { parseStudentRosterFile } from '../../utils/universalParser';
+import { StorageService } from '../../services/storage';
 
 // Pre-defined student rosters for quick classroom selection
 const DEFAULT_STUDENT_ROSTERS = {
@@ -37,13 +38,52 @@ const DUCK_COLORS = [
 
 const DUCK_ACCESSORIES = ['👑', '🎩', '🎉', '👓', '🎀', '🕶️', '🎓'];
 
-export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
+export function DuckRaceGame({ questions, teams, onAddPoints, onClose, game, currentUser }) {
   // Student Roster State
   const [selectedRosterName, setSelectedRosterName] = useState('Lớp 9A1 (Mẫu 24 HS)');
   const [fullRosterList, setFullRosterList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [studentList, setStudentList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [editingRoster, setEditingRoster] = useState(false);
   const [customRosterText, setCustomRosterText] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)'].join('\n'));
+
+  // Load students from game object, questions, or teacher homeroom
+  useEffect(() => {
+    let names = [];
+    if (game?.students && Array.isArray(game.students) && game.students.length > 0) {
+      names = game.students.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+    } else if (game?.studentList && Array.isArray(game.studentList) && game.studentList.length > 0) {
+      names = game.studentList.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+    } else if (Array.isArray(questions) && questions.length > 0) {
+      const qNames = questions.map(q => {
+        if (!q) return '';
+        if (typeof q === 'string') return q;
+        return q.name || q.question || q.studentName || '';
+      }).filter(Boolean);
+      if (qNames.length > 0 && !qNames[0].includes('Châu lục nào') && !qNames[0].includes('Thủ đô')) {
+        names = qNames;
+      }
+    }
+
+    if (names.length > 0) {
+      setFullRosterList(names);
+      setStudentList(names);
+      setCustomRosterText(names.join('\n'));
+      setSelectedRosterName(game?.title || `Danh sách bài game (${names.length} HS)`);
+    } else {
+      try {
+        const hr = StorageService.getTeacherHomeroom(currentUser?.id);
+        if (hr?.students && hr.students.length > 0) {
+          const hrNames = hr.students.map(s => s.name || s).filter(Boolean);
+          if (hrNames.length > 0) {
+            setFullRosterList(hrNames);
+            setStudentList(hrNames);
+            setCustomRosterText(hrNames.join('\n'));
+            setSelectedRosterName(`Lớp Chủ Nhiệm (${hrNames.length} HS)`);
+          }
+        }
+      } catch (e) {}
+    }
+  }, [game, questions, currentUser]);
 
   // Race Settings
   const [winnerCountToPick, setWinnerCountToPick] = useState(1);
@@ -358,10 +398,22 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
               onChange={(e) => {
                 const name = e.target.value;
                 setSelectedRosterName(name);
-                const list = DEFAULT_STUDENT_ROSTERS[name] || [];
-                setFullRosterList(list);
-                setStudentList(list);
-                setCustomRosterText(list.join('\n'));
+                if (name === 'Lớp Chủ Nhiệm') {
+                  const hr = StorageService.getTeacherHomeroom(currentUser?.id);
+                  const hrNames = (hr?.students || []).map(s => s.name || s).filter(Boolean);
+                  if (hrNames.length > 0) {
+                    setFullRosterList(hrNames);
+                    setStudentList(hrNames);
+                    setCustomRosterText(hrNames.join('\n'));
+                    return;
+                  }
+                }
+                const list = DEFAULT_STUDENT_ROSTERS[name];
+                if (list && list.length > 0) {
+                  setFullRosterList(list);
+                  setStudentList(list);
+                  setCustomRosterText(list.join('\n'));
+                }
               }}
               disabled={isRacing}
               style={{
@@ -374,6 +426,10 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose }) {
                 fontSize: '0.8rem'
               }}
             >
+              {selectedRosterName && !DEFAULT_STUDENT_ROSTERS[selectedRosterName] && selectedRosterName !== 'Lớp Chủ Nhiệm' && (
+                <option value={selectedRosterName}>{selectedRosterName}</option>
+              )}
+              <option value="Lớp Chủ Nhiệm">Lớp Chủ Nhiệm</option>
               {Object.keys(DEFAULT_STUDENT_ROSTERS).map(rName => (
                 <option key={rName} value={rName}>{rName}</option>
               ))}

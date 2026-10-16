@@ -48,16 +48,27 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
   useEffect(() => {
     let names = [];
     
-    // Check custom questions array if passed
-    if (Array.isArray(questions) && questions.length > 0) {
+    if (game?.students && Array.isArray(game.students) && game.students.length > 0) {
+      names = game.students.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+      if (names.length > 0) {
+        setSelectedRosterName(game?.title || `Danh sách bài game (${names.length} HS)`);
+      }
+    } else if (game?.studentList && Array.isArray(game.studentList) && game.studentList.length > 0) {
+      names = game.studentList.map(s => typeof s === 'string' ? s : (s.name || s.studentName || '')).filter(Boolean);
+      if (names.length > 0) {
+        setSelectedRosterName(game?.title || `Danh sách bài game (${names.length} HS)`);
+      }
+    } else if (Array.isArray(questions) && questions.length > 0) {
       names = questions.map(q => {
         if (!q) return null;
         if (typeof q === 'string') return q;
         return q.name || q.question || q.text || q.studentName;
       }).filter(Boolean);
       
-      if (names.length > 0) {
+      if (names.length > 0 && !names[0].includes('Châu lục nào') && !names[0].includes('Thủ đô')) {
         setSelectedRosterName(`Danh sách tải lên (${names.length} HS)`);
+      } else {
+        names = [];
       }
     }
     

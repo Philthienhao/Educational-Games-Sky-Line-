@@ -275,10 +275,10 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         component = <MatchingPairsGame {...commonProps} />;
         break;
       case 'duck-race':
-        component = <DuckRaceGame {...commonProps} onClose={onClose} />;
+        component = <DuckRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} />;
         break;
       case 'turtle-race':
-        component = <TurtleRaceGame {...commonProps} onClose={onClose} />;
+        component = <TurtleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} />;
         break;
       case 'jungle-rescue':
         component = <JungleRescueGame {...commonProps} onClose={onClose} />;
@@ -371,9 +371,9 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
         }}>
           <React.Suspense fallback={<GameLoadingFallback />}>
             {engineType === 'duck-race' ? (
-              <DuckRaceGame {...commonProps} game={game} onClose={onClose} />
+              <DuckRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} />
             ) : engineType === 'turtle-race' ? (
-              <TurtleRaceGame {...commonProps} game={game} onClose={onClose} />
+              <TurtleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} />
             ) : engineType === 'claw-machine' ? (
               <ClawMachineGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />
             ) : engineType === 'astronaut-explorer' ? (
@@ -405,7 +405,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
             ) : engineType === 'student-group-divider' ? (
               <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
             ) : engineType === 'marble-race' ? (
-              <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />
+              <MarbleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} onAddPoints={handleAddPoints} />
             ) : (
               renderGameEngine()
             )}
