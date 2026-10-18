@@ -127,59 +127,59 @@ export const DEFAULT_2010_QUESTIONS = [
   }
 ];
 
-// Kích thước chuẩn ma trận lưới: 18x18 ô (giúp mỗi ô rộng rãi ~21px, chữ tọa độ không bị tràn hay xuống dòng)
+// Kích thước chuẩn ma trận lưới: 18x18 ô (giúp mỗi ô rộng rãi ~22px, chữ tọa độ không bị tràn hay xuống dòng)
 export const GRID_SIZE = 18;
 
-// 3 MA TRẬN SILHOUETTE CHUẨN (1 = Ô tô đỏ khi đáp án đúng, 0 = Ô trắng nền hoặc âm bản)
+// CÁC MA TRẬN SILHOUETTE CHUẨN MỰC, ĐỐI XỨNG & ĐẸP MẮT
 export const PUZZLE_PATTERNS = {
-  // Mẫu 1: Mẹ bồng con trong trái tim (Chuẩn 100% theo phiếu bài tập mẫu)
-  'mother-child': {
-    name: 'Mẹ Bồng Con (Chuẩn Phiếu)',
-    icon: '🤱',
-    rows: [
-      '000111000001110000',
-      '001111100011111000',
-      '011111110111111100',
-      '111111111111111110',
-      '111111111111111110',
-      '111111100111111110',
-      '111111000011111110',
-      '111110000001111110',
-      '111100000000111110',
-      '111000000000011110',
-      '111000000000011110',
-      '011100000000111100',
-      '011110000001111100',
-      '001111000011111000',
-      '001111100111110000',
-      '000111111111100000',
-      '000011111110000000',
-      '000000111000000000'
-    ]
-  },
-  // Mẫu 2: Trái tim yêu thương 20/10
+  // Mẫu 1: Trái Tim Yêu Thương 20/10 (Trọn vẹn 100%, đối xứng tuyệt đối, dáng chuẩn mực kiêu sa)
   'pure-heart': {
-    name: 'Trái Tim Yêu Thương',
+    name: 'Trái Tim Yêu Thương (Trọn Vẹn 100%)',
     icon: '💖',
     rows: [
-      '000111000001110000',
-      '001111100011111000',
-      '011111110111111100',
-      '111111111111111110',
-      '111111111111111110',
-      '111111111111111110',
-      '111111111111111110',
-      '111111111111111110',
-      '111111111111111110',
-      '111111111111111110',
-      '011111111111111100',
-      '011111111111111100',
-      '001111111111111000',
-      '001111111111111000',
-      '000111111111110000',
-      '000011111111100000',
-      '000001111111000000',
-      '000000011100000000'
+      '000000000000000000', // 0
+      '001111000000111100', // 1: Đỉnh 2 vòm tròn múi tim cong mềm mại
+      '011111100001111110', // 2: Cung vòm mở rộng
+      '111111110011111111', // 3: Rãnh giữa thụt sâu rõ dáng
+      '111111111111111111', // 4: Thân trên nở rộng căng tròn
+      '111111111111111111', // 5: Thân tim đầy đặn
+      '111111111111111111', // 6: Thân tim đầy đặn
+      '011111111111111110', // 7: Bắt đầu thuôn nhẹ
+      '011111111111111110', // 8: Uốn cong duyên dáng
+      '001111111111111100', // 9: Thu hẹp đều hai bên
+      '001111111111111100', // 10: Thu hẹp đều hai bên
+      '000111111111111000', // 11: Nửa dưới thon nhọn
+      '000011111111110000', // 12: Thon nhọn
+      '000001111111100000', // 13: Cận đáy
+      '000000111111000000', // 14: Cận đáy
+      '000000011110000000', // 15: Chóp đáy nhọn
+      '000000001100000000', // 16: Đáy tim chốt nhọn
+      '000000000000000000'  // 17
+    ]
+  },
+  // Mẫu 2: Mẹ bồng con trong trái tim (Viền ngoài giữ trọn dáng trái tim, bên trong có âm bản mẹ hôn con)
+  'mother-child': {
+    name: 'Mẹ Bồng Con Trong Trái Tim',
+    icon: '🤱',
+    rows: [
+      '000000000000000000', // 0
+      '001111000000111100', // 1: Vòm tim
+      '011111100001111110', // 2: Vòm tim
+      '111111110011111111', // 3: Rãnh tim
+      '111111111111111111', // 4: Đầy đặn
+      '111111111111111111', // 5: Đầy đặn
+      '111111111100111111', // 6: Bắt đầu đường nét khuôn mặt mẹ
+      '011111111000011110', // 7: Mẹ cúi nhìn con
+      '011111110000001110', // 8: Em bé được bồng
+      '001111100000001100', // 9: Khuôn mặt em bé bình yên
+      '001111000000001100', // 10: Thân bé trong tã lót
+      '000111000000011000', // 11: Tay mẹ âu yếm đỡ lấy con
+      '000011110000110000', // 12: Vòng tay chở che
+      '000001111111100000', // 13: Đáy tim thon nhọn
+      '000000111111000000', // 14: Đáy tim thon nhọn
+      '000000011110000000', // 15: Chóp tim
+      '000000001100000000', // 16: Đáy tim
+      '000000000000000000'  // 17
     ]
   },
   // Mẫu 3: Người phụ nữ & Hoa hồng
@@ -210,12 +210,13 @@ export const PUZZLE_PATTERNS = {
 };
 
 /**
- * Thuật toán ánh xạ câu hỏi vào lưới ô vuông 18x18:
- * - Các ô target (val === 1): Phân bổ cho các câu hỏi với ĐÁP ÁN ĐÚNG tương ứng (ví dụ: '1-A', '2-B', '3-C'...)
- * - Các ô background/âm bản (val === 0): Phân bổ các ĐÁP ÁN SAI (ví dụ: '1-B', '1-C', '2-A', '3-D'...)
+ * Thuật toán phân bổ câu hỏi vào ma trận lưới:
+ * - Sắp xếp các ô thuộc hình trái tim từ DƯỚI LÊN TRÊN (bottom-to-top) và ĐỐI XỨNG từ tâm ra ngoài!
+ * - Nhờ đó, mỗi câu trả lời đúng sẽ dâng trào màu đỏ từ đáy tim lên trên như rót đầy tình yêu thương!
+ * - Trái tim luôn cân đối, chuẩn dáng ở mọi khoảnh khắc, không bao giờ bị méo mó hay đứt đoạn!
  */
 export function buildPuzzleBoard(patternKey, questions) {
-  const pattern = PUZZLE_PATTERNS[patternKey]?.rows || PUZZLE_PATTERNS['mother-child'].rows;
+  const pattern = PUZZLE_PATTERNS[patternKey]?.rows || PUZZLE_PATTERNS['pure-heart'].rows;
   const numQuestions = Math.max(1, questions.length);
 
   const targetCoords = [];
@@ -232,16 +233,22 @@ export function buildPuzzleBoard(patternKey, questions) {
     }
   }
 
+  // SẮP XẾP Ô TRÁI TIM: TỪ ĐÁY (ROW LỚN) LÊN ĐỈNH (ROW NHỎ), ĐỐI XỨNG QUA TRỤC GIỮA
+  targetCoords.sort((a, b) => {
+    if (b.r !== a.r) return b.r - a.r; // Dưới đáy tim lên trước
+    return Math.abs(a.c - 8.5) - Math.abs(b.c - 8.5); // Cân xứng 2 bên
+  });
+
   const cellsPerQuestion = Math.ceil(targetCoords.length / numQuestions);
   const cellMap = {};
   const optionLetters = ['A', 'B', 'C', 'D'];
 
-  // Gán ô Target (thuộc hình mẫu) cho các câu hỏi với ĐÁP ÁN ĐÚNG
+  // Gán ô Target (thuộc hình trái tim) cho các câu hỏi với ĐÁP ÁN ĐÚNG
   targetCoords.forEach((coord, idx) => {
     const qIdx = Math.min(numQuestions - 1, Math.floor(idx / cellsPerQuestion));
     const q = questions[qIdx] || questions[0];
     const correctOpt = q.correct || 'A';
-    // Format tọa độ gọn gàng không bị ngắt dòng (VD: 1-A hoặc 10B)
+    // Format tọa độ gọn gàng (VD: 1-A hoặc 10B)
     const code = qIdx < 9 ? `${qIdx + 1}-${correctOpt}` : `${qIdx + 1}${correctOpt}`;
     cellMap[`${coord.r}_${coord.c}`] = {
       r: coord.r,
@@ -290,7 +297,7 @@ export const WorksheetPuzzleView = React.memo(({
   totalQuestions = 15,
   isCompleted = false,
   compact = false,
-  activePatternKey = 'mother-child'
+  activePatternKey = 'pure-heart'
 }) => {
   const correctCount = correctQuestionIndices.length;
   const percent = Math.min(100, Math.round((correctCount / Math.max(1, totalQuestions)) * 100));
@@ -405,8 +412,8 @@ export const WorksheetPuzzleView = React.memo(({
         gap: '8px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '1.1rem' }}>💬</span>
-          <span><strong>Quy tắc:</strong> Câu nào đúng thì ô chứa đáp án ô đó sẽ được <strong>tô đỏ</strong>.</span>
+          <span style={{ fontSize: '1.1rem' }}>💖</span>
+          <span><strong>Quy tắc:</strong> Trả lời đúng để <strong>tô đỏ</strong> các ô đáp án và hiện rõ hình trái tim!</span>
         </div>
         <div style={{
           fontWeight: 900,
@@ -449,14 +456,20 @@ export const WorksheetPuzzleView = React.memo(({
 
               // Ô này có được tô đỏ hay không?
               const isRed = cell.isTarget && answeredSet.has(cell.questionIdx);
+              // Ô thuộc hình trái tim nhưng chưa được tô đỏ: phủ ánh hồng phấn nhẹ để lộ dáng phác thảo trái tim
+              const isUnansweredHeartCell = cell.isTarget && !isRed;
 
               return (
                 <div
                   key={`${r}_${c}`}
                   title={`Tọa độ [${cell.code}]`}
                   style={{
-                    backgroundColor: isRed ? (teamColor || '#dc2626') : '#ffffff',
-                    color: isRed ? '#ffffff' : '#64748b',
+                    backgroundColor: isRed 
+                      ? (teamColor || '#dc2626') 
+                      : (isUnansweredHeartCell ? '#fff1f2' : '#ffffff'),
+                    color: isRed 
+                      ? '#ffffff' 
+                      : (isUnansweredHeartCell ? '#be123c' : '#94a3b8'),
                     fontSize: compact ? 'clamp(7px, 1.2vw, 9px)' : 'clamp(8px, 1.3vw, 10.5px)',
                     fontWeight: 900,
                     display: 'flex',
@@ -787,8 +800,8 @@ export function HeartPuzzle2010Game({
   // Chế độ chơi: 'dual-touch' (2 đội chạm song song) | 'teacher-led' (Giáo viên chiếu máy chiếu và chấm)
   const [gameMode, setGameMode] = useState('dual-touch');
   
-  // Mẫu hình hiển thị: 'mother-child' | 'pure-heart' | 'woman-rose'
-  const [patternKey, setPatternKey] = useState('mother-child');
+  // Mẫu hình hiển thị: 'pure-heart' (Mặc định: Trái tim trọn vẹn 100%) | 'mother-child' | 'woman-rose'
+  const [patternKey, setPatternKey] = useState('pure-heart');
 
   // Số lượng đội (ở chế độ teacher-led có thể chọn 1, 2, 3, 4 đội)
   const [teamCount, setTeamCount] = useState(2);
@@ -1157,7 +1170,7 @@ export function HeartPuzzle2010Game({
                 GIẢI MÃ BỨC TRANH 20/10
               </div>
               <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                Tô đỏ ô đáp án đúng để lộ diện hình ảnh tri ân Phụ Nữ Việt Nam
+                Tô đỏ ô đáp án đúng để hoàn thiện bức tranh Trái Tim tri ân Phụ Nữ Việt Nam
               </div>
             </div>
           </div>
@@ -1192,11 +1205,11 @@ export function HeartPuzzle2010Game({
                 cursor: 'pointer'
               }}
             >
-              <option value="mother-child" style={{ background: '#1e293b', color: '#fff' }}>
-                🤱 Mẹ Bồng Con (Chuẩn Phiếu)
-              </option>
               <option value="pure-heart" style={{ background: '#1e293b', color: '#fff' }}>
-                💖 Trái Tim Yêu Thương
+                💖 Trái Tim Yêu Thương (Trọn Vẹn 100%)
+              </option>
+              <option value="mother-child" style={{ background: '#1e293b', color: '#fff' }}>
+                🤱 Mẹ Bồng Con Trong Trái Tim
               </option>
               <option value="woman-rose" style={{ background: '#1e293b', color: '#fff' }}>
                 🌹 Người Phụ Nữ & Hoa Hồng
@@ -1448,7 +1461,7 @@ export function HeartPuzzle2010Game({
                       fontWeight: 800,
                       fontSize: '1.05rem'
                     }}>
-                      🎉 ĐÃ GIẢI MÃ HOÀN TẤT BỨC TRANH!
+                      🎉 ĐÃ GIẢI MÃ HOÀN TẤT TRÁI TIM 20/10!
                     </div>
                   )}
                 </div>
@@ -1701,7 +1714,7 @@ export function HeartPuzzle2010Game({
               lineHeight: 1.5,
               marginBottom: '20px'
             }}>
-              Đã xuất sắc trả lời đúng và <strong>tô đỏ toàn bộ bức tranh</strong> tri ân người Mẹ nhân ngày Phụ Nữ Việt Nam 20/10!
+              Đã xuất sắc trả lời đúng và <strong>tô đỏ trọn vẹn bức tranh Trái Tim</strong> tri ân người Mẹ nhân ngày Phụ Nữ Việt Nam 20/10!
             </p>
 
             {/* Khung Tranh Hoàn Thành Thu Nhỏ */}
