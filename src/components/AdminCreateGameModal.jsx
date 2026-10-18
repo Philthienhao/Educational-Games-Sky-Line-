@@ -152,6 +152,7 @@ export function AdminCreateGameModal({ isOpen, onClose, onAddGame }) {
               <option value="pose-imitation">🏃‍♂️ Bắt chước nhanh - Cơ hội lớn (Pose Camera Quiz)</option>
               <option value="head-tilt">👤 Nghiêng Đầu Chuẩn - Đáp Án Đúng (Head Tilt Camera Quiz)</option>
               <option value="mosquito-slayer">🦟 Dũng Sĩ Diệt Muỗi (Mosquito Slayer Camera Dual)</option>
+              <option value="heart-reveal-2010">💖 Giải Mã Bức Tranh 20/10 (Trái Tim Mẹ Yêu Con)</option>
               <option value="tug-of-war-dual">🪢 Kéo Co Kiến Thức (Tug of War Dual Simultaneous)</option>
               <option value="millionaire">💰 Ai Là Triệu Phú (Millionaire Ladder)</option>
               <option value="mystery-box">🎁 Hộp Quà Bí Mật (Mystery Gift Boxes)</option>

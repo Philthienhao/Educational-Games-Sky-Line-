@@ -1,4 +1,7 @@
 export const GAME_THUMBNAILS = {
+  'heart-reveal-2010': '/thumbnails/thumb_heart_reveal_2010.jpg',
+  'heart-puzzle-2010': '/thumbnails/thumb_heart_reveal_2010.jpg',
+  'heart-puzzle-2010-game': '/thumbnails/thumb_heart_reveal_2010.jpg',
   'indoor-pe-dance': '/thumbnails/thumb_pe_dance.jpg',
   'mosquito-slayer': '/thumbnails/thumb_mosquito_slayer.jpg',
   'mosquito-slayer-game': '/thumbnails/thumb_mosquito_slayer.jpg',

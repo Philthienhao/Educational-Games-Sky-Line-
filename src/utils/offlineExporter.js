@@ -14,6 +14,7 @@ export function resolveEngineType(game) {
   // 1. Explicit title resolution (Highest Priority for customized teacher games)
   if (title.includes('bắt chước')) return 'pose-imitation';
   if (title.includes('nghiêng đầu')) return 'head-tilt';
+  if (title.includes('20/10') || title.includes('20-10') || title.includes('mẹ yêu con') || title.includes('giải mã bức tranh')) return 'heart-reveal-2010';
   if (title.includes('kéo co đôi') || title.includes('kéo co kiến thức')) return 'tug-of-war-dual';
   if (title.includes('kéo co')) return 'tug-of-war';
   if (title.includes('triệu phú')) return 'millionaire';

@@ -38,6 +38,7 @@ const InteractiveExperimentCanvas = React.lazy(() => import('./experiments/Inter
 const StudentGroupDividerGame = React.lazy(() => import('./games/StudentGroupDividerGame').then(m => ({ default: m.StudentGroupDividerGame || m.default })));
 const MarbleRaceGame = React.lazy(() => import('./games/MarbleRaceGame').then(m => ({ default: m.MarbleRaceGame || m.default })));
 const MosquitoSlayerGame = React.lazy(() => import('./games/MosquitoSlayerGame').then(m => ({ default: m.MosquitoSlayerGame || m.default })));
+const HeartPuzzle2010Game = React.lazy(() => import('./games/HeartPuzzle2010Game').then(m => ({ default: m.HeartPuzzle2010Game || m.default })));
 
 function GameLoadingFallback() {
   return (
@@ -183,6 +184,8 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       engineType = 'magic-grimoire';
     } else if (rawId.includes('group-divider') || rawTitle.includes('chia nhóm')) {
       engineType = 'student-group-divider';
+    } else if (rawId.includes('2010') || rawId.includes('heart-puzzle') || rawId.includes('heart-reveal') || rawTitle.includes('20/10') || rawTitle.includes('mẹ yêu con') || rawTitle.includes('phụ nữ việt nam') || rawTitle.includes('giải mã bức tranh 20/10')) {
+      engineType = 'heart-reveal-2010';
     } else if (!engineType) {
       engineType = 'tug-of-war-dual';
     }
@@ -357,6 +360,10 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       case 'marble-race':
         component = <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />;
         break;
+      case 'heart-reveal-2010':
+      case 'heart-puzzle-2010':
+        component = <HeartPuzzle2010Game {...commonProps} game={game} onClose={onClose} />;
+        break;
       default:
         component = <WheelOfFortuneGame {...commonProps} />;
         break;
@@ -371,7 +378,7 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race' || engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -429,6 +436,8 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
               <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
             ) : engineType === 'marble-race' ? (
               <MarbleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} onAddPoints={handleAddPoints} />
+            ) : (engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') ? (
+              <HeartPuzzle2010Game {...commonProps} game={game} onClose={onClose} />
             ) : (
               renderGameEngine()
             )}

@@ -510,7 +510,92 @@ const FRUIT_NINJA_SAMPLE_QUESTIONS = [
   }
 ];
 
+const HEART_2010_SAMPLE_QUESTIONS = [
+  {
+    id: 'h2010_1',
+    question: 'Ngày Phụ nữ Việt Nam được kỷ niệm vào ngày tháng nào hàng năm?',
+    options: ['8 tháng 3', '20 tháng 10', '20 tháng 11', '1 tháng 6'],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_2',
+    question: 'Bác Hồ đã trao tặng phụ nữ Việt Nam 8 chữ vàng truyền thống nào?',
+    options: [
+      'Cần cù, sáng tạo, thông minh, nhân ái',
+      'Anh hùng, bất khuất, trung hậu, đảm đang',
+      'Tự tin, tự trọng, trung hậu, đảm đang',
+      'Đoàn kết, kiên cường, nhân ái, thủy chung'
+    ],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_3',
+    question: 'Hội Phụ nữ phản đế Việt Nam được thành lập vào ngày 20/10 của năm nào?',
+    options: ['Năm 1930', 'Năm 1945', 'Năm 1954', 'Năm 1975'],
+    correct: 'A'
+  },
+  {
+    id: 'h2010_4',
+    question: 'Nữ tướng kiên cường đầu tiên của QĐND Việt Nam, gắn liền với "Đội quân tóc dài" Bến Tre là ai?',
+    options: ['Võ Thị Sáu', 'Nguyễn Thị Định', 'Nguyễn Thị Minh Khai', 'Lê Thị Hồng Gấm'],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_5',
+    question: 'Nữ anh hùng liệt sĩ trẻ tuổi người Đất Đỏ kiên cường, gắn liền với loài hoa Lê-ki-ma là ai?',
+    options: ['Chị Võ Thị Sáu', 'Chị Mười Hai', 'Chị Út Tịch', 'Bác sĩ Đặng Thùy Trâm'],
+    correct: 'A'
+  },
+  {
+    id: 'h2010_6',
+    question: 'Nữ bác sĩ liệt sĩ để lại cuốn nhật ký bất hủ với câu nói: "Hãy giữ vững ngọn lửa trong tim" là ai?',
+    options: ['Trần Thị Lý', 'Đặng Thùy Trâm', 'Nguyễn Thị Chiên', 'Bùi Thị Cúc'],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_7',
+    question: 'Hai vị nữ anh hùng đầu tiên trong lịch sử dân tộc phất cờ khởi nghĩa giành độc lập là ai?',
+    options: ['Bà Triệu và Triệu Thị Trinh', 'Hai Bà Trưng (Trưng Trắc, Trưng Nhị)', 'Ngọc Hân Công Chúa', 'Bà Huyện Thanh Quan'],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_8',
+    question: 'Hoàn thành câu ca dao: "Công cha như núi Thái Sơn, Nghĩa mẹ như nước trong ... chảy ra"?',
+    options: ['biển lớn', 'nguồn', 'sông rộng', 'khe suối'],
+    correct: 'B'
+  },
+  {
+    id: 'h2010_9',
+    question: 'Phong trào thi đua cách mạng nổi tiếng của phụ nữ miền Bắc trong kháng chiến chống Mỹ là gì?',
+    options: ['Ba đảm đang', 'Năm xung phong', 'Ba sẵn sàng', 'Hũ gạo kháng chiến'],
+    correct: 'A'
+  },
+  {
+    id: 'h2010_10',
+    question: 'Nhà thơ Chế Lan Viên đã viết câu thơ bất hủ nào về tình mẫu tử thiêng liêng?',
+    options: [
+      'Con dù lớn vẫn là con của mẹ, Đi hết đời lòng mẹ vẫn theo con',
+      'Mẹ ru cái lẽ ở đời, Sữa nuôi phần xác hát nuôi phần hồn',
+      'Thời gian chạy qua tóc mẹ, Một màu trắng đến nôn nao',
+      'Bàn tay mẹ dịu dàng nâng bước con đi'
+    ],
+    correct: 'A'
+  }
+];
+
 const INITIAL_BASE_GAMES = [
+  {
+    id: 'heart-puzzle-2010-game',
+    title: 'Giải Mã Bức Tranh 20/10',
+    subtitle: 'Tô Đỏ Trái Tim Tri Ân Mẹ - Chào Mừng 20/10',
+    category: 'Đối kháng Đội nhóm',
+    icon: '💖',
+    gradient: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
+    description: 'Chào mừng ngày Phụ nữ Việt Nam 20/10! Trả lời đúng các câu hỏi để tô đỏ từng ô trong trái tim. Đội nào hoàn thành trước sẽ làm hiện ra bức tranh Mẹ Yêu Con ấm áp và giành chiến thắng!',
+    engineType: 'heart-reveal-2010',
+    playsCount: 0,
+    defaultQuestions: HEART_2010_SAMPLE_QUESTIONS
+  },
   {
     id: 'indoor-pe-dance-game',
     title: 'Thử thách thể dục',
@@ -1097,6 +1182,20 @@ const INITIAL_SAVED_GAMES = [
     engineType: 'tower-builder',
     description: 'Bài game thi đấu xây nhà dựa trên độ khó vật liệu Ngói, Gỗ, Gạch và các câu hỏi học tập sinh động',
     questions: SAMPLE_QUESTIONS,
+    updatedAt: new Date().toISOString().split('T')[0]
+  },
+  {
+    id: 'saved_sample_2010',
+    userId: 'user_admin',
+    baseGameId: 'heart-puzzle-2010-game',
+    title: 'Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con',
+    lessonTitle: 'Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con',
+    subject: 'Hoạt động trải nghiệm',
+    gradient: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
+    icon: '💖',
+    engineType: 'heart-reveal-2010',
+    description: 'Trò chơi thi đua giải mã bức tranh trái tim Mẹ Hôn Con chào mừng ngày Phụ nữ Việt Nam 20/10 với 2 chế độ Bảng Cảm Ứng và Máy Chiếu',
+    questions: HEART_2010_SAMPLE_QUESTIONS,
     updatedAt: new Date().toISOString().split('T')[0]
   },
   {
@@ -2456,6 +2555,8 @@ export const StorageService = {
       'wheel-of-fortune': 'Vòng Quay May Mắn',
       'millionaire': 'Ai Là Triệu Phú',
       'jeopardy': 'Đấu Trường Jeopardy',
+      'heart-reveal-2010': 'Giải Mã Bức Tranh 20/10',
+      'heart-puzzle-2010': 'Giải Mã Bức Tranh 20/10',
       'tug-of-war-dual': 'Kéo Co 2 Đội',
       'tower-builder': 'Xây Tháp Tri Thức',
       'car-race': 'Đua Xe Vượt Chướng Ngại Vật',
@@ -3107,6 +3208,7 @@ export const StorageService = {
     else if (rawTitleStr.includes('nghiêng đầu')) resolvedEngineType = 'head-tilt';
     else if (rawTitleStr.includes('diệt muỗi') || rawTitleStr.includes('đập muỗi') || rawTitleStr.includes('muỗi') || rawIdStr.includes('mosquito')) resolvedEngineType = 'mosquito-slayer';
     else if (rawTitleStr.includes('kéo co đôi') || rawTitleStr.includes('kéo co kiến thức')) resolvedEngineType = 'tug-of-war-dual';
+    else if (rawTitleStr.includes('20/10') || rawTitleStr.includes('20-10') || rawTitleStr.includes('mẹ yêu con') || rawTitleStr.includes('phụ nữ việt nam') || rawTitleStr.includes('giải mã bức tranh') || rawIdStr.includes('2010') || rawIdStr.includes('heart-puzzle') || rawIdStr.includes('heart-reveal')) resolvedEngineType = 'heart-reveal-2010';
     else if (rawTitleStr.includes('kéo co')) resolvedEngineType = 'tug-of-war';
     else if (rawTitleStr.includes('triệu phú')) resolvedEngineType = 'millionaire';
     else if (rawTitleStr.includes('hộp quà')) resolvedEngineType = 'mystery-box';
