@@ -586,14 +586,17 @@ const HEART_2010_SAMPLE_QUESTIONS = [
 const INITIAL_BASE_GAMES = [
   {
     id: 'heart-puzzle-2010-game',
-    title: 'Giải Mã Bức Tranh 20/10',
+    title: 'Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con',
     subtitle: 'Tô Đỏ Trái Tim Tri Ân Mẹ - Chào Mừng 20/10',
-    category: 'Đối kháng Đội nhóm',
+    category: 'Chủ đề 20/10',
     icon: '💖',
     gradient: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
     description: 'Chào mừng ngày Phụ nữ Việt Nam 20/10! Trả lời đúng các câu hỏi để tô đỏ từng ô trong trái tim. Đội nào hoàn thành trước sẽ làm hiện ra bức tranh Mẹ Yêu Con ấm áp và giành chiến thắng!',
     engineType: 'heart-reveal-2010',
     playsCount: 0,
+    isFeatured: true,
+    badge: 'MỚI 20/10',
+    tags: ['20/10', '20-10', 'phụ nữ việt nam', 'mẹ yêu con', 'trái tim', 'giải mã', 'đối kháng', 'chủ đề 20/10'],
     defaultQuestions: HEART_2010_SAMPLE_QUESTIONS
   },
   {
@@ -1680,8 +1683,19 @@ export const StorageService = {
           INITIAL_BASE_GAMES.forEach(bg => {
             const idx = storedGames.findIndex(g => g && g.id === bg.id);
             if (idx === -1) {
-              storedGames.push(bg);
+              if (bg.id === 'heart-puzzle-2010-game') {
+                storedGames.unshift(bg); // Luôn đưa game 20/10 lên đầu tiên
+              } else {
+                storedGames.push(bg);
+              }
               updated = true;
+            } else if (bg.id === 'heart-puzzle-2010-game') {
+              storedGames[idx] = { ...storedGames[idx], ...bg };
+              if (idx > 0) {
+                const [hg] = storedGames.splice(idx, 1);
+                storedGames.unshift(hg);
+                updated = true;
+              }
             } else {
               const existing = storedGames[idx];
               if (
@@ -2949,9 +2963,22 @@ export const StorageService = {
     const existingIds = new Set(games.map(g => g.id));
     let updated = false;
     INITIAL_BASE_GAMES.forEach(bg => {
-      if (!existingIds.has(bg.id)) {
-        games.push(bg);
+      const idx = games.findIndex(g => g && g.id === bg.id);
+      if (idx === -1) {
+        if (bg.id === 'heart-puzzle-2010-game') {
+          games.unshift(bg); // Đưa game 20/10 lên vị trí số 1 ngay lập tức
+        } else {
+          games.push(bg);
+        }
         updated = true;
+      } else if (bg.id === 'heart-puzzle-2010-game') {
+        // Cập nhật thuộc tính mới nhất và đưa lên đầu danh sách
+        games[idx] = { ...games[idx], ...bg };
+        if (idx > 0) {
+          const [hg] = games.splice(idx, 1);
+          games.unshift(hg);
+          updated = true;
+        }
       }
     });
 

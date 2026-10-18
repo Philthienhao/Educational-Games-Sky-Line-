@@ -570,9 +570,10 @@ export function App() {
   // Filter Categories by Game Themes & Formats
   const categories = useMemo(() => [
     'Tất cả',
-    'Gọi tên và chia nhóm',
+    'Chủ đề 20/10',
     'Đối kháng Đội nhóm',
     'Trắc nghiệm kịch tính',
+    'Gọi tên và chia nhóm',
     'Bất ngờ & May mắn',
     'Khám phá bức ảnh',
     'Tư duy từ ngữ',
@@ -609,7 +610,13 @@ export function App() {
 
       const gCategory = game.category || '';
       const gSubject = game.subject || '';
+      const is2010Game = game.engineType === 'heart-reveal-2010' || 
+                         gCategory === 'Chủ đề 20/10' || 
+                         String(game.id).includes('2010') ||
+                         String(game.title || '').includes('20/10');
+
       const matchesCategory = selectedCategory === 'Tất cả' || 
+                              (selectedCategory === 'Chủ đề 20/10' && is2010Game) ||
                               gCategory === selectedCategory || 
                               gSubject === selectedCategory;
 
@@ -767,6 +774,93 @@ export function App() {
                     <BookmarkCheck size={18} /> Kho Game Của Tôi ({savedGames.length})
                   </button>
                 </div>
+              </div>
+            </div>
+
+            {/* SPECIAL 20/10 SPOTLIGHT BANNER */}
+            <div style={{
+              background: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
+              borderRadius: '24px',
+              padding: '20px 24px',
+              color: '#ffffff',
+              marginBottom: '24px',
+              boxShadow: '0 10px 30px rgba(225, 29, 72, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '16px',
+              border: '2px solid #fda4af'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+                <div style={{
+                  width: '56px',
+                  height: '56px',
+                  borderRadius: '18px',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.8rem',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  flexShrink: 0
+                }}>
+                  💖
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{
+                      background: '#fef08a',
+                      color: '#854d0e',
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      fontWeight: 900,
+                      fontSize: '0.72rem',
+                      letterSpacing: '0.5px'
+                    }}>
+                      TRÒ CHƠI MỚI 20/10
+                    </span>
+                    <span style={{ fontSize: '0.85rem', color: '#ffe4e6', fontStyle: 'italic' }}>
+                      "Con dù lớn vẫn là con của mẹ / Đi hết đời lòng mẹ vẫn theo con."
+                    </span>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, letterSpacing: '0.3px' }}>
+                    Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con
+                  </h3>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '0.88rem', color: '#ffe4e6', maxWidth: '680px' }}>
+                    Tô đỏ từng ô trái tim theo đáp án đúng để lộ diện bức tranh Mẹ Hôn Con ấm áp. Hỗ trợ 2 chế độ: <strong>👆 Bảng cảm ứng song song</strong> & <strong>📽️ Máy chiếu giáo viên</strong>!
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => {
+                    const game2010 = (baseGames || []).find(g => g.id === 'heart-puzzle-2010-game' || g.engineType === 'heart-reveal-2010');
+                    if (game2010) {
+                      handlePlayBaseGame(game2010);
+                    } else {
+                      setSelectedCategory('Chủ đề 20/10');
+                    }
+                  }}
+                  style={{
+                    background: '#ffffff',
+                    color: '#be123c',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '16px',
+                    fontWeight: 900,
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Play size={18} fill="#be123c" /> Bắt Đầu Chơi Ngay
+                </button>
               </div>
             </div>
 
