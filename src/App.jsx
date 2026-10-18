@@ -21,7 +21,8 @@ import {
   LogOut,
   LogIn,
   KeyRound,
-  Lock
+  Lock,
+  Play
 } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { GameCard } from './components/GameCard';
