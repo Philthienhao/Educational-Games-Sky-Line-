@@ -209,5 +209,9 @@ export const SoundFX = {
 
   // Aliases for safety
   win: function() { this.fanfare(); },
-  success: function() { this.correct(); }
+  success: function() { this.correct(); },
+  playCorrect: function() { this.correct(); },
+  playWrong: function() { this.wrong(); },
+  playClick: function() { this.click(); },
+  playWin: function() { this.fanfare(); }
 };

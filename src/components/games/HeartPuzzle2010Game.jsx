@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Heart, Trophy, Sparkles, Volume2, VolumeX, RotateCcw, Settings, 
   Upload, Download, Users, Monitor, Touchpad, CheckCircle2, XCircle, 
-  ChevronRight, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw
+  ChevronRight, ChevronLeft, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -127,71 +127,59 @@ export const DEFAULT_2010_QUESTIONS = [
   }
 ];
 
-// Kích thước chuẩn ma trận lưới: 24x24 ô
-export const GRID_SIZE = 24;
+// Kích thước chuẩn ma trận lưới: 18x18 ô (giúp mỗi ô rộng rãi ~21px, chữ tọa độ không bị tràn hay xuống dòng)
+export const GRID_SIZE = 18;
 
 // 3 MA TRẬN SILHOUETTE CHUẨN (1 = Ô tô đỏ khi đáp án đúng, 0 = Ô trắng nền hoặc âm bản)
 export const PUZZLE_PATTERNS = {
-  // Mẫu 1: Mẹ bồng con trong trái tim (Chuẩn 100% theo phiếu bài tập mẫu của người dùng)
+  // Mẫu 1: Mẹ bồng con trong trái tim (Chuẩn 100% theo phiếu bài tập mẫu)
   'mother-child': {
-    name: 'Mẹ Bồng Con Trong Trái Tim (Chuẩn phiếu 20/10)',
+    name: 'Mẹ Bồng Con (Chuẩn Phiếu)',
     icon: '🤱',
     rows: [
-      '000000000000000000000000',
-      '000111100000000111100000',
-      '001111111000011111110000',
-      '011111111100111111111000',
-      '011111111110111111111100',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111100111111111110',
-      '111111111000011111111110',
-      '111111100000001111111110',
-      '111110000000000111111110',
-      '111100000000000011111110',
-      '111100000000000011111110',
-      '111110000000000111111110',
-      '011111000000001111111100',
-      '011111110000011111111100',
-      '001111111000111111111000',
-      '001111111101111111110000',
-      '000111111111111111100000',
-      '000011111111111111000000',
-      '000001111111111110000000',
-      '000000111111111100000000',
-      '000000001111110000000000',
-      '000000000011000000000000'
+      '000111000001110000',
+      '001111100011111000',
+      '011111110111111100',
+      '111111111111111110',
+      '111111111111111110',
+      '111111100111111110',
+      '111111000011111110',
+      '111110000001111110',
+      '111100000000111110',
+      '111000000000011110',
+      '111000000000011110',
+      '011100000000111100',
+      '011110000001111100',
+      '001111000011111000',
+      '001111100111110000',
+      '000111111111100000',
+      '000011111110000000',
+      '000000111000000000'
     ]
   },
   // Mẫu 2: Trái tim yêu thương 20/10
   'pure-heart': {
-    name: 'Trái Tim Yêu Thương 20/10',
+    name: 'Trái Tim Yêu Thương',
     icon: '💖',
     rows: [
-      '000000000000000000000000',
-      '000111100000000111100000',
-      '001111111000011111110000',
-      '011111111100111111111000',
-      '011111111110111111111100',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '111111111111111111111110',
-      '011111111111111111111100',
-      '011111111111111111111100',
-      '001111111111111111111000',
-      '001111111111111111111000',
-      '000111111111111111110000',
-      '000011111111111111100000',
-      '000001111111111111000000',
-      '000000111111111110000000',
-      '000000011111111100000000',
-      '000000001111111000000000',
-      '000000000111110000000000',
-      '000000000001100000000000'
+      '000111000001110000',
+      '001111100011111000',
+      '011111110111111100',
+      '111111111111111110',
+      '111111111111111110',
+      '111111111111111110',
+      '111111111111111110',
+      '111111111111111110',
+      '111111111111111110',
+      '111111111111111110',
+      '011111111111111100',
+      '011111111111111100',
+      '001111111111111000',
+      '001111111111111000',
+      '000111111111110000',
+      '000011111111100000',
+      '000001111111000000',
+      '000000011100000000'
     ]
   },
   // Mẫu 3: Người phụ nữ & Hoa hồng
@@ -199,40 +187,32 @@ export const PUZZLE_PATTERNS = {
     name: 'Người Phụ Nữ & Hoa Hồng',
     icon: '🌹',
     rows: [
-      '000000000111110000000000',
-      '000000011111111100000000',
-      '000000111111111110000000',
-      '000001111111111111000000',
-      '000011111111111111100000',
-      '000111111000111111110000',
-      '000111110000011111110000',
-      '000111110000001111111000',
-      '000011110000001111111000',
-      '000001110000001111111000',
-      '000000110000011111111000',
-      '000000011000111111111000',
-      '000000011111111111111000',
-      '000000001111111111110000',
-      '000000000111111111100000',
-      '000000000111111111000000',
-      '000000001111111110000000',
-      '000000011111111111000000',
-      '000001111111111111100000',
-      '000111111111111111110000',
-      '001111111111111111111000',
-      '011111111111111111111100',
-      '111111111111111111111110',
-      '111111111111111111111111'
+      '000000111100000000',
+      '000001111110000000',
+      '000011111111000000',
+      '000111111111100000',
+      '000111001111100000',
+      '000110000111110000',
+      '000010000111110000',
+      '000001000111110000',
+      '000000101111110000',
+      '000000111111110000',
+      '000000011111100000',
+      '000000001111100000',
+      '000000011111000000',
+      '000000111111100000',
+      '000011111111110000',
+      '001111111111111000',
+      '011111111111111100',
+      '111111111111111110'
     ]
   }
 };
 
 /**
- * Thuật toán ánh xạ câu hỏi vào lưới ô vuông:
+ * Thuật toán ánh xạ câu hỏi vào lưới ô vuông 18x18:
  * - Các ô target (val === 1): Phân bổ cho các câu hỏi với ĐÁP ÁN ĐÚNG tương ứng (ví dụ: '1-A', '2-B', '3-C'...)
  * - Các ô background/âm bản (val === 0): Phân bổ các ĐÁP ÁN SAI (ví dụ: '1-B', '1-C', '2-A', '3-D'...)
- * => Khi học sinh trả lời đúng câu k, TẤT CẢ các ô mang nhãn đúng của câu k sẽ ĐƯỢC TÔ ĐỎ!
- * => Khi hoàn thành hết, toàn bộ hình người mẹ bồng con hoặc trái tim sẽ hiện ra bằng chính các ô màu đỏ!
  */
 export function buildPuzzleBoard(patternKey, questions) {
   const pattern = PUZZLE_PATTERNS[patternKey]?.rows || PUZZLE_PATTERNS['mother-child'].rows;
@@ -261,7 +241,8 @@ export function buildPuzzleBoard(patternKey, questions) {
     const qIdx = Math.min(numQuestions - 1, Math.floor(idx / cellsPerQuestion));
     const q = questions[qIdx] || questions[0];
     const correctOpt = q.correct || 'A';
-    const code = `${qIdx + 1}-${correctOpt}`;
+    // Format tọa độ gọn gàng không bị ngắt dòng (VD: 1-A hoặc 10B)
+    const code = qIdx < 9 ? `${qIdx + 1}-${correctOpt}` : `${qIdx + 1}${correctOpt}`;
     cellMap[`${coord.r}_${coord.c}`] = {
       r: coord.r,
       c: coord.c,
@@ -279,7 +260,7 @@ export function buildPuzzleBoard(patternKey, questions) {
     const correctOpt = q.correct || 'A';
     const wrongOptions = optionLetters.filter(opt => opt !== correctOpt);
     const chosenWrongOpt = wrongOptions[idx % wrongOptions.length] || 'B';
-    const code = `${qIdx + 1}-${chosenWrongOpt}`;
+    const code = qIdx < 9 ? `${qIdx + 1}-${chosenWrongOpt}` : `${qIdx + 1}${chosenWrongOpt}`;
     cellMap[`${coord.r}_${coord.c}`] = {
       r: coord.r,
       c: coord.c,
@@ -300,7 +281,6 @@ export function buildPuzzleBoard(patternKey, questions) {
 
 /**
  * Component Hiển Thị Tờ Phiếu Bài Tập Lưới Ô "GIẢI MÃ BỨC TRANH"
- * Đúng chuẩn theo hình ảnh phiếu bài tập thực tế của thầy/cô!
  */
 export const WorksheetPuzzleView = React.memo(({
   teamName = 'Đội Chơi',
@@ -351,8 +331,7 @@ export const WorksheetPuzzleView = React.memo(({
           alignItems: 'center',
           gap: '6px',
           boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)',
-          zIndex: 10,
-          animation: 'bounce 1s infinite alternate'
+          zIndex: 10
         }}>
           <Sparkles size={14} /> GIẢI MÃ HOÀN TẤT (100%)
         </div>
@@ -442,7 +421,7 @@ export const WorksheetPuzzleView = React.memo(({
         </div>
       </div>
 
-      {/* KHUNG LƯỚI MA TRẬN Ô VUÔNG 24x24: ĐÚNG CHUẨN MẪU PHIẾU GIẤY */}
+      {/* KHUNG LƯỚI MA TRẬN Ô VUÔNG 18x18: THOÁNG ĐÃNG, CHỮ RÕ NÉT */}
       <div style={{
         position: 'relative',
         width: '100%',
@@ -469,7 +448,6 @@ export const WorksheetPuzzleView = React.memo(({
               if (!cell) return null;
 
               // Ô này có được tô đỏ hay không?
-              // Điều kiện: Là ô target VÀ câu hỏi tương ứng đã được trả lời ĐÚNG!
               const isRed = cell.isTarget && answeredSet.has(cell.questionIdx);
 
               return (
@@ -479,15 +457,17 @@ export const WorksheetPuzzleView = React.memo(({
                   style={{
                     backgroundColor: isRed ? (teamColor || '#dc2626') : '#ffffff',
                     color: isRed ? '#ffffff' : '#64748b',
-                    fontSize: compact ? 'clamp(6px, 1.1vw, 8px)' : 'clamp(7px, 1.2vw, 9.5px)',
-                    fontWeight: 800,
+                    fontSize: compact ? 'clamp(7px, 1.2vw, 9px)' : 'clamp(8px, 1.3vw, 10.5px)',
+                    fontWeight: 900,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     userSelect: 'none',
                     letterSpacing: '-0.5px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
                     transition: 'background-color 0.35s ease, color 0.3s ease, transform 0.2s ease',
-                    boxShadow: isRed ? `inset 0 0 3px rgba(0,0,0,0.15)` : 'none',
+                    boxShadow: isRed ? `inset 0 0 3px rgba(0,0,0,0.2)` : 'none',
                     lineHeight: 1
                   }}
                 >
@@ -568,6 +548,8 @@ const QuestionPanel = React.memo(({
   questionNumber = 1,
   totalQuestions = 15,
   onSelectOption,
+  onPrevQuestion,
+  onNextQuestion,
   selectedOption,
   answerState,
   disabled = false,
@@ -595,7 +577,7 @@ const QuestionPanel = React.memo(({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: compact ? '8px' : '14px',
+      gap: compact ? '8px' : '12px',
       width: '100%'
     }}>
       {/* Khung nội dung câu hỏi */}
@@ -632,15 +614,58 @@ const QuestionPanel = React.memo(({
             </div>
           )}
 
-          <div style={{
-            background: 'rgba(225, 29, 72, 0.1)',
-            color: '#be123c',
-            padding: '2px 8px',
-            borderRadius: '12px',
-            fontSize: '0.75rem',
-            fontWeight: 800
-          }}>
-            Câu #{questionNumber}
+          {/* Nút Điều Hướng Câu Hỏi Nhanh */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {onPrevQuestion && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onPrevQuestion(); }}
+                disabled={questionNumber <= 1}
+                style={{
+                  background: 'rgba(225, 29, 72, 0.08)',
+                  border: '1px solid #fecdd3',
+                  color: '#be123c',
+                  padding: '2px 6px',
+                  borderRadius: '6px',
+                  cursor: questionNumber <= 1 ? 'default' : 'pointer',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  opacity: questionNumber <= 1 ? 0.4 : 1
+                }}
+              >
+                ◀ Trước
+              </button>
+            )}
+
+            <div style={{
+              background: 'rgba(225, 29, 72, 0.1)',
+              color: '#be123c',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
+              fontWeight: 800
+            }}>
+              Câu #{questionNumber}
+            </div>
+
+            {onNextQuestion && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onNextQuestion(); }}
+                disabled={questionNumber >= totalQuestions}
+                style={{
+                  background: 'rgba(225, 29, 72, 0.08)',
+                  border: '1px solid #fecdd3',
+                  color: '#be123c',
+                  padding: '2px 6px',
+                  borderRadius: '6px',
+                  cursor: questionNumber >= totalQuestions ? 'default' : 'pointer',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  opacity: questionNumber >= totalQuestions ? 0.4 : 1
+                }}
+              >
+                Sau ▶
+              </button>
+            )}
           </div>
         </div>
 
@@ -692,7 +717,11 @@ const QuestionPanel = React.memo(({
           return (
             <button
               key={idx}
-              onClick={() => !disabled && onSelectOption(label)}
+              onClick={() => {
+                if (!disabled && answerState === null) {
+                  onSelectOption(label);
+                }
+              }}
               disabled={disabled || answerState !== null}
               style={{
                 display: 'flex',
@@ -782,7 +811,7 @@ export function HeartPuzzle2010Game({
 
   // Màu sắc đại diện cho các đội
   const TEAM_COLORS = ['#e11d48', '#2563eb', '#10b981', '#f59e0b'];
-  const DEFAULT_TEAM_NAMES = ['Đội Hoa Hồng', 'Đội Hoa Sen', 'Đội Hướng Dương', 'Đội Hoa Lan'];
+  const DEFAULT_TEAM_NAMES = ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Lục)', 'Đội 4 (Vàng)'];
 
   // Khởi tạo trạng thái cho các đội
   const [teamStates, setTeamStates] = useState(() => [
@@ -874,12 +903,15 @@ export function HeartPuzzle2010Game({
 
     const isCorrect = opt === currentQuestion.correct;
 
-    // Phát âm thanh
+    // Phát âm thanh an toàn
     if (!soundMuted) {
-      if (isCorrect) SoundFX.playCorrect();
-      else SoundFX.playWrong();
+      try {
+        if (isCorrect) SoundFX.correct();
+        else SoundFX.wrong();
+      } catch (e) {}
     }
 
+    // Cập nhật trạng thái câu trả lời ngay lập tức
     setTeamStates(prev => {
       const next = [...prev];
       const cur = { ...next[teamIdx] };
@@ -897,7 +929,7 @@ export function HeartPuzzle2010Game({
       return next;
     });
 
-    // Chuyển câu tiếp theo sau 1 giây
+    // Chuyển câu tiếp theo hoặc cho phép thử lại
     setTimeout(() => {
       setTeamStates(prev => {
         const next = [...prev];
@@ -905,9 +937,9 @@ export function HeartPuzzle2010Game({
         cur.selectedOption = null;
         cur.answerState = null;
 
-        // Nếu trả lời đúng thì tiến câu hỏi tiếp theo
+        // Nếu đúng thì tự động chuyển câu hỏi tiếp theo
         if (isCorrect) {
-          cur.currentQIdx = cur.currentQIdx + 1;
+          cur.currentQIdx = Math.min(activeQuestionsList.length - 1, cur.currentQIdx + 1);
         }
 
         // Kiểm tra xem đội này đã giải mã xong 100% chưa
@@ -915,6 +947,7 @@ export function HeartPuzzle2010Game({
           setWinner(cur);
           setShowVictoryModal(true);
           triggerVictoryFireworks();
+          try { SoundFX.fanfare(); } catch (e) {}
           if (onAddPoints) {
             onAddPoints(cur.name, 100);
           }
@@ -923,7 +956,7 @@ export function HeartPuzzle2010Game({
         next[teamIdx] = cur;
         return next;
       });
-    }, 1100);
+    }, 900);
   };
 
   // Xử lý khi Giáo viên chọn đáp án trong chế độ Máy Chiếu (Teacher-Led)
@@ -937,10 +970,12 @@ export function HeartPuzzle2010Game({
     setTeacherSelectedOpt(opt);
     setTeacherAnswerState(isCorrect ? 'correct' : 'wrong');
 
-    // Phát âm thanh
+    // Phát âm thanh an toàn
     if (!soundMuted) {
-      if (isCorrect) SoundFX.playCorrect();
-      else SoundFX.playWrong();
+      try {
+        if (isCorrect) SoundFX.correct();
+        else SoundFX.wrong();
+      } catch (e) {}
     }
 
     // Nếu đúng -> Tô đỏ các ô đáp án tương ứng của đội đang có lượt
@@ -959,6 +994,7 @@ export function HeartPuzzle2010Game({
           setWinner(cur);
           setShowVictoryModal(true);
           triggerVictoryFireworks();
+          try { SoundFX.fanfare(); } catch (e) {}
           if (onAddPoints) {
             onAddPoints(cur.name, 100);
           }
@@ -968,20 +1004,22 @@ export function HeartPuzzle2010Game({
       });
     }
 
-    // Chuyển sang câu tiếp theo sau 1.2s
+    // Chuyển sang câu tiếp theo sau 1s
     setTimeout(() => {
       setTeacherSelectedOpt(null);
       setTeacherAnswerState(null);
       if (isCorrect) {
         setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1));
       }
-    }, 1200);
+    }, 900);
   };
 
   // Nút Giáo Viên Chấm Đúng trực tiếp (cho phép giáo viên can thiệp tô đỏ ô)
   const handleTeacherManualAward = (teamIdx) => {
     if (winner) return;
-    if (!soundMuted) SoundFX.playCorrect();
+    if (!soundMuted) {
+      try { SoundFX.correct(); } catch (e) {}
+    }
 
     setTeamStates(prev => {
       const next = [...prev];
@@ -996,6 +1034,7 @@ export function HeartPuzzle2010Game({
         setWinner(cur);
         setShowVictoryModal(true);
         triggerVictoryFireworks();
+        try { SoundFX.fanfare(); } catch (e) {}
       }
       return next;
     });
@@ -1090,7 +1129,7 @@ export function HeartPuzzle2010Game({
         padding: '0 20px',
         flexShrink: 0
       }}>
-        {/* Nút Quay lại & Tiêu đề */}
+        {/* Nút Thoát Game & Tiêu đề */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
             onClick={onClose}
@@ -1378,6 +1417,20 @@ export function HeartPuzzle2010Game({
                       questionNumber={team.currentQIdx + 1}
                       totalQuestions={activeQuestionsList.length}
                       onSelectOption={(opt) => handleTouchTeamSelectOption(teamIdx, opt)}
+                      onPrevQuestion={() => {
+                        setTeamStates(prev => {
+                          const next = [...prev];
+                          next[teamIdx].currentQIdx = Math.max(0, next[teamIdx].currentQIdx - 1);
+                          return next;
+                        });
+                      }}
+                      onNextQuestion={() => {
+                        setTeamStates(prev => {
+                          const next = [...prev];
+                          next[teamIdx].currentQIdx = Math.min(activeQuestionsList.length - 1, next[teamIdx].currentQIdx + 1);
+                          return next;
+                        });
+                      }}
                       selectedOption={team.selectedOption}
                       answerState={team.answerState}
                       disabled={winner !== null}
@@ -1589,6 +1642,8 @@ export function HeartPuzzle2010Game({
                 questionNumber={teacherQIdx + 1}
                 totalQuestions={activeQuestionsList.length}
                 onSelectOption={handleTeacherSelectOption}
+                onPrevQuestion={() => setTeacherQIdx(prev => Math.max(0, prev - 1))}
+                onNextQuestion={() => setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1))}
                 selectedOption={teacherSelectedOpt}
                 answerState={teacherAnswerState}
                 disabled={winner !== null}
@@ -1712,4 +1767,3 @@ export function HeartPuzzle2010Game({
     </div>
   );
 }
-
