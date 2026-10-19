@@ -4,7 +4,7 @@ import {
   Heart, Trophy, Sparkles, Volume2, VolumeX, RotateCcw, Settings, 
   Upload, Download, Users, Monitor, Touchpad, CheckCircle2, XCircle, 
   ChevronRight, ChevronLeft, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw,
-  Shuffle, Layers, EyeOff
+  Shuffle, Layers, EyeOff, HelpCircle
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -130,12 +130,11 @@ export const DEFAULT_2010_QUESTIONS = [
 ];
 
 // SVG Path đường bao trái tim chuẩn mực đối xứng (viewBox 0 0 400 380)
-// minX: 60, maxX: 340, minY: 66, maxY: 355, Cleft Y: 120, Tâm: (200, 210)
 export const HEART_SVG_PATH = "M 200,120 C 170,45 60,45 60,145 C 60,225 135,285 200,355 C 265,285 340,225 340,145 C 340,45 230,45 200,120 Z";
 
 /**
  * Thuật toán sinh lưới các ô nền (decoy cells) bao quanh trái tim
- * Hiển thị các đáp án nhiễu (sai) mờ nhạt như trên tờ phiếu bài tập thực tế
+ * Hiển thị các đáp án lộn xộn mờ ảo như trên tờ phiếu bài tập thực tế
  */
 export function buildDecoyGrid(questions, rows = 12, cols = 14) {
   const numQ = Math.max(1, questions.length);
@@ -145,14 +144,14 @@ export function buildDecoyGrid(questions, rows = 12, cols = 14) {
   for (let r = 0; r < rows; r++) {
     const row = [];
     for (let c = 0; c < cols; c++) {
-      const qIdx = (r * cols + c) % numQ;
+      const qIdx = (r * 7 + c * 3 + 1) % numQ;
       const q = questions[qIdx] || questions[0];
       const correctOpt = q.correct || 'A';
       const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
-      const chosenWrong = wrongOpts[(r + c) % wrongOpts.length] || 'C';
+      const chosenWrong = wrongOpts[(r * 5 + c * 2) % wrongOpts.length] || 'C';
       const qNum = qIdx + 1;
       const code = qNum < 10 ? `${qNum}-${chosenWrong}` : `${qNum}${chosenWrong}`;
-      row.push({ r, c, code, qIdx });
+      row.push({ r, c, code, qIdx, isTarget: false });
     }
     grid.push(row);
   }
@@ -162,20 +161,24 @@ export function buildDecoyGrid(questions, rows = 12, cols = 14) {
 /**
  * Thuật toán phân bổ các mảnh ghép trái tim:
  * ĐÚNG 1 CÂU HỎI = 1 Ô/MẢNH GHÉP DUY NHẤT TRONG TRÁI TIM!
- * Tổng số ô ghép thành trái tim = Đúng bằng số câu hỏi mà giáo viên tải lên (N).
+ * Vị trí các ô được XÁO TRỘN LỘN XỘN (shuffled) để học sinh phải quan sát và tìm kiếm!
+ * Khi trả lời đúng, các ô đỏ kết nối lại thành một TRÁI TIM HOÀN CHỈNH!
  */
-export function buildHeartPieces(questions, layoutMode = 'strips') {
+export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder = null) {
   const N = Math.max(1, questions.length);
   const pieces = [];
 
-  // Toạ độ vùng trái tim trong SVG (viewBox 0 0 400 380)
   const Y_TOP = 65;
   const Y_BOTTOM = 355;
   const TOTAL_H = Y_BOTTOM - Y_TOP; // 290px
 
+  // Thứ tự gán câu hỏi vào các ô trong trái tim (Đảm bảo lộn xộn, không xếp theo thứ tự 1..10)
+  const order = Array.isArray(shuffledOrder) && shuffledOrder.length === N
+    ? shuffledOrder
+    : Array.from({ length: N }, (_, i) => i);
+
   if (layoutMode === 'mosaic') {
-    // CHẾ ĐỘ 1: KHỐI GHÉP MẢNH (MOSAIC / TANGRAM BLOCKS)
-    // Phân bổ N câu hỏi vào các hàng cân xứng
+    // CHẾ ĐỘ KHỐI GHÉP MẢNH (MOSAIC BLOCKS)
     let rowCounts = [1];
     if (N === 2) rowCounts = [1, 1];
     else if (N === 3) rowCounts = [2, 1];
@@ -196,7 +199,7 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
 
     const R = rowCounts.length;
     const rowH = TOTAL_H / R;
-    let currentQ = 0;
+    let slotIdx = 0;
 
     for (let r = 0; r < R; r++) {
       const countInRow = rowCounts[r];
@@ -204,9 +207,10 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
       const blockW = 340 / countInRow;
 
       for (let c = 0; c < countInRow; c++) {
-        if (currentQ >= N) break;
-        const q = questions[currentQ] || questions[0];
-        const qNum = currentQ + 1;
+        if (slotIdx >= N) break;
+        const qIdx = order[slotIdx];
+        const q = questions[qIdx] || questions[0];
+        const qNum = qIdx + 1;
         const correctOpt = q.correct || 'A';
         const code = qNum < 10 ? `${qNum}-${correctOpt}` : `${qNum}${correctOpt}`;
 
@@ -215,7 +219,8 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
         const cy = yStart + rowH / 2;
 
         pieces.push({
-          qIdx: currentQ,
+          slotIdx,
+          qIdx,
           qNum,
           correctOpt,
           code,
@@ -225,29 +230,29 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
           height: rowH - 4,
           cx,
           cy,
-          isTopLobe: r === 0 && countInRow === 2
+          isTopLobe: r === 0 && countInRow === 2,
+          isTarget: true
         });
-        currentQ++;
+        slotIdx++;
       }
     }
   } else {
-    // CHẾ ĐỘ 2 (MẶC ĐỊNH): DẢI KÉO DÀI (HORIZONTAL STRIPS - 1 CÂU 1 DẢI RỘNG TRỌN VẸN)
-    // Sắp xếp từ ĐÁY TIM (Câu 1) lên ĐỈNH TIM (Câu N) như rót đầy tình yêu thương!
+    // CHẾ ĐỘ DẢI NGANG (HORIZONTAL STRIPS)
     const stripH = TOTAL_H / N;
 
-    for (let i = 0; i < N; i++) {
-      const q = questions[i] || questions[0];
-      const qNum = i + 1;
+    for (let slotIdx = 0; slotIdx < N; slotIdx++) {
+      const qIdx = order[slotIdx];
+      const q = questions[qIdx] || questions[0];
+      const qNum = qIdx + 1;
       const correctOpt = q.correct || 'A';
       const code = qNum < 10 ? `${qNum}-${correctOpt}` : `${qNum}${correctOpt}`;
 
-      // Câu 1 ở đáy (k = N - 1), Câu N ở đỉnh (k = 0)
-      const k = (N - 1) - i;
-      const y = Y_TOP + k * stripH;
+      const y = Y_TOP + slotIdx * stripH;
       const isTopLobe = y < 118; // Khu vực 2 múi tim trên đỉnh
 
       pieces.push({
-        qIdx: i,
+        slotIdx,
+        qIdx,
         qNum,
         correctOpt,
         code,
@@ -258,7 +263,8 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
         cx: 200,
         cy: y + stripH / 2,
         isTopLobe,
-        stripH
+        stripH,
+        isTarget: true
       });
     }
   }
@@ -268,21 +274,18 @@ export function buildHeartPieces(questions, layoutMode = 'strips') {
 
 /**
  * Tạo danh sách thứ tự câu hỏi ngẫu nhiên cho từng đội (Chống nhìn lén / Chống chép bài)
- * Đảm bảo 2 đội KHÔNG BAO GIỜ nhìn cùng một câu hỏi ở bất kỳ khoảnh khắc nào!
  */
 export function generateTeamSequences(numQuestions, count = 2) {
   const sequences = [];
   const N = Math.max(1, numQuestions);
 
   for (let teamIdx = 0; teamIdx < count; teamIdx++) {
-    // Xáo trộn mảng câu hỏi bằng thuật toán Fisher-Yates
     const seq = Array.from({ length: N }, (_, i) => i);
     for (let i = seq.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [seq[i], seq[j]] = [seq[j], seq[i]];
     }
 
-    // Đảm bảo đội 2 không bắt đầu cùng câu hỏi với đội 1
     if (teamIdx === 1 && sequences[0] && seq[0] === sequences[0][0] && N > 1) {
       const swapIdx = (1 % N);
       [seq[0], seq[swapIdx]] = [seq[swapIdx], seq[0]];
@@ -294,20 +297,20 @@ export function generateTeamSequences(numQuestions, count = 2) {
 }
 
 /**
- * COMPONENT TỜ PHIẾU BÀI TẬP "GIẢI MÃ BỨC TRANH" (CHUẨN 1 CÂU = 1 Ô TRÁI TIM)
+ * COMPONENT TỜ PHIẾU BÀI TẬP "GIẢI MÃ BỨC TRANH"
+ * TẤT CẢ CÁC Ô ĐỀU CÓ THỂ CHẠM VÀO: ĐÚNG THÌ HIỆN ĐỎ, SAI KHÔNG HIỆN GÌ CẢ!
  */
 export const WorksheetPuzzleView = React.memo(({
   teamId = 0,
   teamName = 'Đội Chơi',
   teamColor = '#e11d48',
-  questions = [],
   heartPieces = [],
   decoyGrid = [],
   correctQuestionIndices = [],
   totalQuestions = 15,
   isCompleted = false,
   compact = false,
-  layoutMode = 'strips'
+  onCellClick = null
 }) => {
   const correctCount = correctQuestionIndices.length;
   const percent = Math.min(100, Math.round((correctCount / Math.max(1, totalQuestions)) * 100));
@@ -355,7 +358,7 @@ export const WorksheetPuzzleView = React.memo(({
         </div>
       )}
 
-      {/* Header Tờ Phiếu Bài Tập: Đúng chuẩn tiêu đề trên phiếu giấy */}
+      {/* Header Tờ Phiếu Bài Tập */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -399,15 +402,15 @@ export const WorksheetPuzzleView = React.memo(({
         </div>
       </div>
 
-      {/* Dòng hướng dẫn phong cách Phiếu học tập */}
+      {/* Dòng hướng dẫn quy tắc: CHẠM TICK VÀO Ô TRÊN BẢNG ĐỂ TÔ ĐỎ */}
       <div style={{
-        background: '#f8fafc',
-        border: '1px solid #e2e8f0',
+        background: '#fff1f2',
+        border: '1px solid #fecdd3',
         borderRadius: '8px',
         padding: compact ? '5px 8px' : '7px 12px',
         marginBottom: compact ? '8px' : '10px',
         fontSize: compact ? '0.74rem' : '0.84rem',
-        color: '#334155',
+        color: '#9f1239',
         lineHeight: 1.4,
         display: 'flex',
         alignItems: 'center',
@@ -415,23 +418,24 @@ export const WorksheetPuzzleView = React.memo(({
         gap: '6px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '1.05rem' }}>💖</span>
-          <span><strong>Quy tắc:</strong> Trả lời đúng để <strong>tô đỏ {totalQuestions} ô đáp án</strong> tạo nên trái tim!</span>
+          <span style={{ fontSize: '1.05rem' }}>👆</span>
+          <span><strong>Nhiệm vụ:</strong> Chạm vào ô đáp án đúng <strong>trên bảng</strong> để tô đỏ! (Sai không đổi màu)</span>
         </div>
         <div style={{
           fontWeight: 900,
           color: isCompleted ? '#059669' : '#be123c',
-          background: isCompleted ? '#d1fae5' : '#ffe4e6',
+          background: isCompleted ? '#d1fae5' : '#ffffff',
           padding: '2px 8px',
           borderRadius: '10px',
           fontSize: compact ? '0.72rem' : '0.82rem',
-          flexShrink: 0
+          flexShrink: 0,
+          border: '1px solid #fecdd3'
         }}>
           {correctCount}/{totalQuestions} câu ({percent}%)
         </div>
       </div>
 
-      {/* KHUNG ARENA GIẢI MÃ: LƯỚI ĐÁP ÁN NHIỄU BÊN DƯỚI & TRÁI TIM 1-CÂU-1-Ô LỒNG TRUNG TÂM */}
+      {/* KHUNG ARENA GIẢI MÃ: LƯỚI ĐÁP ÁN LỘN XỘN - TẤT CẢ Ô ĐỀU CHẠM ĐƯỢC */}
       <div style={{
         position: 'relative',
         width: '100%',
@@ -443,7 +447,7 @@ export const WorksheetPuzzleView = React.memo(({
         overflow: 'hidden',
         boxShadow: 'inset 0 0 10px rgba(0,0,0,0.03)'
       }}>
-        {/* LỚP 1: Lưới ô nhiễu (Decoy Background Grid) xung quanh trái tim */}
+        {/* LỚP 1: Lưới ô nhiễu xung quanh trái tim (Chạm vào được, nhưng sai thì không có hiện gì) */}
         <div style={{
           position: 'absolute',
           inset: 0,
@@ -452,23 +456,26 @@ export const WorksheetPuzzleView = React.memo(({
           gridTemplateRows: 'repeat(12, 1fr)',
           gap: '1px',
           background: '#e2e8f0',
-          opacity: 0.65
+          opacity: 0.85
         }}>
           {decoyGrid.map((row, rIdx) => 
             row.map((cell, cIdx) => (
               <div
                 key={`${rIdx}_${cIdx}`}
+                onClick={() => onCellClick && onCellClick(cell)}
                 style={{
                   background: '#ffffff',
-                  color: '#94a3b8',
-                  fontSize: compact ? '7px' : '8.5px',
-                  fontWeight: 700,
+                  color: '#64748b',
+                  fontSize: compact ? '7.5px' : '9px',
+                  fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   userSelect: 'none',
                   letterSpacing: '-0.3px',
-                  lineHeight: 1
+                  lineHeight: 1,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease'
                 }}
               >
                 {cell.code}
@@ -477,7 +484,7 @@ export const WorksheetPuzzleView = React.memo(({
           )}
         </div>
 
-        {/* LỚP 2: TRÁI TIM CHÍNH TÂM - ĐÚNG 1 CÂU HỎI = 1 Ô DUY NHẤT */}
+        {/* LỚP 2: TRÁI TIM LỒNG TRUNG TÂM - CÁC Ô CHỨA ĐÁP ÁN LỘN XỘN, CHẠM ĐÚNG SẼ TÔ ĐỎ KẾT NỐI THÀNH TRÁI TIM */}
         <svg
           viewBox="0 0 400 380"
           style={{
@@ -485,8 +492,8 @@ export const WorksheetPuzzleView = React.memo(({
             inset: 0,
             width: '100%',
             height: '100%',
-            filter: 'drop-shadow(0 6px 16px rgba(0, 0, 0, 0.12))',
-            pointerEvents: 'auto'
+            filter: 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08))',
+            pointerEvents: 'none'
           }}
         >
           <defs>
@@ -501,59 +508,65 @@ export const WorksheetPuzzleView = React.memo(({
               <stop offset="100%" stopColor="#be123c" />
             </linearGradient>
 
-            {/* Bóng đổ nhẹ cho chữ toạ độ */}
             <filter id={`text-shadow-${teamId}`} x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.4" />
             </filter>
           </defs>
 
-          {/* Nền đệm hình trái tim phác thảo */}
+          {/* Nền đệm hình trái tim phác thảo thanh mảnh, hòa nhập vào bảng bài tập */}
           <path
             d={HEART_SVG_PATH}
             fill="#ffffff"
-            stroke="#fecdd3"
-            strokeWidth="3.5"
-            strokeDasharray="4 2"
+            stroke="#cbd5e1"
+            strokeWidth="1.8"
+            strokeDasharray="4 3"
+            style={{ pointerEvents: 'none' }}
           />
 
-          {/* NHÓM CÁC Ô / MẢNH GHÉP TRÁI TIM ĐƯỢC CLIP-PATH KHÍT 100% VÀO DÁNG TRÁI TIM */}
-          <g clipPath={`url(#${clipId})`}>
+          {/* CÁC Ô / MẢNH GHÉP TRÁI TIM: CHẠM TICK VÀO ĐỂ TÔ ĐỎ */}
+          <g clipPath={`url(#${clipId})`} style={{ pointerEvents: 'auto' }}>
             {heartPieces.map((piece) => {
               const isCorrect = answeredSet.has(piece.qIdx);
               const fontSize = piece.height > 24 ? '13px' : (piece.height > 18 ? '11px' : '9.5px');
 
               return (
-                <g key={`piece-${piece.qIdx}`}>
-                  {/* Ô chữ nhật / dải băng ngang đại diện cho 1 câu hỏi */}
+                <g 
+                  key={`piece-${piece.slotIdx ?? piece.qIdx}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onCellClick) onCellClick(piece);
+                  }}
+                  style={{ cursor: isCorrect ? 'default' : 'pointer' }}
+                >
+                  {/* Ô đại diện cho 1 câu hỏi */}
                   <rect
                     x={piece.x}
                     y={piece.y}
                     width={piece.width}
                     height={piece.height}
                     rx="3"
-                    fill={isCorrect ? `url(#${gradId})` : '#fff1f2'}
-                    stroke={isCorrect ? '#ffffff' : '#fecdd3'}
+                    fill={isCorrect ? `url(#${gradId})` : '#ffffff'}
+                    stroke={isCorrect ? '#ffffff' : '#cbd5e1'}
                     strokeWidth="1.2"
                     style={{
-                      transition: 'fill 0.4s ease, stroke 0.3s ease',
-                      cursor: 'default'
+                      transition: 'fill 0.35s ease, stroke 0.3s ease, filter 0.2s ease',
+                      filter: isCorrect ? `drop-shadow(0 0 5px ${teamColor}90)` : 'none'
                     }}
                   />
 
-                  {/* Nhãn đáp án toạ độ (Vd: 1-B, 2-B, 10-A) */}
-                  {/* Nếu ở 2 vòm tròn đỉnh tim thì hiển thị 2 bên cân xứng để không bị rãnh tim cắt */}
+                  {/* Nhãn toạ độ đáp án (Vd: 1-B, 2-B, 10-A...) */}
                   {piece.isTopLobe ? (
                     <>
                       <text
                         x="135"
                         y={piece.cy + 4}
                         textAnchor="middle"
-                        fill={isCorrect ? '#ffffff' : '#be123c'}
+                        fill={isCorrect ? '#ffffff' : '#334155'}
                         fontSize={fontSize}
                         fontWeight="900"
                         letterSpacing="0.3px"
                         filter={isCorrect ? `url(#text-shadow-${teamId})` : undefined}
-                        style={{ userSelect: 'none' }}
+                        style={{ userSelect: 'none', pointerEvents: 'none' }}
                       >
                         {piece.code}
                       </text>
@@ -561,12 +574,12 @@ export const WorksheetPuzzleView = React.memo(({
                         x="265"
                         y={piece.cy + 4}
                         textAnchor="middle"
-                        fill={isCorrect ? '#ffffff' : '#be123c'}
+                        fill={isCorrect ? '#ffffff' : '#334155'}
                         fontSize={fontSize}
                         fontWeight="900"
                         letterSpacing="0.3px"
                         filter={isCorrect ? `url(#text-shadow-${teamId})` : undefined}
-                        style={{ userSelect: 'none' }}
+                        style={{ userSelect: 'none', pointerEvents: 'none' }}
                       >
                         {piece.code}
                       </text>
@@ -576,12 +589,12 @@ export const WorksheetPuzzleView = React.memo(({
                       x={piece.cx}
                       y={piece.cy + 4}
                       textAnchor="middle"
-                      fill={isCorrect ? '#ffffff' : '#be123c'}
+                      fill={isCorrect ? '#ffffff' : '#334155'}
                       fontSize={fontSize}
                       fontWeight="900"
                       letterSpacing="0.3px"
                       filter={isCorrect ? `url(#text-shadow-${teamId})` : undefined}
-                      style={{ userSelect: 'none' }}
+                      style={{ userSelect: 'none', pointerEvents: 'none' }}
                     >
                       {piece.code}
                     </text>
@@ -591,18 +604,20 @@ export const WorksheetPuzzleView = React.memo(({
             })}
           </g>
 
-          {/* Đường viền ngoài sắc nét ôm trọn hình trái tim */}
+          {/* Đường viền ngoài hình trái tim: Khi giải mã xong 100% sẽ bừng sáng viền vàng rực rỡ */}
           <path
             d={HEART_SVG_PATH}
             fill="none"
-            stroke={isCompleted ? '#f59e0b' : (teamColor || '#be123c')}
-            strokeWidth="3.2"
+            stroke={isCompleted ? '#f59e0b' : '#cbd5e1'}
+            strokeWidth={isCompleted ? '3.5' : '1.5'}
+            strokeDasharray={isCompleted ? 'none' : '4 3'}
             strokeLinejoin="round"
+            style={{ transition: 'stroke 0.4s ease' }}
           />
         </svg>
       </div>
 
-      {/* Khung Thơ Ca Dao & Lời Chúc Mẹ 20/10 ở góc dưới (Chuẩn như phiếu mẫu) */}
+      {/* Khung Thơ Ca Dao & Lời Chúc Mẹ 20/10 ở góc dưới */}
       <div style={{
         marginTop: compact ? '8px' : '12px',
         padding: compact ? '6px 10px' : '8px 14px',
@@ -664,19 +679,15 @@ export const WorksheetPuzzleView = React.memo(({
 });
 
 /**
- * COMPONENT THẺ CÂU HỎI & 4 ĐÁP ÁN TƯƠNG TÁC
+ * COMPONENT THẺ CÂU HỎI & 4 ĐÁP ÁN (CHỈ HIỂN THỊ ĐỂ ĐỌC - HỌC SINH KHÔNG BẤM Ở DƯỚI)
  */
 const QuestionPanel = React.memo(({
   question,
   stepNumber = 1,
   originalQNum = 1,
   totalQuestions = 15,
-  onSelectOption,
   onPrevQuestion,
   onNextQuestion,
-  selectedOption,
-  answerState,
-  disabled = false,
   compact = false,
   teamLabel = '',
   teamColor = '#e11d48'
@@ -805,7 +816,7 @@ const QuestionPanel = React.memo(({
         </h3>
       </div>
 
-      {/* Lưới 4 đáp án A, B, C, D */}
+      {/* Lưới 4 đáp án A, B, C, D: CHỈ HIỂN THỊ ĐỂ ĐỌC (KHÔNG BẤM Ở ĐÂY) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -813,68 +824,31 @@ const QuestionPanel = React.memo(({
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
-          const isSelected = selectedOption === label;
-          const isCorrect = label === question.correct;
-
-          let btnBg = '#ffffff';
-          let borderCol = '#fecdd3';
-          let textCol = '#334155';
-          let shadow = '0 2px 6px rgba(0, 0, 0, 0.04)';
-
-          if (answerState) {
-            if (isCorrect) {
-              btnBg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-              borderCol = '#059669';
-              textCol = '#ffffff';
-              shadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-            } else if (isSelected && !isCorrect) {
-              btnBg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-              borderCol = '#dc2626';
-              textCol = '#ffffff';
-              shadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
-            }
-          } else if (isSelected) {
-            btnBg = '#ffe4e6';
-            borderCol = '#e11d48';
-            textCol = '#be123c';
-          }
 
           return (
-            <button
+            <div
               key={idx}
-              onClick={() => {
-                if (!disabled && answerState === null) {
-                  onSelectOption(label);
-                }
-              }}
-              disabled={disabled || answerState !== null}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: compact ? '8px' : '10px',
                 padding: compact ? '9px 12px' : '12px 16px',
                 borderRadius: compact ? '12px' : '14px',
-                background: btnBg,
-                border: `2px solid ${borderCol}`,
-                color: textCol,
-                boxShadow: shadow,
-                cursor: (disabled || answerState !== null) ? 'default' : 'pointer',
-                textAlign: 'left',
-                transition: 'all 0.15s ease',
-                outline: 'none',
-                minHeight: compact ? '46px' : '56px'
+                background: '#ffffff',
+                border: '1.5px solid #e2e8f0',
+                color: '#334155',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
+                cursor: 'default',
+                userSelect: 'none',
+                minHeight: compact ? '46px' : '54px'
               }}
             >
               <div style={{
                 width: compact ? '26px' : '30px',
                 height: compact ? '26px' : '30px',
                 borderRadius: '50%',
-                background: answerState && isCorrect 
-                  ? '#ffffff' 
-                  : (answerState && isSelected ? '#ffffff' : 'rgba(225, 29, 72, 0.1)'),
-                color: answerState && isCorrect 
-                  ? '#059669' 
-                  : (answerState && isSelected ? '#dc2626' : '#be123c'),
+                background: 'rgba(225, 29, 72, 0.08)',
+                color: '#be123c',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -892,9 +866,28 @@ const QuestionPanel = React.memo(({
               }}>
                 {opt}
               </span>
-            </button>
+            </div>
           );
         })}
+      </div>
+
+      {/* Dòng Hướng Dẫn Hành Động Rõ Ràng */}
+      <div style={{
+        background: 'rgba(225, 29, 72, 0.06)',
+        border: '1px dashed #f43f5e',
+        borderRadius: '10px',
+        padding: '6px 12px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        fontSize: compact ? '0.74rem' : '0.82rem',
+        color: '#be123c',
+        fontWeight: 800,
+        textAlign: 'center'
+      }}>
+        <span>👉</span>
+        <span>Đọc câu hỏi & 4 đáp án trên đây ➔ Tìm và chạm vào ô đáp án đúng <strong>trên hình trái tim</strong> để tô đỏ!</span>
       </div>
     </div>
   );
@@ -909,17 +902,10 @@ export function HeartPuzzle2010Game({
   onAddPoints, 
   onClose 
 }) {
-  // Chế độ chơi: 'dual-touch' (2 đội chạm song song) | 'teacher-led' (Giáo viên chiếu máy chiếu và điều khiển)
   const [gameMode, setGameMode] = useState('dual-touch');
-
-  // Kiểu hiển thị mảnh ghép trái tim:
-  // 'strips' (Mặc định: Dải Ngang Kéo Dài 1-Câu-1-Dải) | 'mosaic' (Khối Ghép Mảnh)
   const [layoutMode, setLayoutMode] = useState('strips');
-
-  // Số lượng đội (ở chế độ teacher-led có thể chọn 1, 2, 3, 4 đội)
   const [teamCount, setTeamCount] = useState(2);
 
-  // Danh sách câu hỏi sử dụng
   const [customQuestions, setCustomQuestions] = useState(null);
   const activeQuestionsList = useMemo(() => {
     if (Array.isArray(customQuestions) && customQuestions.length > 0) return customQuestions;
@@ -927,56 +913,39 @@ export function HeartPuzzle2010Game({
     return DEFAULT_2010_QUESTIONS;
   }, [customQuestions, propQuestions]);
 
-  // Quản lý âm thanh
   const [soundMuted, setSoundMuted] = useState(false);
-
-  // Dữ liệu mảnh ghép trái tim: Đúng 1 câu hỏi = 1 ô/mảnh ghép trong hình trái tim!
-  const heartPieces = useMemo(() => {
-    return buildHeartPieces(activeQuestionsList, layoutMode);
-  }, [activeQuestionsList, layoutMode]);
 
   // Lưới các ô đáp án nhiễu mờ ảo xung quanh trái tim
   const decoyGrid = useMemo(() => {
     return buildDecoyGrid(activeQuestionsList, 12, 14);
   }, [activeQuestionsList]);
 
-  // Màu sắc đại diện cho các đội
   const TEAM_COLORS = ['#e11d48', '#2563eb', '#10b981', '#f59e0b'];
   const DEFAULT_TEAM_NAMES = ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Lục)', 'Đội 4 (Vàng)'];
 
   // Khởi tạo trạng thái cho các đội với chuỗi câu hỏi xáo trộn độc lập (Chống nhìn lén!)
+  // VÀ thứ tự các mảnh ghép trong trái tim cũng được xáo trộn lộn xộn riêng cho từng đội!
   const [teamStates, setTeamStates] = useState(() => {
-    const sequences = generateTeamSequences(activeQuestionsList.length, 2);
-    return [
-      {
-        id: 0,
-        name: (teams && teams[0]?.name) || DEFAULT_TEAM_NAMES[0],
-        color: TEAM_COLORS[0],
-        score: 0,
-        correctIndices: [],
-        questionSequence: sequences[0] || [],
-        currentStep: 0,
-        selectedOption: null,
-        answerState: null
-      },
-      {
-        id: 1,
-        name: (teams && teams[1]?.name) || DEFAULT_TEAM_NAMES[1],
-        color: TEAM_COLORS[1],
-        score: 0,
-        correctIndices: [],
-        questionSequence: sequences[1] || [],
-        currentStep: 0,
-        selectedOption: null,
-        answerState: null
-      }
-    ];
+    const sequences = generateTeamSequences(activeQuestionsList.length, 4);
+    const pieceOrders = generateTeamSequences(activeQuestionsList.length, 4);
+
+    return [0, 1, 2, 3].map(i => ({
+      id: i,
+      name: (teams && teams[i]?.name) || DEFAULT_TEAM_NAMES[i],
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      score: 0,
+      correctIndices: [],
+      questionSequence: sequences[i] || Array.from({ length: activeQuestionsList.length }, (_, k) => k),
+      pieceOrder: pieceOrders[i] || Array.from({ length: activeQuestionsList.length }, (_, k) => k),
+      currentStep: 0
+    }));
   });
 
   // Khi danh sách câu hỏi thay đổi hoặc thay đổi số đội -> Tạo lại thứ tự xáo trộn độc lập
   const resetTeamStates = useCallback((count = teamCount, questions = activeQuestionsList) => {
     const numTeams = gameMode === 'dual-touch' ? 2 : count;
     const sequences = generateTeamSequences(questions.length, numTeams);
+    const pieceOrders = generateTeamSequences(questions.length, numTeams);
 
     setTeamStates(prev => {
       const next = [];
@@ -989,33 +958,33 @@ export function HeartPuzzle2010Game({
           score: 0,
           correctIndices: [],
           questionSequence: sequences[i] || Array.from({ length: questions.length }, (_, k) => k),
-          currentStep: 0,
-          selectedOption: null,
-          answerState: null
+          pieceOrder: pieceOrders[i] || Array.from({ length: questions.length }, (_, k) => k),
+          currentStep: 0
         });
       }
       return next;
     });
   }, [gameMode, teamCount, activeQuestionsList, teams]);
 
-  // Cập nhật số lượng đội khi chuyển chế độ hoặc chọn số đội
   useEffect(() => {
     resetTeamStates(teamCount, activeQuestionsList);
   }, [teamCount, gameMode, activeQuestionsList.length]);
 
+  // Tạo danh sách mảnh ghép trái tim cho từng đội (đảm bảo vị trí ô lộn xộn riêng biệt)
+  const teamHeartPieces = useMemo(() => {
+    return teamStates.map(team => {
+      return buildHeartPieces(activeQuestionsList, layoutMode, team.pieceOrder);
+    });
+  }, [teamStates, activeQuestionsList, layoutMode]);
+
   // Đội đang có lượt (cho chế độ Teacher-led)
   const [activeTeacherTeamIdx, setActiveTeacherTeamIdx] = useState(0);
-  // Câu hỏi chung hiện tại (cho chế độ Teacher-led)
   const [teacherQIdx, setTeacherQIdx] = useState(0);
-  const [teacherSelectedOpt, setTeacherSelectedOpt] = useState(null);
-  const [teacherAnswerState, setTeacherAnswerState] = useState(null);
 
-  // Đội thắng cuộc
   const [winner, setWinner] = useState(null);
   const [showVictoryModal, setShowVictoryModal] = useState(false);
   const fireworksIntervalRef = useRef(null);
 
-  // Trigger pháo hoa ăn mừng
   const triggerVictoryFireworks = () => {
     try {
       confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
@@ -1037,131 +1006,104 @@ export function HeartPuzzle2010Game({
     };
   }, []);
 
-  // Xử lý khi Đội chọn đáp án trong chế độ Chạm Cảm Ứng (Dual-Touch)
-  // Hai đội trả lời hoàn toàn độc lập, hiển thị thứ tự khác nhau!
-  const handleTouchTeamSelectOption = (teamIdx, opt) => {
+  // XỬ LÝ KHI ĐỘI CHẠM VÀO Ô TRÊN BẢNG / TRÁI TIM:
+  // "nếu chọn đúng ô đó hiện lên màu đỏ, nếu chọn sai thì không có hiện gì cả"
+  const handleTeamCellClick = (teamIdx, cell) => {
     const team = teamStates[teamIdx];
-    if (!team || team.answerState !== null || winner) return;
+    if (!team || winner) return;
 
-    // Lấy câu hỏi hiện tại theo danh sách xáo trộn riêng của đội
-    const seq = team.questionSequence || [];
-    const currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
+    // Lấy câu hỏi hiện tại đang hiển thị của đội
+    let currentQIdx;
+    if (gameMode === 'teacher-led') {
+      currentQIdx = teacherQIdx;
+    } else {
+      const seq = team.questionSequence || [];
+      currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
+    }
+
     const currentQuestion = activeQuestionsList[currentQIdx];
     if (!currentQuestion) return;
 
-    const isCorrect = opt === currentQuestion.correct;
+    const qNum = currentQIdx + 1;
+    const correctOpt = currentQuestion.correct || 'A';
+    const targetCodeWithDash = `${qNum}-${correctOpt}`;
+    const targetCodeNoDash = `${qNum}${correctOpt}`;
 
-    // Phát âm thanh
-    if (!soundMuted) {
-      try {
-        if (isCorrect) SoundFX.correct();
-        else SoundFX.wrong();
-      } catch (e) {}
-    }
+    // Kiểm tra: Ô vừa chạm có đúng là ô chứa đáp án đúng của câu hỏi đang hiển thị hay không?
+    const isCurrentMatch = (cell.isTarget && cell.qIdx === currentQIdx) || 
+                           (cell.code === targetCodeWithDash) || 
+                           (cell.code === targetCodeNoDash);
 
-    // Cập nhật trạng thái câu trả lời ngay lập tức
-    setTeamStates(prev => {
-      const next = [...prev];
-      const cur = { ...next[teamIdx] };
-      cur.selectedOption = opt;
-      cur.answerState = isCorrect ? 'correct' : 'wrong';
+    if (isCurrentMatch) {
+      // ĐÚNG Ô! Hiện lên màu đỏ
+      const solvedQIdx = currentQIdx;
 
-      if (isCorrect) {
-        cur.score += 10;
-        if (!cur.correctIndices.includes(currentQIdx)) {
-          cur.correctIndices = [...cur.correctIndices, currentQIdx];
-        }
+      if (!soundMuted) {
+        try { SoundFX.correct(); } catch (e) {}
       }
 
-      next[teamIdx] = cur;
-      return next;
-    });
-
-    // Chuyển câu tiếp theo hoặc cho phép thử lại
-    setTimeout(() => {
       setTeamStates(prev => {
         const next = [...prev];
         const cur = { ...next[teamIdx] };
-        cur.selectedOption = null;
-        cur.answerState = null;
 
-        // Nếu đúng thì tự động chuyển câu hỏi tiếp theo trong chuỗi của đội
-        if (isCorrect) {
-          cur.currentStep = Math.min(activeQuestionsList.length - 1, cur.currentStep + 1);
+        if (!cur.correctIndices.includes(solvedQIdx)) {
+          cur.correctIndices = [...cur.correctIndices, solvedQIdx];
+          cur.score += 10;
         }
 
-        // Kiểm tra xem đội này đã giải mã xong 100% chưa
-        if (cur.correctIndices.length >= activeQuestionsList.length) {
-          setWinner(cur);
-          setShowVictoryModal(true);
-          triggerVictoryFireworks();
-          try { SoundFX.fanfare(); } catch (e) {}
-          if (onAddPoints) {
-            onAddPoints(cur.name, 100);
+        // Tự động chuyển sang câu hỏi tiếp theo chưa làm sau 0.4s
+        setTimeout(() => {
+          if (gameMode === 'teacher-led') {
+            setTeacherQIdx(prevQ => {
+              for (let q = 0; q < activeQuestionsList.length; q++) {
+                if (!cur.correctIndices.includes(q)) return q;
+              }
+              return prevQ;
+            });
           }
-        }
+
+          setTeamStates(innerPrev => {
+            const innerNext = [...innerPrev];
+            const innerCur = { ...innerNext[teamIdx] };
+
+            let nextStep = innerCur.currentStep;
+            for (let step = 0; step < activeQuestionsList.length; step++) {
+              const checkQIdx = innerCur.questionSequence[step];
+              if (!innerCur.correctIndices.includes(checkQIdx)) {
+                nextStep = step;
+                break;
+              }
+            }
+            innerCur.currentStep = nextStep;
+
+            if (innerCur.correctIndices.length >= activeQuestionsList.length) {
+              setWinner(innerCur);
+              setShowVictoryModal(true);
+              triggerVictoryFireworks();
+              try { SoundFX.fanfare(); } catch (e) {}
+              if (onAddPoints) {
+                onAddPoints(innerCur.name, 100);
+              }
+            }
+
+            innerNext[teamIdx] = innerCur;
+            return innerNext;
+          });
+        }, 400);
 
         next[teamIdx] = cur;
         return next;
       });
-    }, 750);
-  };
-
-  // Xử lý khi Giáo viên chọn đáp án trong chế độ Máy Chiếu (Teacher-Led)
-  const handleTeacherSelectOption = (opt) => {
-    if (teacherAnswerState !== null || winner) return;
-
-    const currentQuestion = activeQuestionsList[teacherQIdx];
-    if (!currentQuestion) return;
-
-    const isCorrect = opt === currentQuestion.correct;
-    setTeacherSelectedOpt(opt);
-    setTeacherAnswerState(isCorrect ? 'correct' : 'wrong');
-
-    if (!soundMuted) {
-      try {
-        if (isCorrect) SoundFX.correct();
-        else SoundFX.wrong();
-      } catch (e) {}
-    }
-
-    // Nếu đúng -> Tô đỏ ô đáp án tương ứng của đội đang có lượt
-    if (isCorrect) {
-      setTeamStates(prev => {
-        const next = [...prev];
-        const cur = { ...next[activeTeacherTeamIdx] };
-        cur.score += 10;
-        if (!cur.correctIndices.includes(teacherQIdx)) {
-          cur.correctIndices = [...cur.correctIndices, teacherQIdx];
-        }
-        next[activeTeacherTeamIdx] = cur;
-
-        // Kiểm tra đội thắng
-        if (cur.correctIndices.length >= activeQuestionsList.length) {
-          setWinner(cur);
-          setShowVictoryModal(true);
-          triggerVictoryFireworks();
-          try { SoundFX.fanfare(); } catch (e) {}
-          if (onAddPoints) {
-            onAddPoints(cur.name, 100);
-          }
-        }
-
-        return next;
-      });
-    }
-
-    // Chuyển sang câu tiếp theo
-    setTimeout(() => {
-      setTeacherSelectedOpt(null);
-      setTeacherAnswerState(null);
-      if (isCorrect) {
-        setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1));
+    } else {
+      // CHỌN SAI Ô: "nếu chọn sai thì không có hiện gì cả"
+      // Giữ nguyên trạng thái, không đổi màu đỏ
+      if (!soundMuted) {
+        try { SoundFX.click(); } catch (e) {}
       }
-    }, 850);
+    }
   };
 
-  // Nút Giáo Viên Chấm Đúng trực tiếp (cho phép giáo viên can thiệp tô đỏ ô)
+  // Nút Giáo Viên Chấm Đúng trực tiếp (chế độ máy chiếu)
   const handleTeacherManualAward = (teamIdx) => {
     if (winner) return;
     if (!soundMuted) {
@@ -1239,8 +1181,6 @@ export function HeartPuzzle2010Game({
     setWinner(null);
     setShowVictoryModal(false);
     setTeacherQIdx(0);
-    setTeacherSelectedOpt(null);
-    setTeacherAnswerState(null);
     resetTeamStates(teamCount, activeQuestionsList);
   };
 
@@ -1295,7 +1235,7 @@ export function HeartPuzzle2010Game({
                 GIẢI MÃ BỨC TRANH 20/10
               </div>
               <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                1 câu đúng = 1 ô/dải trái tim ({activeQuestionsList.length} câu) • 2 đội hiển thị câu hỏi ngẫu nhiên chống chép bài
+                Đọc câu hỏi bên dưới ➔ Chạm đúng ô trên bảng để tô đỏ kết nối thành Trái Tim
               </div>
             </div>
           </div>
@@ -1303,7 +1243,7 @@ export function HeartPuzzle2010Game({
 
         {/* Thanh chuyển chế độ chơi & Chọn Kiểu Trái Tim */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Chọn Kiểu Hiển Thị Trái Tim (Dải Kéo Dài vs Khối Ghép Mảnh) */}
+          {/* Chọn Kiểu Hiển Thị Trái Tim */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -1330,7 +1270,7 @@ export function HeartPuzzle2010Game({
               }}
             >
               <option value="strips" style={{ background: '#1e293b', color: '#fff' }}>
-                💖 Dải Ngang Kéo Dài (Chuẩn 1 Câu 1 Dải)
+                💖 Dải Ngang Trái Tim (1 Câu 1 Dải)
               </option>
               <option value="mosaic" style={{ background: '#1e293b', color: '#fff' }}>
                 🧩 Khối Ghép Mảnh (Mosaic Blocks)
@@ -1503,7 +1443,7 @@ export function HeartPuzzle2010Game({
         justifyContent: 'center',
         background: 'radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%)'
       }}>
-        {/* CHẾ ĐỘ 1: BẢNG CẢM ỨNG 2 ĐỘI (DUAL-TOUCH) - CÂU HỎI HIỂN THỊ KHÁC NHAU ĐỘC LẬP! */}
+        {/* CHẾ ĐỘ 1: BẢNG CẢM ỨNG 2 ĐỘI (DUAL-TOUCH) */}
         {gameMode === 'dual-touch' && (
           <div style={{
             display: 'grid',
@@ -1515,11 +1455,11 @@ export function HeartPuzzle2010Game({
             alignItems: 'start'
           }}>
             {teamStates.slice(0, 2).map((team, teamIdx) => {
-              // Lấy câu hỏi từ danh sách xáo trộn riêng biệt của đội này
               const seq = team.questionSequence || [];
               const currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
               const currentQ = activeQuestionsList[currentQIdx] || activeQuestionsList[0];
               const isTeamCompleted = team.correctIndices.length >= activeQuestionsList.length;
+              const pieces = teamHeartPieces[teamIdx] || [];
 
               return (
                 <div
@@ -1535,29 +1475,27 @@ export function HeartPuzzle2010Game({
                     boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)'
                   }}
                 >
-                  {/* Tờ Phiếu Bài Tập Trái Tim 1-Câu-1-Ô của Đội */}
+                  {/* Tờ Phiếu Bài Tập Trái Tim: CHẠM TICK VÀO Ô ĐỂ TÔ ĐỎ */}
                   <WorksheetPuzzleView
                     teamId={team.id}
                     teamName={team.name}
                     teamColor={team.color}
-                    questions={activeQuestionsList}
-                    heartPieces={heartPieces}
+                    heartPieces={pieces}
                     decoyGrid={decoyGrid}
                     correctQuestionIndices={team.correctIndices}
                     totalQuestions={activeQuestionsList.length}
                     isCompleted={isTeamCompleted}
                     compact={true}
-                    layoutMode={layoutMode}
+                    onCellClick={(cell) => handleTeamCellClick(teamIdx, cell)}
                   />
 
-                  {/* Bảng Câu Hỏi Chạm Tương Tác cho Đội (Câu hỏi riêng biệt, không trùng nhau!) */}
+                  {/* Bảng Câu Hỏi & 4 Đáp Án (CHỈ ĐỌC - KHÔNG BẤM Ở ĐÂY) */}
                   {!isTeamCompleted ? (
                     <QuestionPanel
                       question={currentQ}
                       stepNumber={team.currentStep + 1}
                       originalQNum={currentQIdx + 1}
                       totalQuestions={activeQuestionsList.length}
-                      onSelectOption={(opt) => handleTouchTeamSelectOption(teamIdx, opt)}
                       onPrevQuestion={() => {
                         setTeamStates(prev => {
                           const next = [...prev];
@@ -1572,11 +1510,8 @@ export function HeartPuzzle2010Game({
                           return next;
                         });
                       }}
-                      selectedOption={team.selectedOption}
-                      answerState={team.answerState}
-                      disabled={winner !== null}
                       compact={true}
-                      teamLabel={`${team.name} - Chạm chọn đáp án`}
+                      teamLabel={`${team.name} - Đọc câu hỏi và tìm ô đáp án`}
                       teamColor={team.color}
                     />
                   ) : (
@@ -1619,6 +1554,7 @@ export function HeartPuzzle2010Game({
               {teamStates.map((team, idx) => {
                 const isCurrentTurn = activeTeacherTeamIdx === idx;
                 const isTeamCompleted = team.correctIndices.length >= activeQuestionsList.length;
+                const pieces = teamHeartPieces[idx] || [];
 
                 return (
                   <div
@@ -1631,7 +1567,6 @@ export function HeartPuzzle2010Game({
                       position: 'relative'
                     }}
                   >
-                    {/* Badge Đang Chọn Lượt */}
                     {isCurrentTurn && (
                       <div style={{
                         position: 'absolute',
@@ -1656,14 +1591,13 @@ export function HeartPuzzle2010Game({
                       teamId={team.id}
                       teamName={team.name}
                       teamColor={team.color}
-                      questions={activeQuestionsList}
-                      heartPieces={heartPieces}
+                      heartPieces={pieces}
                       decoyGrid={decoyGrid}
                       correctQuestionIndices={team.correctIndices}
                       totalQuestions={activeQuestionsList.length}
                       isCompleted={isTeamCompleted}
                       compact={teamStates.length > 2}
-                      layoutMode={layoutMode}
+                      onCellClick={(cell) => handleTeamCellClick(idx, cell)}
                     />
 
                     {/* Nút Giáo Viên Chấm Điểm Nhanh */}
@@ -1697,7 +1631,7 @@ export function HeartPuzzle2010Game({
               })}
             </div>
 
-            {/* Khung Câu Hỏi Chiếu Trung Tâm */}
+            {/* Khung Câu Hỏi Chiếu Trung Tâm (CHỈ HIỂN THỊ ĐỂ ĐỌC) */}
             <div style={{
               background: '#ffffff',
               borderRadius: '20px',
@@ -1781,18 +1715,14 @@ export function HeartPuzzle2010Game({
                 </div>
               </div>
 
-              {/* Bảng Câu Hỏi và 4 Đáp Án Chiếu Lớn */}
+              {/* Bảng Câu Hỏi Chiếu Lớn (Học sinh nhìn câu hỏi rồi lên bảng chạm ô) */}
               <QuestionPanel
                 question={activeQuestionsList[teacherQIdx]}
                 stepNumber={teacherQIdx + 1}
                 originalQNum={teacherQIdx + 1}
                 totalQuestions={activeQuestionsList.length}
-                onSelectOption={handleTeacherSelectOption}
                 onPrevQuestion={() => setTeacherQIdx(prev => Math.max(0, prev - 1))}
                 onNextQuestion={() => setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1))}
-                selectedOption={teacherSelectedOpt}
-                answerState={teacherAnswerState}
-                disabled={winner !== null}
                 compact={false}
                 teamLabel={`Đang chấm cho: ${teamStates[activeTeacherTeamIdx]?.name}`}
                 teamColor={teamStates[activeTeacherTeamIdx]?.color}
@@ -1848,7 +1778,7 @@ export function HeartPuzzle2010Game({
               lineHeight: 1.5,
               marginBottom: '16px'
             }}>
-              Đã xuất sắc trả lời đúng và <strong>tô đỏ trọn vẹn bức tranh Trái Tim</strong> tri ân người Mẹ nhân ngày Phụ Nữ Việt Nam 20/10!
+              Đã xuất sắc tìm đúng tất cả các ô và <strong>kết nối thành công bức tranh Trái Tim Đỏ</strong> tri ân người Mẹ nhân ngày Phụ Nữ Việt Nam 20/10!
             </p>
 
             {/* Khung Tranh Hoàn Thành Thu Nhỏ */}
@@ -1863,14 +1793,12 @@ export function HeartPuzzle2010Game({
                 teamId={winner.id}
                 teamName={winner.name}
                 teamColor={winner.color}
-                questions={activeQuestionsList}
-                heartPieces={heartPieces}
+                heartPieces={teamHeartPieces[winner.id] || []}
                 decoyGrid={decoyGrid}
                 correctQuestionIndices={Array.from({ length: activeQuestionsList.length }, (_, i) => i)}
                 totalQuestions={activeQuestionsList.length}
                 isCompleted={true}
                 compact={true}
-                layoutMode={layoutMode}
               />
             </div>
 
