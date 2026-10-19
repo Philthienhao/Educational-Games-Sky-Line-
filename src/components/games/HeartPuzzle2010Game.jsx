@@ -969,61 +969,72 @@ export function HeartPuzzle2010Game({
   };
 
   // Tải file Excel mẫu câu hỏi chuẩn 20/10
-  const handleDownloadSampleExcel = () => {
-    const XLSX = getXLSX();
-    if (!XLSX) {
-      alert('Đang nạp thư viện Excel, vui lòng thử lại sau giây lát!');
-      return;
+  const handleDownloadSampleExcel = async () => {
+    try {
+      const XLSX = await getXLSX();
+      if (!XLSX) {
+        alert('Đang nạp thư viện Excel, vui lòng thử lại sau giây lát!');
+        return;
+      }
+
+      const rows = DEFAULT_2010_QUESTIONS.map((q, idx) => ({
+        'STT': idx + 1,
+        'Câu hỏi': q.question,
+        'Đáp án A': q.options[0] || '',
+        'Đáp án B': q.options[1] || '',
+        'Đáp án C': q.options[2] || '',
+        'Đáp án D': q.options[3] || '',
+        'Đáp án đúng': q.correct,
+        'Giải thích': q.explanation || ''
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Cau_Hoi_20_10');
+      XLSX.writeFile(workbook, 'Mau_Cau_Hoi_Giai_Ma_Buc_Tranh_20_10.xlsx');
+    } catch (err) {
+      alert('Lỗi tải file mẫu: ' + (err.message || 'Không thể tạo file Excel'));
     }
-
-    const rows = DEFAULT_2010_QUESTIONS.map((q, idx) => ({
-      'STT': idx + 1,
-      'Câu hỏi': q.question,
-      'Đáp án A': q.options[0] || '',
-      'Đáp án B': q.options[1] || '',
-      'Đáp án C': q.options[2] || '',
-      'Đáp án D': q.options[3] || '',
-      'Đáp án đúng': q.correct,
-      'Giải thích': q.explanation || ''
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Cau_Hoi_20_10');
-    XLSX.writeFile(workbook, 'Mau_Cau_Hoi_Giai_Ma_Buc_Tranh_20_10.xlsx');
   };
 
-  // Nhập file Excel từ giáo viên
+  // Nhập file Excel / Word / PDF / TXT từ giáo viên
   const fileInputRef = useRef(null);
-  const handleImportExcel = (e) => {
+  const handleImportExcel = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    parseUploadedFile(file, (data) => {
-      if (Array.isArray(data) && data.length > 0) {
-        const parsedQ = data.map((item, idx) => ({
+    try {
+      const parsed = await parseUploadedFile(file);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const parsedQ = parsed.map((item, idx) => ({
           id: `custom_${idx + 1}`,
-          question: item['Câu hỏi'] || item['cau_hoi'] || item['Question'] || `Câu hỏi ${idx + 1}`,
-          options: [
-            item['Đáp án A'] || item['A'] || item['Option A'] || 'A',
-            item['Đáp án B'] || item['B'] || item['Option B'] || 'B',
-            item['Đáp án C'] || item['C'] || item['Option C'] || 'C',
-            item['Đáp án D'] || item['D'] || item['Option D'] || 'D'
-          ],
-          correct: String(item['Đáp án đúng'] || item['Dap_an_dung'] || item['Correct'] || 'A').toUpperCase().trim(),
-          explanation: item['Giải thích'] || ''
+          question: item.question || `Câu hỏi ${idx + 1}`,
+          options: Array.isArray(item.options) && item.options.length >= 2
+            ? item.options
+            : [
+                item['Đáp án A'] || item['A'] || 'A',
+                item['Đáp án B'] || item['B'] || 'B',
+                item['Đáp án C'] || item['C'] || 'C',
+                item['Đáp án D'] || item['D'] || 'D'
+              ],
+          correct: getCorrectLetter(item),
+          explanation: item.explanation || ''
         }));
 
         setCustomQuestions(parsedQ);
         handleResetGame();
-        alert(`🎉 Đã nhập thành công ${parsedQ.length} câu hỏi mới!`);
+        alert(`🎉 Đã nhập thành công ${parsedQ.length} câu hỏi mới từ tệp ${file.name}!`);
+        try { SoundFX.correct(); } catch (e) {}
       } else {
         alert('File không chứa dữ liệu câu hỏi hợp lệ.');
       }
-    });
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    } catch (err) {
+      alert('Lỗi đọc file: ' + (err.message || 'Không thể xử lý tệp'));
+      try { SoundFX.wrong(); } catch (e) {}
+    } finally {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -1198,7 +1209,7 @@ export function HeartPuzzle2010Game({
             type="file"
             ref={fileInputRef}
             onChange={handleImportExcel}
-            accept=".xlsx, .xls, .csv"
+            accept=".xlsx, .xls, .csv, .docx, .doc, .txt, .pdf"
             style={{ display: 'none' }}
           />
 
