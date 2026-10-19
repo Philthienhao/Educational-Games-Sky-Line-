@@ -484,8 +484,7 @@ export const WorksheetPuzzleView = React.memo(({
         : '0 4px 16px rgba(0, 0, 0, 0.08)',
       border: isCompleted ? '2.5px solid #f59e0b' : '1.5px solid #e2e8f0',
       width: '100%',
-      flex: 1.2,
-      minHeight: 0,
+      flexShrink: 0,
       margin: '0 auto',
       transition: 'all 0.3s ease',
       position: 'relative',
@@ -561,14 +560,12 @@ export const WorksheetPuzzleView = React.memo(({
         <div style={{
           position: 'relative',
           width: '100%',
-          flex: 1,
-          minHeight: 0,
           display: 'grid',
           gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
           gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: 'clamp(2.5px, 0.4vw, 5px)',
+          gap: 'clamp(2px, 0.35vw, 4.5px)',
           background: '#f1f5f9',
-          padding: '5px',
+          padding: '6px',
           borderRadius: '10px',
           border: '1.5px solid #cbd5e1',
           boxSizing: 'border-box'
@@ -595,8 +592,7 @@ export const WorksheetPuzzleView = React.memo(({
                     fontWeight: 900,
                     cursor: isAnswered ? 'default' : 'pointer',
                     userSelect: 'none',
-                    height: '100%',
-                    minHeight: 'clamp(26px, 4.2vh, 42px)',
+                    height: 'clamp(28px, 4.2vh, 38px)',
                     boxShadow: isAnswered ? `0 0 10px ${teamColor || '#ef4444'}90` : '0 1px 3px rgba(0,0,0,0.04)',
                     transition: 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     transform: isAnswered ? 'scale(1.04)' : 'scale(1)',
@@ -819,7 +815,8 @@ const QuestionPanel = React.memo(({
       display: 'flex',
       flexDirection: 'column',
       gap: '8px',
-      width: '100%'
+      width: '100%',
+      flexShrink: 0
     }}>
       {/* Khung nội dung câu hỏi */}
       <div style={{
@@ -1661,7 +1658,8 @@ export function HeartPuzzle2010Game({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '10px',
+                    justifyContent: 'space-between',
+                    gap: '8px',
                     background: 'rgba(30, 41, 59, 0.75)',
                     border: `2px solid ${team.color}40`,
                     borderRadius: '14px',
