@@ -1028,6 +1028,9 @@ const QuestionPanel = React.memo(({
   );
 });
 
+const TEAM_COLORS = ['#e11d48', '#2563eb', '#10b981', '#f59e0b'];
+const DEFAULT_TEAM_NAMES = ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Lục)', 'Đội 4 (Vàng)'];
+
 /**
  * COMPONENT CHÍNH: GAME GIẢI MÃ BỨC TRANH TRÁI TIM 20/10
  */
@@ -1050,21 +1053,6 @@ export function HeartPuzzle2010Game({
 
   const [soundMuted, setSoundMuted] = useState(false);
 
-  // Lưới Ma Trận Bí Mật Ẩn Trái Tim độc lập cho từng đội (Chuẩn yêu cầu: các ô lộn xộn, đúng kết nối thành trái tim)
-  const teamMatrices = useMemo(() => {
-    return teamStates.map((team, idx) => {
-      return buildUnifiedMatrix(activeQuestionsList, idx, team.pieceOrder);
-    });
-  }, [teamStates, activeQuestionsList]);
-
-  // Lưới các ô đáp án nhiễu mờ ảo xung quanh trái tim (dành cho strips/mosaic)
-  const decoyGrid = useMemo(() => {
-    return buildDecoyGrid(activeQuestionsList, 12, 14);
-  }, [activeQuestionsList]);
-
-  const TEAM_COLORS = ['#e11d48', '#2563eb', '#10b981', '#f59e0b'];
-  const DEFAULT_TEAM_NAMES = ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Lục)', 'Đội 4 (Vàng)'];
-
   // Khởi tạo trạng thái cho các đội với chuỗi câu hỏi xáo trộn độc lập (Chống nhìn lén!)
   // VÀ thứ tự các mảnh ghép trong trái tim cũng được xáo trộn lộn xộn riêng cho từng đội!
   const [teamStates, setTeamStates] = useState(() => {
@@ -1082,6 +1070,18 @@ export function HeartPuzzle2010Game({
       currentStep: 0
     }));
   });
+
+  // Lưới Ma Trận Bí Mật Ẩn Trái Tim độc lập cho từng đội (Chuẩn yêu cầu: các ô lộn xộn, đúng kết nối thành trái tim)
+  const teamMatrices = useMemo(() => {
+    return teamStates.map((team, idx) => {
+      return buildUnifiedMatrix(activeQuestionsList, idx, team.pieceOrder);
+    });
+  }, [teamStates, activeQuestionsList]);
+
+  // Lưới các ô đáp án nhiễu mờ ảo xung quanh trái tim (dành cho strips/mosaic)
+  const decoyGrid = useMemo(() => {
+    return buildDecoyGrid(activeQuestionsList, 12, 14);
+  }, [activeQuestionsList]);
 
   // Khi danh sách câu hỏi thay đổi hoặc thay đổi số đội -> Tạo lại thứ tự xáo trộn độc lập
   const resetTeamStates = useCallback((count = teamCount, questions = activeQuestionsList) => {
