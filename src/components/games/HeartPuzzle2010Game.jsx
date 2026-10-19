@@ -457,22 +457,23 @@ const HeartCardMatrixView = React.memo(({
 });
 
 /**
- * COMPONENT: KHUNG CÂU HỎI & 4 ĐÁP ÁN TƯƠNG TÁC
+/**
+ * COMPONENT: KHUNG CÂU HỎI & 4 ĐÁP ÁN HIỂN THỊ
+ * Học sinh đọc câu hỏi & các phương án A, B, C, D ở đây,
+ * sau đó chạm vào ô chứa đáp án đúng trên ma trận trái tim bên trên!
  */
 const InteractiveQuestionPanel = React.memo(({
   question,
   questionNumber = 1,
   totalQuestions = 10,
-  onSelectOption,
   onPrevQuestion,
   onNextQuestion,
-  selectedOption,
-  answerState,
-  disabled = false,
-  teamColor = '#dc2626'
+  teamColor = '#dc2626',
+  isAnswered = false
 }) => {
   const optionLabels = ['A', 'B', 'C', 'D'];
   if (!question) return null;
+  const correctLetter = getCorrectLetter(question);
 
   return (
     <div style={{
@@ -492,14 +493,33 @@ const InteractiveQuestionPanel = React.memo(({
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
-            color: teamColor,
+            background: teamColor,
+            color: '#ffffff',
             fontWeight: 900,
-            fontSize: 'clamp(0.88rem, 1.15vw, 1.02rem)'
+            fontSize: 'clamp(0.85rem, 1.1vw, 0.98rem)',
+            padding: '3px 10px',
+            borderRadius: '6px'
           }}>
             Câu {questionNumber}/{totalQuestions}
           </span>
+          {isAnswered && (
+            <span style={{
+              background: '#ecfdf5',
+              border: '1px solid #10b981',
+              color: '#059669',
+              fontWeight: 800,
+              fontSize: '0.76rem',
+              padding: '2px 8px',
+              borderRadius: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              ❤️ Đã giải mã trái tim
+            </span>
+          )}
         </div>
 
         {/* Nút Trước / Sau */}
@@ -558,7 +578,7 @@ const InteractiveQuestionPanel = React.memo(({
         {question.question}
       </div>
 
-      {/* Lưới 4 Đáp Án A, B, C, D */}
+      {/* Lưới 4 Đáp Án A, B, C, D (Hiển thị phương án để học sinh đọc) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -566,68 +586,47 @@ const InteractiveQuestionPanel = React.memo(({
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
-          const isSelected = selectedOption === label;
-          const isCorrect = label === getCorrectLetter(question);
+          const isCorrectHighlight = isAnswered && (label === correctLetter);
 
-          let btnBg = '#f8fafc';
+          let cardBg = '#f8fafc';
           let borderCol = '#cbd5e1';
           let textCol = '#0f172a';
-          let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+          let badgeBg = `${teamColor}15`;
+          let badgeCol = teamColor;
 
-          if (answerState) {
-            if (isCorrect) {
-              btnBg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-              borderCol = '#059669';
-              textCol = '#ffffff';
-              shadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
-            } else if (isSelected && !isCorrect) {
-              btnBg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-              borderCol = '#dc2626';
-              textCol = '#ffffff';
-              shadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
-            }
-          } else if (isSelected) {
-            btnBg = '#ffe4e6';
-            borderCol = '#e11d48';
-            textCol = '#be123c';
+          if (isCorrectHighlight) {
+            cardBg = 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)';
+            borderCol = '#059669';
+            textCol = '#065f46';
+            badgeBg = '#059669';
+            badgeCol = '#ffffff';
           }
 
           return (
-            <button
+            <div
               key={idx}
-              onClick={() => {
-                if (!disabled && answerState === null) {
-                  onSelectOption(label);
-                }
-              }}
-              disabled={disabled || answerState !== null}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '6px 12px',
                 borderRadius: '8px',
-                background: btnBg,
+                background: cardBg,
                 border: `1.5px solid ${borderCol}`,
                 color: textCol,
-                boxShadow: shadow,
-                cursor: (disabled || answerState !== null) ? 'default' : 'pointer',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
                 textAlign: 'left',
-                transition: 'all 0.15s ease',
-                outline: 'none',
-                minHeight: 'clamp(36px, 4.8vh, 46px)'
+                minHeight: 'clamp(36px, 4.8vh, 46px)',
+                userSelect: 'none',
+                boxSizing: 'border-box'
               }}
             >
               <div style={{
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                background: answerState && (isCorrect || isSelected)
-                  ? '#ffffff'
-                  : `${teamColor}15`,
-                color: answerState && isCorrect
-                  ? '#059669'
-                  : (answerState && isSelected ? '#dc2626' : teamColor),
+                background: badgeBg,
+                color: badgeCol,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -645,9 +644,31 @@ const InteractiveQuestionPanel = React.memo(({
               }}>
                 {opt}
               </span>
-            </button>
+            </div>
           );
         })}
+      </div>
+
+      {/* Dòng Hướng Dẫn Tương Tác: Chạm ô ở trên ma trận */}
+      <div style={{
+        padding: '5px 10px',
+        borderRadius: '8px',
+        background: isAnswered ? '#f0fdf4' : '#fff1f2',
+        border: `1px dashed ${isAnswered ? '#10b981' : '#f43f5e'}`,
+        color: isAnswered ? '#15803d' : '#be123c',
+        fontSize: 'clamp(0.75rem, 0.95vw, 0.84rem)',
+        fontWeight: 800,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        textAlign: 'center'
+      }}>
+        {isAnswered ? (
+          <span>✨ Ô trái tim cho Câu {questionNumber} đã được giải mã! Hãy tiếp tục câu tiếp theo.</span>
+        ) : (
+          <span>👆 Đọc câu hỏi và <strong>CHẠM Ô ĐÁP ÁN ĐÚNG [{questionNumber}-...]</strong> trên ma trận trái tim bên trên!</span>
+        )}
       </div>
     </div>
   );
@@ -768,128 +789,92 @@ export function HeartPuzzle2010Game({
     } catch (e) {}
   };
 
-  // Xử lý khi chọn đáp án trong bảng câu hỏi bên dưới (Chế độ 2 Đội Chạm)
-  const handleTouchTeamSelectOption = (teamIdx, opt) => {
-    const team = teamStates[teamIdx];
-    if (!team || team.answerState !== null || winner) return;
 
-    const currentQuestion = activeQuestionsList[team.currentQIdx];
-    if (!currentQuestion) return;
-
-    const correctLetter = getCorrectLetter(currentQuestion);
-    const isCorrect = String(opt).toUpperCase().trim() === correctLetter;
-
-    // Cập nhật trạng thái đáp án vừa chọn
-    setTeamStates(prev => {
-      const next = [...prev];
-      next[teamIdx] = {
-        ...next[teamIdx],
-        selectedOption: opt,
-        answerState: isCorrect ? 'correct' : 'wrong'
-      };
-      return next;
-    });
-
-    if (!soundMuted) {
-      try {
-        if (isCorrect) SoundFX.correct();
-        else SoundFX.wrong();
-      } catch (e) {}
-    }
-
-    if (isCorrect) {
-      setTimeout(() => {
-        setTeamStates(prev => {
-          const next = [...prev];
-          const cur = { ...next[teamIdx] };
-          cur.score += 10;
-          if (!cur.correctIndices.includes(cur.currentQIdx)) {
-            cur.correctIndices = [...cur.correctIndices, cur.currentQIdx];
-          }
-
-          // Kiểm tra hoàn thành tất cả câu hỏi
-          if (cur.correctIndices.length >= activeQuestionsList.length) {
-            setWinner(cur);
-            setShowVictoryModal(true);
-            triggerVictoryFireworks();
-            try { SoundFX.fanfare(); } catch (e) {}
-            if (onAddPoints) {
-              onAddPoints(cur.name, 100);
-            }
-          } else {
-            // Tự động chuyển sang câu hỏi chưa trả lời tiếp theo
-            const nextUnanswered = activeQuestionsList.findIndex((_, idx) => !cur.correctIndices.includes(idx));
-            if (nextUnanswered !== -1) {
-              cur.currentQIdx = nextUnanswered;
-            }
-          }
-
-          cur.selectedOption = null;
-          cur.answerState = null;
-          next[teamIdx] = cur;
-          return next;
-        });
-      }, 450);
-    } else {
-      // Nếu trả lời sai: rung lắc và xóa trạng thái sau 500ms để học sinh thử lại
-      setTimeout(() => {
-        setTeamStates(prev => {
-          const next = [...prev];
-          next[teamIdx] = {
-            ...next[teamIdx],
-            selectedOption: null,
-            answerState: null
-          };
-          return next;
-        });
-      }, 500);
-    }
-  };
 
   // Xử lý khi học sinh chạm trực tiếp vào một ô thẻ trên ma trận
   const handleCellClick = (teamIdx, cell) => {
     const team = teamStates[teamIdx];
     if (!team || winner || !cell) return;
 
-    if (cell.isTarget && cell.questionIdx !== undefined && cell.questionIdx >= 0) {
-      const qIdx = cell.questionIdx;
+    // Lấy câu hỏi hiện tại đang hiển thị
+    const curQIdx = gameMode === 'teacher-led' ? teacherQIdx : team.currentQIdx;
+    const curQuestion = activeQuestionsList[curQIdx];
+    if (!curQuestion) return;
 
-      // Nếu câu này chưa được tô đỏ
-      if (!team.correctIndices.includes(qIdx)) {
-        if (!soundMuted) {
-          try { SoundFX.correct(); } catch (e) {}
+    const curCorrectLetter = getCorrectLetter(curQuestion);
+    const targetCode = `${curQIdx + 1}-${curCorrectLetter}`;
+    const cellCode = String(cell.code || '').trim().toUpperCase();
+
+    // 1. Kiểm tra: Ô vừa chạm có phải là ô trái tim chứa đáp án đúng của câu hỏi đang mở không?
+    const isCurrentTarget = (cell.isTarget && cell.questionIdx === curQIdx) || (cellCode === targetCode);
+
+    // 2. Hoặc ô vừa chạm là ô trái tim chứa đáp án đúng của một câu hỏi khác trong đề:
+    const isOtherTarget = cell.isTarget && cell.questionIdx !== undefined && cell.questionIdx >= 0;
+
+    let solvedQIdx = -1;
+    if (isCurrentTarget) {
+      solvedQIdx = curQIdx;
+    } else if (isOtherTarget) {
+      solvedQIdx = cell.questionIdx;
+    }
+
+    if (solvedQIdx !== -1) {
+      // ĐÚNG Ô! (Ô thuộc hình trái tim ẩn giấu)
+      if (!soundMuted) {
+        try { SoundFX.correct(); } catch (e) {}
+      }
+
+      setTeamStates(prev => {
+        const next = [...prev];
+        const cur = { ...next[teamIdx] };
+
+        // Nếu câu này chưa được ghi nhận hoàn thành
+        if (!cur.correctIndices.includes(solvedQIdx)) {
+          cur.correctIndices = [...cur.correctIndices, solvedQIdx];
+          cur.score += 10;
         }
 
-        setTeamStates(prev => {
-          const next = [...prev];
-          const cur = { ...next[teamIdx] };
-          cur.score += 10;
-          cur.correctIndices = [...cur.correctIndices, qIdx];
+        // Tự động chuyển sang câu hỏi tiếp theo chưa làm sau 400ms
+        setTimeout(() => {
+          if (gameMode === 'teacher-led') {
+            setTeacherQIdx(prevQ => {
+              for (let q = 0; q < activeQuestionsList.length; q++) {
+                if (!cur.correctIndices.includes(q)) return q;
+              }
+              return prevQ;
+            });
+          }
 
-          // Nếu đang mở đúng câu hỏi này thì chuyển sang câu chưa làm tiếp theo
-          if (cur.currentQIdx === qIdx) {
-            const nextUnanswered = activeQuestionsList.findIndex((_, idx) => !cur.correctIndices.includes(idx));
+          setTeamStates(innerPrev => {
+            const innerNext = [...innerPrev];
+            const innerCur = { ...innerNext[teamIdx] };
+
+            const nextUnanswered = activeQuestionsList.findIndex((_, idx) => !innerCur.correctIndices.includes(idx));
             if (nextUnanswered !== -1) {
-              cur.currentQIdx = nextUnanswered;
+              innerCur.currentQIdx = nextUnanswered;
             }
-          }
 
-          if (cur.correctIndices.length >= activeQuestionsList.length) {
-            setWinner(cur);
-            setShowVictoryModal(true);
-            triggerVictoryFireworks();
-            try { SoundFX.fanfare(); } catch (e) {}
-            if (onAddPoints) {
-              onAddPoints(cur.name, 100);
+            // Kiểm tra hoàn tất toàn bộ trái tim
+            if (innerCur.correctIndices.length >= activeQuestionsList.length) {
+              setWinner(innerCur);
+              setShowVictoryModal(true);
+              triggerVictoryFireworks();
+              try { SoundFX.fanfare(); } catch (e) {}
+              if (onAddPoints) {
+                onAddPoints(innerCur.name, 100);
+              }
             }
-          }
 
-          next[teamIdx] = cur;
-          return next;
-        });
-      }
+            innerNext[teamIdx] = innerCur;
+            return innerNext;
+          });
+        }, 400);
+
+        next[teamIdx] = cur;
+        return next;
+      });
     } else {
-      // Chạm vào ô sai (decoy): Báo âm thanh sai và nháy đỏ ô đó
+      // Chạm vào ô sai (decoy / đáp án sai): Báo âm thanh sai và rung lắc nháy đỏ
       if (!soundMuted) {
         try { SoundFX.wrong(); } catch (e) {}
       }
@@ -914,58 +899,6 @@ export function HeartPuzzle2010Game({
         });
       }, 400);
     }
-  };
-
-  // Xử lý khi Giáo viên chọn đáp án trong chế độ Máy Chiếu (Teacher-Led)
-  const handleTeacherSelectOption = (opt) => {
-    if (teacherAnswerState !== null || winner) return;
-
-    const currentQuestion = activeQuestionsList[teacherQIdx];
-    if (!currentQuestion) return;
-
-    const correctOpt = getCorrectLetter(currentQuestion);
-    const isCorrect = String(opt).toUpperCase().trim() === correctOpt;
-    setTeacherSelectedOpt(opt);
-    setTeacherAnswerState(isCorrect ? 'correct' : 'wrong');
-
-    if (!soundMuted) {
-      try {
-        if (isCorrect) SoundFX.correct();
-        else SoundFX.wrong();
-      } catch (e) {}
-    }
-
-    if (isCorrect) {
-      setTeamStates(prev => {
-        const next = [...prev];
-        const cur = { ...next[activeTeacherTeamIdx] };
-        cur.score += 10;
-        if (!cur.correctIndices.includes(teacherQIdx)) {
-          cur.correctIndices = [...cur.correctIndices, teacherQIdx];
-        }
-        next[activeTeacherTeamIdx] = cur;
-
-        if (cur.correctIndices.length >= activeQuestionsList.length) {
-          setWinner(cur);
-          setShowVictoryModal(true);
-          triggerVictoryFireworks();
-          try { SoundFX.fanfare(); } catch (e) {}
-          if (onAddPoints) {
-            onAddPoints(cur.name, 100);
-          }
-        }
-
-        return next;
-      });
-    }
-
-    setTimeout(() => {
-      setTeacherSelectedOpt(null);
-      setTeacherAnswerState(null);
-      if (isCorrect) {
-        setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1));
-      }
-    }, 500);
   };
 
   // Tải file Excel mẫu câu hỏi chuẩn 20/10
@@ -1326,7 +1259,6 @@ export function HeartPuzzle2010Game({
                       question={currentQ}
                       questionNumber={team.currentQIdx + 1}
                       totalQuestions={activeQuestionsList.length}
-                      onSelectOption={(opt) => handleTouchTeamSelectOption(teamIdx, opt)}
                       onPrevQuestion={() => {
                         setTeamStates(prev => {
                           const next = [...prev];
@@ -1341,10 +1273,8 @@ export function HeartPuzzle2010Game({
                           return next;
                         });
                       }}
-                      selectedOption={team.selectedOption}
-                      answerState={team.answerState}
-                      disabled={winner !== null}
                       teamColor={team.color}
+                      isAnswered={team.correctIndices.includes(team.currentQIdx)}
                     />
                   ) : (
                     <div style={{
@@ -1425,13 +1355,10 @@ export function HeartPuzzle2010Game({
                 question={activeQuestionsList[teacherQIdx]}
                 questionNumber={teacherQIdx + 1}
                 totalQuestions={activeQuestionsList.length}
-                onSelectOption={handleTeacherSelectOption}
                 onPrevQuestion={() => setTeacherQIdx(prev => Math.max(0, prev - 1))}
                 onNextQuestion={() => setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1))}
-                selectedOption={teacherSelectedOpt}
-                answerState={teacherAnswerState}
-                disabled={winner !== null}
                 teamColor={teamStates[activeTeacherTeamIdx].color}
+                isAnswered={teamStates[activeTeacherTeamIdx].correctIndices.includes(teacherQIdx)}
               />
             </div>
           </div>
