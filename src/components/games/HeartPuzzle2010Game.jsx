@@ -204,6 +204,43 @@ export function getHeartCoordinates(N) {
 }
 
 /**
+ * Chuẩn hóa đáp án đúng (A, B, C, D) an toàn tuyệt đối 100%
+ * Hỗ trợ mọi định dạng: 'A', 'a', 1, '1', 'A. ...', 'Đáp án B', hoặc so khớp nội dung
+ */
+export function getCorrectLetter(question) {
+  if (!question) return 'A';
+  const raw = String(question.correct || '').trim();
+  if (!raw) return 'A';
+
+  const upper = raw.toUpperCase();
+  if (['A', 'B', 'C', 'D'].includes(upper)) return upper;
+
+  if (upper === '1') return 'A';
+  if (upper === '2') return 'B';
+  if (upper === '3') return 'C';
+  if (upper === '4') return 'D';
+
+  const m = upper.match(/^([A-D])[\.\:\)\-\s]/);
+  if (m) return m[1];
+
+  const mVn = upper.match(/(?:ĐÁP ÁN|PHƯƠNG ÁN|CÂU|CHỌN)\s*([A-D])/);
+  if (mVn) return mVn[1];
+
+  if (Array.isArray(question.options)) {
+    const rawClean = raw.toLowerCase().trim();
+    const optIdx = question.options.findIndex(opt => {
+      const oStr = String(opt || '').toLowerCase().trim();
+      return oStr === rawClean || oStr.replace(/^[a-d][\.\:\)\-\s]+/i, '').trim() === rawClean;
+    });
+    if (optIdx >= 0 && optIdx < 4) {
+      return ['A', 'B', 'C', 'D'][optIdx];
+    }
+  }
+
+  return 'A';
+}
+
+/**
  * Thuật toán sinh Ma Trận Bí Mật Ẩn Trái Tim (Unified Heart Matrix):
  * - Toàn bộ ô nhìn giống hệt nhau khi chưa lật (ô trắng viền thanh mảnh, hiện mã đáp án lộn xộn)
  * - Đúng N câu hỏi = Đúng N ô mục tiêu tạo thành trái tim
@@ -227,7 +264,7 @@ export function buildUnifiedMatrix(questions, teamIdx = 0, shuffledOrder = null)
     const qIdx = order[slot];
     const q = questions[qIdx] || questions[0];
     const qNum = qIdx + 1;
-    const correctOpt = q.correct || 'A';
+    const correctOpt = getCorrectLetter(q);
     const code = `${qNum}-${correctOpt}`;
     targetMap.set(`${coord.col},${coord.row}`, {
       col: coord.col,
@@ -254,9 +291,9 @@ export function buildUnifiedMatrix(questions, teamIdx = 0, shuffledOrder = null)
       } else {
         const decoyQIdx = (r * 5 + c * 3 + seed) % N;
         const q = questions[decoyQIdx] || questions[0];
-        const correctOpt = q.correct || 'A';
+        const correctOpt = getCorrectLetter(q);
         const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
-        const chosenWrong = wrongOpts[(r * 7 + c * 11 + seed) % wrongOpts.length] || 'C';
+        const chosenWrong = wrongOpts[(r * 7 + c * 11 + seed) % wrongOpts.length] || (correctOpt === 'A' ? 'B' : 'A');
         const qNum = decoyQIdx + 1;
         const code = `${qNum}-${chosenWrong}`;
         row.push({
@@ -302,9 +339,9 @@ export function buildDecoyGrid(questions, rows = 12, cols = 14) {
     for (let c = 0; c < cols; c++) {
       const qIdx = (r * 7 + c * 3 + 1) % numQ;
       const q = questions[qIdx] || questions[0];
-      const correctOpt = q.correct || 'A';
+      const correctOpt = getCorrectLetter(q);
       const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
-      const chosenWrong = wrongOpts[(r * 5 + c * 2) % wrongOpts.length] || 'C';
+      const chosenWrong = wrongOpts[(r * 5 + c * 2) % wrongOpts.length] || (correctOpt === 'A' ? 'B' : 'A');
       const qNum = qIdx + 1;
       const code = `${qNum}-${chosenWrong}`;
       row.push({ r, c, code, qIdx, isTarget: false });
@@ -363,7 +400,7 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
         const qIdx = order[slotIdx];
         const q = questions[qIdx] || questions[0];
         const qNum = qIdx + 1;
-        const correctOpt = q.correct || 'A';
+        const correctOpt = getCorrectLetter(q);
         const code = `${qNum}-${correctOpt}`;
 
         const xStart = 30 + c * blockW;
@@ -396,7 +433,7 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
       const qIdx = order[slotIdx];
       const q = questions[qIdx] || questions[0];
       const qNum = qIdx + 1;
-      const correctOpt = q.correct || 'A';
+      const correctOpt = getCorrectLetter(q);
       const code = `${qNum}-${correctOpt}`;
 
       const y = Y_TOP + slotIdx * stripH;
@@ -563,9 +600,9 @@ export const WorksheetPuzzleView = React.memo(({
           display: 'grid',
           gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
           gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: 'clamp(2px, 0.28vw, 3.5px)',
+          gap: 'clamp(2.5px, 0.35vw, 4.5px)',
           background: '#f1f5f9',
-          padding: '4px',
+          padding: '6px',
           borderRadius: '10px',
           border: '1.5px solid #cbd5e1',
           boxSizing: 'border-box'
@@ -581,26 +618,26 @@ export const WorksheetPuzzleView = React.memo(({
                     background: isAnswered 
                       ? `linear-gradient(135deg, ${teamColor || '#ef4444'} 0%, #be123c 100%)` 
                       : '#ffffff',
-                    color: isAnswered ? '#ffffff' : '#334155',
+                    color: isAnswered ? '#ffffff' : '#1e293b',
                     border: isAnswered ? '2px solid #b91c1c' : '1.5px solid #cbd5e1',
-                    borderRadius: '5px',
+                    borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '2px',
-                    fontSize: 'clamp(10px, 1.25vw, 14px)',
+                    gap: '3px',
+                    fontSize: 'clamp(11.5px, 1.4vw, 15.5px)',
                     fontWeight: 900,
                     cursor: isAnswered ? 'default' : 'pointer',
                     userSelect: 'none',
-                    height: 'clamp(23px, 3.5vh, 32px)',
-                    boxShadow: isAnswered ? `0 0 10px ${teamColor || '#ef4444'}90` : '0 1px 3px rgba(0,0,0,0.04)',
+                    height: 'clamp(28px, 4.2vh, 38px)',
+                    boxShadow: isAnswered ? `0 0 12px ${teamColor || '#ef4444'}95` : '0 1px 3px rgba(0,0,0,0.05)',
                     transition: 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     transform: isAnswered ? 'scale(1.04)' : 'scale(1)',
                     zIndex: isAnswered ? 2 : 1
                   }}
                 >
                   <span>{cell.code}</span>
-                  {isAnswered && <Heart size={12} fill="#ffffff" color="#ffffff" />}
+                  {isAnswered && <Heart size={13} fill="#ffffff" color="#ffffff" />}
                 </div>
               );
             })
@@ -832,12 +869,24 @@ const QuestionPanel = React.memo(({
           alignItems: 'center',
           marginBottom: '2px'
         }}>
-          <div style={{
-            fontSize: 'clamp(0.78rem, 1.1vw, 0.92rem)',
-            fontWeight: 800,
-            color: teamColor || '#be123c'
-          }}>
-            Câu #{stepNumber}/{totalQuestions} <span style={{ opacity: 0.7, fontSize: '0.85em' }}>(Mã {originalQNum})</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              background: teamColor || '#be123c',
+              color: '#ffffff',
+              fontSize: 'clamp(0.82rem, 1.15vw, 0.96rem)',
+              fontWeight: 900,
+              padding: '2px 8px',
+              borderRadius: '6px'
+            }}>
+              Câu #{originalQNum}
+            </span>
+            <span style={{
+              fontSize: 'clamp(0.75rem, 1vw, 0.88rem)',
+              fontWeight: 700,
+              color: '#64748b'
+            }}>
+              (Tiến độ {stepNumber}/{totalQuestions})
+            </span>
           </div>
 
           {/* Nút Điều Hướng Câu Hỏi Nhanh (Trước / Sau) */}
@@ -886,10 +935,10 @@ const QuestionPanel = React.memo(({
 
         <h3 style={{
           margin: 0,
-          fontSize: 'clamp(0.85rem, 1.25vw, 1.05rem)',
+          fontSize: 'clamp(0.92rem, 1.3vw, 1.16rem)',
           fontWeight: 800,
           color: '#0f172a',
-          lineHeight: 1.28
+          lineHeight: 1.35
         }}>
           {question.question}
         </h3>
@@ -899,7 +948,7 @@ const QuestionPanel = React.memo(({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '4px'
+        gap: '6px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
@@ -911,16 +960,16 @@ const QuestionPanel = React.memo(({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: '7px',
+                gap: '8px',
+                padding: '6px 12px',
+                borderRadius: '8px',
                 background: '#ffffff',
-                border: '1.5px solid #e2e8f0',
-                color: '#1e293b',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)',
+                border: '1.5px solid #cbd5e1',
+                color: '#0f172a',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
                 cursor: onOptionSelect ? 'pointer' : 'default',
                 userSelect: 'none',
-                minHeight: 'clamp(28px, 3.8vh, 36px)',
+                minHeight: 'clamp(34px, 4.6vh, 44px)',
                 textAlign: 'left',
                 transition: 'all 0.15s ease'
               }}
@@ -928,34 +977,38 @@ const QuestionPanel = React.memo(({
                 if (onOptionSelect) {
                   e.currentTarget.style.borderColor = teamColor || '#e11d48';
                   e.currentTarget.style.background = '#fff5f7';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(225, 29, 72, 0.12)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (onOptionSelect) {
-                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.borderColor = '#cbd5e1';
                   e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.04)';
                 }
               }}
             >
               <div style={{
-                width: '20px',
-                height: '20px',
+                width: '24px',
+                height: '24px',
                 borderRadius: '50%',
-                background: 'rgba(225, 29, 72, 0.1)',
-                color: '#be123c',
+                background: 'rgba(225, 29, 72, 0.12)',
+                color: teamColor || '#be123c',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: '0.75rem',
+                fontSize: '0.82rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: 'clamp(0.75rem, 1.05vw, 0.9rem)',
-                lineHeight: 1.2,
+                fontSize: 'clamp(0.82rem, 1.1vw, 0.98rem)',
+                lineHeight: 1.25,
                 flex: 1
               }}>
                 {opt}
@@ -1107,7 +1160,7 @@ export function HeartPuzzle2010Game({
     if (!currentQuestion) return;
 
     const qNum = currentQIdx + 1;
-    const correctOpt = (currentQuestion.correct || 'A').toUpperCase().trim();
+    const correctOpt = getCorrectLetter(currentQuestion);
     const targetCodeWithDash = `${qNum}-${correctOpt}`;
     const targetCodeNoDash = `${qNum}${correctOpt}`;
     const cellCodeClean = cell.code ? String(cell.code).toUpperCase().trim() : '';
@@ -1126,8 +1179,9 @@ export function HeartPuzzle2010Game({
     } else if (cellCodeClean) {
       // Tìm xem mã ô này có trùng khớp đáp án đúng của bất kỳ câu nào trong đề không
       const matchedIdx = activeQuestionsList.findIndex((q, i) => {
-        const cCode = `${i + 1}-${(q.correct || 'A').toUpperCase().trim()}`;
-        const cCodeNoDash = `${i + 1}${(q.correct || 'A').toUpperCase().trim()}`;
+        const cOpt = getCorrectLetter(q);
+        const cCode = `${i + 1}-${cOpt}`;
+        const cCodeNoDash = `${i + 1}${cOpt}`;
         return cellCodeClean === cCode || cellCodeClean === cCodeNoDash;
       });
       if (matchedIdx !== -1) {
@@ -1150,7 +1204,7 @@ export function HeartPuzzle2010Game({
           cur.score += 10;
         }
 
-        // Tự động chuyển sang câu hỏi tiếp theo chưa làm sau 0.4s
+        // Tự động chuyển sang câu hỏi tiếp theo chưa làm sau 0.35s
         setTimeout(() => {
           if (gameMode === 'teacher-led') {
             setTeacherQIdx(prevQ => {
@@ -1188,7 +1242,7 @@ export function HeartPuzzle2010Game({
             innerNext[teamIdx] = innerCur;
             return innerNext;
           });
-        }, 400);
+        }, 350);
 
         next[teamIdx] = cur;
         return next;
@@ -1218,7 +1272,7 @@ export function HeartPuzzle2010Game({
     const currentQuestion = activeQuestionsList[currentQIdx];
     if (!currentQuestion) return;
 
-    const correctOpt = (currentQuestion.correct || 'A').toUpperCase().trim();
+    const correctOpt = getCorrectLetter(currentQuestion);
     const isCorrect = String(selectedLabel).toUpperCase().trim() === correctOpt;
 
     if (isCorrect) {
@@ -1658,8 +1712,8 @@ export function HeartPuzzle2010Game({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    gap: '8px',
+                    justifyContent: 'flex-start',
+                    gap: 'clamp(6px, 1.2vh, 12px)',
                     background: 'rgba(30, 41, 59, 0.75)',
                     border: `2px solid ${team.color}40`,
                     borderRadius: '14px',
