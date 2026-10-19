@@ -477,14 +477,15 @@ export const WorksheetPuzzleView = React.memo(({
       display: 'flex',
       flexDirection: 'column',
       background: '#ffffff',
-      borderRadius: compact ? '12px' : '18px',
-      padding: compact ? '6px 10px' : '12px 16px',
+      borderRadius: '14px',
+      padding: '8px 12px',
       boxShadow: isCompleted 
         ? `0 10px 30px ${teamColor}35, 0 0 16px rgba(245, 158, 11, 0.35)` 
         : '0 4px 16px rgba(0, 0, 0, 0.08)',
       border: isCompleted ? '2.5px solid #f59e0b' : '1.5px solid #e2e8f0',
       width: '100%',
-      maxWidth: compact ? '460px' : '520px',
+      flex: 1.2,
+      minHeight: 0,
       margin: '0 auto',
       transition: 'all 0.3s ease',
       position: 'relative',
@@ -517,28 +518,28 @@ export const WorksheetPuzzleView = React.memo(({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderBottom: `2px solid ${teamColor || '#0f172a'}`,
-        paddingBottom: compact ? '2px' : '4px',
-        marginBottom: compact ? '3px' : '6px'
+        borderBottom: `2.5px solid ${teamColor || '#0f172a'}`,
+        paddingBottom: '4px',
+        marginBottom: '6px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             background: teamColor || '#0f172a',
             color: '#ffffff',
             fontWeight: 900,
-            fontSize: compact ? '0.74rem' : '0.92rem',
-            padding: compact ? '1px 7px' : '3px 9px',
-            borderRadius: '4px',
+            fontSize: 'clamp(0.85rem, 1.2vw, 1.05rem)',
+            padding: '2px 10px',
+            borderRadius: '5px',
             letterSpacing: '0.4px'
           }}>
             {teamName}
           </span>
           <span style={{
-            fontSize: compact ? '0.66rem' : '0.78rem',
+            fontSize: 'clamp(0.72rem, 1vw, 0.88rem)',
             color: '#64748b',
             fontWeight: 700
           }}>
-            Chạm ô đúng để tô đỏ
+            Chạm ô đúng để tô đỏ trái tim
           </span>
         </div>
 
@@ -546,12 +547,12 @@ export const WorksheetPuzzleView = React.memo(({
           fontWeight: 900,
           color: isCompleted ? '#059669' : (teamColor || '#be123c'),
           background: isCompleted ? '#d1fae5' : '#fff1f2',
-          padding: '1px 6px',
-          borderRadius: '5px',
-          fontSize: compact ? '0.68rem' : '0.8rem',
-          border: '1px solid #fecdd3'
+          padding: '2px 10px',
+          borderRadius: '6px',
+          fontSize: 'clamp(0.78rem, 1.1vw, 0.95rem)',
+          border: '1.5px solid #fecdd3'
         }}>
-          {correctCount}/{totalQuestions} ({percent}%)
+          {correctCount}/{totalQuestions} câu ({percent}%)
         </div>
       </div>
 
@@ -560,16 +561,17 @@ export const WorksheetPuzzleView = React.memo(({
         <div style={{
           position: 'relative',
           width: '100%',
+          flex: 1,
+          minHeight: 0,
           display: 'grid',
           gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
           gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: compact ? '2px' : '3.5px',
+          gap: 'clamp(2.5px, 0.4vw, 5px)',
           background: '#f1f5f9',
-          padding: compact ? '2px' : '4px',
-          borderRadius: '8px',
+          padding: '5px',
+          borderRadius: '10px',
           border: '1.5px solid #cbd5e1',
-          boxSizing: 'border-box',
-          overflow: 'hidden'
+          boxSizing: 'border-box'
         }}>
           {matrixData.grid.map((row, rIdx) => 
             row.map((cell, cIdx) => {
@@ -583,25 +585,26 @@ export const WorksheetPuzzleView = React.memo(({
                       ? `linear-gradient(135deg, ${teamColor || '#ef4444'} 0%, #be123c 100%)` 
                       : '#ffffff',
                     color: isAnswered ? '#ffffff' : '#334155',
-                    border: isAnswered ? '1.5px solid #b91c1c' : '1.2px solid #cbd5e1',
-                    borderRadius: '4px',
+                    border: isAnswered ? '2px solid #b91c1c' : '1.5px solid #cbd5e1',
+                    borderRadius: '5px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '2px',
-                    fontSize: compact ? 'clamp(8.5px, 1.15vw, 10.5px)' : 'clamp(10px, 1.5vw, 12.5px)',
+                    fontSize: 'clamp(11px, 1.4vw, 16px)',
                     fontWeight: 900,
                     cursor: isAnswered ? 'default' : 'pointer',
                     userSelect: 'none',
-                    height: compact ? 'clamp(17px, 2.5vh, 23px)' : 'clamp(26px, 3.8vh, 32px)',
-                    boxShadow: isAnswered ? `0 0 8px ${teamColor || '#ef4444'}80` : '0 1px 2px rgba(0,0,0,0.03)',
-                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    transform: isAnswered ? 'scale(1.03)' : 'scale(1)',
+                    height: '100%',
+                    minHeight: 'clamp(26px, 4.2vh, 42px)',
+                    boxShadow: isAnswered ? `0 0 10px ${teamColor || '#ef4444'}90` : '0 1px 3px rgba(0,0,0,0.04)',
+                    transition: 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    transform: isAnswered ? 'scale(1.04)' : 'scale(1)',
                     zIndex: isAnswered ? 2 : 1
                   }}
                 >
                   <span>{cell.code}</span>
-                  {isAnswered && <Heart size={9} fill="#ffffff" color="#ffffff" />}
+                  {isAnswered && <Heart size={13} fill="#ffffff" color="#ffffff" />}
                 </div>
               );
             })
@@ -780,7 +783,7 @@ export const WorksheetPuzzleView = React.memo(({
 });
 
 /**
- * COMPONENT THẺ CÂU HỎI & 4 ĐÁP ÁN (CHỈ HIỂN THỊ ĐỂ ĐỌC - HỌC SINH KHÔNG BẤM Ở DƯỚI)
+ * COMPONENT THẺ CÂU HỎI & 4 ĐÁP ÁN (TƯƠNG TÁC RÕ RÀNG, CHỌN ĐƯỢC CẢ Ở ĐÂY VÀ TRÊN BẢNG)
  */
 const QuestionPanel = React.memo(({
   question,
@@ -791,7 +794,8 @@ const QuestionPanel = React.memo(({
   onNextQuestion,
   compact = false,
   teamLabel = '',
-  teamColor = '#e11d48'
+  teamColor = '#e11d48',
+  onOptionSelect = null
 }) => {
   if (!question) {
     return (
@@ -814,33 +818,33 @@ const QuestionPanel = React.memo(({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: compact ? '4px' : '10px',
+      gap: '8px',
       width: '100%'
     }}>
       {/* Khung nội dung câu hỏi */}
       <div style={{
         background: 'linear-gradient(135deg, #ffffff 0%, #fff1f2 100%)',
         border: '1.5px solid #fecdd3',
-        borderRadius: compact ? '8px' : '18px',
-        padding: compact ? '4px 8px' : '16px 20px',
+        borderRadius: '12px',
+        padding: '8px 14px',
         boxShadow: '0 4px 15px rgba(225, 29, 72, 0.06)'
       }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: compact ? '2px' : '4px'
+          marginBottom: '4px'
         }}>
           <div style={{
-            fontSize: compact ? '0.72rem' : '0.8rem',
+            fontSize: 'clamp(0.82rem, 1.15vw, 0.98rem)',
             fontWeight: 800,
             color: teamColor || '#be123c'
           }}>
-            Câu #{stepNumber}/{totalQuestions} <span style={{ opacity: 0.7, fontSize: '0.68rem' }}>(Mã {originalQNum})</span>
+            Câu #{stepNumber}/{totalQuestions} <span style={{ opacity: 0.7, fontSize: '0.85em' }}>(Mã {originalQNum})</span>
           </div>
 
           {/* Nút Điều Hướng Câu Hỏi Nhanh (Trước / Sau) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             {onPrevQuestion && (
               <button
                 onClick={(e) => { e.stopPropagation(); onPrevQuestion(); }}
@@ -849,10 +853,10 @@ const QuestionPanel = React.memo(({
                   background: 'rgba(225, 29, 72, 0.08)',
                   border: '1px solid #fecdd3',
                   color: '#be123c',
-                  padding: '1px 5px',
-                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  borderRadius: '5px',
                   cursor: stepNumber <= 1 ? 'default' : 'pointer',
-                  fontSize: '0.68rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   opacity: stepNumber <= 1 ? 0.4 : 1
                 }}
@@ -869,10 +873,10 @@ const QuestionPanel = React.memo(({
                   background: 'rgba(225, 29, 72, 0.08)',
                   border: '1px solid #fecdd3',
                   color: '#be123c',
-                  padding: '1px 5px',
-                  borderRadius: '4px',
+                  padding: '2px 8px',
+                  borderRadius: '5px',
                   cursor: stepNumber >= totalQuestions ? 'default' : 'pointer',
-                  fontSize: '0.68rem',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   opacity: stepNumber >= totalQuestions ? 0.4 : 1
                 }}
@@ -885,98 +889,84 @@ const QuestionPanel = React.memo(({
 
         <h3 style={{
           margin: 0,
-          fontSize: compact ? 'clamp(0.74rem, 1.4vh, 0.85rem)' : '1.18rem',
+          fontSize: 'clamp(0.9rem, 1.35vw, 1.18rem)',
           fontWeight: 800,
           color: '#0f172a',
-          lineHeight: 1.25,
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
+          lineHeight: 1.32
         }}>
           {question.question}
         </h3>
       </div>
 
-      {/* Lưới 4 đáp án A, B, C, D: CHỈ HIỂN THỊ ĐỂ ĐỌC (KHÔNG BẤM Ở ĐÂY) */}
+      {/* Lưới 4 đáp án A, B, C, D: CHỌN ĐƯỢC TRỰC TIẾP */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: compact ? '3px' : '10px'
+        gap: '6px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
 
           return (
-            <div
+            <button
               key={idx}
+              onClick={() => onOptionSelect && onOptionSelect(label)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: compact ? '4px' : '10px',
-                padding: compact ? '2px 5px' : '12px 16px',
-                borderRadius: compact ? '5px' : '14px',
+                gap: '8px',
+                padding: '6px 12px',
+                borderRadius: '8px',
                 background: '#ffffff',
-                border: '1.2px solid #e2e8f0',
-                color: '#334155',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
-                cursor: 'default',
+                border: '1.5px solid #e2e8f0',
+                color: '#1e293b',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.03)',
+                cursor: onOptionSelect ? 'pointer' : 'default',
                 userSelect: 'none',
-                minHeight: compact ? '22px' : '54px',
-                pointerEvents: 'none'
+                minHeight: 'clamp(32px, 4.4vh, 46px)',
+                textAlign: 'left',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                if (onOptionSelect) {
+                  e.currentTarget.style.borderColor = teamColor || '#e11d48';
+                  e.currentTarget.style.background = '#fff5f7';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (onOptionSelect) {
+                  e.currentTarget.style.borderColor = '#e2e8f0';
+                  e.currentTarget.style.background = '#ffffff';
+                }
               }}
             >
               <div style={{
-                width: compact ? '16px' : '30px',
-                height: compact ? '16px' : '30px',
+                width: '22px',
+                height: '22px',
                 borderRadius: '50%',
-                background: 'rgba(225, 29, 72, 0.08)',
+                background: 'rgba(225, 29, 72, 0.1)',
                 color: '#be123c',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: compact ? '0.65rem' : '0.98rem',
+                fontSize: '0.8rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: compact ? 'clamp(0.68rem, 1.25vh, 0.78rem)' : '0.96rem',
-                lineHeight: 1.2,
-                flex: 1,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                fontSize: 'clamp(0.78rem, 1.1vw, 0.95rem)',
+                lineHeight: 1.25,
+                flex: 1
               }}>
                 {opt}
               </span>
-            </div>
+            </button>
           );
         })}
       </div>
-
-      {/* Dòng Hướng Dẫn Chỉ Hiện ở Chế Độ Chiếu Lớn (Không Hiện ở Dual-touch để Tiết Kiệm Không Gian) */}
-      {!compact && (
-        <div style={{
-          background: 'rgba(225, 29, 72, 0.06)',
-          border: '1px dashed #f43f5e',
-          borderRadius: '6px',
-          padding: '6px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px',
-          fontSize: '0.82rem',
-          color: '#be123c',
-          fontWeight: 800,
-          textAlign: 'center'
-        }}>
-          <span>👉</span>
-          <span>Đọc câu hỏi & 4 đáp án trên đây ➔ Tìm & chạm ô đáp án đúng <strong>TRÊN BẢNG</strong> để tô đỏ!</span>
-        </div>
-      )}
     </div>
   );
 });
@@ -1105,7 +1095,7 @@ export function HeartPuzzle2010Game({
   // "nếu chọn đúng ô đó hiện lên màu đỏ, nếu chọn sai thì không có hiện gì cả"
   const handleTeamCellClick = (teamIdx, cell) => {
     const team = teamStates[teamIdx];
-    if (!team || winner) return;
+    if (!team || winner || !cell) return;
 
     // Lấy câu hỏi hiện tại đang hiển thị của đội
     let currentQIdx;
@@ -1120,19 +1110,36 @@ export function HeartPuzzle2010Game({
     if (!currentQuestion) return;
 
     const qNum = currentQIdx + 1;
-    const correctOpt = currentQuestion.correct || 'A';
+    const correctOpt = (currentQuestion.correct || 'A').toUpperCase().trim();
     const targetCodeWithDash = `${qNum}-${correctOpt}`;
     const targetCodeNoDash = `${qNum}${correctOpt}`;
+    const cellCodeClean = cell.code ? String(cell.code).toUpperCase().trim() : '';
 
     // Kiểm tra: Ô vừa chạm có đúng là ô chứa đáp án đúng của câu hỏi đang hiển thị hay không?
     const isCurrentMatch = (cell.isTarget && cell.qIdx === currentQIdx) || 
-                           (cell.code === targetCodeWithDash) || 
-                           (cell.code === targetCodeNoDash);
+                           (cellCodeClean === targetCodeWithDash) || 
+                           (cellCodeClean === targetCodeNoDash);
 
+    let solvedQIdx = -1;
     if (isCurrentMatch) {
-      // ĐÚNG Ô! Hiện lên màu đỏ
-      const solvedQIdx = currentQIdx;
+      solvedQIdx = currentQIdx;
+    } else if (cell.isTarget && cell.qIdx !== undefined && cell.qIdx >= 0) {
+      // Ô mục tiêu trái tim của một câu hỏi khác trong đề
+      solvedQIdx = cell.qIdx;
+    } else if (cellCodeClean) {
+      // Tìm xem mã ô này có trùng khớp đáp án đúng của bất kỳ câu nào trong đề không
+      const matchedIdx = activeQuestionsList.findIndex((q, i) => {
+        const cCode = `${i + 1}-${(q.correct || 'A').toUpperCase().trim()}`;
+        const cCodeNoDash = `${i + 1}${(q.correct || 'A').toUpperCase().trim()}`;
+        return cellCodeClean === cCode || cellCodeClean === cCodeNoDash;
+      });
+      if (matchedIdx !== -1) {
+        solvedQIdx = matchedIdx;
+      }
+    }
 
+    if (solvedQIdx !== -1) {
+      // ĐÚNG Ô! Hiện lên màu đỏ
       if (!soundMuted) {
         try { SoundFX.correct(); } catch (e) {}
       }
@@ -1192,6 +1199,88 @@ export function HeartPuzzle2010Game({
     } else {
       // CHỌN SAI Ô: "nếu chọn sai thì không có hiện gì cả"
       // Giữ nguyên trạng thái, không đổi màu đỏ
+      if (!soundMuted) {
+        try { SoundFX.click(); } catch (e) {}
+      }
+    }
+  };
+
+  // XỬ LÝ KHI ĐỘI CHỌN ĐÁP ÁN A, B, C, D Ở KHUNG CÂU HỎI BÊN DƯỚI
+  const handleTeamOptionSelect = (teamIdx, selectedLabel) => {
+    const team = teamStates[teamIdx];
+    if (!team || winner) return;
+
+    let currentQIdx;
+    if (gameMode === 'teacher-led') {
+      currentQIdx = teacherQIdx;
+    } else {
+      const seq = team.questionSequence || [];
+      currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
+    }
+
+    const currentQuestion = activeQuestionsList[currentQIdx];
+    if (!currentQuestion) return;
+
+    const correctOpt = (currentQuestion.correct || 'A').toUpperCase().trim();
+    const isCorrect = String(selectedLabel).toUpperCase().trim() === correctOpt;
+
+    if (isCorrect) {
+      if (!soundMuted) {
+        try { SoundFX.correct(); } catch (e) {}
+      }
+
+      setTeamStates(prev => {
+        const next = [...prev];
+        const cur = { ...next[teamIdx] };
+
+        if (!cur.correctIndices.includes(currentQIdx)) {
+          cur.correctIndices = [...cur.correctIndices, currentQIdx];
+          cur.score += 10;
+        }
+
+        setTimeout(() => {
+          if (gameMode === 'teacher-led') {
+            setTeacherQIdx(prevQ => {
+              for (let q = 0; q < activeQuestionsList.length; q++) {
+                if (!cur.correctIndices.includes(q)) return q;
+              }
+              return prevQ;
+            });
+          }
+
+          setTeamStates(innerPrev => {
+            const innerNext = [...innerPrev];
+            const innerCur = { ...innerNext[teamIdx] };
+
+            let nextStep = innerCur.currentStep;
+            for (let step = 0; step < activeQuestionsList.length; step++) {
+              const checkQIdx = innerCur.questionSequence[step];
+              if (!innerCur.correctIndices.includes(checkQIdx)) {
+                nextStep = step;
+                break;
+              }
+            }
+            innerCur.currentStep = nextStep;
+
+            if (innerCur.correctIndices.length >= activeQuestionsList.length) {
+              setWinner(innerCur);
+              setShowVictoryModal(true);
+              triggerVictoryFireworks();
+              try { SoundFX.fanfare(); } catch (e) {}
+              if (onAddPoints) {
+                onAddPoints(innerCur.name, 100);
+              }
+            }
+
+            innerNext[teamIdx] = innerCur;
+            return innerNext;
+          });
+        }, 400);
+
+        next[teamIdx] = cur;
+        return next;
+      });
+    } else {
       if (!soundMuted) {
         try { SoundFX.click(); } catch (e) {}
       }
@@ -1572,14 +1661,15 @@ export function HeartPuzzle2010Game({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    gap: '4px',
+                    gap: '10px',
                     background: 'rgba(30, 41, 59, 0.75)',
                     border: `2px solid ${team.color}40`,
-                    borderRadius: '12px',
-                    padding: '5px 7px',
+                    borderRadius: '14px',
+                    padding: '8px 10px',
                     boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
                     boxSizing: 'border-box',
+                    height: '100%',
+                    minHeight: 0,
                     overflowY: 'auto'
                   }}
                 >
@@ -1598,7 +1688,7 @@ export function HeartPuzzle2010Game({
                     onCellClick={(cell) => handleTeamCellClick(teamIdx, cell)}
                   />
 
-                  {/* Bảng Câu Hỏi & 4 Đáp Án (CHỈ ĐỌC - KHÔNG BẤM Ở ĐÂY) */}
+                  {/* Bảng Câu Hỏi & 4 Đáp Án (CHỌN ĐƯỢC CẢ Ở ĐÂY VÀ TRÊN BẢNG) */}
                   {!isTeamCompleted ? (
                     <QuestionPanel
                       question={currentQ}
@@ -1620,8 +1710,9 @@ export function HeartPuzzle2010Game({
                         });
                       }}
                       compact={true}
-                      teamLabel={`${team.name} - Đọc câu hỏi và tìm ô đáp án`}
+                      teamLabel={`${team.name} - Chọn đáp án đúng`}
                       teamColor={team.color}
+                      onOptionSelect={(label) => handleTeamOptionSelect(teamIdx, label)}
                     />
                   ) : (
                     <div style={{
@@ -1836,7 +1927,7 @@ export function HeartPuzzle2010Game({
                 </div>
               </div>
 
-              {/* Bảng Câu Hỏi Chiếu Lớn (Học sinh nhìn câu hỏi rồi lên bảng chạm ô) */}
+              {/* Bảng Câu Hỏi Chiếu Lớn (Học sinh nhìn câu hỏi rồi lên bảng chạm ô hoặc chọn đáp án) */}
               <QuestionPanel
                 question={activeQuestionsList[teacherQIdx]}
                 stepNumber={teacherQIdx + 1}
@@ -1847,6 +1938,7 @@ export function HeartPuzzle2010Game({
                 compact={false}
                 teamLabel={`Đang chấm cho: ${teamStates[activeTeacherTeamIdx]?.name}`}
                 teamColor={teamStates[activeTeacherTeamIdx]?.color}
+                onOptionSelect={(label) => handleTeamOptionSelect(activeTeacherTeamIdx, label)}
               />
             </div>
           </div>
