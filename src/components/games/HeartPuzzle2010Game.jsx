@@ -496,9 +496,9 @@ const InteractiveQuestionPanel = React.memo(({
           <span style={{
             color: teamColor,
             fontWeight: 900,
-            fontSize: 'clamp(0.85rem, 1.1vw, 0.98rem)'
+            fontSize: 'clamp(0.88rem, 1.15vw, 1.02rem)'
           }}>
-            #{questionNumber}/{totalQuestions} (Mã {questionNumber})
+            Câu {questionNumber}/{totalQuestions}
           </span>
         </div>
 
