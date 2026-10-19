@@ -1,10 +1,9 @@
-// HeartPuzzle2010Game.jsx - Trò chơi Giải Mã Bức Tranh Trái Tim 20/10 Chuẩn Mực
+// HeartPuzzle2010Game.jsx - Trò chơi Giải Mã Bức Tranh Trái Tim 20/10 Chuẩn Mẫu Ma Trận Trái Tim
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { 
   Heart, Trophy, Sparkles, Volume2, VolumeX, RotateCcw, Settings, 
   Upload, Download, Users, Monitor, Touchpad, CheckCircle2, XCircle, 
-  ChevronRight, ChevronLeft, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw,
-  Shuffle, Layers, EyeOff, HelpCircle
+  ChevronRight, ChevronLeft, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -129,873 +128,506 @@ export const DEFAULT_2010_QUESTIONS = [
   }
 ];
 
-// SVG Path đường bao trái tim chuẩn mực đối xứng (viewBox 0 0 400 380)
-export const HEART_SVG_PATH = "M 200,120 C 170,45 60,45 60,145 C 60,225 135,285 200,355 C 265,285 340,225 340,145 C 340,45 230,45 200,120 Z";
-
-/**
- * Thuật toán tọa độ các ô trái tim bí mật trên ma trận (Heart Coordinates)
- * Tạo hình trái tim đối xứng, chuẩn mực, khép kín theo chu trình vòng lặp
- */
-export function getHeartCoordinates(N) {
-  if (N === 10) {
-    // Lưới 9 cột x 7 hàng (cols: 0..8, rows: 0..6)
-    // 10 điểm theo thứ tự chu trình khép kín bao quanh viền trái tim:
-    return [
-      { col: 4, row: 5 }, // 0: Đáy nhọn trái tim
-      { col: 2, row: 4 }, // 1: Cạnh chéo dưới trái
-      { col: 1, row: 3 }, // 2: Sườn trái
-      { col: 1, row: 2 }, // 3: Vai trên trái
-      { col: 2, row: 1 }, // 4: Đỉnh múi tim trái
-      { col: 4, row: 2 }, // 5: Khe giữa 2 múi tim
-      { col: 6, row: 1 }, // 6: Đỉnh múi tim phải
-      { col: 7, row: 2 }, // 7: Vai trên phải
-      { col: 7, row: 3 }, // 8: Sườn phải
-      { col: 6, row: 4 }  // 9: Cạnh chéo dưới phải
-    ];
-  }
-  if (N === 15) {
-    // Lưới 9 cột x 8 hàng (cols: 0..8, rows: 0..7)
-    return [
-      { col: 4, row: 7 }, // 0: Đáy nhọn trái tim
-      { col: 3, row: 6 }, // 1: Cạnh chéo dưới trái 1
-      { col: 2, row: 5 }, // 2: Cạnh chéo dưới trái 2
-      { col: 1, row: 4 }, // 3: Sườn dưới trái
-      { col: 1, row: 3 }, // 4: Sườn giữa trái
-      { col: 1, row: 2 }, // 5: Vai trên trái
-      { col: 2, row: 1 }, // 6: Đỉnh múi tim trái
-      { col: 3, row: 2 }, // 7: Cạnh dốc vào khe trái
-      { col: 5, row: 2 }, // 8: Cạnh dốc vào khe phải
-      { col: 6, row: 1 }, // 9: Đỉnh múi tim phải
-      { col: 7, row: 2 }, // 10: Vai trên phải
-      { col: 7, row: 3 }, // 11: Sườn giữa phải
-      { col: 7, row: 4 }, // 12: Sườn dưới phải
-      { col: 6, row: 5 }, // 13: Cạnh chéo dưới phải 2
-      { col: 5, row: 6 }  // 14: Cạnh chéo dưới phải 1
-    ];
-  }
-
-  // Thuật toán tham số (Parametric Heart) dự phòng cho N bất kỳ
-  const cols = N <= 10 ? 9 : (N <= 15 ? 9 : 11);
-  const rows = N <= 10 ? 7 : (N <= 15 ? 8 : 10);
-  const pts = [];
-  for (let i = 0; i < N; i++) {
-    const t = (2 * Math.PI * i) / N;
-    const x = 16 * Math.pow(Math.sin(t), 3);
-    const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-    pts.push({ x, y });
-  }
-  const minX = Math.min(...pts.map(p => p.x)), maxX = Math.max(...pts.map(p => p.x));
-  const minY = Math.min(...pts.map(p => p.y)), maxY = Math.max(...pts.map(p => p.y));
-  const used = new Set();
-  const res = [];
-  for (const p of pts) {
-    let c = Math.round(1 + ((p.x - minX) / (maxX - minX || 1)) * (cols - 3));
-    let r = Math.round(1 + ((p.y - minY) / (maxY - minY || 1)) * (rows - 3));
-    c = Math.max(0, Math.min(cols - 1, c));
-    r = Math.max(0, Math.min(rows - 1, r));
-    while (used.has(`${c},${r}`)) {
-      c = (c + 1) % cols;
-      if (c === 0) r = (r + 1) % rows;
-    }
-    used.add(`${c},${r}`);
-    res.push({ col: c, row: r });
-  }
-  return res;
-}
-
-/**
- * Chuẩn hóa đáp án đúng (A, B, C, D) an toàn tuyệt đối 100%
- * Hỗ trợ mọi định dạng: 'A', 'a', 1, '1', 'A. ...', 'Đáp án B', hoặc so khớp nội dung
- */
-export function getCorrectLetter(question) {
-  if (!question) return 'A';
-  const raw = String(question.correct || '').trim();
-  if (!raw) return 'A';
-
-  const upper = raw.toUpperCase();
-  if (['A', 'B', 'C', 'D'].includes(upper)) return upper;
-
-  if (upper === '1') return 'A';
-  if (upper === '2') return 'B';
-  if (upper === '3') return 'C';
-  if (upper === '4') return 'D';
-
-  const m = upper.match(/^([A-D])[\.\:\)\-\s]/);
-  if (m) return m[1];
-
-  const mVn = upper.match(/(?:ĐÁP ÁN|PHƯƠNG ÁN|CÂU|CHỌN)\s*([A-D])/);
-  if (mVn) return mVn[1];
-
-  if (Array.isArray(question.options)) {
-    const rawClean = raw.toLowerCase().trim();
-    const optIdx = question.options.findIndex(opt => {
-      const oStr = String(opt || '').toLowerCase().trim();
-      return oStr === rawClean || oStr.replace(/^[a-d][\.\:\)\-\s]+/i, '').trim() === rawClean;
-    });
-    if (optIdx >= 0 && optIdx < 4) {
-      return ['A', 'B', 'C', 'D'][optIdx];
+// Helper: Lấy ký tự chữ cái đáp án đúng (A, B, C, D) an toàn tuyệt đối
+export function getCorrectLetter(q) {
+  if (!q) return 'A';
+  if (q.correct !== undefined && q.correct !== null) {
+    const s = String(q.correct).trim().toUpperCase();
+    if (['A', 'B', 'C', 'D'].includes(s)) return s;
+    const num = parseInt(s, 10);
+    if (!isNaN(num) && num >= 0 && num <= 3) {
+      return String.fromCharCode(65 + num);
     }
   }
-
+  if (q.correctAnswer !== undefined && q.correctAnswer !== null) {
+    const s = String(q.correctAnswer).trim().toUpperCase();
+    if (['A', 'B', 'C', 'D'].includes(s)) return s;
+    const num = parseInt(s, 10);
+    if (!isNaN(num) && num >= 0 && num <= 3) {
+      return String.fromCharCode(65 + num);
+    }
+  }
   return 'A';
 }
 
 /**
- * Thuật toán sinh Ma Trận Bí Mật Ẩn Trái Tim (Unified Heart Matrix):
- * - Toàn bộ ô nhìn giống hệt nhau khi chưa lật (ô trắng viền thanh mảnh, hiện mã đáp án lộn xộn)
- * - Đúng N câu hỏi = Đúng N ô mục tiêu tạo thành trái tim
- * - Các ô còn lại là ô nhiễu (decoy cells) chứa đáp án sai
+ * MA TRẬN 7 HÀNG X 9 CỘT TẠO THÀNH HÌNH TRÁI TIM HOÀN MỸ ĐỐI XỨNG
+ * 1 = Ô thuộc hình trái tim (ĐÚNG 40 Ô)
+ * 0 = Ô ngoài lề / nền (23 Ô)
+ * Tổng cộng 63 ô (9 cột x 7 hàng)
+ * Với 10 câu hỏi -> Mỗi câu hỏi sở hữu ĐÚNG 4 ô đáp án trên trái tim!
+ * Khi trả lời hết 10 câu -> Toàn bộ 40 ô tô đỏ rực rỡ ghép thành TRÁI TIM HOÀN CHỈNH!
  */
-export function buildUnifiedMatrix(questions, teamIdx = 0, shuffledOrder = null) {
+export const HEART_7X9_MASK = [
+  [0, 1, 1, 1, 0, 1, 1, 1, 0], // Hàng 0: 6 ô (cols 1,2,3 và 5,6,7) - 2 múi trên của trái tim
+  [1, 1, 1, 1, 1, 1, 1, 1, 1], // Hàng 1: 9 ô (toàn bộ 9 cột) - phần rộng nhất phía trên
+  [1, 1, 1, 1, 1, 1, 1, 1, 1], // Hàng 2: 9 ô (toàn bộ 9 cột) - thân trái tim đầy đặn
+  [0, 1, 1, 1, 1, 1, 1, 1, 0], // Hàng 3: 7 ô (cols 1..7) - thu hẹp về phía dưới
+  [0, 0, 1, 1, 1, 1, 1, 0, 0], // Hàng 4: 5 ô (cols 2..6) - cạnh xiên trái tim
+  [0, 0, 0, 1, 1, 1, 0, 0, 0], // Hàng 5: 3 ô (cols 3..5) - cuống nhọn trái tim
+  [0, 0, 0, 0, 1, 0, 0, 0, 0], // Hàng 6: 1 ô (col 4) - đáy nhọn trái tim
+];
+
+/**
+ * Hàm khởi tạo ma trận 7x9 ô thẻ cho từng đội
+ * @param {string} patternKey - 'matrix' | 'layers'
+ * @param {Array} questions - danh sách câu hỏi
+ * @param {number} teamIdx - chỉ số đội để tạo độ xáo trộn khác biệt chống nhìn bài
+ */
+export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
   const N = Math.max(1, questions.length);
-  const cols = N <= 10 ? 9 : (N <= 15 ? 9 : 11);
-  const rows = N <= 10 ? 7 : (N <= 15 ? 8 : 10);
+  const rows = 7;
+  const cols = 9;
 
-  const heartCoords = getHeartCoordinates(N);
+  // Thu thập 40 tọa độ thuộc hình trái tim và 23 tọa độ ngoài nền
+  const heartCoords = [];
+  const backgroundCoords = [];
 
-  const order = Array.isArray(shuffledOrder) && shuffledOrder.length === N
-    ? shuffledOrder
-    : Array.from({ length: N }, (_, i) => i);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (HEART_7X9_MASK[r][c] === 1) {
+        heartCoords.push({ r, c });
+      } else {
+        backgroundCoords.push({ r, c });
+      }
+    }
+  }
 
-  const targetMap = new Map();
-  for (let slot = 0; slot < N; slot++) {
-    const coord = heartCoords[slot];
-    if (!coord) continue;
-    const qIdx = order[slot];
-    const q = questions[qIdx] || questions[0];
-    const qNum = qIdx + 1;
-    const correctOpt = getCorrectLetter(q);
-    const code = `${qNum}-${correctOpt}`;
-    targetMap.set(`${coord.col},${coord.row}`, {
-      col: coord.col,
-      row: coord.row,
-      slotIdx: slot,
-      qIdx,
-      qNum,
-      correctOpt,
-      code,
-      isTarget: true
+  // Sắp xếp tọa độ trái tim:
+  let sortedHeartCoords = [...heartCoords];
+  if (patternKey === 'layers') {
+    // Kiểu Dưới lên trên: Tô đỏ từ chóp nhọn hàng 6 lên đến 2 múi tim hàng 0
+    sortedHeartCoords.sort((a, b) => b.r - a.r || a.c - b.c);
+  } else {
+    // Kiểu Ma trận chuẩn (Lộn xộn ma trận):
+    // Phân bổ đều các ô của từng câu hỏi trên khắp trái tim, dùng seed theo teamIdx
+    const seed = (teamIdx + 1) * 31;
+    sortedHeartCoords.sort((a, b) => {
+      const hashA = (a.r * 11 + a.c * 17 + seed) % 47;
+      const hashB = (b.r * 11 + b.c * 17 + seed) % 47;
+      return hashA - hashB;
     });
   }
 
+  // Phân bổ 40 ô trái tim cho N câu hỏi
+  // Mỗi câu hỏi có khoảng (40 / N) ô đáp án đúng
+  const heartAssignment = new Map();
+  const cellsPerQ = 40 / N;
+
+  for (let i = 0; i < sortedHeartCoords.length; i++) {
+    const coord = sortedHeartCoords[i];
+    const qIdx = Math.min(N - 1, Math.floor(i / cellsPerQ));
+    const q = questions[qIdx] || questions[0];
+    const correctLetter = getCorrectLetter(q);
+    const code = `${qIdx + 1}-${correctLetter}`;
+
+    heartAssignment.set(`${coord.r}_${coord.c}`, {
+      r: coord.r,
+      c: coord.c,
+      isTarget: true,
+      questionIdx: qIdx,
+      qNum: qIdx + 1,
+      correctOpt: correctLetter,
+      code,
+      id: `heart_${coord.r}_${coord.c}`
+    });
+  }
+
+  // Phân bổ 23 ô ngoài lề (decoy / ô nhiễu):
+  // Chứa mã đáp án SAI để học sinh phải suy nghĩ, không chạm bừa
+  const decoyAssignment = new Map();
   const optionLetters = ['A', 'B', 'C', 'D'];
+  const teamSeed = (teamIdx + 1) * 19;
+
+  for (let i = 0; i < backgroundCoords.length; i++) {
+    const coord = backgroundCoords[i];
+    const decoyQIdx = (i * 3 + coord.r * 5 + coord.c * 7 + teamSeed) % N;
+    const q = questions[decoyQIdx] || questions[0];
+    const correctLetter = getCorrectLetter(q);
+    const wrongOptions = optionLetters.filter(opt => opt !== correctLetter);
+    const chosenWrong = wrongOptions[(i + coord.r + coord.c + teamSeed) % wrongOptions.length] || 'C';
+    const code = `${decoyQIdx + 1}-${chosenWrong}`;
+
+    decoyAssignment.set(`${coord.r}_${coord.c}`, {
+      r: coord.r,
+      c: coord.c,
+      isTarget: false,
+      isDecoy: true,
+      questionIdx: decoyQIdx,
+      qNum: decoyQIdx + 1,
+      code,
+      id: `decoy_${coord.r}_${coord.c}`
+    });
+  }
+
+  // Tạo lưới 7x9
   const grid = [];
-  const seed = (teamIdx + 1) * 31;
+  const cellMap = {};
 
   for (let r = 0; r < rows; r++) {
     const row = [];
     for (let c = 0; c < cols; c++) {
-      const key = `${c},${r}`;
-      if (targetMap.has(key)) {
-        row.push(targetMap.get(key));
-      } else {
-        const decoyQIdx = (r * 5 + c * 3 + seed) % N;
-        const q = questions[decoyQIdx] || questions[0];
-        const correctOpt = getCorrectLetter(q);
-        const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
-        const chosenWrong = wrongOpts[(r * 7 + c * 11 + seed) % wrongOpts.length] || (correctOpt === 'A' ? 'B' : 'A');
-        const qNum = decoyQIdx + 1;
-        const code = `${qNum}-${chosenWrong}`;
-        row.push({
-          col: c,
-          row: r,
-          slotIdx: -1,
-          qIdx: -1,
-          decoyQIdx,
-          chosenWrong,
-          code,
-          isTarget: false
-        });
-      }
+      const key = `${r}_${c}`;
+      let cell = heartAssignment.get(key) || decoyAssignment.get(key);
+      row.push(cell);
+      cellMap[key] = cell;
     }
     grid.push(row);
   }
 
-  // Đường viền SVG khép kín nối tâm các ô trái tim (viewBox 0 0 100 100)
-  const pathParts = [];
-  for (let idx = 0; idx < heartCoords.length; idx++) {
-    const coord = heartCoords[idx];
-    const cx = ((coord.col + 0.5) / cols) * 100;
-    const cy = ((coord.row + 0.5) / rows) * 100;
-    const prefix = idx === 0 ? 'M' : 'L';
-    pathParts.push(`${prefix} ${cx.toFixed(1)} ${cy.toFixed(1)}`);
-  }
-  pathParts.push('Z');
-  const heartLoopSvgPath = pathParts.join(' ');
-
-  return { grid, cols, rows, heartCoords, heartLoopSvgPath };
+  return { grid, cellMap, totalHeartCells: heartCoords.length, rows, cols };
 }
 
 /**
- * Thuật toán sinh lưới các ô nền (decoy cells) bao quanh trái tim (dành cho chế độ strips/mosaic)
+ * COMPONENT: KHUNG MA TRẬN Ô THẺ TRÁI TIM (Chuẩn Giao Diện Mẫu)
  */
-export function buildDecoyGrid(questions, rows = 12, cols = 14) {
-  const numQ = Math.max(1, questions.length);
-  const optionLetters = ['A', 'B', 'C', 'D'];
-  const grid = [];
-
-  for (let r = 0; r < rows; r++) {
-    const row = [];
-    for (let c = 0; c < cols; c++) {
-      const qIdx = (r * 7 + c * 3 + 1) % numQ;
-      const q = questions[qIdx] || questions[0];
-      const correctOpt = getCorrectLetter(q);
-      const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
-      const chosenWrong = wrongOpts[(r * 5 + c * 2) % wrongOpts.length] || (correctOpt === 'A' ? 'B' : 'A');
-      const qNum = qIdx + 1;
-      const code = `${qNum}-${chosenWrong}`;
-      row.push({ r, c, code, qIdx, isTarget: false });
-    }
-    grid.push(row);
-  }
-  return grid;
-}
-
-/**
- * Thuật toán phân bổ các mảnh ghép trái tim:
- * ĐÚNG 1 CÂU HỎI = 1 Ô/MẢNH GHÉP DUY NHẤT TRONG TRÁI TIM!
- */
-export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder = null) {
-  const N = Math.max(1, questions.length);
-  const pieces = [];
-
-  const Y_TOP = 48;
-  const Y_BOTTOM = 355;
-  const TOTAL_H = Y_BOTTOM - Y_TOP;
-
-  const order = Array.isArray(shuffledOrder) && shuffledOrder.length === N
-    ? shuffledOrder
-    : Array.from({ length: N }, (_, i) => i);
-
-  if (layoutMode === 'mosaic') {
-    let rowCounts = [1];
-    if (N === 2) rowCounts = [1, 1];
-    else if (N === 3) rowCounts = [2, 1];
-    else if (N === 4) rowCounts = [2, 2];
-    else if (N === 5) rowCounts = [2, 2, 1];
-    else if (N <= 7) rowCounts = [2, N - 4, 2];
-    else if (N <= 10) rowCounts = [2, Math.ceil((N - 3) * 0.55), Math.floor((N - 3) * 0.45), 1];
-    else if (N <= 14) rowCounts = [2, 4, N - 8, 2];
-    else if (N <= 18) rowCounts = [2, 4, N - 9, 2, 1];
-    else {
-      const r1 = 2;
-      const r2 = Math.round(N * 0.28);
-      const r3 = Math.round(N * 0.32);
-      const r4 = Math.round(N * 0.24);
-      const r5 = Math.max(1, N - r1 - r2 - r3 - r4);
-      rowCounts = [r1, r2, r3, r4, r5];
-    }
-
-    const R = rowCounts.length;
-    const rowH = TOTAL_H / R;
-    let slotIdx = 0;
-
-    for (let r = 0; r < R; r++) {
-      const countInRow = rowCounts[r];
-      const yStart = Y_TOP + r * rowH;
-      const blockW = 340 / countInRow;
-
-      for (let c = 0; c < countInRow; c++) {
-        if (slotIdx >= N) break;
-        const qIdx = order[slotIdx];
-        const q = questions[qIdx] || questions[0];
-        const qNum = qIdx + 1;
-        const correctOpt = getCorrectLetter(q);
-        const code = `${qNum}-${correctOpt}`;
-
-        const xStart = 30 + c * blockW;
-        const cx = xStart + blockW / 2;
-        const cy = yStart + rowH / 2;
-
-        pieces.push({
-          slotIdx,
-          qIdx,
-          qNum,
-          correctOpt,
-          code,
-          x: xStart + 2,
-          y: yStart + 2,
-          width: blockW - 4,
-          height: rowH - 4,
-          cx,
-          cy,
-          isTopLobe: r === 0 && countInRow === 2,
-          isTarget: true
-        });
-        slotIdx++;
-      }
-    }
-  } else {
-    // CHẾ ĐỘ DẢI NGANG (HORIZONTAL STRIPS)
-    const stripH = TOTAL_H / N;
-
-    for (let slotIdx = 0; slotIdx < N; slotIdx++) {
-      const qIdx = order[slotIdx];
-      const q = questions[qIdx] || questions[0];
-      const qNum = qIdx + 1;
-      const correctOpt = getCorrectLetter(q);
-      const code = `${qNum}-${correctOpt}`;
-
-      const y = Y_TOP + slotIdx * stripH;
-      const isTopLobe = y < 125;
-
-      pieces.push({
-        slotIdx,
-        qIdx,
-        qNum,
-        correctOpt,
-        code,
-        x: 40,
-        y: y + 1.2,
-        width: 320,
-        height: Math.max(12, stripH - 2.4),
-        cx: 200,
-        cy: y + stripH / 2,
-        isTopLobe,
-        stripH,
-        isTarget: true
-      });
-    }
-  }
-
-  return pieces;
-}
-
-/**
- * Tạo danh sách thứ tự câu hỏi ngẫu nhiên cho từng đội (Chống nhìn lén / Chống chép bài)
- */
-export function generateTeamSequences(numQuestions, count = 2) {
-  const sequences = [];
-  const N = Math.max(1, numQuestions);
-
-  for (let teamIdx = 0; teamIdx < count; teamIdx++) {
-    const seq = Array.from({ length: N }, (_, i) => i);
-    for (let i = seq.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [seq[i], seq[j]] = [seq[j], seq[i]];
-    }
-
-    if (teamIdx === 1 && sequences[0] && seq[0] === sequences[0][0] && N > 1) {
-      const swapIdx = (1 % N);
-      [seq[0], seq[swapIdx]] = [seq[swapIdx], seq[0]];
-    }
-
-    sequences.push(seq);
-  }
-  return sequences;
-}
-
-/**
- * COMPONENT TỜ PHIẾU BÀI TẬP "GIẢI MÃ BỨC TRANH"
- * TẤT CẢ CÁC Ô ĐỀU CÓ THỂ CHẠM VÀO: ĐÚNG THÌ HIỆN ĐỎ, SAI KHÔNG HIỆN GÌ CẢ!
- */
-export const WorksheetPuzzleView = React.memo(({
-  teamId = 0,
-  teamName = 'Đội Chơi',
-  teamColor = '#e11d48',
-  matrixData = null,
-  heartPieces = [],
-  decoyGrid = [],
+const HeartCardMatrixView = React.memo(({
+  teamName = 'Đội 1 (Đỏ)',
+  teamColor = '#dc2626',
+  boardData,
   correctQuestionIndices = [],
-  totalQuestions = 15,
+  totalQuestions = 10,
   isCompleted = false,
-  compact = false,
-  onCellClick = null
+  onCellClick,
+  wrongClickedCellId = null
 }) => {
-  const correctCount = correctQuestionIndices.length;
-  const percent = Math.min(100, Math.round((correctCount / Math.max(1, totalQuestions)) * 100));
   const answeredSet = useMemo(() => new Set(correctQuestionIndices), [correctQuestionIndices]);
-
-  const clipId = `heart-clip-team-${teamId}`;
-  const gradId = `heart-grad-team-${teamId}`;
+  const correctCount = correctQuestionIndices.length;
+  const percent = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
   return (
     <div style={{
+      width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      background: '#ffffff',
-      borderRadius: '14px',
-      padding: '8px 12px',
-      boxShadow: isCompleted 
-        ? `0 10px 30px ${teamColor}35, 0 0 16px rgba(245, 158, 11, 0.35)` 
-        : '0 4px 16px rgba(0, 0, 0, 0.08)',
-      border: isCompleted ? '2.5px solid #f59e0b' : '1.5px solid #e2e8f0',
-      width: '100%',
-      flexShrink: 0,
-      margin: '0 auto',
-      transition: 'all 0.3s ease',
-      position: 'relative',
+      gap: '8px',
       boxSizing: 'border-box'
     }}>
-      {/* Huy hiệu chiến thắng hoàn thành */}
-      {isCompleted && (
-        <div style={{
-          position: 'absolute',
-          top: '-10px',
-          right: '12px',
-          background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
-          color: '#ffffff',
-          padding: '3px 10px',
-          borderRadius: '20px',
-          fontSize: '0.74rem',
-          fontWeight: 900,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-          boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)',
-          zIndex: 10
-        }}>
-          <Sparkles size={13} /> GIẢI MÃ HOÀN TẤT (100%)
-        </div>
-      )}
-
-      {/* Header Tờ Phiếu Bài Tập Tinh Gọn */}
+      {/* Tiêu đề & Thông tin Đội */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        borderBottom: `2.5px solid ${teamColor || '#0f172a'}`,
-        paddingBottom: '4px',
-        marginBottom: '6px'
+        justifyContent: 'space-between',
+        padding: '2px 4px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
-            background: teamColor || '#0f172a',
+            background: teamColor,
             color: '#ffffff',
             fontWeight: 900,
-            fontSize: 'clamp(0.85rem, 1.2vw, 1.05rem)',
-            padding: '2px 10px',
-            borderRadius: '5px',
-            letterSpacing: '0.4px'
+            fontSize: 'clamp(0.85rem, 1.15vw, 0.96rem)',
+            padding: '4px 14px',
+            borderRadius: '20px',
+            boxShadow: `0 2px 8px ${teamColor}40`
           }}>
             {teamName}
           </span>
           <span style={{
-            fontSize: 'clamp(0.72rem, 1vw, 0.88rem)',
             color: '#64748b',
-            fontWeight: 700
+            fontWeight: 700,
+            fontSize: 'clamp(0.78rem, 1vw, 0.88rem)'
           }}>
             Chạm ô đúng để tô đỏ trái tim
           </span>
         </div>
 
         <div style={{
+          border: `1.5px solid ${teamColor}`,
+          color: teamColor,
+          background: isCompleted ? '#ecfdf5' : '#ffffff',
           fontWeight: 900,
-          color: isCompleted ? '#059669' : (teamColor || '#be123c'),
-          background: isCompleted ? '#d1fae5' : '#fff1f2',
-          padding: '2px 10px',
-          borderRadius: '6px',
-          fontSize: 'clamp(0.78rem, 1.1vw, 0.95rem)',
-          border: '1.5px solid #fecdd3'
+          fontSize: 'clamp(0.8rem, 1.05vw, 0.9rem)',
+          padding: '3px 12px',
+          borderRadius: '20px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
           {correctCount}/{totalQuestions} câu ({percent}%)
         </div>
       </div>
 
-      {/* KHUNG ARENA GIẢI MÃ: BẢNG MA TRẬN Ô ĐÁP ÁN LỘN XỘN (CHUẨN YÊU CẦU NGƯỜI DÙNG) */}
-      {matrixData ? (
+      {/* KHUNG THẺ TRẮNG BO GÓC CHỨA LƯỚI MA TRẬN 7x9 */}
+      <div style={{
+        background: '#ffffff',
+        border: '1.5px solid #cbd5e1',
+        borderRadius: '14px',
+        padding: '10px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        {/* Lưới 9 Cột x 7 Hàng Ô Thẻ */}
         <div style={{
-          position: 'relative',
-          width: '100%',
           display: 'grid',
-          gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
-          gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: 'clamp(2.5px, 0.35vw, 4.5px)',
-          background: '#f1f5f9',
-          padding: '6px',
-          borderRadius: '10px',
-          border: '1.5px solid #cbd5e1',
+          gridTemplateColumns: 'repeat(9, 1fr)',
+          gridTemplateRows: 'repeat(7, 1fr)',
+          gap: '5px',
+          width: '100%',
           boxSizing: 'border-box'
         }}>
-          {matrixData.grid.map((row, rIdx) => 
+          {boardData?.grid?.map((row, rIdx) => 
             row.map((cell, cIdx) => {
-              const isAnswered = cell.isTarget && answeredSet.has(cell.qIdx);
+              const isCellRed = cell.isTarget && answeredSet.has(cell.questionIdx);
+              const isCellWrong = wrongClickedCellId === cell.id;
+
+              let bg = '#ffffff';
+              let borderColor = '#cbd5e1';
+              let textColor = '#1e293b';
+              let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+              let transform = 'scale(1)';
+
+              if (isCellRed) {
+                bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                borderColor = '#b91c1c';
+                textColor = '#ffffff';
+                shadow = '0 4px 10px rgba(220, 38, 38, 0.4)';
+              } else if (isCellWrong) {
+                bg = '#fee2e2';
+                borderColor = '#ef4444';
+                textColor = '#b91c1c';
+                transform = 'scale(0.96)';
+              }
+
               return (
-                <div
+                <button
                   key={`${rIdx}_${cIdx}`}
                   onClick={() => onCellClick && onCellClick(cell)}
+                  title={`Ô [${cell.code}]`}
                   style={{
-                    background: isAnswered 
-                      ? `linear-gradient(135deg, ${teamColor || '#ef4444'} 0%, #be123c 100%)` 
-                      : '#ffffff',
-                    color: isAnswered ? '#ffffff' : '#1e293b',
-                    border: isAnswered ? '2px solid #b91c1c' : '1.5px solid #cbd5e1',
-                    borderRadius: '6px',
+                    height: 'clamp(32px, 4.4vh, 44px)',
+                    background: bg,
+                    border: `1.5px solid ${borderColor}`,
+                    borderRadius: '8px',
+                    color: textColor,
+                    fontWeight: 900,
+                    fontSize: 'clamp(0.78rem, 1.25vw, 0.98rem)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '3px',
-                    fontSize: 'clamp(11.5px, 1.4vw, 15.5px)',
-                    fontWeight: 900,
-                    cursor: isAnswered ? 'default' : 'pointer',
+                    gap: '2px',
+                    cursor: 'pointer',
                     userSelect: 'none',
-                    height: 'clamp(28px, 4.2vh, 38px)',
-                    boxShadow: isAnswered ? `0 0 12px ${teamColor || '#ef4444'}95` : '0 1px 3px rgba(0,0,0,0.05)',
-                    transition: 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    transform: isAnswered ? 'scale(1.04)' : 'scale(1)',
-                    zIndex: isAnswered ? 2 : 1
+                    outline: 'none',
+                    boxShadow: shadow,
+                    transform,
+                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    padding: '0 2px',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <span>{cell.code}</span>
-                  {isAnswered && <Heart size={13} fill="#ffffff" color="#ffffff" />}
-                </div>
+                  {isCellRed && <span style={{ fontSize: '0.74rem' }}>❤️</span>}
+                </button>
               );
             })
           )}
-
-          {/* SVG đường viền hào quang nối các ô trái tim khi giải mã xong 100% */}
-          {isCompleted && matrixData.heartLoopSvgPath && (
-            <svg
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-                zIndex: 10
-              }}
-            >
-              <path
-                d={matrixData.heartLoopSvgPath}
-                fill="rgba(244, 63, 94, 0.12)"
-                stroke="#f59e0b"
-                strokeWidth="3.2"
-                strokeLinejoin="round"
-                filter="drop-shadow(0 0 6px #f59e0b)"
-              />
-            </svg>
-          )}
         </div>
-      ) : (
-        /* CHẾ ĐỘ DẢI NGANG / MOSAIC CŨ (NẾU GIÁO VIÊN CHỌN TRONG MENU) */
+
+        {/* Khung Chữ Thơ Ca Dao & Chủ Đề 20/10 ở góc dưới thẻ trắng */}
         <div style={{
-          position: 'relative',
-          width: '100%',
-          height: compact ? 'clamp(180px, 28vh, 250px)' : 'clamp(240px, 35vh, 340px)',
-          aspectRatio: '1 / 0.95',
-          margin: '0 auto',
-          background: '#ffffff',
-          border: '1.5px solid #cbd5e1',
-          borderRadius: '8px',
-          boxSizing: 'border-box',
-          overflow: 'hidden'
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: '6px',
+          borderTop: '1px dashed #e2e8f0',
+          fontSize: 'clamp(0.72rem, 0.95vw, 0.82rem)'
         }}>
-          <div style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(14, 1fr)',
-            gridTemplateRows: 'repeat(12, 1fr)',
-            gap: '1px',
-            background: '#e2e8f0',
-            opacity: 0.85
+          <span style={{
+            fontFamily: 'serif',
+            fontStyle: 'italic',
+            color: '#be123c',
+            fontWeight: 700
           }}>
-            {decoyGrid.map((row, rIdx) => 
-              row.map((cell, cIdx) => (
-                <div
-                  key={`${rIdx}_${cIdx}`}
-                  onClick={() => onCellClick && onCellClick(cell)}
-                  style={{
-                    background: '#ffffff',
-                    color: '#64748b',
-                    fontSize: compact ? '7.5px' : '9px',
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    userSelect: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {cell.code}
-                </div>
-              ))
-            )}
-          </div>
-
-          <svg
-            viewBox="0 0 400 380"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none'
-            }}
-          >
-            <defs>
-              <clipPath id={clipId}>
-                <path d={HEART_SVG_PATH} />
-              </clipPath>
-              <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor={teamColor || '#e11d48'} />
-                <stop offset="100%" stopColor="#be123c" />
-              </linearGradient>
-            </defs>
-
-            <g clipPath={`url(#${clipId})`} style={{ pointerEvents: 'auto' }}>
-              {heartPieces.map((piece) => {
-                const isCorrect = answeredSet.has(piece.qIdx);
-                const fontSize = piece.height > 24 ? '13px' : '10px';
-                return (
-                  <g 
-                    key={`piece-${piece.slotIdx ?? piece.qIdx}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (onCellClick) onCellClick(piece);
-                    }}
-                    style={{ cursor: isCorrect ? 'default' : 'pointer' }}
-                  >
-                    <rect
-                      x={piece.x}
-                      y={piece.y}
-                      width={piece.width}
-                      height={piece.height}
-                      rx="3"
-                      fill={isCorrect ? `url(#${gradId})` : '#ffffff'}
-                      stroke={isCorrect ? '#ffffff' : '#cbd5e1'}
-                      strokeWidth="1.2"
-                    />
-                    <text
-                      x={piece.cx}
-                      y={piece.cy + 4}
-                      textAnchor="middle"
-                      fill={isCorrect ? '#ffffff' : '#334155'}
-                      fontSize={fontSize}
-                      fontWeight="900"
-                      style={{ userSelect: 'none', pointerEvents: 'none' }}
-                    >
-                      {piece.code}
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          </svg>
+            “ Nghĩa mẹ như nước trong nguồn chảy ra ”
+          </span>
+          <span style={{
+            color: '#e11d48',
+            fontWeight: 900,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            💖 20/10
+          </span>
         </div>
-      )}
-
-      {/* Khung Thơ Ca Dao & Lời Chúc Mẹ 20/10 ở góc dưới */}
-      <div style={{
-        marginTop: compact ? '3px' : '6px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        fontSize: compact ? '0.64rem' : '0.74rem',
-        color: '#be123c',
-        fontWeight: 700,
-        padding: '0 2px'
-      }}>
-        <span style={{ fontStyle: 'italic', color: '#881337' }}>“ Nghĩa mẹ như nước trong nguồn chảy ra ”</span>
-        <span>💖 20/10</span>
-      </div>
-
-      {/* Thanh tiến độ bên dưới */}
-      <div style={{
-        width: '100%',
-        height: '4px',
-        backgroundColor: '#f1f5f9',
-        borderRadius: '2px',
-        marginTop: compact ? '3px' : '6px',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          width: `${percent}%`,
-          height: '100%',
-          background: isCompleted 
-            ? 'linear-gradient(90deg, #f59e0b, #ef4444)' 
-            : `linear-gradient(90deg, ${teamColor || '#e11d48'}, #f43f5e)`,
-          borderRadius: '2px',
-          transition: 'width 0.3s ease'
-        }} />
       </div>
     </div>
   );
 });
 
 /**
- * COMPONENT THẺ CÂU HỎI & 4 ĐÁP ÁN (TƯƠNG TÁC RÕ RÀNG, CHỌN ĐƯỢC CẢ Ở ĐÂY VÀ TRÊN BẢNG)
+ * COMPONENT: KHUNG CÂU HỎI & 4 ĐÁP ÁN TƯƠNG TÁC
  */
-const QuestionPanel = React.memo(({
+const InteractiveQuestionPanel = React.memo(({
   question,
-  stepNumber = 1,
-  originalQNum = 1,
-  totalQuestions = 15,
+  questionNumber = 1,
+  totalQuestions = 10,
+  onSelectOption,
   onPrevQuestion,
   onNextQuestion,
-  compact = false,
-  teamLabel = '',
-  teamColor = '#e11d48',
-  onOptionSelect = null
+  selectedOption,
+  answerState,
+  disabled = false,
+  teamColor = '#dc2626'
 }) => {
-  if (!question) {
-    return (
-      <div style={{
-        padding: '24px',
-        textAlign: 'center',
-        color: '#881337',
-        fontWeight: 700,
-        background: '#fff1f2',
-        borderRadius: '16px'
-      }}>
-        🎉 Đã hoàn thành toàn bộ câu hỏi!
-      </div>
-    );
-  }
-
   const optionLabels = ['A', 'B', 'C', 'D'];
+  if (!question) return null;
 
   return (
     <div style={{
+      background: '#ffffff',
+      border: '1.5px solid #e2e8f0',
+      borderRadius: '14px',
+      padding: '10px 14px',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+      boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px',
-      width: '100%',
-      flexShrink: 0
+      gap: '8px'
     }}>
-      {/* Khung nội dung câu hỏi */}
+      {/* Hàng Thanh Điều Hướng Câu Hỏi */}
       <div style={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #fff1f2 100%)',
-        border: '1.5px solid #fecdd3',
-        borderRadius: '10px',
-        padding: '5px 12px',
-        boxShadow: '0 4px 15px rgba(225, 29, 72, 0.06)'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              background: teamColor || '#be123c',
-              color: '#ffffff',
-              fontSize: 'clamp(0.82rem, 1.15vw, 0.96rem)',
-              fontWeight: 900,
-              padding: '2px 8px',
-              borderRadius: '6px'
-            }}>
-              Câu #{originalQNum}
-            </span>
-            <span style={{
-              fontSize: 'clamp(0.75rem, 1vw, 0.88rem)',
-              fontWeight: 700,
-              color: '#64748b'
-            }}>
-              (Tiến độ {stepNumber}/{totalQuestions})
-            </span>
-          </div>
-
-          {/* Nút Điều Hướng Câu Hỏi Nhanh (Trước / Sau) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {onPrevQuestion && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onPrevQuestion(); }}
-                disabled={stepNumber <= 1}
-                style={{
-                  background: 'rgba(225, 29, 72, 0.08)',
-                  border: '1px solid #fecdd3',
-                  color: '#be123c',
-                  padding: '2px 8px',
-                  borderRadius: '5px',
-                  cursor: stepNumber <= 1 ? 'default' : 'pointer',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  opacity: stepNumber <= 1 ? 0.4 : 1
-                }}
-              >
-                ◀ Trước
-              </button>
-            )}
-
-            {onNextQuestion && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onNextQuestion(); }}
-                disabled={stepNumber >= totalQuestions}
-                style={{
-                  background: 'rgba(225, 29, 72, 0.08)',
-                  border: '1px solid #fecdd3',
-                  color: '#be123c',
-                  padding: '2px 8px',
-                  borderRadius: '5px',
-                  cursor: stepNumber >= totalQuestions ? 'default' : 'pointer',
-                  fontSize: '0.72rem',
-                  fontWeight: 800,
-                  opacity: stepNumber >= totalQuestions ? 0.4 : 1
-                }}
-              >
-                Sau ▶
-              </button>
-            )}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{
+            color: teamColor,
+            fontWeight: 900,
+            fontSize: 'clamp(0.85rem, 1.1vw, 0.98rem)'
+          }}>
+            #{questionNumber}/{totalQuestions} (Mã {questionNumber})
+          </span>
         </div>
 
-        <h3 style={{
-          margin: 0,
-          fontSize: 'clamp(0.92rem, 1.3vw, 1.16rem)',
-          fontWeight: 800,
-          color: '#0f172a',
-          lineHeight: 1.35
-        }}>
-          {question.question}
-        </h3>
+        {/* Nút Trước / Sau */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); onPrevQuestion && onPrevQuestion(); }}
+            disabled={questionNumber <= 1}
+            style={{
+              padding: '3px 10px',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              color: questionNumber <= 1 ? '#94a3b8' : '#334155',
+              cursor: questionNumber <= 1 ? 'default' : 'pointer',
+              fontWeight: 800,
+              fontSize: '0.76rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px'
+            }}
+          >
+            ◀ Trước
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNextQuestion && onNextQuestion(); }}
+            disabled={questionNumber >= totalQuestions}
+            style={{
+              padding: '3px 10px',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              color: questionNumber >= totalQuestions ? '#94a3b8' : '#334155',
+              cursor: questionNumber >= totalQuestions ? 'default' : 'pointer',
+              fontWeight: 800,
+              fontSize: '0.76rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '2px'
+            }}
+          >
+            Sau ▶
+          </button>
+        </div>
       </div>
 
-      {/* Lưới 4 đáp án A, B, C, D: CHỌN ĐƯỢC TRỰC TIẾP */}
+      {/* Nội Dung Câu Hỏi (To, Đậm, Rõ Nét) */}
+      <div style={{
+        fontSize: 'clamp(0.92rem, 1.25vw, 1.12rem)',
+        fontWeight: 800,
+        color: '#0f172a',
+        lineHeight: 1.35,
+        minHeight: '2.4em',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        {question.question}
+      </div>
+
+      {/* Lưới 4 Đáp Án A, B, C, D */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '6px'
+        gap: '8px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
+          const isSelected = selectedOption === label;
+          const isCorrect = label === getCorrectLetter(question);
+
+          let btnBg = '#f8fafc';
+          let borderCol = '#cbd5e1';
+          let textCol = '#0f172a';
+          let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+
+          if (answerState) {
+            if (isCorrect) {
+              btnBg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+              borderCol = '#059669';
+              textCol = '#ffffff';
+              shadow = '0 4px 12px rgba(16, 185, 129, 0.35)';
+            } else if (isSelected && !isCorrect) {
+              btnBg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+              borderCol = '#dc2626';
+              textCol = '#ffffff';
+              shadow = '0 4px 12px rgba(239, 68, 68, 0.35)';
+            }
+          } else if (isSelected) {
+            btnBg = '#ffe4e6';
+            borderCol = '#e11d48';
+            textCol = '#be123c';
+          }
 
           return (
             <button
               key={idx}
-              onClick={() => onOptionSelect && onOptionSelect(label)}
+              onClick={() => {
+                if (!disabled && answerState === null) {
+                  onSelectOption(label);
+                }
+              }}
+              disabled={disabled || answerState !== null}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 padding: '6px 12px',
                 borderRadius: '8px',
-                background: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                color: '#0f172a',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04)',
-                cursor: onOptionSelect ? 'pointer' : 'default',
-                userSelect: 'none',
-                minHeight: 'clamp(34px, 4.6vh, 44px)',
+                background: btnBg,
+                border: `1.5px solid ${borderCol}`,
+                color: textCol,
+                boxShadow: shadow,
+                cursor: (disabled || answerState !== null) ? 'default' : 'pointer',
                 textAlign: 'left',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                if (onOptionSelect) {
-                  e.currentTarget.style.borderColor = teamColor || '#e11d48';
-                  e.currentTarget.style.background = '#fff5f7';
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 8px rgba(225, 29, 72, 0.12)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (onOptionSelect) {
-                  e.currentTarget.style.borderColor = '#cbd5e1';
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.04)';
-                }
+                transition: 'all 0.15s ease',
+                outline: 'none',
+                minHeight: 'clamp(36px, 4.8vh, 46px)'
               }}
             >
               <div style={{
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                background: 'rgba(225, 29, 72, 0.12)',
-                color: teamColor || '#be123c',
+                background: answerState && (isCorrect || isSelected)
+                  ? '#ffffff'
+                  : `${teamColor}15`,
+                color: answerState && isCorrect
+                  ? '#059669'
+                  : (answerState && isSelected ? '#dc2626' : teamColor),
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1021,9 +653,6 @@ const QuestionPanel = React.memo(({
   );
 });
 
-const TEAM_COLORS = ['#e11d48', '#2563eb', '#10b981', '#f59e0b'];
-const DEFAULT_TEAM_NAMES = ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Lục)', 'Đội 4 (Vàng)'];
-
 /**
  * COMPONENT CHÍNH: GAME GIẢI MÃ BỨC TRANH TRÁI TIM 20/10
  */
@@ -1033,10 +662,13 @@ export function HeartPuzzle2010Game({
   onAddPoints, 
   onClose 
 }) {
+  // Chế độ chơi: 'dual-touch' (2 Đội chạm song song) | 'teacher-led' (Máy chiếu giáo viên điều khiển)
   const [gameMode, setGameMode] = useState('dual-touch');
-  const [layoutMode, setLayoutMode] = useState('matrix');
-  const [teamCount, setTeamCount] = useState(2);
+  
+  // Mẫu hình trái tim: 'matrix' (❤️ Ô Trái Tim Ẩn Giấu - Chuẩn) | 'layers' (💖 Tô Màu Từng Lớp)
+  const [patternKey, setPatternKey] = useState('matrix');
 
+  // Danh sách câu hỏi sử dụng
   const [customQuestions, setCustomQuestions] = useState(null);
   const activeQuestionsList = useMemo(() => {
     if (Array.isArray(customQuestions) && customQuestions.length > 0) return customQuestions;
@@ -1044,326 +676,296 @@ export function HeartPuzzle2010Game({
     return DEFAULT_2010_QUESTIONS;
   }, [customQuestions, propQuestions]);
 
+  // Quản lý âm thanh
   const [soundMuted, setSoundMuted] = useState(false);
 
-  // Khởi tạo trạng thái cho các đội với chuỗi câu hỏi xáo trộn độc lập (Chống nhìn lén!)
-  // VÀ thứ tự các mảnh ghép trong trái tim cũng được xáo trộn lộn xộn riêng cho từng đội!
-  const [teamStates, setTeamStates] = useState(() => {
-    const sequences = generateTeamSequences(activeQuestionsList.length, 4);
-    const pieceOrders = generateTeamSequences(activeQuestionsList.length, 4);
+  // Ma trận ô thẻ cho Đội 1 và Đội 2
+  const team1Board = useMemo(() => {
+    return buildHeartMatrix(patternKey, activeQuestionsList, 0);
+  }, [patternKey, activeQuestionsList]);
 
-    return [0, 1, 2, 3].map(i => ({
-      id: i,
-      name: (teams && teams[i]?.name) || DEFAULT_TEAM_NAMES[i],
-      color: TEAM_COLORS[i % TEAM_COLORS.length],
+  const team2Board = useMemo(() => {
+    return buildHeartMatrix(patternKey, activeQuestionsList, 1);
+  }, [patternKey, activeQuestionsList]);
+
+  // Trạng thái chơi của 2 đội
+  const [teamStates, setTeamStates] = useState([
+    {
+      id: 'team_1',
+      name: 'Đội 1 (Đỏ)',
+      color: '#dc2626',
       score: 0,
+      currentQIdx: 0,
       correctIndices: [],
-      questionSequence: sequences[i] || Array.from({ length: activeQuestionsList.length }, (_, k) => k),
-      pieceOrder: pieceOrders[i] || Array.from({ length: activeQuestionsList.length }, (_, k) => k),
-      currentStep: 0
-    }));
-  });
+      selectedOption: null,
+      answerState: null,
+      wrongClickedCellId: null
+    },
+    {
+      id: 'team_2',
+      name: 'Đội 2 (Xanh)',
+      color: '#2563eb',
+      score: 0,
+      currentQIdx: 0,
+      correctIndices: [],
+      selectedOption: null,
+      answerState: null,
+      wrongClickedCellId: null
+    }
+  ]);
 
-  // Lưới Ma Trận Bí Mật Ẩn Trái Tim độc lập cho từng đội (Chuẩn yêu cầu: các ô lộn xộn, đúng kết nối thành trái tim)
-  const teamMatrices = useMemo(() => {
-    return teamStates.map((team, idx) => {
-      return buildUnifiedMatrix(activeQuestionsList, idx, team.pieceOrder);
-    });
-  }, [teamStates, activeQuestionsList]);
-
-  // Lưới các ô đáp án nhiễu mờ ảo xung quanh trái tim (dành cho strips/mosaic)
-  const decoyGrid = useMemo(() => {
-    return buildDecoyGrid(activeQuestionsList, 12, 14);
-  }, [activeQuestionsList]);
-
-  // Khi danh sách câu hỏi thay đổi hoặc thay đổi số đội -> Tạo lại thứ tự xáo trộn độc lập
-  const resetTeamStates = useCallback((count = teamCount, questions = activeQuestionsList) => {
-    const numTeams = gameMode === 'dual-touch' ? 2 : count;
-    const sequences = generateTeamSequences(questions.length, numTeams);
-    const pieceOrders = generateTeamSequences(questions.length, numTeams);
-
-    setTeamStates(prev => {
-      const next = [];
-      for (let i = 0; i < numTeams; i++) {
-        const existing = prev[i];
-        next.push({
-          id: i,
-          name: existing?.name || (teams && teams[i]?.name) || DEFAULT_TEAM_NAMES[i] || `Đội ${i + 1}`,
-          color: TEAM_COLORS[i % TEAM_COLORS.length],
-          score: 0,
-          correctIndices: [],
-          questionSequence: sequences[i] || Array.from({ length: questions.length }, (_, k) => k),
-          pieceOrder: pieceOrders[i] || Array.from({ length: questions.length }, (_, k) => k),
-          currentStep: 0
-        });
-      }
-      return next;
-    });
-  }, [gameMode, teamCount, activeQuestionsList, teams]);
-
-  useEffect(() => {
-    resetTeamStates(teamCount, activeQuestionsList);
-  }, [teamCount, gameMode, activeQuestionsList.length]);
-
-  // Tạo danh sách mảnh ghép trái tim cho từng đội (đảm bảo vị trí ô lộn xộn riêng biệt)
-  const teamHeartPieces = useMemo(() => {
-    return teamStates.map(team => {
-      return buildHeartPieces(activeQuestionsList, layoutMode, team.pieceOrder);
-    });
-  }, [teamStates, activeQuestionsList, layoutMode]);
-
-  // Đội đang có lượt (cho chế độ Teacher-led)
-  const [activeTeacherTeamIdx, setActiveTeacherTeamIdx] = useState(0);
+  // Trạng thái chế độ Máy Chiếu (Giáo Viên Điều Khiển)
   const [teacherQIdx, setTeacherQIdx] = useState(0);
+  const [activeTeacherTeamIdx, setActiveTeacherTeamIdx] = useState(0);
+  const [teacherSelectedOpt, setTeacherSelectedOpt] = useState(null);
+  const [teacherAnswerState, setTeacherAnswerState] = useState(null);
 
+  // Đội chiến thắng & Modal chúc mừng
   const [winner, setWinner] = useState(null);
   const [showVictoryModal, setShowVictoryModal] = useState(false);
-  const fireworksIntervalRef = useRef(null);
 
+  // Reset toàn bộ trò chơi
+  const handleResetGame = useCallback(() => {
+    setTeamStates([
+      {
+        id: 'team_1',
+        name: 'Đội 1 (Đỏ)',
+        color: '#dc2626',
+        score: 0,
+        currentQIdx: 0,
+        correctIndices: [],
+        selectedOption: null,
+        answerState: null,
+        wrongClickedCellId: null
+      },
+      {
+        id: 'team_2',
+        name: 'Đội 2 (Xanh)',
+        color: '#2563eb',
+        score: 0,
+        currentQIdx: 0,
+        correctIndices: [],
+        selectedOption: null,
+        answerState: null,
+        wrongClickedCellId: null
+      }
+    ]);
+    setTeacherQIdx(0);
+    setTeacherSelectedOpt(null);
+    setTeacherAnswerState(null);
+    setWinner(null);
+    setShowVictoryModal(false);
+  }, []);
+
+  // Pháo hoa chiến thắng
   const triggerVictoryFireworks = () => {
     try {
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-      const end = Date.now() + 3000;
-      fireworksIntervalRef.current = setInterval(() => {
-        if (Date.now() > end) {
-          clearInterval(fireworksIntervalRef.current);
-          return;
-        }
-        confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
-        confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
-      }, 350);
+      confetti({
+        particleCount: 100,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
     } catch (e) {}
   };
 
-  useEffect(() => {
-    return () => {
-      if (fireworksIntervalRef.current) clearInterval(fireworksIntervalRef.current);
-    };
-  }, []);
-
-  // XỬ LÝ KHI ĐỘI CHẠM VÀO Ô TRÊN BẢNG / TRÁI TIM:
-  // "nếu chọn đúng ô đó hiện lên màu đỏ, nếu chọn sai thì không có hiện gì cả"
-  const handleTeamCellClick = (teamIdx, cell) => {
+  // Xử lý khi chọn đáp án trong bảng câu hỏi bên dưới (Chế độ 2 Đội Chạm)
+  const handleTouchTeamSelectOption = (teamIdx, opt) => {
     const team = teamStates[teamIdx];
-    if (!team || winner || !cell) return;
+    if (!team || team.answerState !== null || winner) return;
 
-    // Lấy câu hỏi hiện tại đang hiển thị của đội
-    let currentQIdx;
-    if (gameMode === 'teacher-led') {
-      currentQIdx = teacherQIdx;
-    } else {
-      const seq = team.questionSequence || [];
-      currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
-    }
-
-    const currentQuestion = activeQuestionsList[currentQIdx];
+    const currentQuestion = activeQuestionsList[team.currentQIdx];
     if (!currentQuestion) return;
 
-    const qNum = currentQIdx + 1;
-    const correctOpt = getCorrectLetter(currentQuestion);
-    const targetCodeWithDash = `${qNum}-${correctOpt}`;
-    const targetCodeNoDash = `${qNum}${correctOpt}`;
-    const cellCodeClean = cell.code ? String(cell.code).toUpperCase().trim() : '';
+    const correctLetter = getCorrectLetter(currentQuestion);
+    const isCorrect = String(opt).toUpperCase().trim() === correctLetter;
 
-    // Kiểm tra: Ô vừa chạm có đúng là ô chứa đáp án đúng của câu hỏi đang hiển thị hay không?
-    const isCurrentMatch = (cell.isTarget && cell.qIdx === currentQIdx) || 
-                           (cellCodeClean === targetCodeWithDash) || 
-                           (cellCodeClean === targetCodeNoDash);
-
-    let solvedQIdx = -1;
-    if (isCurrentMatch) {
-      solvedQIdx = currentQIdx;
-    } else if (cell.isTarget && cell.qIdx !== undefined && cell.qIdx >= 0) {
-      // Ô mục tiêu trái tim của một câu hỏi khác trong đề
-      solvedQIdx = cell.qIdx;
-    } else if (cellCodeClean) {
-      // Tìm xem mã ô này có trùng khớp đáp án đúng của bất kỳ câu nào trong đề không
-      const matchedIdx = activeQuestionsList.findIndex((q, i) => {
-        const cOpt = getCorrectLetter(q);
-        const cCode = `${i + 1}-${cOpt}`;
-        const cCodeNoDash = `${i + 1}${cOpt}`;
-        return cellCodeClean === cCode || cellCodeClean === cCodeNoDash;
-      });
-      if (matchedIdx !== -1) {
-        solvedQIdx = matchedIdx;
-      }
-    }
-
-    if (solvedQIdx !== -1) {
-      // ĐÚNG Ô! Hiện lên màu đỏ
-      if (!soundMuted) {
-        try { SoundFX.correct(); } catch (e) {}
-      }
-
-      setTeamStates(prev => {
-        const next = [...prev];
-        const cur = { ...next[teamIdx] };
-
-        if (!cur.correctIndices.includes(solvedQIdx)) {
-          cur.correctIndices = [...cur.correctIndices, solvedQIdx];
-          cur.score += 10;
-        }
-
-        // Tự động chuyển sang câu hỏi tiếp theo chưa làm sau 0.35s
-        setTimeout(() => {
-          if (gameMode === 'teacher-led') {
-            setTeacherQIdx(prevQ => {
-              for (let q = 0; q < activeQuestionsList.length; q++) {
-                if (!cur.correctIndices.includes(q)) return q;
-              }
-              return prevQ;
-            });
-          }
-
-          setTeamStates(innerPrev => {
-            const innerNext = [...innerPrev];
-            const innerCur = { ...innerNext[teamIdx] };
-
-            let nextStep = innerCur.currentStep;
-            for (let step = 0; step < activeQuestionsList.length; step++) {
-              const checkQIdx = innerCur.questionSequence[step];
-              if (!innerCur.correctIndices.includes(checkQIdx)) {
-                nextStep = step;
-                break;
-              }
-            }
-            innerCur.currentStep = nextStep;
-
-            if (innerCur.correctIndices.length >= activeQuestionsList.length) {
-              setWinner(innerCur);
-              setShowVictoryModal(true);
-              triggerVictoryFireworks();
-              try { SoundFX.fanfare(); } catch (e) {}
-              if (onAddPoints) {
-                onAddPoints(innerCur.name, 100);
-              }
-            }
-
-            innerNext[teamIdx] = innerCur;
-            return innerNext;
-          });
-        }, 350);
-
-        next[teamIdx] = cur;
-        return next;
-      });
-    } else {
-      // CHỌN SAI Ô: "nếu chọn sai thì không có hiện gì cả"
-      // Giữ nguyên trạng thái, không đổi màu đỏ
-      if (!soundMuted) {
-        try { SoundFX.click(); } catch (e) {}
-      }
-    }
-  };
-
-  // XỬ LÝ KHI ĐỘI CHỌN ĐÁP ÁN A, B, C, D Ở KHUNG CÂU HỎI BÊN DƯỚI
-  const handleTeamOptionSelect = (teamIdx, selectedLabel) => {
-    const team = teamStates[teamIdx];
-    if (!team || winner) return;
-
-    let currentQIdx;
-    if (gameMode === 'teacher-led') {
-      currentQIdx = teacherQIdx;
-    } else {
-      const seq = team.questionSequence || [];
-      currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
-    }
-
-    const currentQuestion = activeQuestionsList[currentQIdx];
-    if (!currentQuestion) return;
-
-    const correctOpt = getCorrectLetter(currentQuestion);
-    const isCorrect = String(selectedLabel).toUpperCase().trim() === correctOpt;
-
-    if (isCorrect) {
-      if (!soundMuted) {
-        try { SoundFX.correct(); } catch (e) {}
-      }
-
-      setTeamStates(prev => {
-        const next = [...prev];
-        const cur = { ...next[teamIdx] };
-
-        if (!cur.correctIndices.includes(currentQIdx)) {
-          cur.correctIndices = [...cur.correctIndices, currentQIdx];
-          cur.score += 10;
-        }
-
-        setTimeout(() => {
-          if (gameMode === 'teacher-led') {
-            setTeacherQIdx(prevQ => {
-              for (let q = 0; q < activeQuestionsList.length; q++) {
-                if (!cur.correctIndices.includes(q)) return q;
-              }
-              return prevQ;
-            });
-          }
-
-          setTeamStates(innerPrev => {
-            const innerNext = [...innerPrev];
-            const innerCur = { ...innerNext[teamIdx] };
-
-            let nextStep = innerCur.currentStep;
-            for (let step = 0; step < activeQuestionsList.length; step++) {
-              const checkQIdx = innerCur.questionSequence[step];
-              if (!innerCur.correctIndices.includes(checkQIdx)) {
-                nextStep = step;
-                break;
-              }
-            }
-            innerCur.currentStep = nextStep;
-
-            if (innerCur.correctIndices.length >= activeQuestionsList.length) {
-              setWinner(innerCur);
-              setShowVictoryModal(true);
-              triggerVictoryFireworks();
-              try { SoundFX.fanfare(); } catch (e) {}
-              if (onAddPoints) {
-                onAddPoints(innerCur.name, 100);
-              }
-            }
-
-            innerNext[teamIdx] = innerCur;
-            return innerNext;
-          });
-        }, 400);
-
-        next[teamIdx] = cur;
-        return next;
-      });
-    } else {
-      if (!soundMuted) {
-        try { SoundFX.click(); } catch (e) {}
-      }
-    }
-  };
-
-  // Nút Giáo Viên Chấm Đúng trực tiếp (chế độ máy chiếu)
-  const handleTeacherManualAward = (teamIdx) => {
-    if (winner) return;
-    if (!soundMuted) {
-      try { SoundFX.correct(); } catch (e) {}
-    }
-
+    // Cập nhật trạng thái đáp án vừa chọn
     setTeamStates(prev => {
       const next = [...prev];
-      const cur = { ...next[teamIdx] };
-      cur.score += 10;
-      if (!cur.correctIndices.includes(teacherQIdx)) {
-        cur.correctIndices = [...cur.correctIndices, teacherQIdx];
-      }
-      next[teamIdx] = cur;
-
-      if (cur.correctIndices.length >= activeQuestionsList.length) {
-        setWinner(cur);
-        setShowVictoryModal(true);
-        triggerVictoryFireworks();
-        try { SoundFX.fanfare(); } catch (e) {}
-      }
+      next[teamIdx] = {
+        ...next[teamIdx],
+        selectedOption: opt,
+        answerState: isCorrect ? 'correct' : 'wrong'
+      };
       return next;
     });
 
-    setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1));
+    if (!soundMuted) {
+      try {
+        if (isCorrect) SoundFX.correct();
+        else SoundFX.wrong();
+      } catch (e) {}
+    }
+
+    if (isCorrect) {
+      setTimeout(() => {
+        setTeamStates(prev => {
+          const next = [...prev];
+          const cur = { ...next[teamIdx] };
+          cur.score += 10;
+          if (!cur.correctIndices.includes(cur.currentQIdx)) {
+            cur.correctIndices = [...cur.correctIndices, cur.currentQIdx];
+          }
+
+          // Kiểm tra hoàn thành tất cả câu hỏi
+          if (cur.correctIndices.length >= activeQuestionsList.length) {
+            setWinner(cur);
+            setShowVictoryModal(true);
+            triggerVictoryFireworks();
+            try { SoundFX.fanfare(); } catch (e) {}
+            if (onAddPoints) {
+              onAddPoints(cur.name, 100);
+            }
+          } else {
+            // Tự động chuyển sang câu hỏi chưa trả lời tiếp theo
+            const nextUnanswered = activeQuestionsList.findIndex((_, idx) => !cur.correctIndices.includes(idx));
+            if (nextUnanswered !== -1) {
+              cur.currentQIdx = nextUnanswered;
+            }
+          }
+
+          cur.selectedOption = null;
+          cur.answerState = null;
+          next[teamIdx] = cur;
+          return next;
+        });
+      }, 450);
+    } else {
+      // Nếu trả lời sai: rung lắc và xóa trạng thái sau 500ms để học sinh thử lại
+      setTimeout(() => {
+        setTeamStates(prev => {
+          const next = [...prev];
+          next[teamIdx] = {
+            ...next[teamIdx],
+            selectedOption: null,
+            answerState: null
+          };
+          return next;
+        });
+      }, 500);
+    }
+  };
+
+  // Xử lý khi học sinh chạm trực tiếp vào một ô thẻ trên ma trận
+  const handleCellClick = (teamIdx, cell) => {
+    const team = teamStates[teamIdx];
+    if (!team || winner || !cell) return;
+
+    if (cell.isTarget && cell.questionIdx !== undefined && cell.questionIdx >= 0) {
+      const qIdx = cell.questionIdx;
+
+      // Nếu câu này chưa được tô đỏ
+      if (!team.correctIndices.includes(qIdx)) {
+        if (!soundMuted) {
+          try { SoundFX.correct(); } catch (e) {}
+        }
+
+        setTeamStates(prev => {
+          const next = [...prev];
+          const cur = { ...next[teamIdx] };
+          cur.score += 10;
+          cur.correctIndices = [...cur.correctIndices, qIdx];
+
+          // Nếu đang mở đúng câu hỏi này thì chuyển sang câu chưa làm tiếp theo
+          if (cur.currentQIdx === qIdx) {
+            const nextUnanswered = activeQuestionsList.findIndex((_, idx) => !cur.correctIndices.includes(idx));
+            if (nextUnanswered !== -1) {
+              cur.currentQIdx = nextUnanswered;
+            }
+          }
+
+          if (cur.correctIndices.length >= activeQuestionsList.length) {
+            setWinner(cur);
+            setShowVictoryModal(true);
+            triggerVictoryFireworks();
+            try { SoundFX.fanfare(); } catch (e) {}
+            if (onAddPoints) {
+              onAddPoints(cur.name, 100);
+            }
+          }
+
+          next[teamIdx] = cur;
+          return next;
+        });
+      }
+    } else {
+      // Chạm vào ô sai (decoy): Báo âm thanh sai và nháy đỏ ô đó
+      if (!soundMuted) {
+        try { SoundFX.wrong(); } catch (e) {}
+      }
+
+      setTeamStates(prev => {
+        const next = [...prev];
+        next[teamIdx] = {
+          ...next[teamIdx],
+          wrongClickedCellId: cell.id
+        };
+        return next;
+      });
+
+      setTimeout(() => {
+        setTeamStates(prev => {
+          const next = [...prev];
+          next[teamIdx] = {
+            ...next[teamIdx],
+            wrongClickedCellId: null
+          };
+          return next;
+        });
+      }, 400);
+    }
+  };
+
+  // Xử lý khi Giáo viên chọn đáp án trong chế độ Máy Chiếu (Teacher-Led)
+  const handleTeacherSelectOption = (opt) => {
+    if (teacherAnswerState !== null || winner) return;
+
+    const currentQuestion = activeQuestionsList[teacherQIdx];
+    if (!currentQuestion) return;
+
+    const correctOpt = getCorrectLetter(currentQuestion);
+    const isCorrect = String(opt).toUpperCase().trim() === correctOpt;
+    setTeacherSelectedOpt(opt);
+    setTeacherAnswerState(isCorrect ? 'correct' : 'wrong');
+
+    if (!soundMuted) {
+      try {
+        if (isCorrect) SoundFX.correct();
+        else SoundFX.wrong();
+      } catch (e) {}
+    }
+
+    if (isCorrect) {
+      setTeamStates(prev => {
+        const next = [...prev];
+        const cur = { ...next[activeTeacherTeamIdx] };
+        cur.score += 10;
+        if (!cur.correctIndices.includes(teacherQIdx)) {
+          cur.correctIndices = [...cur.correctIndices, teacherQIdx];
+        }
+        next[activeTeacherTeamIdx] = cur;
+
+        if (cur.correctIndices.length >= activeQuestionsList.length) {
+          setWinner(cur);
+          setShowVictoryModal(true);
+          triggerVictoryFireworks();
+          try { SoundFX.fanfare(); } catch (e) {}
+          if (onAddPoints) {
+            onAddPoints(cur.name, 100);
+          }
+        }
+
+        return next;
+      });
+    }
+
+    setTimeout(() => {
+      setTeacherSelectedOpt(null);
+      setTeacherAnswerState(null);
+      if (isCorrect) {
+        setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1));
+      }
+    }, 500);
   };
 
   // Tải file Excel mẫu câu hỏi chuẩn 20/10
@@ -1391,320 +993,297 @@ export function HeartPuzzle2010Game({
     XLSX.writeFile(workbook, 'Mau_Cau_Hoi_Giai_Ma_Buc_Tranh_20_10.xlsx');
   };
 
-  // Tải lên file Excel câu hỏi tuỳ chỉnh
-  const handleFileUpload = async (e) => {
+  // Nhập file Excel từ giáo viên
+  const fileInputRef = useRef(null);
+  const handleImportExcel = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      const parsed = await parseUploadedFile(file);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setCustomQuestions(parsed);
-        alert(`Đã nhập thành công ${parsed.length} câu hỏi mới vào game! Trái tim đã được chia thành ${parsed.length} ô tương ứng!`);
-        handleResetGame();
-      } else {
-        alert('Không tìm thấy danh sách câu hỏi hợp lệ trong file Excel.');
-      }
-    } catch (err) {
-      alert('Lỗi đọc file Excel: ' + (err.message || 'Định dạng không hợp lệ'));
-    }
-    e.target.value = '';
-  };
+    parseUploadedFile(file, (data) => {
+      if (Array.isArray(data) && data.length > 0) {
+        const parsedQ = data.map((item, idx) => ({
+          id: `custom_${idx + 1}`,
+          question: item['Câu hỏi'] || item['cau_hoi'] || item['Question'] || `Câu hỏi ${idx + 1}`,
+          options: [
+            item['Đáp án A'] || item['A'] || item['Option A'] || 'A',
+            item['Đáp án B'] || item['B'] || item['Option B'] || 'B',
+            item['Đáp án C'] || item['C'] || item['Option C'] || 'C',
+            item['Đáp án D'] || item['D'] || item['Option D'] || 'D'
+          ],
+          correct: String(item['Đáp án đúng'] || item['Dap_an_dung'] || item['Correct'] || 'A').toUpperCase().trim(),
+          explanation: item['Giải thích'] || ''
+        }));
 
-  // Reset trận đấu
-  const handleResetGame = () => {
-    setWinner(null);
-    setShowVictoryModal(false);
-    setTeacherQIdx(0);
-    resetTeamStates(teamCount, activeQuestionsList);
+        setCustomQuestions(parsedQ);
+        handleResetGame();
+        alert(`🎉 Đã nhập thành công ${parsedQ.length} câu hỏi mới!`);
+      } else {
+        alert('File không chứa dữ liệu câu hỏi hợp lệ.');
+      }
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   return (
     <div style={{
       position: 'fixed',
-      inset: 0,
+      top: 0,
+      left: 0,
+      width: '100vw',
+      height: '100vh',
+      backgroundColor: '#0b132b',
+      backgroundImage: 'radial-gradient(circle at 50% 10%, #1c2541 0%, #0b132b 100%)',
       zIndex: 9999,
-      backgroundColor: '#0f172a',
-      color: '#ffffff',
       display: 'flex',
       flexDirection: 'column',
+      color: '#ffffff',
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       overflow: 'hidden',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+      userSelect: 'none',
+      boxSizing: 'border-box'
     }}>
-      {/* THANH ĐIỀU KHIỂN TRÊN CÙNG (TOP BAR) */}
+      {/* THANH ĐIỀU HƯỚNG TRÊN CÙNG (HEADER BAR) */}
       <div style={{
-        height: '44px',
-        background: 'linear-gradient(90deg, #1e293b 0%, #0f172a 100%)',
-        borderBottom: '1px solid #334155',
+        height: '52px',
+        padding: '0 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 12px',
-        flexShrink: 0
+        background: 'rgba(15, 23, 42, 0.95)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(8px)',
+        flexShrink: 0,
+        zIndex: 50
       }}>
-        {/* Nút Thoát Game & Tiêu đề */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Nút Thoát Game & Tiêu Đề */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
             onClick={onClose}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
+              background: '#1e293b',
+              border: '1px solid #334155',
               color: '#ffffff',
-              padding: '6px 12px',
-              borderRadius: '10px',
+              padding: '6px 14px',
+              borderRadius: '8px',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.82rem'
+              fontSize: '0.85rem'
             }}
           >
-            <ArrowLeft size={15} /> Thoát Game
+            <ArrowLeft size={16} />
+            Thoát Game
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '1.4rem' }}>💖</span>
-            <div>
-              <div style={{ fontWeight: 900, fontSize: '1.02rem', color: '#f43f5e' }}>
-                GIẢI MÃ BỨC TRANH 20/10
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                Đọc câu hỏi bên dưới ➔ Chạm đúng ô trên bảng để tô đỏ kết nối thành Trái Tim
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Thanh chuyển chế độ chơi & Chọn Kiểu Trái Tim */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Chọn Kiểu Hiển Thị Trái Tim */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: 'rgba(255, 255, 255, 0.08)',
-            padding: '3px 8px',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            gap: '6px'
-          }}>
-            <Layers size={14} color="#fb7185" />
-            <select
-              value={layoutMode}
-              onChange={(e) => {
-                setLayoutMode(e.target.value);
-              }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="matrix" style={{ background: '#1e293b', color: '#fff' }}>
-                ❤️ Ô Trái Tim Ẩn Giấu (Lộn Xộn Ma Trận - Chuẩn)
-              </option>
-              <option value="strips" style={{ background: '#1e293b', color: '#fff' }}>
-                💖 Dải Ngang Trái Tim (1 Câu 1 Dải)
-              </option>
-              <option value="mosaic" style={{ background: '#1e293b', color: '#fff' }}>
-                🧩 Khối Ghép Mảnh (Mosaic Blocks)
-              </option>
-            </select>
-          </div>
-
-          {/* Chọn Chế Độ Chơi: Chạm 2 Đội vs Máy Chiếu */}
-          <div style={{
-            display: 'flex',
-            background: 'rgba(255, 255, 255, 0.08)',
-            padding: '3px',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.15)'
-          }}>
-            <button
-              onClick={() => { setGameMode('dual-touch'); handleResetGame(); }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '5px 11px',
-                borderRadius: '8px',
-                border: 'none',
-                background: gameMode === 'dual-touch' ? '#e11d48' : 'transparent',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '0.78rem',
-                cursor: 'pointer'
-              }}
-            >
-              <Touchpad size={14} /> Chạm 2 Đội (Bảng Cảm Ứng)
-            </button>
-            <button
-              onClick={() => { setGameMode('teacher-led'); handleResetGame(); }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '5px 11px',
-                borderRadius: '8px',
-                border: 'none',
-                background: gameMode === 'teacher-led' ? '#2563eb' : 'transparent',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '0.78rem',
-                cursor: 'pointer'
-              }}
-            >
-              <Monitor size={14} /> Máy Chiếu (Giáo Viên Điều Khiển)
-            </button>
-          </div>
-
-          {/* Chọn Số Đội (nếu ở chế độ Máy Chiếu) */}
-          {gameMode === 'teacher-led' && (
+          <div>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              background: 'rgba(255, 255, 255, 0.08)',
-              padding: '3px 8px',
-              borderRadius: '10px',
-              border: '1px solid rgba(255, 255, 255, 0.15)'
+              fontWeight: 900,
+              fontSize: '1rem',
+              color: '#f43f5e',
+              letterSpacing: '0.5px'
             }}>
-              <Users size={14} color="#94a3b8" />
-              <span style={{ fontSize: '0.76rem', color: '#cbd5e1', fontWeight: 700 }}>Số Đội:</span>
-              {[1, 2, 3, 4].map(num => (
-                <button
-                  key={num}
-                  onClick={() => { setTeamCount(num); handleResetGame(); }}
-                  style={{
-                    width: '22px',
-                    height: '22px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    background: teamCount === num ? '#2563eb' : 'rgba(255, 255, 255, 0.1)',
-                    color: '#ffffff',
-                    fontWeight: 800,
-                    fontSize: '0.74rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {num}
-                </button>
-              ))}
+              <Heart size={18} fill="#f43f5e" />
+              GIẢI MÃ BỨC TRANH 20/10
             </div>
-          )}
+            <div style={{
+              fontSize: '0.74rem',
+              color: '#94a3b8',
+              fontWeight: 500
+            }}>
+              Đọc câu hỏi bên dưới ➔ Chạm đúng ô trên bảng để tô đỏ kết nối thành Trái Tim
+            </div>
+          </div>
+        </div>
 
-          {/* Nút Excel Mẫu & Nhập Excel */}
-          <button
-            onClick={handleDownloadSampleExcel}
-            title="Tải file Excel câu hỏi mẫu 20/10"
+        {/* Bộ Chọn Kiểu Ma Trận Trái Tim & Chế Độ Chơi */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Dropdown Mẫu Ma Trận Trái Tim */}
+          <select
+            value={patternKey}
+            onChange={(e) => setPatternKey(e.target.value)}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              background: 'rgba(16, 185, 129, 0.2)',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              color: '#34d399',
-              padding: '5px 9px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 700,
-              fontSize: '0.76rem'
-            }}
-          >
-            <Download size={13} /> Mẫu Excel
-          </button>
-
-          <label
-            title="Nhập câu hỏi từ file Excel"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              background: 'rgba(56, 189, 248, 0.2)',
-              border: '1px solid rgba(56, 189, 248, 0.4)',
-              color: '#38bdf8',
-              padding: '5px 9px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 700,
-              fontSize: '0.76rem'
-            }}
-          >
-            <Upload size={13} /> Nhập Excel
-            <input type="file" accept=".xlsx, .xls, .csv" onChange={handleFileUpload} style={{ display: 'none' }} />
-          </label>
-
-          {/* Nút Reset & Âm Thanh */}
-          <button
-            onClick={handleResetGame}
-            title="Xáo trộn lại và làm mới trận đấu"
-            style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              border: 'none',
+              background: '#1e293b',
+              border: '1.5px solid #e11d48',
               color: '#ffffff',
-              padding: '6px',
+              padding: '6px 12px',
               borderRadius: '8px',
+              fontWeight: 800,
+              fontSize: '0.82rem',
+              outline: 'none',
               cursor: 'pointer'
             }}
           >
-            <RotateCcw size={15} />
+            <option value="matrix">❤️ Ô Trái Tim Ẩn Giấu (Lộn Xộn Ma Trận - Chuẩn)</option>
+            <option value="layers">💖 Trái Tim Tô Màu Từng Lớp (Dưới Lên Trên)</option>
+          </select>
+
+          {/* Nút Chuyển Chế Độ: Chạm 2 Đội vs Máy Chiếu */}
+          <div style={{
+            display: 'flex',
+            background: '#1e293b',
+            padding: '3px',
+            borderRadius: '8px',
+            border: '1px solid #334155'
+          }}>
+            <button
+              onClick={() => setGameMode('dual-touch')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                background: gameMode === 'dual-touch' ? '#e11d48' : 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: 'pointer'
+              }}
+            >
+              <Touchpad size={15} />
+              Chạm 2 Đội (Bảng Cảm Ứng)
+            </button>
+            <button
+              onClick={() => setGameMode('teacher-led')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                background: gameMode === 'teacher-led' ? '#2563eb' : 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: 'pointer'
+              }}
+            >
+              <Monitor size={15} />
+              Máy Chiếu (Giáo Viên Điều Khiển)
+            </button>
+          </div>
+
+          {/* Các Nút Thao Tác Excel & Âm Thanh */}
+          <button
+            onClick={handleDownloadSampleExcel}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: '#059669',
+              border: 'none',
+              color: '#ffffff',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              cursor: 'pointer'
+            }}
+          >
+            <Download size={14} />
+            Mẫu Excel
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImportExcel}
+            accept=".xlsx, .xls, .csv"
+            style={{ display: 'none' }}
+          />
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              background: '#0891b2',
+              border: 'none',
+              color: '#ffffff',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              fontWeight: 800,
+              fontSize: '0.78rem',
+              cursor: 'pointer'
+            }}
+          >
+            <Upload size={14} />
+            Nhập Excel
+          </button>
+
+          <button
+            onClick={handleResetGame}
+            title="Làm mới trò chơi"
+            style={{
+              background: '#334155',
+              border: 'none',
+              color: '#ffffff',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <RotateCcw size={16} />
           </button>
 
           <button
             onClick={() => setSoundMuted(!soundMuted)}
             title={soundMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
+              background: '#334155',
               border: 'none',
-              color: soundMuted ? '#f87171' : '#4ade80',
-              padding: '6px',
-              borderRadius: '8px',
+              color: '#ffffff',
+              width: '32px',
+              height: '32px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               cursor: 'pointer'
             }}
           >
-            {soundMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+            {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </div>
       </div>
 
-      {/* KHÔNG GIAN ĐẤU TRƯỜNG CHÍNH (ARENA) */}
+      {/* KHU VỰC ĐẤU TRƯỜNG CHÍNH (MAIN ARENA) */}
       <div style={{
         flex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-        padding: '4px 8px 6px 8px',
+        padding: '10px 16px',
+        overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        background: 'radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%)',
-        boxSizing: 'border-box',
-        maxHeight: 'calc(100vh - 44px)'
+        boxSizing: 'border-box'
       }}>
-        {/* CHẾ ĐỘ 1: BẢNG CẢM ỨNG 2 ĐỘI (DUAL-TOUCH) */}
+        {/* CHẾ ĐỘ 1: CHẠM 2 ĐỘI SONG SONG (DUAL TOUCH) */}
         {gameMode === 'dual-touch' && (
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '8px',
+            gap: '16px',
             width: '100%',
-            maxWidth: '1440px',
-            margin: '0 auto',
-            alignItems: 'stretch',
-            flex: 1,
-            minHeight: 0,
+            height: '100%',
             boxSizing: 'border-box'
           }}>
-            {teamStates.slice(0, 2).map((team, teamIdx) => {
-              const seq = team.questionSequence || [];
-              const currentQIdx = (seq[team.currentStep] !== undefined) ? seq[team.currentStep] : team.currentStep;
-              const currentQ = activeQuestionsList[currentQIdx] || activeQuestionsList[0];
+            {teamStates.map((team, teamIdx) => {
+              const currentQ = activeQuestionsList[team.currentQIdx];
               const isTeamCompleted = team.correctIndices.length >= activeQuestionsList.length;
-              const pieces = teamHeartPieces[teamIdx] || [];
-              const matrix = teamMatrices[teamIdx] || null;
+              const currentBoard = teamIdx === 0 ? team1Board : team2Board;
 
               return (
                 <div
@@ -1712,71 +1291,66 @@ export function HeartPuzzle2010Game({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'flex-start',
-                    gap: 'clamp(6px, 1.2vh, 12px)',
-                    background: 'rgba(30, 41, 59, 0.75)',
-                    border: `2px solid ${team.color}40`,
-                    borderRadius: '14px',
-                    padding: '8px 10px',
-                    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
-                    boxSizing: 'border-box',
+                    gap: '10px',
                     height: '100%',
-                    minHeight: 0,
-                    overflowY: 'auto'
+                    boxSizing: 'border-box',
+                    justifyContent: 'space-between'
                   }}
                 >
-                  {/* Tờ Phiếu Bài Tập Trái Tim: CHẠM TICK VÀO Ô ĐỂ TÔ ĐỎ */}
-                  <WorksheetPuzzleView
-                    teamId={team.id}
+                  {/* Bảng Ma Trận Ô Thẻ Trái Tim Của Đội */}
+                  <HeartCardMatrixView
                     teamName={team.name}
                     teamColor={team.color}
-                    matrixData={layoutMode === 'matrix' ? matrix : null}
-                    heartPieces={pieces}
-                    decoyGrid={decoyGrid}
+                    boardData={currentBoard}
                     correctQuestionIndices={team.correctIndices}
                     totalQuestions={activeQuestionsList.length}
                     isCompleted={isTeamCompleted}
-                    compact={true}
-                    onCellClick={(cell) => handleTeamCellClick(teamIdx, cell)}
+                    onCellClick={(cell) => handleCellClick(teamIdx, cell)}
+                    wrongClickedCellId={team.wrongClickedCellId}
                   />
 
-                  {/* Bảng Câu Hỏi & 4 Đáp Án (CHỌN ĐƯỢC CẢ Ở ĐÂY VÀ TRÊN BẢNG) */}
+                  {/* Bảng Câu Hỏi & 4 Đáp Án Tương Tác Phía Dưới */}
                   {!isTeamCompleted ? (
-                    <QuestionPanel
+                    <InteractiveQuestionPanel
                       question={currentQ}
-                      stepNumber={team.currentStep + 1}
-                      originalQNum={currentQIdx + 1}
+                      questionNumber={team.currentQIdx + 1}
                       totalQuestions={activeQuestionsList.length}
+                      onSelectOption={(opt) => handleTouchTeamSelectOption(teamIdx, opt)}
                       onPrevQuestion={() => {
                         setTeamStates(prev => {
                           const next = [...prev];
-                          next[teamIdx].currentStep = Math.max(0, next[teamIdx].currentStep - 1);
+                          next[teamIdx].currentQIdx = Math.max(0, next[teamIdx].currentQIdx - 1);
                           return next;
                         });
                       }}
                       onNextQuestion={() => {
                         setTeamStates(prev => {
                           const next = [...prev];
-                          next[teamIdx].currentStep = Math.min(activeQuestionsList.length - 1, next[teamIdx].currentStep + 1);
+                          next[teamIdx].currentQIdx = Math.min(activeQuestionsList.length - 1, next[teamIdx].currentQIdx + 1);
                           return next;
                         });
                       }}
-                      compact={true}
-                      teamLabel={`${team.name} - Chọn đáp án đúng`}
+                      selectedOption={team.selectedOption}
+                      answerState={team.answerState}
+                      disabled={winner !== null}
                       teamColor={team.color}
-                      onOptionSelect={(label) => handleTeamOptionSelect(teamIdx, label)}
                     />
                   ) : (
                     <div style={{
-                      padding: '14px',
+                      padding: '16px',
                       background: 'rgba(16, 185, 129, 0.15)',
                       border: '2px solid #10b981',
                       borderRadius: '14px',
                       textAlign: 'center',
                       color: '#34d399',
-                      fontWeight: 800,
-                      fontSize: '1rem'
+                      fontWeight: 900,
+                      fontSize: '1.05rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
                     }}>
+                      <Trophy size={24} />
                       🎉 ĐÃ GIẢI MÃ HOÀN TẤT TRÁI TIM 20/10!
                     </div>
                   )}
@@ -1790,318 +1364,144 @@ export function HeartPuzzle2010Game({
         {gameMode === 'teacher-led' && (
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
+            gap: '20px',
             width: '100%',
-            maxWidth: '1400px',
+            maxWidth: '1200px',
             margin: '0 auto',
             height: '100%',
             boxSizing: 'border-box',
-            overflow: 'hidden'
+            alignItems: 'center'
           }}>
-            {/* Hàng Các Tờ Phiếu Trái Tim Của Từng Đội */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${teamStates.length}, 1fr)`,
-              gap: '12px',
-              width: '100%',
-              flex: 1,
-              boxSizing: 'border-box'
-            }}>
-              {teamStates.map((team, idx) => {
-                const isCurrentTurn = activeTeacherTeamIdx === idx;
-                const isTeamCompleted = team.correctIndices.length >= activeQuestionsList.length;
-                const pieces = teamHeartPieces[idx] || [];
-                const matrix = teamMatrices[idx] || null;
-
-                return (
-                  <div
+            {/* Cột Trái: Ma Trận Trái Tim Đội Đang Có Lượt */}
+            <div style={{ flex: 1.1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '4px' }}>
+                {teamStates.map((team, idx) => (
+                  <button
                     key={team.id}
                     onClick={() => setActiveTeacherTeamIdx(idx)}
                     style={{
-                      cursor: 'pointer',
-                      transform: isCurrentTurn ? 'scale(1.01)' : 'scale(1)',
-                      transition: 'all 0.2s ease',
-                      position: 'relative',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      height: '100%',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    {isCurrentTurn && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '-10px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: team.color,
-                        color: '#ffffff',
-                        padding: '3px 12px',
-                        borderRadius: '20px',
-                        fontWeight: 900,
-                        fontSize: '0.75rem',
-                        boxShadow: `0 4px 12px ${team.color}60`,
-                        zIndex: 20,
-                        whiteSpace: 'nowrap'
-                      }}>
-                        👉 LƯỢT ĐỘI NÀY
-                      </div>
-                    )}
-
-                    <WorksheetPuzzleView
-                      teamId={team.id}
-                      teamName={team.name}
-                      teamColor={team.color}
-                      matrixData={layoutMode === 'matrix' ? matrix : null}
-                      heartPieces={pieces}
-                      decoyGrid={decoyGrid}
-                      correctQuestionIndices={team.correctIndices}
-                      totalQuestions={activeQuestionsList.length}
-                      isCompleted={isTeamCompleted}
-                      compact={teamStates.length > 2}
-                      onCellClick={(cell) => handleTeamCellClick(idx, cell)}
-                    />
-
-                    {/* Nút Giáo Viên Chấm Điểm Nhanh */}
-                    <div style={{ marginTop: '6px', display: 'flex', gap: '6px' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTeacherManualAward(idx);
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: '6px',
-                          background: `${team.color}25`,
-                          border: `1.5px solid ${team.color}`,
-                          color: '#ffffff',
-                          borderRadius: '8px',
-                          fontWeight: 800,
-                          fontSize: '0.76rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        <CheckCircle2 size={14} color={team.color} /> Chấm Đúng & Tô Đỏ Ô
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Khung Câu Hỏi Chiếu Trung Tâm (CHỈ HIỂN THỊ ĐỂ ĐỌC) */}
-            <div style={{
-              background: '#ffffff',
-              borderRadius: '20px',
-              padding: '18px 24px',
-              boxShadow: '0 10px 35px rgba(0, 0, 0, 0.4)',
-              border: '2px solid #e2e8f0',
-              color: '#0f172a'
-            }}>
-              {/* Chọn Lượt Đội Trả Lời */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '12px',
-                borderBottom: '1px solid #e2e8f0',
-                paddingBottom: '8px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#64748b' }}>
-                    ĐỘI ĐANG TRẢ LỜI CÂU HỎI:
-                  </span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {teamStates.map((team, idx) => (
-                      <button
-                        key={team.id}
-                        onClick={() => setActiveTeacherTeamIdx(idx)}
-                        style={{
-                          padding: '4px 12px',
-                          borderRadius: '20px',
-                          border: activeTeacherTeamIdx === idx ? `2px solid ${team.color}` : '1px solid #cbd5e1',
-                          background: activeTeacherTeamIdx === idx ? `${team.color}15` : '#f8fafc',
-                          color: activeTeacherTeamIdx === idx ? team.color : '#64748b',
-                          fontWeight: 900,
-                          fontSize: '0.82rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {team.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Điều Hướng Câu Hỏi */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <button
-                    onClick={() => setTeacherQIdx(prev => Math.max(0, prev - 1))}
-                    disabled={teacherQIdx === 0}
-                    style={{
-                      padding: '4px 10px',
-                      background: '#f1f5f9',
-                      border: '1px solid #cbd5e1',
+                      flex: 1,
+                      padding: '8px',
                       borderRadius: '8px',
-                      cursor: teacherQIdx === 0 ? 'default' : 'pointer',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                      color: '#475569'
+                      background: activeTeacherTeamIdx === idx ? team.color : '#1e293b',
+                      border: `1.5px solid ${team.color}`,
+                      color: '#ffffff',
+                      fontWeight: 900,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer'
                     }}
                   >
-                    ◀ Câu Trước
+                    {team.name} ({team.correctIndices.length}/{activeQuestionsList.length})
                   </button>
-                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0f172a' }}>
-                    Câu {teacherQIdx + 1}/{activeQuestionsList.length}
-                  </span>
-                  <button
-                    onClick={() => setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1))}
-                    disabled={teacherQIdx === activeQuestionsList.length - 1}
-                    style={{
-                      padding: '4px 10px',
-                      background: '#f1f5f9',
-                      border: '1px solid #cbd5e1',
-                      borderRadius: '8px',
-                      cursor: teacherQIdx === activeQuestionsList.length - 1 ? 'default' : 'pointer',
-                      fontWeight: 700,
-                      fontSize: '0.8rem',
-                      color: '#475569'
-                    }}
-                  >
-                    Câu Tiếp ▶
-                  </button>
-                </div>
+                ))}
               </div>
 
-              {/* Bảng Câu Hỏi Chiếu Lớn (Học sinh nhìn câu hỏi rồi lên bảng chạm ô hoặc chọn đáp án) */}
-              <QuestionPanel
-                question={activeQuestionsList[teacherQIdx]}
-                stepNumber={teacherQIdx + 1}
-                originalQNum={teacherQIdx + 1}
+              <HeartCardMatrixView
+                teamName={teamStates[activeTeacherTeamIdx].name}
+                teamColor={teamStates[activeTeacherTeamIdx].color}
+                boardData={activeTeacherTeamIdx === 0 ? team1Board : team2Board}
+                correctQuestionIndices={teamStates[activeTeacherTeamIdx].correctIndices}
                 totalQuestions={activeQuestionsList.length}
+                isCompleted={teamStates[activeTeacherTeamIdx].correctIndices.length >= activeQuestionsList.length}
+                onCellClick={(cell) => handleCellClick(activeTeacherTeamIdx, cell)}
+                wrongClickedCellId={teamStates[activeTeacherTeamIdx].wrongClickedCellId}
+              />
+            </div>
+
+            {/* Cột Phải: Bảng Câu Hỏi Cho Giáo Viên Điều Khiển */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <InteractiveQuestionPanel
+                question={activeQuestionsList[teacherQIdx]}
+                questionNumber={teacherQIdx + 1}
+                totalQuestions={activeQuestionsList.length}
+                onSelectOption={handleTeacherSelectOption}
                 onPrevQuestion={() => setTeacherQIdx(prev => Math.max(0, prev - 1))}
                 onNextQuestion={() => setTeacherQIdx(prev => Math.min(activeQuestionsList.length - 1, prev + 1))}
-                compact={false}
-                teamLabel={`Đang chấm cho: ${teamStates[activeTeacherTeamIdx]?.name}`}
-                teamColor={teamStates[activeTeacherTeamIdx]?.color}
-                onOptionSelect={(label) => handleTeamOptionSelect(activeTeacherTeamIdx, label)}
+                selectedOption={teacherSelectedOpt}
+                answerState={teacherAnswerState}
+                disabled={winner !== null}
+                teamColor={teamStates[activeTeacherTeamIdx].color}
               />
             </div>
           </div>
         )}
       </div>
 
-      {/* POPUP CHIẾN THẮNG & VINH DANH HOÀN THÀNH BỨC TRANH */}
+      {/* MODAL CHIẾN THẮNG */}
       {showVictoryModal && winner && (
         <div style={{
           position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.85)',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0, 0, 0, 0.75)',
           backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 10000,
-          padding: '20px'
+          zIndex: 99999
         }}>
           <div style={{
             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-            border: '3px solid #f59e0b',
-            borderRadius: '28px',
-            padding: '30px 36px',
-            maxWidth: '540px',
-            width: '100%',
+            border: `2px solid ${winner.color}`,
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '460px',
+            width: '90%',
             textAlign: 'center',
-            boxShadow: '0 20px 60px rgba(245, 158, 11, 0.4)',
-            animation: 'scaleUp 0.3s ease-out'
+            boxShadow: `0 20px 50px ${winner.color}60`
           }}>
-            <div style={{ fontSize: '3.6rem', marginBottom: '8px' }}>
-              🏆
-            </div>
-
+            <Trophy size={64} color="#f59e0b" style={{ margin: '0 auto 16px' }} />
             <h2 style={{
-              margin: '0 0 8px 0',
-              fontSize: '1.9rem',
+              fontSize: '1.6rem',
               fontWeight: 900,
-              color: '#f59e0b',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
+              color: '#ffffff',
+              marginBottom: '8px'
             }}>
-              CHÚC MỪNG {winner.name}!
+              🎉 {winner.name} CHIẾN THẮNG!
             </h2>
-
             <p style={{
-              color: '#fecdd3',
-              fontSize: '1rem',
-              fontWeight: 700,
+              color: '#94a3b8',
+              fontSize: '0.96rem',
               lineHeight: 1.5,
-              marginBottom: '16px'
+              marginBottom: '20px'
             }}>
-              Đã xuất sắc tìm đúng tất cả các ô và <strong>kết nối thành công bức tranh Trái Tim Đỏ</strong> tri ân người Mẹ nhân ngày Phụ Nữ Việt Nam 20/10!
+              Chúc mừng đội đã xuất sắc giải mã toàn bộ câu hỏi và ghép thành bức tranh Trái Tim 20/10 trọn vẹn yêu thương!
             </p>
 
-            {/* Khung Tranh Hoàn Thành Thu Nhỏ */}
-            <div style={{
-              maxWidth: '300px',
-              margin: '0 auto 20px auto',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)'
-            }}>
-              <WorksheetPuzzleView
-                teamId={winner.id}
-                teamName={winner.name}
-                teamColor={winner.color}
-                heartPieces={teamHeartPieces[winner.id] || []}
-                decoyGrid={decoyGrid}
-                correctQuestionIndices={Array.from({ length: activeQuestionsList.length }, (_, i) => i)}
-                totalQuestions={activeQuestionsList.length}
-                isCompleted={true}
-                compact={true}
-              />
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={handleResetGame}
                 style={{
-                  padding: '11px 24px',
-                  borderRadius: '16px',
+                  flex: 1,
+                  padding: '12px',
+                  background: winner.color,
                   border: 'none',
-                  background: 'linear-gradient(135deg, #e11d48 0%, #be123c 100%)',
+                  borderRadius: '10px',
                   color: '#ffffff',
                   fontWeight: 900,
-                  fontSize: '0.95rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(225, 29, 72, 0.4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <RefreshCw size={17} /> Chơi Lại Trận Mới
-              </button>
-
-              <button
-                onClick={onClose}
-                style={{
-                  padding: '11px 22px',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.95rem',
+                  fontSize: '0.96rem',
                   cursor: 'pointer'
                 }}
               >
-                Hoàn Tất
+                Chơi Lại Trận Mới
+              </button>
+              <button
+                onClick={() => setShowVictoryModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#334155',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '0.96rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Xem Bức Tranh
               </button>
             </div>
           </div>
@@ -2110,3 +1510,5 @@ export function HeartPuzzle2010Game({
     </div>
   );
 }
+
+export default HeartPuzzle2010Game;
