@@ -512,77 +512,43 @@ export const WorksheetPuzzleView = React.memo(({
         </div>
       )}
 
-      {/* Header Tờ Phiếu Bài Tập */}
+      {/* Header Tờ Phiếu Bài Tập Tinh Gọn */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderBottom: '2px solid #0f172a',
-        paddingBottom: compact ? '3px' : '6px',
-        marginBottom: compact ? '4px' : '6px'
+        borderBottom: `2px solid ${teamColor || '#0f172a'}`,
+        paddingBottom: compact ? '2px' : '4px',
+        marginBottom: compact ? '3px' : '6px'
       }}>
-        <div style={{
-          background: '#0f172a',
-          color: '#ffffff',
-          fontWeight: 900,
-          fontSize: compact ? '0.78rem' : '0.96rem',
-          padding: compact ? '2px 8px' : '4px 10px',
-          borderRadius: '5px',
-          letterSpacing: '0.5px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px'
-        }}>
-          <span>GIẢI MÃ BỨC TRANH</span>
-        </div>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: compact ? '0.74rem' : '0.88rem', fontWeight: 800, color: '#475569' }}>
-            Nhóm:
-          </span>
           <span style={{
-            fontSize: compact ? '0.84rem' : '1.05rem',
+            background: teamColor || '#0f172a',
+            color: '#ffffff',
             fontWeight: 900,
-            color: teamColor || '#e11d48',
-            borderBottom: `2px dashed ${teamColor || '#e11d48'}`,
-            paddingBottom: '1px',
-            maxWidth: '160px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            fontSize: compact ? '0.74rem' : '0.92rem',
+            padding: compact ? '1px 7px' : '3px 9px',
+            borderRadius: '4px',
+            letterSpacing: '0.4px'
           }}>
             {teamName}
           </span>
+          <span style={{
+            fontSize: compact ? '0.66rem' : '0.78rem',
+            color: '#64748b',
+            fontWeight: 700
+          }}>
+            Chạm ô đúng để tô đỏ
+          </span>
         </div>
-      </div>
 
-      {/* Dòng hướng dẫn quy tắc: CHẠM TICK VÀO Ô TRÊN BẢNG ĐỂ TÔ ĐỎ */}
-      <div style={{
-        background: '#fff1f2',
-        border: '1px solid #fecdd3',
-        borderRadius: '6px',
-        padding: compact ? '2px 6px' : '5px 10px',
-        marginBottom: compact ? '4px' : '6px',
-        fontSize: compact ? '0.68rem' : '0.82rem',
-        color: '#9f1239',
-        lineHeight: 1.3,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '4px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span>👆</span>
-          <span><strong>Nhiệm vụ:</strong> Chạm ô đáp án đúng <strong>trên bảng</strong> để tô đỏ! (Sai không đổi màu)</span>
-        </div>
         <div style={{
           fontWeight: 900,
-          color: isCompleted ? '#059669' : '#be123c',
-          background: isCompleted ? '#d1fae5' : '#ffffff',
-          padding: '1px 5px',
-          borderRadius: '6px',
-          fontSize: compact ? '0.66rem' : '0.8rem',
-          flexShrink: 0,
+          color: isCompleted ? '#059669' : (teamColor || '#be123c'),
+          background: isCompleted ? '#d1fae5' : '#fff1f2',
+          padding: '1px 6px',
+          borderRadius: '5px',
+          fontSize: compact ? '0.68rem' : '0.8rem',
           border: '1px solid #fecdd3'
         }}>
           {correctCount}/{totalQuestions} ({percent}%)
@@ -597,9 +563,9 @@ export const WorksheetPuzzleView = React.memo(({
           display: 'grid',
           gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
           gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: compact ? '2.5px' : '4px',
+          gap: compact ? '2px' : '3.5px',
           background: '#f1f5f9',
-          padding: compact ? '3px' : '5px',
+          padding: compact ? '2px' : '4px',
           borderRadius: '8px',
           border: '1.5px solid #cbd5e1',
           boxSizing: 'border-box',
@@ -623,11 +589,11 @@ export const WorksheetPuzzleView = React.memo(({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '2px',
-                    fontSize: compact ? 'clamp(9px, 1.3vw, 11px)' : 'clamp(10px, 1.5vw, 12.5px)',
+                    fontSize: compact ? 'clamp(8.5px, 1.15vw, 10.5px)' : 'clamp(10px, 1.5vw, 12.5px)',
                     fontWeight: 900,
                     cursor: isAnswered ? 'default' : 'pointer',
                     userSelect: 'none',
-                    height: compact ? 'clamp(22px, 3.2vh, 28px)' : 'clamp(28px, 4vh, 34px)',
+                    height: compact ? 'clamp(17px, 2.5vh, 23px)' : 'clamp(26px, 3.8vh, 32px)',
                     boxShadow: isAnswered ? `0 0 8px ${teamColor || '#ef4444'}80` : '0 1px 2px rgba(0,0,0,0.03)',
                     transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     transform: isAnswered ? 'scale(1.03)' : 'scale(1)',
@@ -635,7 +601,7 @@ export const WorksheetPuzzleView = React.memo(({
                   }}
                 >
                   <span>{cell.code}</span>
-                  {isAnswered && <Heart size={10} fill="#ffffff" color="#ffffff" />}
+                  {isAnswered && <Heart size={9} fill="#ffffff" color="#ffffff" />}
                 </div>
               );
             })
@@ -848,45 +814,33 @@ const QuestionPanel = React.memo(({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      gap: compact ? '8px' : '12px',
+      gap: compact ? '4px' : '10px',
       width: '100%'
     }}>
       {/* Khung nội dung câu hỏi */}
       <div style={{
         background: 'linear-gradient(135deg, #ffffff 0%, #fff1f2 100%)',
         border: '1.5px solid #fecdd3',
-        borderRadius: compact ? '14px' : '18px',
-        padding: compact ? '12px 14px' : '16px 20px',
+        borderRadius: compact ? '8px' : '18px',
+        padding: compact ? '4px 8px' : '16px 20px',
         boxShadow: '0 4px 15px rgba(225, 29, 72, 0.06)'
       }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '6px'
+          marginBottom: compact ? '2px' : '4px'
         }}>
-          {teamLabel ? (
-            <div style={{
-              fontSize: '0.8rem',
-              fontWeight: 900,
-              color: teamColor || '#be123c',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              {teamLabel}
-            </div>
-          ) : (
-            <div style={{
-              fontSize: '0.8rem',
-              fontWeight: 800,
-              color: '#94a3b8'
-            }}>
-              LƯỢT #{stepNumber}/{totalQuestions}
-            </div>
-          )}
+          <div style={{
+            fontSize: compact ? '0.72rem' : '0.8rem',
+            fontWeight: 800,
+            color: teamColor || '#be123c'
+          }}>
+            Câu #{stepNumber}/{totalQuestions} <span style={{ opacity: 0.7, fontSize: '0.68rem' }}>(Mã {originalQNum})</span>
+          </div>
 
           {/* Nút Điều Hướng Câu Hỏi Nhanh (Trước / Sau) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             {onPrevQuestion && (
               <button
                 onClick={(e) => { e.stopPropagation(); onPrevQuestion(); }}
@@ -895,10 +849,10 @@ const QuestionPanel = React.memo(({
                   background: 'rgba(225, 29, 72, 0.08)',
                   border: '1px solid #fecdd3',
                   color: '#be123c',
-                  padding: '2px 6px',
-                  borderRadius: '6px',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
                   cursor: stepNumber <= 1 ? 'default' : 'pointer',
-                  fontSize: '0.72rem',
+                  fontSize: '0.68rem',
                   fontWeight: 800,
                   opacity: stepNumber <= 1 ? 0.4 : 1
                 }}
@@ -906,17 +860,6 @@ const QuestionPanel = React.memo(({
                 ◀ Trước
               </button>
             )}
-
-            <div style={{
-              background: 'rgba(225, 29, 72, 0.1)',
-              color: '#be123c',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '0.75rem',
-              fontWeight: 800
-            }}>
-              Câu #{stepNumber} <span style={{ opacity: 0.7, fontSize: '0.7rem' }}>(Mã {originalQNum})</span>
-            </div>
 
             {onNextQuestion && (
               <button
@@ -926,10 +869,10 @@ const QuestionPanel = React.memo(({
                   background: 'rgba(225, 29, 72, 0.08)',
                   border: '1px solid #fecdd3',
                   color: '#be123c',
-                  padding: '2px 6px',
-                  borderRadius: '6px',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
                   cursor: stepNumber >= totalQuestions ? 'default' : 'pointer',
-                  fontSize: '0.72rem',
+                  fontSize: '0.68rem',
                   fontWeight: 800,
                   opacity: stepNumber >= totalQuestions ? 0.4 : 1
                 }}
@@ -942,10 +885,14 @@ const QuestionPanel = React.memo(({
 
         <h3 style={{
           margin: 0,
-          fontSize: compact ? '0.86rem' : '1.18rem',
+          fontSize: compact ? 'clamp(0.74rem, 1.4vh, 0.85rem)' : '1.18rem',
           fontWeight: 800,
           color: '#0f172a',
-          lineHeight: compact ? 1.3 : 1.45
+          lineHeight: 1.25,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
         }}>
           {question.question}
         </h3>
@@ -955,7 +902,7 @@ const QuestionPanel = React.memo(({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: compact ? '5px' : '10px'
+        gap: compact ? '3px' : '10px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
@@ -966,21 +913,22 @@ const QuestionPanel = React.memo(({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: compact ? '6px' : '10px',
-                padding: compact ? '5px 8px' : '12px 16px',
-                borderRadius: compact ? '8px' : '14px',
+                gap: compact ? '4px' : '10px',
+                padding: compact ? '2px 5px' : '12px 16px',
+                borderRadius: compact ? '5px' : '14px',
                 background: '#ffffff',
-                border: '1.5px solid #e2e8f0',
+                border: '1.2px solid #e2e8f0',
                 color: '#334155',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
                 cursor: 'default',
                 userSelect: 'none',
-                minHeight: compact ? '32px' : '54px'
+                minHeight: compact ? '22px' : '54px',
+                pointerEvents: 'none'
               }}
             >
               <div style={{
-                width: compact ? '20px' : '30px',
-                height: compact ? '20px' : '30px',
+                width: compact ? '16px' : '30px',
+                height: compact ? '16px' : '30px',
                 borderRadius: '50%',
                 background: 'rgba(225, 29, 72, 0.08)',
                 color: '#be123c',
@@ -988,16 +936,19 @@ const QuestionPanel = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: compact ? '0.74rem' : '0.98rem',
+                fontSize: compact ? '0.65rem' : '0.98rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: compact ? '0.78rem' : '0.96rem',
-                lineHeight: compact ? 1.25 : 1.35,
-                flex: 1
+                fontSize: compact ? 'clamp(0.68rem, 1.25vh, 0.78rem)' : '0.96rem',
+                lineHeight: 1.2,
+                flex: 1,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
               }}>
                 {opt}
               </span>
@@ -1006,24 +957,26 @@ const QuestionPanel = React.memo(({
         })}
       </div>
 
-      {/* Dòng Hướng Dẫn Hành Động Rõ Ràng */}
-      <div style={{
-        background: 'rgba(225, 29, 72, 0.06)',
-        border: '1px dashed #f43f5e',
-        borderRadius: '8px',
-        padding: compact ? '4px 8px' : '6px 12px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '6px',
-        fontSize: compact ? '0.7rem' : '0.82rem',
-        color: '#be123c',
-        fontWeight: 800,
-        textAlign: 'center'
-      }}>
-        <span>👉</span>
-        <span>Đọc câu hỏi & 4 đáp án trên đây ➔ Tìm và chạm vào ô đáp án đúng <strong>trên hình trái tim</strong> để tô đỏ!</span>
-      </div>
+      {/* Dòng Hướng Dẫn Chỉ Hiện ở Chế Độ Chiếu Lớn (Không Hiện ở Dual-touch để Tiết Kiệm Không Gian) */}
+      {!compact && (
+        <div style={{
+          background: 'rgba(225, 29, 72, 0.06)',
+          border: '1px dashed #f43f5e',
+          borderRadius: '6px',
+          padding: '6px 12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          fontSize: '0.82rem',
+          color: '#be123c',
+          fontWeight: 800,
+          textAlign: 'center'
+        }}>
+          <span>👉</span>
+          <span>Đọc câu hỏi & 4 đáp án trên đây ➔ Tìm & chạm ô đáp án đúng <strong>TRÊN BẢNG</strong> để tô đỏ!</span>
+        </div>
+      )}
     </div>
   );
 });
@@ -1340,13 +1293,13 @@ export function HeartPuzzle2010Game({
     }}>
       {/* THANH ĐIỀU KHIỂN TRÊN CÙNG (TOP BAR) */}
       <div style={{
-        height: '60px',
+        height: '44px',
         background: 'linear-gradient(90deg, #1e293b 0%, #0f172a 100%)',
         borderBottom: '1px solid #334155',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 18px',
+        padding: '0 12px',
         flexShrink: 0
       }}>
         {/* Nút Thoát Game & Tiêu đề */}
@@ -1581,28 +1534,29 @@ export function HeartPuzzle2010Game({
       {/* KHÔNG GIAN ĐẤU TRƯỜNG CHÍNH (ARENA) */}
       <div style={{
         flex: 1,
-        overflow: 'hidden',
-        padding: '6px 12px 10px 12px',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        padding: '4px 8px 6px 8px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         background: 'radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%)',
         boxSizing: 'border-box',
-        maxHeight: 'calc(100vh - 60px)'
+        maxHeight: 'calc(100vh - 44px)'
       }}>
         {/* CHẾ ĐỘ 1: BẢNG CẢM ỨNG 2 ĐỘI (DUAL-TOUCH) */}
         {gameMode === 'dual-touch' && (
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '12px',
+            gap: '8px',
             width: '100%',
             maxWidth: '1440px',
             margin: '0 auto',
             alignItems: 'stretch',
-            height: '100%',
-            boxSizing: 'border-box',
-            overflow: 'hidden'
+            flex: 1,
+            minHeight: 0,
+            boxSizing: 'border-box'
           }}>
             {teamStates.slice(0, 2).map((team, teamIdx) => {
               const seq = team.questionSequence || [];
@@ -1619,15 +1573,14 @@ export function HeartPuzzle2010Game({
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    gap: '6px',
+                    gap: '4px',
                     background: 'rgba(30, 41, 59, 0.75)',
                     border: `2px solid ${team.color}40`,
-                    borderRadius: '16px',
-                    padding: '8px 10px',
+                    borderRadius: '12px',
+                    padding: '5px 7px',
                     boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
-                    height: '100%',
                     boxSizing: 'border-box',
-                    overflow: 'hidden'
+                    overflowY: 'auto'
                   }}
                 >
                   {/* Tờ Phiếu Bài Tập Trái Tim: CHẠM TICK VÀO Ô ĐỂ TÔ ĐỎ */}
