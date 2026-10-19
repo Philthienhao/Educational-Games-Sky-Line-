@@ -563,9 +563,9 @@ export const WorksheetPuzzleView = React.memo(({
           display: 'grid',
           gridTemplateColumns: `repeat(${matrixData.cols}, 1fr)`,
           gridTemplateRows: `repeat(${matrixData.rows}, 1fr)`,
-          gap: 'clamp(2px, 0.35vw, 4.5px)',
+          gap: 'clamp(2px, 0.28vw, 3.5px)',
           background: '#f1f5f9',
-          padding: '6px',
+          padding: '4px',
           borderRadius: '10px',
           border: '1.5px solid #cbd5e1',
           boxSizing: 'border-box'
@@ -588,11 +588,11 @@ export const WorksheetPuzzleView = React.memo(({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '2px',
-                    fontSize: 'clamp(11px, 1.4vw, 16px)',
+                    fontSize: 'clamp(10px, 1.25vw, 14px)',
                     fontWeight: 900,
                     cursor: isAnswered ? 'default' : 'pointer',
                     userSelect: 'none',
-                    height: 'clamp(28px, 4.2vh, 38px)',
+                    height: 'clamp(23px, 3.5vh, 32px)',
                     boxShadow: isAnswered ? `0 0 10px ${teamColor || '#ef4444'}90` : '0 1px 3px rgba(0,0,0,0.04)',
                     transition: 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     transform: isAnswered ? 'scale(1.04)' : 'scale(1)',
@@ -600,7 +600,7 @@ export const WorksheetPuzzleView = React.memo(({
                   }}
                 >
                   <span>{cell.code}</span>
-                  {isAnswered && <Heart size={13} fill="#ffffff" color="#ffffff" />}
+                  {isAnswered && <Heart size={12} fill="#ffffff" color="#ffffff" />}
                 </div>
               );
             })
@@ -822,18 +822,18 @@ const QuestionPanel = React.memo(({
       <div style={{
         background: 'linear-gradient(135deg, #ffffff 0%, #fff1f2 100%)',
         border: '1.5px solid #fecdd3',
-        borderRadius: '12px',
-        padding: '8px 14px',
+        borderRadius: '10px',
+        padding: '5px 12px',
         boxShadow: '0 4px 15px rgba(225, 29, 72, 0.06)'
       }}>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '4px'
+          marginBottom: '2px'
         }}>
           <div style={{
-            fontSize: 'clamp(0.82rem, 1.15vw, 0.98rem)',
+            fontSize: 'clamp(0.78rem, 1.1vw, 0.92rem)',
             fontWeight: 800,
             color: teamColor || '#be123c'
           }}>
@@ -853,7 +853,7 @@ const QuestionPanel = React.memo(({
                   padding: '2px 8px',
                   borderRadius: '5px',
                   cursor: stepNumber <= 1 ? 'default' : 'pointer',
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   opacity: stepNumber <= 1 ? 0.4 : 1
                 }}
@@ -873,7 +873,7 @@ const QuestionPanel = React.memo(({
                   padding: '2px 8px',
                   borderRadius: '5px',
                   cursor: stepNumber >= totalQuestions ? 'default' : 'pointer',
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   opacity: stepNumber >= totalQuestions ? 0.4 : 1
                 }}
@@ -886,10 +886,10 @@ const QuestionPanel = React.memo(({
 
         <h3 style={{
           margin: 0,
-          fontSize: 'clamp(0.9rem, 1.35vw, 1.18rem)',
+          fontSize: 'clamp(0.85rem, 1.25vw, 1.05rem)',
           fontWeight: 800,
           color: '#0f172a',
-          lineHeight: 1.32
+          lineHeight: 1.28
         }}>
           {question.question}
         </h3>
@@ -899,7 +899,7 @@ const QuestionPanel = React.memo(({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '6px'
+        gap: '4px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
@@ -911,16 +911,16 @@ const QuestionPanel = React.memo(({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                gap: '6px',
+                padding: '4px 10px',
+                borderRadius: '7px',
                 background: '#ffffff',
                 border: '1.5px solid #e2e8f0',
                 color: '#1e293b',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.03)',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)',
                 cursor: onOptionSelect ? 'pointer' : 'default',
                 userSelect: 'none',
-                minHeight: 'clamp(32px, 4.4vh, 46px)',
+                minHeight: 'clamp(28px, 3.8vh, 36px)',
                 textAlign: 'left',
                 transition: 'all 0.15s ease'
               }}
@@ -938,8 +938,8 @@ const QuestionPanel = React.memo(({
               }}
             >
               <div style={{
-                width: '22px',
-                height: '22px',
+                width: '20px',
+                height: '20px',
                 borderRadius: '50%',
                 background: 'rgba(225, 29, 72, 0.1)',
                 color: '#be123c',
@@ -947,15 +947,15 @@ const QuestionPanel = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: '0.8rem',
+                fontSize: '0.75rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: 'clamp(0.78rem, 1.1vw, 0.95rem)',
-                lineHeight: 1.25,
+                fontSize: 'clamp(0.75rem, 1.05vw, 0.9rem)',
+                lineHeight: 1.2,
                 flex: 1
               }}>
                 {opt}
