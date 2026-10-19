@@ -193,21 +193,16 @@ export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
     }
   }
 
-  // Sắp xếp tọa độ trái tim:
-  let sortedHeartCoords = [...heartCoords];
-  if (patternKey === 'layers') {
-    // Kiểu Dưới lên trên: Tô đỏ từ chóp nhọn hàng 6 lên đến 2 múi tim hàng 0
-    sortedHeartCoords.sort((a, b) => b.r - a.r || a.c - b.c);
-  } else {
-    // Kiểu Ma trận chuẩn (Lộn xộn ma trận):
-    // Phân bổ đều các ô của từng câu hỏi trên khắp trái tim, dùng seed theo teamIdx
-    const seed = (teamIdx + 1) * 31;
-    sortedHeartCoords.sort((a, b) => {
-      const hashA = (a.r * 11 + a.c * 17 + seed) % 47;
-      const hashB = (b.r * 11 + b.c * 17 + seed) % 47;
-      return hashA - hashB;
-    });
-  }
+  // Sắp xếp 40 tọa độ trái tim theo trật tự DÂNG TRÀO KẾT NỐI LIỀN MẠCH:
+  // Luôn bắt đầu từ chóp nhọn đáy tim (hàng 6) đi dần lên 2 múi tim (hàng 0)
+  // và ở mỗi hàng tỏa đối xứng từ tim (cột 4) ra 2 bên, đảm bảo các ô đỏ luôn kết nối thành 1 khối thống nhất
+  const sortedHeartCoords = [...heartCoords].sort((a, b) => {
+    if (b.r !== a.r) return b.r - a.r; // Từ hàng 6 (đáy nhọn) lên hàng 0 (2 múi trên)
+    const distA = Math.abs(a.c - 4);
+    const distB = Math.abs(b.c - 4);
+    if (distA !== distB) return distA - distB; // Từ cột giữa (cột 4) đối xứng ra 2 bên
+    return a.c - b.c;
+  });
 
   // Phân bổ 40 ô trái tim cho N câu hỏi
   // Mỗi câu hỏi có khoảng (40 / N) ô đáp án đúng
@@ -355,8 +350,32 @@ const HeartCardMatrixView = React.memo(({
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px'
+        gap: '8px',
+        position: 'relative'
       }}>
+        {/* Banner Chúc Mừng Khi Trái Tim Lớn Xuất Hiện Trọn Vẹn */}
+        {isCompleted && (
+          <div style={{
+            background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
+            border: '1.5px solid #f43f5e',
+            borderRadius: '8px',
+            padding: '5px 12px',
+            textAlign: 'center',
+            color: '#be123c',
+            fontWeight: 900,
+            fontSize: 'clamp(0.82rem, 1.1vw, 0.95rem)',
+            boxShadow: '0 2px 10px rgba(225, 29, 72, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}>
+            <span>💖</span>
+            <span>BỨC TRANH TRÁI TIM LỚN 20/10 ĐÃ XUẤT HIỆN TRỌN VẸN!</span>
+            <span>💖</span>
+          </div>
+        )}
+
         {/* Lưới 9 Cột x 7 Hàng Ô Thẻ */}
         <div style={{
           display: 'grid',
@@ -372,21 +391,52 @@ const HeartCardMatrixView = React.memo(({
               const isCellWrong = wrongClickedCellId === cell.id;
 
               let bg = '#ffffff';
-              let borderColor = '#cbd5e1';
-              let textColor = '#1e293b';
+              let borderColor = '#e2e8f0';
+              let textColor = '#64748b';
               let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
               let transform = 'scale(1)';
+              let opacity = 1;
 
-              if (isCellRed) {
+              if (isCompleted) {
+                if (cell.isTarget) {
+                  // TOÀN BỘ CÁC Ô TRÁI TIM BỪNG SÁNG KẾT THÀNH TRÁI TIM LỚN RỰC RỠ
+                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
+                  borderColor = '#fca5a5';
+                  textColor = '#ffffff';
+                  shadow = '0 0 14px rgba(220, 38, 38, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.4)';
+                  transform = 'scale(1.03)';
+                } else {
+                  // CÁC Ô NGOÀI NỀN MỜ ĐI ĐỂ TÔN LÊN TRÁI TIM LỚN
+                  bg = 'rgba(248, 250, 252, 0.4)';
+                  borderColor = 'transparent';
+                  textColor = '#cbd5e1';
+                  opacity = 0.16;
+                  shadow = 'none';
+                }
+              } else if (isCellRed) {
+                // Ô trái tim đã được giải mã chính xác
                 bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
                 borderColor = '#b91c1c';
                 textColor = '#ffffff';
-                shadow = '0 4px 10px rgba(220, 38, 38, 0.4)';
+                shadow = '0 4px 12px rgba(220, 38, 38, 0.45)';
+                transform = 'scale(1.02)';
               } else if (isCellWrong) {
+                // Ô vừa bấm sai
                 bg = '#fee2e2';
                 borderColor = '#ef4444';
                 textColor = '#b91c1c';
                 transform = 'scale(0.96)';
+              } else if (cell.isTarget) {
+                // Ô thuộc hình trái tim đang chờ thắp đỏ: nền phớt hồng tinh tế
+                bg = '#fff5f7';
+                borderColor = '#fecdd3';
+                textColor = '#334155';
+                shadow = '0 1px 4px rgba(225, 29, 72, 0.05)';
+              } else {
+                // Ô ngoài lề (decoy)
+                bg = '#f8fafc';
+                borderColor = '#e2e8f0';
+                textColor = '#64748b';
               }
 
               return (
@@ -406,12 +456,13 @@ const HeartCardMatrixView = React.memo(({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '2px',
-                    cursor: 'pointer',
+                    cursor: isCompleted ? 'default' : 'pointer',
                     userSelect: 'none',
                     outline: 'none',
                     boxShadow: shadow,
                     transform,
-                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    opacity,
+                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                     padding: '0 2px',
                     whiteSpace: 'nowrap'
                   }}
