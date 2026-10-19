@@ -150,7 +150,7 @@ export function buildDecoyGrid(questions, rows = 12, cols = 14) {
       const wrongOpts = optionLetters.filter(opt => opt !== correctOpt);
       const chosenWrong = wrongOpts[(r * 5 + c * 2) % wrongOpts.length] || 'C';
       const qNum = qIdx + 1;
-      const code = qNum < 10 ? `${qNum}-${chosenWrong}` : `${qNum}${chosenWrong}`;
+      const code = `${qNum}-${chosenWrong}`;
       row.push({ r, c, code, qIdx, isTarget: false });
     }
     grid.push(row);
@@ -168,9 +168,10 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
   const N = Math.max(1, questions.length);
   const pieces = [];
 
-  const Y_TOP = 65;
+  // Vùng bao trái tim chuẩn xác từ đỉnh 2 múi (y=48) đến chóp đáy (y=355)
+  const Y_TOP = 48;
   const Y_BOTTOM = 355;
-  const TOTAL_H = Y_BOTTOM - Y_TOP; // 290px
+  const TOTAL_H = Y_BOTTOM - Y_TOP; // 307px
 
   // Thứ tự gán câu hỏi vào các ô trong trái tim (Đảm bảo lộn xộn, không xếp theo thứ tự 1..10)
   const order = Array.isArray(shuffledOrder) && shuffledOrder.length === N
@@ -212,7 +213,7 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
         const q = questions[qIdx] || questions[0];
         const qNum = qIdx + 1;
         const correctOpt = q.correct || 'A';
-        const code = qNum < 10 ? `${qNum}-${correctOpt}` : `${qNum}${correctOpt}`;
+        const code = `${qNum}-${correctOpt}`;
 
         const xStart = 30 + c * blockW;
         const cx = xStart + blockW / 2;
@@ -245,10 +246,10 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
       const q = questions[qIdx] || questions[0];
       const qNum = qIdx + 1;
       const correctOpt = q.correct || 'A';
-      const code = qNum < 10 ? `${qNum}-${correctOpt}` : `${qNum}${correctOpt}`;
+      const code = `${qNum}-${correctOpt}`;
 
       const y = Y_TOP + slotIdx * stripH;
-      const isTopLobe = y < 118; // Khu vực 2 múi tim trên đỉnh
+      const isTopLobe = y < 125; // Khu vực 2 múi tim trên đỉnh
 
       pieces.push({
         slotIdx,
@@ -257,9 +258,9 @@ export function buildHeartPieces(questions, layoutMode = 'strips', shuffledOrder
         correctOpt,
         code,
         x: 40,
-        y: y + 1.5,
+        y: y + 1.2,
         width: 320,
-        height: Math.max(12, stripH - 3),
+        height: Math.max(12, stripH - 2.4),
         cx: 200,
         cy: y + stripH / 2,
         isTopLobe,
@@ -324,11 +325,11 @@ export const WorksheetPuzzleView = React.memo(({
       display: 'flex',
       flexDirection: 'column',
       background: '#ffffff',
-      borderRadius: compact ? '16px' : '22px',
-      padding: compact ? '12px 14px' : '16px 20px',
+      borderRadius: compact ? '14px' : '22px',
+      padding: compact ? '8px 12px' : '14px 18px',
       boxShadow: isCompleted 
         ? `0 12px 35px ${teamColor}35, 0 0 20px rgba(245, 158, 11, 0.35)` 
-        : '0 8px 24px rgba(0, 0, 0, 0.08)',
+        : '0 6px 20px rgba(0, 0, 0, 0.08)',
       border: isCompleted ? '2.5px solid #f59e0b' : '1.5px solid #e2e8f0',
       width: '100%',
       maxWidth: compact ? '440px' : '520px',
@@ -364,17 +365,17 @@ export const WorksheetPuzzleView = React.memo(({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderBottom: '2px solid #0f172a',
-        paddingBottom: compact ? '6px' : '8px',
-        marginBottom: compact ? '6px' : '10px'
+        paddingBottom: compact ? '4px' : '8px',
+        marginBottom: compact ? '4px' : '8px'
       }}>
         <div style={{
           background: '#0f172a',
           color: '#ffffff',
           fontWeight: 900,
-          fontSize: compact ? '0.85rem' : '1.02rem',
-          padding: compact ? '4px 10px' : '5px 12px',
+          fontSize: compact ? '0.8rem' : '1.02rem',
+          padding: compact ? '3px 8px' : '5px 12px',
           borderRadius: '6px',
-          letterSpacing: '0.8px',
+          letterSpacing: '0.6px',
           display: 'flex',
           alignItems: 'center',
           gap: '6px'
@@ -383,11 +384,11 @@ export const WorksheetPuzzleView = React.memo(({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: compact ? '0.8rem' : '0.92rem', fontWeight: 800, color: '#475569' }}>
+          <span style={{ fontSize: compact ? '0.76rem' : '0.92rem', fontWeight: 800, color: '#475569' }}>
             Nhóm:
           </span>
           <span style={{
-            fontSize: compact ? '0.95rem' : '1.15rem',
+            fontSize: compact ? '0.88rem' : '1.15rem',
             fontWeight: 900,
             color: teamColor || '#e11d48',
             borderBottom: `2px dashed ${teamColor || '#e11d48'}`,
@@ -406,32 +407,32 @@ export const WorksheetPuzzleView = React.memo(({
       <div style={{
         background: '#fff1f2',
         border: '1px solid #fecdd3',
-        borderRadius: '8px',
-        padding: compact ? '5px 8px' : '7px 12px',
-        marginBottom: compact ? '8px' : '10px',
-        fontSize: compact ? '0.74rem' : '0.84rem',
+        borderRadius: '6px',
+        padding: compact ? '3px 6px' : '6px 12px',
+        marginBottom: compact ? '5px' : '8px',
+        fontSize: compact ? '0.7rem' : '0.84rem',
         color: '#9f1239',
-        lineHeight: 1.4,
+        lineHeight: 1.35,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '6px'
+        gap: '4px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '1.05rem' }}>👆</span>
-          <span><strong>Nhiệm vụ:</strong> Chạm vào ô đáp án đúng <strong>trên bảng</strong> để tô đỏ! (Sai không đổi màu)</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span>👆</span>
+          <span><strong>Nhiệm vụ:</strong> Chạm ô đáp án đúng <strong>trên bảng</strong> để tô đỏ! (Sai không đổi màu)</span>
         </div>
         <div style={{
           fontWeight: 900,
           color: isCompleted ? '#059669' : '#be123c',
           background: isCompleted ? '#d1fae5' : '#ffffff',
-          padding: '2px 8px',
-          borderRadius: '10px',
-          fontSize: compact ? '0.72rem' : '0.82rem',
+          padding: '1px 6px',
+          borderRadius: '8px',
+          fontSize: compact ? '0.68rem' : '0.82rem',
           flexShrink: 0,
           border: '1px solid #fecdd3'
         }}>
-          {correctCount}/{totalQuestions} câu ({percent}%)
+          {correctCount}/{totalQuestions} ({percent}%)
         </div>
       </div>
 
@@ -439,10 +440,12 @@ export const WorksheetPuzzleView = React.memo(({
       <div style={{
         position: 'relative',
         width: '100%',
+        height: compact ? 'clamp(190px, 30vh, 280px)' : 'clamp(270px, 40vh, 380px)',
         aspectRatio: '1 / 0.95',
+        margin: '0 auto',
         background: '#ffffff',
-        border: '2px solid #cbd5e1',
-        borderRadius: '10px',
+        border: '1.5px solid #cbd5e1',
+        borderRadius: '8px',
         boxSizing: 'border-box',
         overflow: 'hidden',
         boxShadow: 'inset 0 0 10px rgba(0,0,0,0.03)'
@@ -617,43 +620,59 @@ export const WorksheetPuzzleView = React.memo(({
         </svg>
       </div>
 
-      {/* Khung Thơ Ca Dao & Lời Chúc Mẹ 20/10 ở góc dưới */}
-      <div style={{
-        marginTop: compact ? '8px' : '12px',
-        padding: compact ? '6px 10px' : '8px 14px',
-        background: '#fff1f2',
-        borderLeft: '4px solid #e11d48',
-        borderRadius: '6px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '3px'
-      }}>
+      {/* Khung Thơ Ca Dao & Lời Chúc Mẹ 20/10 ở góc dưới (Ẩn hoặc siêu gọn ở chế độ compact để nhường chỗ) */}
+      {!compact ? (
         <div style={{
-          fontFamily: 'serif',
-          fontStyle: 'italic',
-          color: '#881337',
-          fontSize: compact ? '0.74rem' : '0.86rem',
-          lineHeight: 1.4,
-          fontWeight: 600
+          marginTop: '10px',
+          padding: '8px 14px',
+          background: '#fff1f2',
+          borderLeft: '4px solid #e11d48',
+          borderRadius: '6px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '3px'
         }}>
-          “ Công cha như núi Thái Sơn,<br />
-          Nghĩa mẹ như nước trong nguồn chảy ra.<br />
-          Một lòng thờ mẹ kính cha,<br />
-          Cho tròn chữ hiếu mới là đạo con. ”
+          <div style={{
+            fontFamily: 'serif',
+            fontStyle: 'italic',
+            color: '#881337',
+            fontSize: '0.86rem',
+            lineHeight: 1.4,
+            fontWeight: 600
+          }}>
+            “ Công cha như núi Thái Sơn,<br />
+            Nghĩa mẹ như nước trong nguồn chảy ra.<br />
+            Một lòng thờ mẹ kính cha,<br />
+            Cho tròn chữ hiếu mới là đạo con. ”
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: '0.76rem',
+            color: '#be123c',
+            fontWeight: 700,
+            marginTop: '2px'
+          }}>
+            <span>👤 Giáo viên Sky-Line</span>
+            <span>💖 Chủ đề 20/10</span>
+          </div>
         </div>
+      ) : (
         <div style={{
+          marginTop: '3px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          fontSize: compact ? '0.68rem' : '0.76rem',
+          fontSize: '0.66rem',
           color: '#be123c',
           fontWeight: 700,
-          marginTop: '2px'
+          padding: '0 4px'
         }}>
-          <span>👤 Giáo viên Sky-Line</span>
-          <span>💖 Chủ đề 20/10</span>
+          <span style={{ fontStyle: 'italic', color: '#881337' }}>“ Nghĩa mẹ như nước trong nguồn chảy ra ”</span>
+          <span>💖 20/10</span>
         </div>
-      </div>
+      )}
 
       {/* Thanh tiến độ bên dưới */}
       <div style={{
@@ -807,10 +826,10 @@ const QuestionPanel = React.memo(({
 
         <h3 style={{
           margin: 0,
-          fontSize: compact ? '0.96rem' : '1.18rem',
+          fontSize: compact ? '0.86rem' : '1.18rem',
           fontWeight: 800,
           color: '#0f172a',
-          lineHeight: 1.45
+          lineHeight: compact ? 1.3 : 1.45
         }}>
           {question.question}
         </h3>
@@ -820,7 +839,7 @@ const QuestionPanel = React.memo(({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: compact ? '8px' : '10px'
+        gap: compact ? '5px' : '10px'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
@@ -831,21 +850,21 @@ const QuestionPanel = React.memo(({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: compact ? '8px' : '10px',
-                padding: compact ? '9px 12px' : '12px 16px',
-                borderRadius: compact ? '12px' : '14px',
+                gap: compact ? '6px' : '10px',
+                padding: compact ? '5px 8px' : '12px 16px',
+                borderRadius: compact ? '8px' : '14px',
                 background: '#ffffff',
                 border: '1.5px solid #e2e8f0',
                 color: '#334155',
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.03)',
                 cursor: 'default',
                 userSelect: 'none',
-                minHeight: compact ? '46px' : '54px'
+                minHeight: compact ? '32px' : '54px'
               }}
             >
               <div style={{
-                width: compact ? '26px' : '30px',
-                height: compact ? '26px' : '30px',
+                width: compact ? '20px' : '30px',
+                height: compact ? '20px' : '30px',
                 borderRadius: '50%',
                 background: 'rgba(225, 29, 72, 0.08)',
                 color: '#be123c',
@@ -853,15 +872,15 @@ const QuestionPanel = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: compact ? '0.85rem' : '0.98rem',
+                fontSize: compact ? '0.74rem' : '0.98rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: compact ? '0.84rem' : '0.96rem',
-                lineHeight: 1.35,
+                fontSize: compact ? '0.78rem' : '0.96rem',
+                lineHeight: compact ? 1.25 : 1.35,
                 flex: 1
               }}>
                 {opt}
@@ -875,13 +894,13 @@ const QuestionPanel = React.memo(({
       <div style={{
         background: 'rgba(225, 29, 72, 0.06)',
         border: '1px dashed #f43f5e',
-        borderRadius: '10px',
-        padding: '6px 12px',
+        borderRadius: '8px',
+        padding: compact ? '4px 8px' : '6px 12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: '6px',
-        fontSize: compact ? '0.74rem' : '0.82rem',
+        fontSize: compact ? '0.7rem' : '0.82rem',
         color: '#be123c',
         fontWeight: 800,
         textAlign: 'center'
@@ -1437,10 +1456,10 @@ export function HeartPuzzle2010Game({
       <div style={{
         flex: 1,
         overflowY: 'auto',
-        padding: '14px 18px',
+        padding: '8px 12px',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         background: 'radial-gradient(circle at 50% 20%, #1e293b 0%, #0f172a 100%)'
       }}>
         {/* CHẾ ĐỘ 1: BẢNG CẢM ỨNG 2 ĐỘI (DUAL-TOUCH) */}
@@ -1448,7 +1467,7 @@ export function HeartPuzzle2010Game({
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '20px',
+            gap: '12px',
             width: '100%',
             maxWidth: '1500px',
             margin: '0 auto',
