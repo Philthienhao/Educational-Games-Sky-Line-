@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { 
   Heart, Trophy, Sparkles, Volume2, VolumeX, RotateCcw, Settings, 
   Upload, Download, Users, Monitor, Touchpad, CheckCircle2, XCircle, 
-  ChevronRight, ChevronLeft, ArrowLeft, Maximize, Play, Award, Clock, Palette, RefreshCw
+  ChevronRight, ChevronLeft, ArrowLeft, Maximize, Minimize, Play, Award, Clock, Palette, RefreshCw
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -466,7 +466,7 @@ const HeartCardMatrixView = React.memo(({
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px',
+      gap: 'clamp(2px, 0.4vh, 5px)',
       boxSizing: 'border-box'
     }}>
       {/* Tiêu đề & Thông tin Đội */}
@@ -474,24 +474,24 @@ const HeartCardMatrixView = React.memo(({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '2px 4px'
+        padding: '1px 2px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{
             background: teamColor,
             color: '#ffffff',
             fontWeight: 900,
-            fontSize: 'clamp(0.85rem, 1.15vw, 0.96rem)',
-            padding: '4px 14px',
-            borderRadius: '20px',
-            boxShadow: `0 2px 8px ${teamColor}40`
+            fontSize: 'clamp(0.72rem, 0.9vw, 0.85rem)',
+            padding: '2px 10px',
+            borderRadius: '16px',
+            boxShadow: `0 2px 6px ${teamColor}30`
           }}>
             {teamName}
           </span>
           <span style={{
-            color: '#64748b',
+            color: '#94a3b8',
             fontWeight: 700,
-            fontSize: 'clamp(0.78rem, 1vw, 0.88rem)'
+            fontSize: 'clamp(0.68rem, 0.82vw, 0.78rem)'
           }}>
             Chạm ô đúng để tô đỏ trái tim
           </span>
@@ -502,9 +502,9 @@ const HeartCardMatrixView = React.memo(({
           color: teamColor,
           background: isCompleted ? '#ecfdf5' : '#ffffff',
           fontWeight: 900,
-          fontSize: 'clamp(0.8rem, 1.05vw, 0.9rem)',
-          padding: '3px 12px',
-          borderRadius: '20px',
+          fontSize: 'clamp(0.7rem, 0.82vw, 0.8rem)',
+          padding: '1px 8px',
+          borderRadius: '16px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
         }}>
           {correctCount}/{totalQuestions} câu ({percent}%)
@@ -515,13 +515,13 @@ const HeartCardMatrixView = React.memo(({
       <div style={{
         background: '#ffffff',
         border: '1.5px solid #cbd5e1',
-        borderRadius: '14px',
-        padding: '10px',
-        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+        borderRadius: '10px',
+        padding: 'clamp(4px, 0.6vh, 7px)',
+        boxShadow: '0 3px 12px rgba(0, 0, 0, 0.05)',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
+        gap: 'clamp(2px, 0.35vh, 4px)',
         position: 'relative'
       }}>
         {/* Banner Chúc Mừng Khi Trái Tim Lớn Xuất Hiện Trọn Vẹn */}
@@ -529,17 +529,17 @@ const HeartCardMatrixView = React.memo(({
           <div style={{
             background: 'linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)',
             border: '1.5px solid #f43f5e',
-            borderRadius: '8px',
-            padding: '5px 12px',
+            borderRadius: '6px',
+            padding: '3px 8px',
             textAlign: 'center',
             color: '#be123c',
             fontWeight: 900,
-            fontSize: 'clamp(0.82rem, 1.1vw, 0.95rem)',
-            boxShadow: '0 2px 10px rgba(225, 29, 72, 0.15)',
+            fontSize: 'clamp(0.74rem, 0.9vw, 0.84rem)',
+            boxShadow: '0 2px 8px rgba(225, 29, 72, 0.15)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px'
+            gap: '6px'
           }}>
             <span>💖</span>
             <span>BỨC TRANH TRÁI TIM LỚN 20/10 ĐÃ XUẤT HIỆN TRỌN VẸN!</span>
@@ -581,7 +581,7 @@ const HeartCardMatrixView = React.memo(({
             display: 'grid',
             gridTemplateColumns: 'repeat(9, 1fr)',
             gridTemplateRows: 'repeat(7, 1fr)',
-            gap: '5px',
+            gap: 'clamp(2px, 0.3vh, 3.5px)',
             width: '100%',
             boxSizing: 'border-box',
             position: 'relative',
@@ -595,7 +595,7 @@ const HeartCardMatrixView = React.memo(({
                 let bg = '#ffffff';
                 let borderColor = '#e2e8f0';
                 let textColor = '#1e293b';
-                let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+                let shadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
                 let transform = 'scale(1)';
                 let opacity = 1;
 
@@ -605,8 +605,8 @@ const HeartCardMatrixView = React.memo(({
                     bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
                     borderColor = '#fef08a';
                     textColor = '#ffffff';
-                    shadow = '0 0 16px rgba(220, 38, 38, 0.85), inset 0 0 8px rgba(255, 255, 255, 0.5)';
-                    transform = 'scale(1.05)';
+                    shadow = '0 0 12px rgba(220, 38, 38, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.5)';
+                    transform = 'scale(1.04)';
                   } else {
                     // CÁC Ô NGOÀI NỀN MỜ HẲN ĐI ĐỂ TÔN LÊN TRÁI TIM LỚN
                     bg = 'rgba(248, 250, 252, 0.2)';
@@ -620,7 +620,7 @@ const HeartCardMatrixView = React.memo(({
                   bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
                   borderColor = '#b91c1c';
                   textColor = '#ffffff';
-                  shadow = '0 4px 12px rgba(220, 38, 38, 0.45)';
+                  shadow = '0 2px 8px rgba(220, 38, 38, 0.45)';
                   transform = 'scale(1.02)';
                 } else if (isCellWrong) {
                   // Ô vừa bấm sai
@@ -633,7 +633,7 @@ const HeartCardMatrixView = React.memo(({
                   bg = '#ffffff';
                   borderColor = '#e2e8f0';
                   textColor = '#1e293b';
-                  shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+                  shadow = '0 1px 2px rgba(0, 0, 0, 0.04)';
                 }
 
                 return (
@@ -642,13 +642,13 @@ const HeartCardMatrixView = React.memo(({
                     onClick={() => onCellClick && onCellClick(cell)}
                     title={`Ô [${cell.code}]`}
                     style={{
-                      height: 'clamp(32px, 4.4vh, 44px)',
+                      height: 'clamp(20px, 3vh, 31px)',
                       background: bg,
-                      border: `1.5px solid ${borderColor}`,
-                      borderRadius: '8px',
+                      border: `1px solid ${borderColor}`,
+                      borderRadius: '5px',
                       color: textColor,
                       fontWeight: 900,
-                      fontSize: 'clamp(0.78rem, 1.25vw, 0.98rem)',
+                      fontSize: 'clamp(0.66rem, 0.88vw, 0.82rem)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -659,13 +659,13 @@ const HeartCardMatrixView = React.memo(({
                       boxShadow: shadow,
                       transform,
                       opacity,
-                      transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      padding: '0 2px',
+                      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      padding: '0 1px',
                       whiteSpace: 'nowrap'
                     }}
                   >
                     <span>{cell.code}</span>
-                    {isCellRed && <span style={{ fontSize: '0.74rem' }}>❤️</span>}
+                    {isCellRed && <span style={{ fontSize: '0.68rem' }}>❤️</span>}
                   </button>
                 );
               })
@@ -678,9 +678,9 @@ const HeartCardMatrixView = React.memo(({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          paddingTop: '6px',
+          paddingTop: '3px',
           borderTop: '1px dashed #e2e8f0',
-          fontSize: 'clamp(0.72rem, 0.95vw, 0.82rem)'
+          fontSize: 'clamp(0.64rem, 0.78vw, 0.72rem)'
         }}>
           <span style={{
             fontFamily: 'serif',
@@ -695,7 +695,7 @@ const HeartCardMatrixView = React.memo(({
             fontWeight: 900,
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '3px'
           }}>
             💖 20/10
           </span>
@@ -705,7 +705,6 @@ const HeartCardMatrixView = React.memo(({
   );
 });
 
-/**
 /**
  * COMPONENT: KHUNG CÂU HỎI & 4 ĐÁP ÁN HIỂN THỊ
  * Học sinh đọc câu hỏi & các phương án A, B, C, D ở đây,
@@ -728,13 +727,13 @@ const InteractiveQuestionPanel = React.memo(({
     <div style={{
       background: '#ffffff',
       border: '1.5px solid #e2e8f0',
-      borderRadius: '14px',
-      padding: '10px 14px',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.05)',
+      borderRadius: '10px',
+      padding: 'clamp(5px, 0.7vh, 8px) clamp(8px, 1.2vw, 12px)',
+      boxShadow: '0 3px 12px rgba(0, 0, 0, 0.05)',
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px'
+      gap: 'clamp(3px, 0.45vh, 5px)'
     }}>
       {/* Hàng Thanh Điều Hướng Câu Hỏi */}
       <div style={{
@@ -742,14 +741,14 @@ const InteractiveQuestionPanel = React.memo(({
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{
             background: teamColor,
             color: '#ffffff',
             fontWeight: 900,
-            fontSize: 'clamp(0.85rem, 1.1vw, 0.98rem)',
-            padding: '3px 10px',
-            borderRadius: '6px'
+            fontSize: 'clamp(0.74rem, 0.9vw, 0.85rem)',
+            padding: '2px 8px',
+            borderRadius: '5px'
           }}>
             Câu {questionNumber}/{totalQuestions}
           </span>
@@ -759,12 +758,12 @@ const InteractiveQuestionPanel = React.memo(({
               border: '1px solid #10b981',
               color: '#059669',
               fontWeight: 800,
-              fontSize: '0.76rem',
-              padding: '2px 8px',
-              borderRadius: '20px',
+              fontSize: '0.7rem',
+              padding: '1px 6px',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '4px'
+              gap: '3px'
             }}>
               ❤️ Đã giải mã trái tim
             </span>
@@ -772,19 +771,19 @@ const InteractiveQuestionPanel = React.memo(({
         </div>
 
         {/* Nút Trước / Sau */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <button
             onClick={(e) => { e.stopPropagation(); onPrevQuestion && onPrevQuestion(); }}
             disabled={questionNumber <= 1}
             style={{
-              padding: '3px 10px',
+              padding: '2px 8px',
               background: '#f1f5f9',
               border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              borderRadius: '5px',
               color: questionNumber <= 1 ? '#94a3b8' : '#334155',
               cursor: questionNumber <= 1 ? 'default' : 'pointer',
               fontWeight: 800,
-              fontSize: '0.76rem',
+              fontSize: '0.72rem',
               display: 'flex',
               alignItems: 'center',
               gap: '2px'
@@ -796,14 +795,14 @@ const InteractiveQuestionPanel = React.memo(({
             onClick={(e) => { e.stopPropagation(); onNextQuestion && onNextQuestion(); }}
             disabled={questionNumber >= totalQuestions}
             style={{
-              padding: '3px 10px',
+              padding: '2px 8px',
               background: '#f1f5f9',
               border: '1px solid #cbd5e1',
-              borderRadius: '6px',
+              borderRadius: '5px',
               color: questionNumber >= totalQuestions ? '#94a3b8' : '#334155',
               cursor: questionNumber >= totalQuestions ? 'default' : 'pointer',
               fontWeight: 800,
-              fontSize: '0.76rem',
+              fontSize: '0.72rem',
               display: 'flex',
               alignItems: 'center',
               gap: '2px'
@@ -816,11 +815,11 @@ const InteractiveQuestionPanel = React.memo(({
 
       {/* Nội Dung Câu Hỏi (To, Đậm, Rõ Nét) */}
       <div style={{
-        fontSize: 'clamp(0.92rem, 1.25vw, 1.12rem)',
+        fontSize: 'clamp(0.82rem, 1.05vw, 0.96rem)',
         fontWeight: 800,
         color: '#0f172a',
-        lineHeight: 1.35,
-        minHeight: '2.4em',
+        lineHeight: 1.28,
+        minHeight: 'auto',
         display: 'flex',
         alignItems: 'center'
       }}>
@@ -831,7 +830,7 @@ const InteractiveQuestionPanel = React.memo(({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
-        gap: '8px'
+        gap: 'clamp(4px, 0.5vh, 6px)'
       }}>
         {question.options?.map((opt, idx) => {
           const label = optionLabels[idx] || String.fromCharCode(65 + idx);
@@ -857,22 +856,22 @@ const InteractiveQuestionPanel = React.memo(({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '6px 12px',
-                borderRadius: '8px',
+                gap: '6px',
+                padding: '3px 8px',
+                borderRadius: '6px',
                 background: cardBg,
                 border: `1.5px solid ${borderCol}`,
                 color: textCol,
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
                 textAlign: 'left',
-                minHeight: 'clamp(36px, 4.8vh, 46px)',
+                minHeight: 'clamp(24px, 3.2vh, 32px)',
                 userSelect: 'none',
                 boxSizing: 'border-box'
               }}
             >
               <div style={{
-                width: '24px',
-                height: '24px',
+                width: '18px',
+                height: '18px',
                 borderRadius: '50%',
                 background: badgeBg,
                 color: badgeCol,
@@ -880,15 +879,15 @@ const InteractiveQuestionPanel = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontWeight: 900,
-                fontSize: '0.82rem',
+                fontSize: '0.72rem',
                 flexShrink: 0
               }}>
                 {label}
               </div>
               <span style={{
                 fontWeight: 700,
-                fontSize: 'clamp(0.82rem, 1.1vw, 0.98rem)',
-                lineHeight: 1.25,
+                fontSize: 'clamp(0.74rem, 0.9vw, 0.86rem)',
+                lineHeight: 1.2,
                 flex: 1
               }}>
                 {opt}
@@ -900,17 +899,17 @@ const InteractiveQuestionPanel = React.memo(({
 
       {/* Dòng Hướng Dẫn Tương Tác: Chạm ô ở trên ma trận */}
       <div style={{
-        padding: '5px 10px',
-        borderRadius: '8px',
+        padding: '2px 8px',
+        borderRadius: '5px',
         background: isAnswered ? '#f0fdf4' : '#fff1f2',
         border: `1px dashed ${isAnswered ? '#10b981' : '#f43f5e'}`,
         color: isAnswered ? '#15803d' : '#be123c',
-        fontSize: 'clamp(0.75rem, 0.95vw, 0.84rem)',
+        fontSize: 'clamp(0.66rem, 0.8vw, 0.76rem)',
         fontWeight: 800,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '6px',
+        gap: '4px',
         textAlign: 'center'
       }}>
         {isAnswered ? (
@@ -993,6 +992,39 @@ export function HeartPuzzle2010Game({
   // Đội chiến thắng & Modal chúc mừng
   const [winner, setWinner] = useState(null);
   const [showVictoryModal, setShowVictoryModal] = useState(false);
+
+  // Quản lý chế độ Toàn Màn Hình (Fullscreen)
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const handleFSChange = () => {
+      setIsFullscreen(!!(document.fullscreenElement || document.webkitFullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFSChange);
+    document.addEventListener('webkitfullscreenchange', handleFSChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFSChange);
+      document.removeEventListener('webkitfullscreenchange', handleFSChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    try {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    } catch (e) {}
+  }, []);
 
   // Reset toàn bộ trò chơi
   const handleResetGame = useCallback(() => {
@@ -1240,8 +1272,8 @@ export function HeartPuzzle2010Game({
     }}>
       {/* THANH ĐIỀU HƯỚNG TRÊN CÙNG (HEADER BAR) */}
       <div style={{
-        height: '52px',
-        padding: '0 16px',
+        height: 'clamp(40px, 4.6vh, 46px)',
+        padding: '0 clamp(8px, 1.2vw, 16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -1252,44 +1284,45 @@ export function HeartPuzzle2010Game({
         zIndex: 50
       }}>
         {/* Nút Thoát Game & Tiêu Đề */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 12px)' }}>
           <button
             onClick={onClose}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '4px',
               background: '#1e293b',
               border: '1px solid #334155',
               color: '#ffffff',
-              padding: '6px 14px',
-              borderRadius: '8px',
+              padding: '4px 10px',
+              borderRadius: '6px',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.85rem'
+              fontSize: '0.78rem'
             }}
           >
-            <ArrowLeft size={16} />
-            Thoát Game
+            <ArrowLeft size={14} />
+            Thoát
           </button>
 
           <div>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
               fontWeight: 900,
-              fontSize: '1rem',
+              fontSize: 'clamp(0.84rem, 1.1vw, 0.96rem)',
               color: '#f43f5e',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.3px'
             }}>
-              <Heart size={18} fill="#f43f5e" />
+              <Heart size={16} fill="#f43f5e" />
               GIẢI MÃ BỨC TRANH 20/10
             </div>
             <div style={{
-              fontSize: '0.74rem',
+              fontSize: '0.68rem',
               color: '#94a3b8',
-              fontWeight: 500
+              fontWeight: 500,
+              lineHeight: 1.1
             }}>
               Đọc câu hỏi bên dưới ➔ Chạm đúng ô trên bảng để tô đỏ kết nối thành Trái Tim
             </div>
@@ -1297,7 +1330,7 @@ export function HeartPuzzle2010Game({
         </div>
 
         {/* Bộ Chọn Kiểu Ma Trận Trái Tim & Chế Độ Chơi */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
           {/* Dropdown Mẫu Ma Trận Trái Tim */}
           <select
             value={patternKey}
@@ -1306,24 +1339,24 @@ export function HeartPuzzle2010Game({
               background: '#1e293b',
               border: '1.5px solid #e11d48',
               color: '#ffffff',
-              padding: '6px 12px',
-              borderRadius: '8px',
+              padding: '4px 8px',
+              borderRadius: '6px',
               fontWeight: 800,
-              fontSize: '0.82rem',
+              fontSize: '0.76rem',
               outline: 'none',
               cursor: 'pointer'
             }}
           >
-            <option value="matrix">❤️ Ô Trái Tim Ẩn Giấu (Lộn Xộn Ma Trận - Chuẩn)</option>
-            <option value="layers">💖 Trái Tim Tô Màu Từng Lớp (Dưới Lên Trên)</option>
+            <option value="matrix">❤️ Trái Tim Ẩn Giấu</option>
+            <option value="layers">💖 Tô Màu Từng Lớp</option>
           </select>
 
           {/* Nút Chuyển Chế Độ: Chạm 2 Đội vs Máy Chiếu */}
           <div style={{
             display: 'flex',
             background: '#1e293b',
-            padding: '3px',
-            borderRadius: '8px',
+            padding: '2px',
+            borderRadius: '6px',
             border: '1px solid #334155'
           }}>
             <button
@@ -1331,38 +1364,38 @@ export function HeartPuzzle2010Game({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '5px 12px',
-                borderRadius: '6px',
+                gap: '4px',
+                padding: '4px 8px',
+                borderRadius: '5px',
                 background: gameMode === 'dual-touch' ? '#e11d48' : 'transparent',
                 border: 'none',
                 color: '#ffffff',
                 fontWeight: 800,
-                fontSize: '0.82rem',
+                fontSize: '0.76rem',
                 cursor: 'pointer'
               }}
             >
-              <Touchpad size={15} />
-              Chạm 2 Đội (Bảng Cảm Ứng)
+              <Touchpad size={13} />
+              Chạm 2 Đội
             </button>
             <button
               onClick={() => setGameMode('teacher-led')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '5px 12px',
-                borderRadius: '6px',
+                gap: '4px',
+                padding: '4px 8px',
+                borderRadius: '5px',
                 background: gameMode === 'teacher-led' ? '#2563eb' : 'transparent',
                 border: 'none',
                 color: '#ffffff',
                 fontWeight: 800,
-                fontSize: '0.82rem',
+                fontSize: '0.76rem',
                 cursor: 'pointer'
               }}
             >
-              <Monitor size={15} />
-              Máy Chiếu (Giáo Viên Điều Khiển)
+              <Monitor size={13} />
+              Máy Chiếu
             </button>
           </div>
 
@@ -1372,18 +1405,18 @@ export function HeartPuzzle2010Game({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '3px',
               background: '#059669',
               border: 'none',
               color: '#ffffff',
-              padding: '6px 10px',
+              padding: '4px 8px',
               borderRadius: '6px',
               fontWeight: 800,
-              fontSize: '0.78rem',
+              fontSize: '0.74rem',
               cursor: 'pointer'
             }}
           >
-            <Download size={14} />
+            <Download size={13} />
             Mẫu Excel
           </button>
 
@@ -1400,18 +1433,18 @@ export function HeartPuzzle2010Game({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '3px',
               background: '#0891b2',
               border: 'none',
               color: '#ffffff',
-              padding: '6px 10px',
+              padding: '4px 8px',
               borderRadius: '6px',
               fontWeight: 800,
-              fontSize: '0.78rem',
+              fontSize: '0.74rem',
               cursor: 'pointer'
             }}
           >
-            <Upload size={14} />
+            <Upload size={13} />
             Nhập Excel
           </button>
 
@@ -1422,8 +1455,8 @@ export function HeartPuzzle2010Game({
               background: '#334155',
               border: 'none',
               color: '#ffffff',
-              width: '32px',
-              height: '32px',
+              width: '28px',
+              height: '28px',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -1431,7 +1464,7 @@ export function HeartPuzzle2010Game({
               cursor: 'pointer'
             }}
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={14} />
           </button>
 
           <button
@@ -1441,8 +1474,8 @@ export function HeartPuzzle2010Game({
               background: '#334155',
               border: 'none',
               color: '#ffffff',
-              width: '32px',
-              height: '32px',
+              width: '28px',
+              height: '28px',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -1450,7 +1483,29 @@ export function HeartPuzzle2010Game({
               cursor: 'pointer'
             }}
           >
-            {soundMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            {soundMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+
+          {/* Nút Toàn Màn Hình (Fullscreen) */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Thu nhỏ màn hình (Esc)' : 'Bật toàn màn hình'}
+            style={{
+              background: isFullscreen ? '#4f46e5' : '#334155',
+              border: 'none',
+              color: '#ffffff',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'pointer',
+              fontWeight: 800,
+              fontSize: '0.74rem'
+            }}
+          >
+            {isFullscreen ? <Minimize size={14} /> : <Maximize size={14} />}
+            <span>{isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}</span>
           </button>
         </div>
       </div>
@@ -1458,7 +1513,8 @@ export function HeartPuzzle2010Game({
       {/* KHU VỰC ĐẤU TRƯỜNG CHÍNH (MAIN ARENA) */}
       <div style={{
         flex: 1,
-        padding: '10px 16px',
+        minHeight: 0,
+        padding: 'clamp(4px, 0.8vh, 8px) clamp(8px, 1.2vw, 14px)',
         overflow: 'hidden',
         display: 'flex',
         boxSizing: 'border-box'
@@ -1468,9 +1524,10 @@ export function HeartPuzzle2010Game({
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
-            gap: '16px',
+            gap: 'clamp(8px, 1.2vw, 14px)',
             width: '100%',
             height: '100%',
+            minHeight: 0,
             boxSizing: 'border-box'
           }}>
             {teamStates.map((team, teamIdx) => {
@@ -1484,10 +1541,11 @@ export function HeartPuzzle2010Game({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '10px',
+                    gap: 'clamp(4px, 0.6vh, 8px)',
                     height: '100%',
+                    minHeight: 0,
                     boxSizing: 'border-box',
-                    justifyContent: 'space-between'
+                    justifyContent: 'flex-start'
                   }}
                 >
                   {/* Bảng Ma Trận Ô Thẻ Trái Tim Của Đội */}
@@ -1527,20 +1585,20 @@ export function HeartPuzzle2010Game({
                     />
                   ) : (
                     <div style={{
-                      padding: '16px',
+                      padding: '12px',
                       background: 'rgba(16, 185, 129, 0.15)',
                       border: '2px solid #10b981',
-                      borderRadius: '14px',
+                      borderRadius: '12px',
                       textAlign: 'center',
                       color: '#34d399',
                       fontWeight: 900,
-                      fontSize: '1.05rem',
+                      fontSize: '0.96rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px'
                     }}>
-                      <Trophy size={24} />
+                      <Trophy size={20} />
                       🎉 ĐÃ GIẢI MÃ HOÀN TẤT TRÁI TIM 20/10!
                     </div>
                   )}
@@ -1554,30 +1612,31 @@ export function HeartPuzzle2010Game({
         {gameMode === 'teacher-led' && (
           <div style={{
             display: 'flex',
-            gap: '20px',
+            gap: 'clamp(10px, 1.5vw, 16px)',
             width: '100%',
             maxWidth: '1200px',
             margin: '0 auto',
             height: '100%',
+            minHeight: 0,
             boxSizing: 'border-box',
             alignItems: 'center'
           }}>
             {/* Cột Trái: Ma Trận Trái Tim Đội Đang Có Lượt */}
-            <div style={{ flex: 1.1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '4px' }}>
+            <div style={{ flex: 1.1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: 'clamp(4px, 0.6vh, 8px)' }}>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '2px' }}>
                 {teamStates.map((team, idx) => (
                   <button
                     key={team.id}
                     onClick={() => setActiveTeacherTeamIdx(idx)}
                     style={{
                       flex: 1,
-                      padding: '8px',
-                      borderRadius: '8px',
+                      padding: '6px',
+                      borderRadius: '6px',
                       background: activeTeacherTeamIdx === idx ? team.color : '#1e293b',
                       border: `1.5px solid ${team.color}`,
                       color: '#ffffff',
                       fontWeight: 900,
-                      fontSize: '0.85rem',
+                      fontSize: '0.8rem',
                       cursor: 'pointer'
                     }}
                   >
@@ -1599,7 +1658,7 @@ export function HeartPuzzle2010Game({
             </div>
 
             {/* Cột Phải: Bảng Câu Hỏi Cho Giáo Viên Điều Khiển */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <InteractiveQuestionPanel
                 question={activeQuestionsList[teacherQIdx]}
                 questionNumber={teacherQIdx + 1}
