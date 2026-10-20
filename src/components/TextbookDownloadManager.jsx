@@ -118,10 +118,8 @@ export function TextbookDownloadManager({
 
     if (book.pdfUrl) return book.pdfUrl;
 
-    // For all other textbooks: embed directly in the system's digital reader modal
-    const driveUrl = getDriveUrlForBook(book);
-    const folderId = extractDriveFolderId(driveUrl) || GOOGLE_DRIVE_FOLDER_ID;
-    return `https://drive.google.com/embeddedfolderview?id=${folderId}#grid`;
+    // Do NOT return relative paths that don't exist on server or cross-origin blocked drive links
+    return null;
   };
 
   // Helper to resolve direct Grade Drive link
@@ -482,9 +480,10 @@ export function TextbookDownloadManager({
     const pdfUrl = getPdfUrlForBook(book, initialPart);
     setActivePdfUrl(pdfUrl);
 
-    // All books now open directly in digital reader mode
-    setReaderViewMode('pdf');
-    setIsPdfLoading(true);
+    // If PDF is available locally or uploaded, open in PDF mode; otherwise open directly in Digital Reader mode
+    const hasHostedPdf = Boolean(pdfUrl);
+    setReaderViewMode(hasHostedPdf ? 'pdf' : 'text');
+    setIsPdfLoading(hasHostedPdf);
 
     // Preload text or generate rich pedagogical synopsis in background
     setIsLoadingText(true);
@@ -1159,46 +1158,93 @@ export function TextbookDownloadManager({
                   display: 'flex',
                   gap: '4px'
                 }}>
-                  <button
-                    onClick={() => setReaderViewMode('pdf')}
-                    style={{
-                      background: readerViewMode === 'pdf' ? '#ffffff' : 'transparent',
-                      color: readerViewMode === 'pdf' ? '#0f766e' : '#ffffff',
-                      border: 'none',
-                      padding: '6px 14px',
-                      borderRadius: '8px',
-                      fontWeight: 800,
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: readerViewMode === 'pdf' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <BookOpen size={14} /> Sách PDF Gốc
-                  </button>
-                  <button
-                    onClick={() => setReaderViewMode('text')}
-                    style={{
-                      background: readerViewMode === 'text' ? '#ffffff' : 'transparent',
-                      color: readerViewMode === 'text' ? '#0f766e' : '#ffffff',
-                      border: 'none',
-                      padding: '6px 14px',
-                      borderRadius: '8px',
-                      fontWeight: 800,
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: readerViewMode === 'text' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <FileText size={14} /> Văn Bản AI
-                  </button>
+                  {Boolean(activePdfUrl) ? (
+                    <>
+                      <button
+                        onClick={() => setReaderViewMode('pdf')}
+                        style={{
+                          background: readerViewMode === 'pdf' ? '#ffffff' : 'transparent',
+                          color: readerViewMode === 'pdf' ? '#0f766e' : '#ffffff',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: readerViewMode === 'pdf' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <BookOpen size={14} /> Sách PDF Gốc
+                      </button>
+                      <button
+                        onClick={() => setReaderViewMode('text')}
+                        style={{
+                          background: readerViewMode === 'text' ? '#ffffff' : 'transparent',
+                          color: readerViewMode === 'text' ? '#0f766e' : '#ffffff',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: readerViewMode === 'text' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <FileText size={14} /> Giáo Trình & Soạn Bài AI
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setReaderViewMode('text')}
+                        style={{
+                          background: readerViewMode === 'text' ? '#ffffff' : 'transparent',
+                          color: readerViewMode === 'text' ? '#0f766e' : '#ffffff',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: readerViewMode === 'text' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <BookOpen size={14} /> Đọc Sách Số Hóa (Trực Tiếp)
+                      </button>
+                      <button
+                        onClick={() => setReaderViewMode('pdf')}
+                        style={{
+                          background: readerViewMode === 'pdf' ? '#ffffff' : 'transparent',
+                          color: readerViewMode === 'pdf' ? '#0f766e' : '#ffffff',
+                          border: 'none',
+                          padding: '6px 14px',
+                          borderRadius: '8px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: readerViewMode === 'pdf' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <Download size={14} /> Tải / Nạp File PDF
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 {/* Upload Local PDF for this book */}
@@ -1316,8 +1362,8 @@ export function TextbookDownloadManager({
             {/* Modal Body Container */}
             <div style={{ flex: 1, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#334155' }}>
               
-              {/* Fast Part Switcher Bar for Lịch Sử & Địa Lí 7 OR Direct Reading Ribbon */}
-              {isReadingLsdl7 ? (
+              {/* Fast Part Switcher Bar ONLY for Lịch Sử & Địa Lí 7 when in PDF mode */}
+              {isReadingLsdl7 && readerViewMode === 'pdf' && (
                 <div style={{
                   background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)',
                   padding: '10px 20px',
@@ -1401,61 +1447,6 @@ export function TextbookDownloadManager({
                     ⚡ Đã bật bộ nhớ đệm (Cache) — các lần mở sau sẽ mở tức thì trong 1 giây!
                   </div>
                 </div>
-              ) : (
-                <div style={{
-                  background: 'linear-gradient(90deg, #042f2e 0%, #0f172a 100%)',
-                  padding: '10px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderBottom: '1px solid rgba(255,255,255,0.12)',
-                  flexWrap: 'wrap',
-                  gap: '12px',
-                  zIndex: 20
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#5eead4', fontSize: '0.84rem', fontWeight: 800 }}>
-                    <Sparkles size={16} color="#fef08a" />
-                    <span>✨ Đang mở đọc trực tiếp: <strong>{readingBook.title}</strong> ({readingBook.grade}). Thầy cô có thể lật trang, xem trọn vẹn và tra cứu ngay trong hệ thống!</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                      onClick={() => setReaderViewMode('text')}
-                      style={{
-                        background: 'rgba(255,255,255,0.12)',
-                        color: '#ffffff',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        padding: '5px 12px',
-                        borderRadius: '8px',
-                        fontSize: '0.78rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      <FileText size={13} /> Chuyển Sang Văn Bản AI
-                    </button>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      style={{
-                        background: '#0d9488',
-                        color: '#ffffff',
-                        border: 'none',
-                        padding: '5px 12px',
-                        borderRadius: '8px',
-                        fontSize: '0.78rem',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px'
-                      }}
-                    >
-                      <Upload size={13} /> Nạp PDF Riêng
-                    </button>
-                  </div>
-                </div>
               )}
 
               {/* PDF VIEW MODE */}
@@ -1536,7 +1527,7 @@ export function TextbookDownloadManager({
                     )}
                     <iframe
                       key={activePdfUrl}
-                      src={activePdfUrl.startsWith('http') ? activePdfUrl : `${activePdfUrl}#toolbar=1&navpanes=1&statusbar=1&view=FitH`}
+                      src={`${activePdfUrl}#toolbar=1&navpanes=1&statusbar=1&view=FitH`}
                       onLoad={() => setIsPdfLoading(false)}
                       onError={() => {
                         setIsPdfLoading(false);
@@ -1553,46 +1544,71 @@ export function TextbookDownloadManager({
                     />
                   </div>
                 ) : (
-                  /* Fallback UI when no PDF is found on server yet */
+                  /* Clean, helpful card for books whose PDF is on Google Drive — NEVER 404 */
                   <div style={{
                     flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '40px 20px',
+                    padding: '40px 24px',
                     background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
                     textAlign: 'center',
-                    gap: '16px'
+                    gap: '18px'
                   }}>
                     <div style={{
-                      width: '80px',
-                      height: '80px',
+                      width: '84px',
+                      height: '84px',
                       borderRadius: '24px',
                       background: '#ccfbf1',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 10px 25px rgba(13, 148, 136, 0.2)'
+                      boxShadow: '0 10px 25px rgba(13, 148, 136, 0.25)'
                     }}>
-                      <BookOpen size={42} color="#0d9488" />
+                      <BookOpen size={44} color="#0d9488" />
                     </div>
 
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>
-                      Chưa Có Sẵn File PDF Gốc Cho Cuốn Sách Này
-                    </h3>
-                    <p style={{ fontSize: '0.95rem', color: '#475569', maxWidth: '540px', lineHeight: 1.5, margin: 0 }}>
-                      Thầy cô có thể chọn tệp PDF có sẵn trên máy tính để đọc ngay lập tức, hoặc tải tệp gốc từ thư mục Google Drive của khối lớp.
-                    </p>
+                    <div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '8px' }}>
+                        🎓 {readingBook.grade} • {getSubjectName(readingBook)}
+                      </div>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
+                        Kho Tệp PDF Gốc: {readingBook.title}
+                      </h3>
+                      <p style={{ fontSize: '0.92rem', color: '#475569', maxWidth: '580px', lineHeight: 1.6, margin: '0 auto' }}>
+                        Toàn bộ tệp PDF gốc của khối lớp này được lưu trữ tập trung tại Google Drive chính thức. Thầy cô có thể đọc bản số hóa chi tiết ngay trên hệ thống, hoặc tải file PDF từ Google Drive để lưu về máy tính!
+                      </p>
+                    </div>
 
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '6px' }}>
                       <button
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => setReaderViewMode('text')}
                         style={{
                           background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
                           color: '#ffffff',
                           border: 'none',
                           padding: '12px 24px',
+                          borderRadius: '14px',
+                          fontWeight: 900,
+                          fontSize: '0.92rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          boxShadow: '0 4px 15px rgba(13, 148, 136, 0.35)'
+                        }}
+                      >
+                        <BookOpen size={18} /> 📖 Đọc Bản Số Hóa & Trích Xuất AI Ngay
+                      </button>
+
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{
+                          background: '#ffffff',
+                          color: '#0f766e',
+                          border: '1.5px solid #0d9488',
+                          padding: '12px 22px',
                           borderRadius: '14px',
                           fontWeight: 800,
                           fontSize: '0.92rem',
@@ -1600,10 +1616,10 @@ export function TextbookDownloadManager({
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
-                          boxShadow: '0 4px 15px rgba(13, 148, 136, 0.4)'
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.06)'
                         }}
                       >
-                        <Upload size={18} /> 📂 Chọn File PDF Từ Máy Tính Để Đọc Ngay
+                        <Upload size={18} /> 📂 Nạp File PDF Từ Máy Tính
                       </button>
 
                       <a
@@ -1611,10 +1627,10 @@ export function TextbookDownloadManager({
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
-                          background: '#ffffff',
-                          color: '#2563eb',
+                          background: '#eff6ff',
+                          color: '#1d4ed8',
                           border: '1.5px solid #bfdbfe',
-                          padding: '12px 20px',
+                          padding: '12px 22px',
                           borderRadius: '14px',
                           fontWeight: 800,
                           fontSize: '0.92rem',
@@ -1622,30 +1638,11 @@ export function TextbookDownloadManager({
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
-                          boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+                          boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
                         }}
                       >
-                        <CloudDownload size={18} /> Mở Google Drive Khối {readingBook.grade}
+                        <CloudDownload size={18} /> 📥 Tải File PDF Gốc Khối {readingBook.grade} (Drive)
                       </a>
-
-                      <button
-                        onClick={() => setReaderViewMode('text')}
-                        style={{
-                          background: '#f1f5f9',
-                          color: '#334155',
-                          border: '1px solid #cbd5e1',
-                          padding: '12px 20px',
-                          borderRadius: '14px',
-                          fontWeight: 800,
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}
-                      >
-                        <FileText size={18} /> Xem Văn Bản Tóm Tắt AI
-                      </button>
                     </div>
                   </div>
                 )
@@ -1654,7 +1651,7 @@ export function TextbookDownloadManager({
               {/* TEXT EXTRACT VIEW MODE */}
               {readerViewMode === 'text' && (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#ffffff', overflow: 'hidden' }}>
-                  {/* Search Bar in Text Mode */}
+                  {/* Search Bar & Action Toolbar in Text Mode */}
                   <div style={{
                     padding: '12px 24px',
                     background: '#f8fafc',
@@ -1662,9 +1659,10 @@ export function TextbookDownloadManager({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '16px'
+                    gap: '16px',
+                    flexWrap: 'wrap'
                   }}>
-                    <div style={{ position: 'relative', flex: 1, maxWidth: '420px' }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: '240px', maxWidth: '440px' }}>
                       <Search size={16} color="#64748b" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
@@ -1682,8 +1680,76 @@ export function TextbookDownloadManager({
                       />
                     </div>
 
-                    <div style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
-                      ℹ️ Chế độ văn bản trích xuất hỗ trợ tra cứu và sao chép câu hỏi
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => {
+                          if (readerText) {
+                            navigator.clipboard.writeText(readerText);
+                            setToastMessage('📋 Đã sao chép nội dung bài học vào bộ nhớ tạm!');
+                            setTimeout(() => setToastMessage(null), 3500);
+                          }
+                        }}
+                        title="Sao chép nội dung vào bộ nhớ tạm"
+                        style={{
+                          background: '#f0fdf4',
+                          border: '1px solid #86efac',
+                          color: '#166534',
+                          padding: '7px 14px',
+                          borderRadius: '10px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Copy size={14} /> Sao Chép
+                      </button>
+
+                      {onOpenVirtualLab && (
+                        <button
+                          onClick={onOpenVirtualLab}
+                          title="Chuyển đến phòng thí nghiệm ảo từ SGK"
+                          style={{
+                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            color: '#2dd4bf',
+                            border: '1px solid rgba(45, 212, 191, 0.4)',
+                            padding: '7px 14px',
+                            borderRadius: '10px',
+                            fontWeight: 800,
+                            fontSize: '0.82rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Sparkles size={14} color="#2dd4bf" /> Soạn Bài & Thí Nghiệm
+                        </button>
+                      )}
+
+                      <a
+                        href={getDriveUrlForBook(readingBook)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Mở thư mục Google Drive để tải file PDF gốc về máy"
+                        style={{
+                          background: '#eff6ff',
+                          color: '#1d4ed8',
+                          border: '1px solid #bfdbfe',
+                          padding: '7px 14px',
+                          borderRadius: '10px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          textDecoration: 'none',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Download size={14} /> Tải PDF Gốc
+                      </a>
                     </div>
                   </div>
 
@@ -1704,7 +1770,15 @@ export function TextbookDownloadManager({
                         <p style={{ fontWeight: 800 }}>Đang nạp dữ liệu cuốn sách...</p>
                       </div>
                     ) : readerText ? (
-                      readerText
+                      readerSearch ? (
+                        readerText.split('\n').filter(line => line.toLowerCase().includes(readerSearch.toLowerCase())).join('\n') || (
+                          <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+                            Không tìm thấy dòng nào khớp với từ khóa "{readerSearch}".
+                          </div>
+                        )
+                      ) : (
+                        readerText
+                      )
                     ) : (
                       <div style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                         <BookOpen size={48} color="#94a3b8" style={{ marginBottom: '12px' }} />
