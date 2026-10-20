@@ -1272,7 +1272,7 @@ export function HeartPuzzle2010Game({
     }}>
       {/* THANH ĐIỀU HƯỚNG TRÊN CÙNG (HEADER BAR) */}
       <div style={{
-        height: 'clamp(40px, 4.6vh, 46px)',
+        height: '46px',
         padding: '0 clamp(8px, 1.2vw, 16px)',
         display: 'flex',
         alignItems: 'center',
@@ -1281,10 +1281,11 @@ export function HeartPuzzle2010Game({
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
         backdropFilter: 'blur(8px)',
         flexShrink: 0,
-        zIndex: 50
+        zIndex: 50,
+        boxSizing: 'border-box'
       }}>
         {/* Nút Thoát Game & Tiêu Đề */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1vw, 12px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           <button
             onClick={onClose}
             style={{
@@ -1294,43 +1295,36 @@ export function HeartPuzzle2010Game({
               background: '#1e293b',
               border: '1px solid #334155',
               color: '#ffffff',
-              padding: '4px 10px',
+              padding: '5px 10px',
               borderRadius: '6px',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.78rem'
+              fontSize: '0.8rem',
+              flexShrink: 0
             }}
           >
             <ArrowLeft size={14} />
             Thoát
           </button>
 
-          <div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              fontWeight: 900,
-              fontSize: 'clamp(0.84rem, 1.1vw, 0.96rem)',
-              color: '#f43f5e',
-              letterSpacing: '0.3px'
-            }}>
-              <Heart size={16} fill="#f43f5e" />
-              GIẢI MÃ BỨC TRANH 20/10
-            </div>
-            <div style={{
-              fontSize: '0.68rem',
-              color: '#94a3b8',
-              fontWeight: 500,
-              lineHeight: 1.1
-            }}>
-              Đọc câu hỏi bên dưới ➔ Chạm đúng ô trên bảng để tô đỏ kết nối thành Trái Tim
-            </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontWeight: 900,
+            fontSize: 'clamp(0.85rem, 1.1vw, 0.98rem)',
+            color: '#f43f5e',
+            letterSpacing: '0.3px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
+          }}>
+            <Heart size={16} fill="#f43f5e" />
+            GIẢI MÃ BỨC TRANH 20/10
           </div>
         </div>
 
         {/* Bộ Chọn Kiểu Ma Trận Trái Tim & Chế Độ Chơi */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)', flexShrink: 0 }}>
           {/* Dropdown Mẫu Ma Trận Trái Tim */}
           <select
             value={patternKey}
