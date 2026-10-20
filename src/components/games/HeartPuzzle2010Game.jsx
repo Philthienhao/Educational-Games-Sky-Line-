@@ -354,22 +354,37 @@ export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
 
   // Phân bổ các ô còn lại (63 - N ô) là Ô NHIỄU (DECOY):
   // Chứa mã đáp án SAI của các câu hỏi (ví dụ: 1-A, 1-C nếu đáp án đúng là B)
-  // TUYỆT ĐỐI KHÔNG chứa mã đáp án đúng để mỗi đáp án chỉ có 1 ô duy nhất trên bảng!
+  // Phân bổ tự nhiên khắp ma trận, TUYỆT ĐỐI KHÔNG chứa mã đáp án đúng!
   const decoyMap = new Map();
   const optionLetters = ['A', 'B', 'C', 'D'];
-  const teamSeed = (teamIdx + 1) * 31;
-  let decoyIdx = 0;
+  const teamSeed = (teamIdx + 1) * 37;
 
+  // Tạo danh sách các câu hỏi để rải đều ô nhiễu
+  const decoyQPool = [];
+  for (let cycle = 0; cycle < 8; cycle++) {
+    for (let q = 0; q < N; q++) {
+      decoyQPool.push(q);
+    }
+  }
+  // Xáo trộn nhẹ danh sách câu hỏi nhiễu
+  for (let i = decoyQPool.length - 1; i > 0; i--) {
+    const j = (i * 13 + teamSeed + 5) % (i + 1);
+    [decoyQPool[i], decoyQPool[j]] = [decoyQPool[j], decoyQPool[i]];
+  }
+
+  let poolIdx = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const key = `${r}_${c}`;
       if (targetKeys.has(key)) continue;
 
-      const decoyQIdx = (decoyIdx * 3 + r * 5 + c * 7 + teamSeed) % N;
+      const decoyQIdx = decoyQPool[poolIdx % decoyQPool.length];
+      poolIdx++;
+
       const q = questions[decoyQIdx] || questions[0];
       const correctLetter = getCorrectLetter(q);
       const wrongOptions = optionLetters.filter(opt => opt !== correctLetter);
-      const chosenWrong = wrongOptions[(decoyIdx + r + c + teamSeed) % wrongOptions.length] || (correctLetter === 'A' ? 'B' : 'A');
+      const chosenWrong = wrongOptions[(r * 7 + c * 11 + poolIdx + teamSeed) % wrongOptions.length] || (correctLetter === 'A' ? 'B' : 'A');
       const code = `${decoyQIdx + 1}-${chosenWrong}`;
 
       decoyMap.set(key, {
@@ -384,7 +399,6 @@ export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
         code,
         id: `decoy_${r}_${c}`
       });
-      decoyIdx++;
     }
   }
 
@@ -537,8 +551,8 @@ const HeartCardMatrixView = React.memo(({
 
         {/* VÙNG CHỨA MA TRẬN & ĐƯỜNG KẾT NỐI TRÁI TIM LỚN */}
         <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
-          {/* Đường Viền SVG Nối Liền Các Ô Thành 1 Trái Tim Lớn Thống Nhất */}
-          {boardData?.heartLoopSvgPath && (
+          {/* Đường Viền SVG Nối Liền Các Ô Thành 1 Trái Tim LỚN (CHỈ XUẤT HIỆN KHI HOÀN THÀNH TRÒ CHƠI) */}
+          {isCompleted && boardData?.heartLoopSvgPath && (
             <svg
               style={{
                 position: 'absolute',
@@ -553,12 +567,11 @@ const HeartCardMatrixView = React.memo(({
             >
               <path
                 d={boardData.heartLoopSvgPath}
-                fill={isCompleted ? "rgba(239, 68, 68, 0.16)" : "rgba(244, 63, 94, 0.04)"}
-                stroke={isCompleted ? "#ef4444" : "#fca5a5"}
-                strokeWidth={isCompleted ? "2.5" : "1.2"}
-                strokeDasharray={isCompleted ? "none" : "3 2"}
+                fill="rgba(239, 68, 68, 0.16)"
+                stroke="#ef4444"
+                strokeWidth="2.5"
                 style={{
-                  filter: isCompleted ? "drop-shadow(0 0 10px rgba(239, 68, 68, 0.75))" : "none",
+                  filter: "drop-shadow(0 0 10px rgba(239, 68, 68, 0.75))",
                   transition: 'all 0.5s ease'
                 }}
               />
@@ -583,7 +596,7 @@ const HeartCardMatrixView = React.memo(({
 
                 let bg = '#ffffff';
                 let borderColor = '#e2e8f0';
-                let textColor = '#64748b';
+                let textColor = '#1e293b';
                 let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
                 let transform = 'scale(1)';
                 let opacity = 1;
@@ -617,17 +630,12 @@ const HeartCardMatrixView = React.memo(({
                   borderColor = '#ef4444';
                   textColor = '#b91c1c';
                   transform = 'scale(0.96)';
-                } else if (cell.isTarget) {
-                  // Ô thuộc hình trái tim đang chờ thắp đỏ: viền hồng tinh tế
-                  bg = '#fff5f7';
-                  borderColor = '#fecdd3';
-                  textColor = '#be123c';
-                  shadow = '0 1px 4px rgba(225, 29, 72, 0.06)';
                 } else {
-                  // Ô ngoài lề (decoy)
-                  bg = '#f8fafc';
+                  // MỌI Ô CHƯA ĐƯỢC CHỌN (KỂ CẢ Ô ĐÁP ÁN ĐÚNG NGẦM) ĐỀU MÀU TRẮNG ĐỒNG NHẤT 100%
+                  bg = '#ffffff';
                   borderColor = '#e2e8f0';
-                  textColor = '#64748b';
+                  textColor = '#1e293b';
+                  shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
                 }
 
                 return (
