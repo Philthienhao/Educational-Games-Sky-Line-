@@ -468,12 +468,12 @@ export function TextbookDownloadManager({
     setReaderSearch('');
     setPdfLoadError(false);
 
-    // Smart default part based on selected subject filter
-    let initialPart = 'full';
-    if (selectedSubject === 'Lịch Sử') {
-      initialPart = 'lichsu';
-    } else if (selectedSubject === 'Địa Lí') {
+    // Smart default part based on selected subject filter — default to fast 18MB part
+    let initialPart = 'lichsu';
+    if (selectedSubject === 'Địa Lí') {
       initialPart = 'diali';
+    } else if (selectedSubject === 'Lịch Sử') {
+      initialPart = 'lichsu';
     }
     setActiveBookPart(initialPart);
 
@@ -1125,14 +1125,14 @@ export function TextbookDownloadManager({
                       🎓 {readingBook.grade}
                     </span>
                     <span style={{
-                      background: '#10b981',
+                      background: activePdfUrl ? '#10b981' : '#0284c7',
                       color: '#ffffff',
                       padding: '2px 8px',
                       borderRadius: '8px',
                       fontSize: '0.74rem',
                       fontWeight: 900
                     }}>
-                      ⚡ ĐỌC PDF TRỰC TIẾP
+                      {activePdfUrl ? '⚡ ĐỌC PDF TRỰC TIẾP' : '📖 SÁCH SỐ HÓA TRỰC TIẾP'}
                     </span>
                   </div>
                   <h3 style={{
