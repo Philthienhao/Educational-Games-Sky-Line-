@@ -419,10 +419,8 @@ export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
 
   // Tạo đường viền SVG khép kín nối tâm các ô trái tim (viewBox 0 0 100 100)
   // để khi hoàn thành trò chơi, 1 TRÁI TIM LỚN BỪNG SÁNG KẾT NỐI TOÀN BỘ CÁC ĐÁP ÁN ĐÚNG
-  const perimeterPoints = heartCoords.filter(pt => 
-    PERIMETER_HEART_COORDS.some(p => p.r === pt.r && p.c === pt.c)
-  );
-  const loopPoints = perimeterPoints.length >= 3 ? perimeterPoints : heartCoords;
+  // Đi từ chóp nhọn đáy tim (ô 1-B tại index 0) đi vòng quanh sườn và múi tim, rồi nối chốt đáy nhọn 1-B
+  const loopPoints = N <= 16 ? heartCoords : heartCoords.slice(0, 16);
 
   const pathParts = [];
   for (let idx = 0; idx < loopPoints.length; idx++) {
