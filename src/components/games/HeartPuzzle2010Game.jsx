@@ -169,93 +169,226 @@ export const HEART_7X9_MASK = [
 ];
 
 /**
- * Hàm khởi tạo ma trận 7x9 ô thẻ cho từng đội
- * @param {string} patternKey - 'matrix' | 'layers'
- * @param {Array} questions - danh sách câu hỏi
- * @param {number} teamIdx - chỉ số đội để tạo độ xáo trộn khác biệt chống nhìn bài
+ * 16 tọa độ chu vi tạo thành đường viền trái tim chuẩn mực đối xứng trên lưới 7 hàng x 9 cột:
+ * Cột giữa là cột 4 (trục đối xứng hoàn hảo).
+ */
+export const PERIMETER_HEART_COORDS = [
+  { r: 6, c: 4 }, // 0: Đáy nhọn trái tim
+  { r: 5, c: 3 }, // 1: Sườn dưới trái
+  { r: 4, c: 2 }, // 2: Cạnh chéo trái
+  { r: 3, c: 1 }, // 3: Sườn trái
+  { r: 2, c: 1 }, // 4: Sườn trên trái
+  { r: 1, c: 1 }, // 5: Vai trái
+  { r: 0, c: 2 }, // 6: Đỉnh múi trái 1
+  { r: 0, c: 3 }, // 7: Đỉnh múi trái 2
+  { r: 1, c: 4 }, // 8: Khe giữa 2 múi tim (cleft)
+  { r: 0, c: 5 }, // 9: Đỉnh múi phải 1
+  { r: 0, c: 6 }, // 10: Đỉnh múi phải 2
+  { r: 1, c: 7 }, // 11: Vai phải
+  { r: 2, c: 7 }, // 12: Sườn trên phải
+  { r: 3, c: 7 }, // 13: Sườn phải
+  { r: 4, c: 6 }, // 14: Cạnh chéo phải
+  { r: 5, c: 5 }  // 15: Sườn dưới phải
+];
+
+/**
+ * Tọa độ nhân bên trong trái tim (dành cho bộ câu hỏi > 16 câu)
+ */
+export const INNER_HEART_COORDS = [
+  { r: 2, c: 3 },
+  { r: 2, c: 5 },
+  { r: 3, c: 3 },
+  { r: 3, c: 4 },
+  { r: 3, c: 5 },
+  { r: 4, c: 3 },
+  { r: 4, c: 4 },
+  { r: 4, c: 5 },
+  { r: 5, c: 4 },
+  { r: 2, c: 4 }
+];
+
+/**
+ * Lấy đúng N tọa độ tạo thành hình trái tim đối xứng hoàn mỹ cho N câu hỏi
+ * Mỗi câu hỏi i sở hữu DUY NHẤT 1 TỌA ĐỘ TRÁI TIM
+ */
+export function getSymmetricHeartCoords(N) {
+  if (N === 10) {
+    // 10 điểm chu vi đối xứng hoàn hảo quanh cột 4
+    return [
+      { r: 5, c: 4 }, // 0: Đáy nhọn
+      { r: 4, c: 2 }, // 1: Cạnh chéo dưới trái
+      { r: 3, c: 1 }, // 2: Sườn trái
+      { r: 1, c: 1 }, // 3: Vai trên trái
+      { r: 0, c: 2 }, // 4: Đỉnh múi tim trái
+      { r: 1, c: 4 }, // 5: Khe giữa 2 múi tim
+      { r: 0, c: 6 }, // 6: Đỉnh múi tim phải
+      { r: 1, c: 7 }, // 7: Vai trên phải
+      { r: 3, c: 7 }, // 8: Sườn phải
+      { r: 4, c: 6 }  // 9: Cạnh chéo dưới phải
+    ];
+  }
+
+  if (N === 12) {
+    return [
+      { r: 5, c: 4 }, // Đáy nhọn
+      { r: 5, c: 3 },
+      { r: 4, c: 2 },
+      { r: 2, c: 1 },
+      { r: 0, c: 2 },
+      { r: 0, c: 3 },
+      { r: 1, c: 4 }, // Khe giữa
+      { r: 0, c: 5 },
+      { r: 0, c: 6 },
+      { r: 2, c: 7 },
+      { r: 4, c: 6 },
+      { r: 5, c: 5 }
+    ];
+  }
+
+  if (N === 14) {
+    return [
+      { r: 6, c: 4 }, // Đáy nhọn
+      { r: 5, c: 3 },
+      { r: 4, c: 2 },
+      { r: 3, c: 1 },
+      { r: 1, c: 1 },
+      { r: 0, c: 2 },
+      { r: 0, c: 3 },
+      { r: 1, c: 4 }, // Khe giữa
+      { r: 0, c: 5 },
+      { r: 0, c: 6 },
+      { r: 1, c: 7 },
+      { r: 3, c: 7 },
+      { r: 4, c: 6 },
+      { r: 5, c: 5 }
+    ];
+  }
+
+  if (N === 15) {
+    return [
+      { r: 6, c: 4 }, // Đáy nhọn
+      { r: 5, c: 3 },
+      { r: 4, c: 2 },
+      { r: 3, c: 1 },
+      { r: 1, c: 1 },
+      { r: 0, c: 2 },
+      { r: 0, c: 3 },
+      { r: 1, c: 4 }, // Khe giữa
+      { r: 0, c: 5 },
+      { r: 0, c: 6 },
+      { r: 1, c: 7 },
+      { r: 3, c: 7 },
+      { r: 4, c: 6 },
+      { r: 5, c: 5 },
+      { r: 3, c: 4 }  // Tâm tim
+    ];
+  }
+
+  if (N === 16) {
+    return [...PERIMETER_HEART_COORDS];
+  }
+
+  if (N <= 16) {
+    // Với N < 16 khác: lấy mẫu đều theo chu vi đối xứng
+    const step = PERIMETER_HEART_COORDS.length / N;
+    const res = [];
+    const used = new Set();
+    for (let i = 0; i < N; i++) {
+      let idx = Math.floor(i * step);
+      while (used.has(idx) && idx < PERIMETER_HEART_COORDS.length) idx++;
+      if (idx >= PERIMETER_HEART_COORDS.length) idx = 0;
+      used.add(idx);
+      res.push(PERIMETER_HEART_COORDS[idx]);
+    }
+    return res;
+  }
+
+  // Với N > 16 (ví dụ 20 câu): kết hợp chu vi + nhân trong trái tim
+  const combined = [...PERIMETER_HEART_COORDS];
+  for (const inner of INNER_HEART_COORDS) {
+    if (combined.length >= N) break;
+    combined.push(inner);
+  }
+  return combined.slice(0, N);
+}
+
+/**
+ * Hàm khởi tạo ma trận 7x9 ô thẻ cho từng đội:
+ * QUY TẮC CỐT LÕI:
+ * 1. MỖI CÂU HỎI CHỈ CÓ ĐÚNG 1 Ô ĐÁP ÁN ĐÚNG DUY NHẤT TRÊN BẢNG (học sinh không phải bấm 4-5 ô lặp lại).
+ * 2. ĐÚNG N CÂU HỎI = ĐÚNG N Ô ĐÁP ÁN ĐÚNG TẠO NÊN HÌNH TRÁI TIM LỚN.
+ * 3. TẤT CẢ CÁC Ô CÒN LẠI (63 - N ô) là ô nhiễu chứa đáp án SAI.
  */
 export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
   const N = Math.max(1, questions.length);
   const rows = 7;
   const cols = 9;
 
-  // Thu thập 40 tọa độ thuộc hình trái tim và 23 tọa độ ngoài nền
-  const heartCoords = [];
-  const backgroundCoords = [];
+  // Lấy đúng N tọa độ tạo hình trái tim đối xứng
+  const heartCoords = getSymmetricHeartCoords(N);
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (HEART_7X9_MASK[r][c] === 1) {
-        heartCoords.push({ r, c });
-      } else {
-        backgroundCoords.push({ r, c });
-      }
-    }
-  }
+  // Phân bổ ĐÚNG 1 Ô MỤC TIÊU cho mỗi câu hỏi
+  const targetMap = new Map();
+  const targetKeys = new Set();
 
-  // Sắp xếp 40 tọa độ trái tim theo trật tự DÂNG TRÀO KẾT NỐI LIỀN MẠCH:
-  // Luôn bắt đầu từ chóp nhọn đáy tim (hàng 6) đi dần lên 2 múi tim (hàng 0)
-  // và ở mỗi hàng tỏa đối xứng từ tim (cột 4) ra 2 bên, đảm bảo các ô đỏ luôn kết nối thành 1 khối thống nhất
-  const sortedHeartCoords = [...heartCoords].sort((a, b) => {
-    if (b.r !== a.r) return b.r - a.r; // Từ hàng 6 (đáy nhọn) lên hàng 0 (2 múi trên)
-    const distA = Math.abs(a.c - 4);
-    const distB = Math.abs(b.c - 4);
-    if (distA !== distB) return distA - distB; // Từ cột giữa (cột 4) đối xứng ra 2 bên
-    return a.c - b.c;
-  });
-
-  // Phân bổ 40 ô trái tim cho N câu hỏi
-  // Mỗi câu hỏi có khoảng (40 / N) ô đáp án đúng
-  const heartAssignment = new Map();
-  const cellsPerQ = 40 / N;
-
-  for (let i = 0; i < sortedHeartCoords.length; i++) {
-    const coord = sortedHeartCoords[i];
-    const qIdx = Math.min(N - 1, Math.floor(i / cellsPerQ));
-    const q = questions[qIdx] || questions[0];
+  for (let i = 0; i < N; i++) {
+    const coord = heartCoords[i] || { r: 3, c: 4 };
+    const q = questions[i] || questions[0];
     const correctLetter = getCorrectLetter(q);
-    const code = `${qIdx + 1}-${correctLetter}`;
+    const code = `${i + 1}-${correctLetter}`;
+    const key = `${coord.r}_${coord.c}`;
 
-    heartAssignment.set(`${coord.r}_${coord.c}`, {
+    targetMap.set(key, {
       r: coord.r,
       c: coord.c,
       isTarget: true,
-      questionIdx: qIdx,
-      qNum: qIdx + 1,
+      isDecoy: false,
+      questionIdx: i,
+      qNum: i + 1,
       correctOpt: correctLetter,
       code,
       id: `heart_${coord.r}_${coord.c}`
     });
+    targetKeys.add(key);
   }
 
-  // Phân bổ 23 ô ngoài lề (decoy / ô nhiễu):
-  // Chứa mã đáp án SAI để học sinh phải suy nghĩ, không chạm bừa
-  const decoyAssignment = new Map();
+  // Phân bổ các ô còn lại (63 - N ô) là Ô NHIỄU (DECOY):
+  // Chứa mã đáp án SAI của các câu hỏi (ví dụ: 1-A, 1-C nếu đáp án đúng là B)
+  // TUYỆT ĐỐI KHÔNG chứa mã đáp án đúng để mỗi đáp án chỉ có 1 ô duy nhất trên bảng!
+  const decoyMap = new Map();
   const optionLetters = ['A', 'B', 'C', 'D'];
-  const teamSeed = (teamIdx + 1) * 19;
+  const teamSeed = (teamIdx + 1) * 31;
+  let decoyIdx = 0;
 
-  for (let i = 0; i < backgroundCoords.length; i++) {
-    const coord = backgroundCoords[i];
-    const decoyQIdx = (i * 3 + coord.r * 5 + coord.c * 7 + teamSeed) % N;
-    const q = questions[decoyQIdx] || questions[0];
-    const correctLetter = getCorrectLetter(q);
-    const wrongOptions = optionLetters.filter(opt => opt !== correctLetter);
-    const chosenWrong = wrongOptions[(i + coord.r + coord.c + teamSeed) % wrongOptions.length] || 'C';
-    const code = `${decoyQIdx + 1}-${chosenWrong}`;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const key = `${r}_${c}`;
+      if (targetKeys.has(key)) continue;
 
-    decoyAssignment.set(`${coord.r}_${coord.c}`, {
-      r: coord.r,
-      c: coord.c,
-      isTarget: false,
-      isDecoy: true,
-      questionIdx: decoyQIdx,
-      qNum: decoyQIdx + 1,
-      code,
-      id: `decoy_${coord.r}_${coord.c}`
-    });
+      const decoyQIdx = (decoyIdx * 3 + r * 5 + c * 7 + teamSeed) % N;
+      const q = questions[decoyQIdx] || questions[0];
+      const correctLetter = getCorrectLetter(q);
+      const wrongOptions = optionLetters.filter(opt => opt !== correctLetter);
+      const chosenWrong = wrongOptions[(decoyIdx + r + c + teamSeed) % wrongOptions.length] || (correctLetter === 'A' ? 'B' : 'A');
+      const code = `${decoyQIdx + 1}-${chosenWrong}`;
+
+      decoyMap.set(key, {
+        r,
+        c,
+        isTarget: false,
+        isDecoy: true,
+        questionIdx: -1,
+        decoyQIdx,
+        chosenWrong,
+        qNum: decoyQIdx + 1,
+        code,
+        id: `decoy_${r}_${c}`
+      });
+      decoyIdx++;
+    }
   }
 
-  // Tạo lưới 7x9
+  // Lắp ráp lưới ma trận 7x9
   const grid = [];
   const cellMap = {};
 
@@ -263,14 +396,40 @@ export function buildHeartMatrix(patternKey, questions, teamIdx = 0) {
     const row = [];
     for (let c = 0; c < cols; c++) {
       const key = `${r}_${c}`;
-      let cell = heartAssignment.get(key) || decoyAssignment.get(key);
+      const cell = targetMap.get(key) || decoyMap.get(key);
       row.push(cell);
       cellMap[key] = cell;
     }
     grid.push(row);
   }
 
-  return { grid, cellMap, totalHeartCells: heartCoords.length, rows, cols };
+  // Tạo đường viền SVG khép kín nối tâm các ô trái tim (viewBox 0 0 100 100)
+  // để khi hoàn thành trò chơi, 1 TRÁI TIM LỚN BỪNG SÁNG KẾT NỐI TOÀN BỘ CÁC ĐÁP ÁN ĐÚNG
+  const perimeterPoints = heartCoords.filter(pt => 
+    PERIMETER_HEART_COORDS.some(p => p.r === pt.r && p.c === pt.c)
+  );
+  const loopPoints = perimeterPoints.length >= 3 ? perimeterPoints : heartCoords;
+
+  const pathParts = [];
+  for (let idx = 0; idx < loopPoints.length; idx++) {
+    const coord = loopPoints[idx];
+    const cx = ((coord.c + 0.5) / cols) * 100;
+    const cy = ((coord.r + 0.5) / rows) * 100;
+    const prefix = idx === 0 ? 'M' : 'L';
+    pathParts.push(`${prefix} ${cx.toFixed(1)} ${cy.toFixed(1)}`);
+  }
+  if (pathParts.length > 0) pathParts.push('Z');
+  const heartLoopSvgPath = pathParts.join(' ');
+
+  return { 
+    grid, 
+    cellMap, 
+    totalHeartCells: N, 
+    rows, 
+    cols, 
+    heartCoords,
+    heartLoopSvgPath 
+  };
 }
 
 /**
@@ -376,103 +535,136 @@ const HeartCardMatrixView = React.memo(({
           </div>
         )}
 
-        {/* Lưới 9 Cột x 7 Hàng Ô Thẻ */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(9, 1fr)',
-          gridTemplateRows: 'repeat(7, 1fr)',
-          gap: '5px',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}>
-          {boardData?.grid?.map((row, rIdx) => 
-            row.map((cell, cIdx) => {
-              const isCellRed = cell.isTarget && answeredSet.has(cell.questionIdx);
-              const isCellWrong = wrongClickedCellId === cell.id;
-
-              let bg = '#ffffff';
-              let borderColor = '#e2e8f0';
-              let textColor = '#64748b';
-              let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
-              let transform = 'scale(1)';
-              let opacity = 1;
-
-              if (isCompleted) {
-                if (cell.isTarget) {
-                  // TOÀN BỘ CÁC Ô TRÁI TIM BỪNG SÁNG KẾT THÀNH TRÁI TIM LỚN RỰC RỠ
-                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
-                  borderColor = '#fca5a5';
-                  textColor = '#ffffff';
-                  shadow = '0 0 14px rgba(220, 38, 38, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.4)';
-                  transform = 'scale(1.03)';
-                } else {
-                  // CÁC Ô NGOÀI NỀN MỜ ĐI ĐỂ TÔN LÊN TRÁI TIM LỚN
-                  bg = 'rgba(248, 250, 252, 0.4)';
-                  borderColor = 'transparent';
-                  textColor = '#cbd5e1';
-                  opacity = 0.16;
-                  shadow = 'none';
-                }
-              } else if (isCellRed) {
-                // Ô trái tim đã được giải mã chính xác
-                bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-                borderColor = '#b91c1c';
-                textColor = '#ffffff';
-                shadow = '0 4px 12px rgba(220, 38, 38, 0.45)';
-                transform = 'scale(1.02)';
-              } else if (isCellWrong) {
-                // Ô vừa bấm sai
-                bg = '#fee2e2';
-                borderColor = '#ef4444';
-                textColor = '#b91c1c';
-                transform = 'scale(0.96)';
-              } else if (cell.isTarget) {
-                // Ô thuộc hình trái tim đang chờ thắp đỏ: nền phớt hồng tinh tế
-                bg = '#fff5f7';
-                borderColor = '#fecdd3';
-                textColor = '#334155';
-                shadow = '0 1px 4px rgba(225, 29, 72, 0.05)';
-              } else {
-                // Ô ngoài lề (decoy)
-                bg = '#f8fafc';
-                borderColor = '#e2e8f0';
-                textColor = '#64748b';
-              }
-
-              return (
-                <button
-                  key={`${rIdx}_${cIdx}`}
-                  onClick={() => onCellClick && onCellClick(cell)}
-                  title={`Ô [${cell.code}]`}
-                  style={{
-                    height: 'clamp(32px, 4.4vh, 44px)',
-                    background: bg,
-                    border: `1.5px solid ${borderColor}`,
-                    borderRadius: '8px',
-                    color: textColor,
-                    fontWeight: 900,
-                    fontSize: 'clamp(0.78rem, 1.25vw, 0.98rem)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '2px',
-                    cursor: isCompleted ? 'default' : 'pointer',
-                    userSelect: 'none',
-                    outline: 'none',
-                    boxShadow: shadow,
-                    transform,
-                    opacity,
-                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                    padding: '0 2px',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  <span>{cell.code}</span>
-                  {isCellRed && <span style={{ fontSize: '0.74rem' }}>❤️</span>}
-                </button>
-              );
-            })
+        {/* VÙNG CHỨA MA TRẬN & ĐƯỜNG KẾT NỐI TRÁI TIM LỚN */}
+        <div style={{ position: 'relative', width: '100%', boxSizing: 'border-box' }}>
+          {/* Đường Viền SVG Nối Liền Các Ô Thành 1 Trái Tim Lớn Thống Nhất */}
+          {boardData?.heartLoopSvgPath && (
+            <svg
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none',
+                zIndex: 0
+              }}
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
+              <path
+                d={boardData.heartLoopSvgPath}
+                fill={isCompleted ? "rgba(239, 68, 68, 0.16)" : "rgba(244, 63, 94, 0.04)"}
+                stroke={isCompleted ? "#ef4444" : "#fca5a5"}
+                strokeWidth={isCompleted ? "2.5" : "1.2"}
+                strokeDasharray={isCompleted ? "none" : "3 2"}
+                style={{
+                  filter: isCompleted ? "drop-shadow(0 0 10px rgba(239, 68, 68, 0.75))" : "none",
+                  transition: 'all 0.5s ease'
+                }}
+              />
+            </svg>
           )}
+
+          {/* Lưới 9 Cột x 7 Hàng Ô Thẻ */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(9, 1fr)',
+            gridTemplateRows: 'repeat(7, 1fr)',
+            gap: '5px',
+            width: '100%',
+            boxSizing: 'border-box',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            {boardData?.grid?.map((row, rIdx) => 
+              row.map((cell, cIdx) => {
+                const isCellRed = cell.isTarget && answeredSet.has(cell.questionIdx);
+                const isCellWrong = wrongClickedCellId === cell.id;
+
+                let bg = '#ffffff';
+                let borderColor = '#e2e8f0';
+                let textColor = '#64748b';
+                let shadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
+                let transform = 'scale(1)';
+                let opacity = 1;
+
+                if (isCompleted) {
+                  if (cell.isTarget) {
+                    // TOÀN BỘ CÁC Ô TRÁI TIM BỪNG SÁNG KẾT THÀNH TRÁI TIM LỚN RỰC RỠ
+                    bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)';
+                    borderColor = '#fef08a';
+                    textColor = '#ffffff';
+                    shadow = '0 0 16px rgba(220, 38, 38, 0.85), inset 0 0 8px rgba(255, 255, 255, 0.5)';
+                    transform = 'scale(1.05)';
+                  } else {
+                    // CÁC Ô NGOÀI NỀN MỜ HẲN ĐI ĐỂ TÔN LÊN TRÁI TIM LỚN
+                    bg = 'rgba(248, 250, 252, 0.2)';
+                    borderColor = 'transparent';
+                    textColor = '#e2e8f0';
+                    opacity = 0.08;
+                    shadow = 'none';
+                  }
+                } else if (isCellRed) {
+                  // Ô trái tim đã được giải mã chính xác
+                  bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                  borderColor = '#b91c1c';
+                  textColor = '#ffffff';
+                  shadow = '0 4px 12px rgba(220, 38, 38, 0.45)';
+                  transform = 'scale(1.02)';
+                } else if (isCellWrong) {
+                  // Ô vừa bấm sai
+                  bg = '#fee2e2';
+                  borderColor = '#ef4444';
+                  textColor = '#b91c1c';
+                  transform = 'scale(0.96)';
+                } else if (cell.isTarget) {
+                  // Ô thuộc hình trái tim đang chờ thắp đỏ: viền hồng tinh tế
+                  bg = '#fff5f7';
+                  borderColor = '#fecdd3';
+                  textColor = '#be123c';
+                  shadow = '0 1px 4px rgba(225, 29, 72, 0.06)';
+                } else {
+                  // Ô ngoài lề (decoy)
+                  bg = '#f8fafc';
+                  borderColor = '#e2e8f0';
+                  textColor = '#64748b';
+                }
+
+                return (
+                  <button
+                    key={`${rIdx}_${cIdx}`}
+                    onClick={() => onCellClick && onCellClick(cell)}
+                    title={`Ô [${cell.code}]`}
+                    style={{
+                      height: 'clamp(32px, 4.4vh, 44px)',
+                      background: bg,
+                      border: `1.5px solid ${borderColor}`,
+                      borderRadius: '8px',
+                      color: textColor,
+                      fontWeight: 900,
+                      fontSize: 'clamp(0.78rem, 1.25vw, 0.98rem)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '2px',
+                      cursor: isCompleted ? 'default' : 'pointer',
+                      userSelect: 'none',
+                      outline: 'none',
+                      boxShadow: shadow,
+                      transform,
+                      opacity,
+                      transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      padding: '0 2px',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    <span>{cell.code}</span>
+                    {isCellRed && <span style={{ fontSize: '0.74rem' }}>❤️</span>}
+                  </button>
+                );
+              })
+            )}
+          </div>
         </div>
 
         {/* Khung Chữ Thơ Ca Dao & Chủ Đề 20/10 ở góc dưới thẻ trắng */}
