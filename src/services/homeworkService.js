@@ -52,11 +52,15 @@ export const HomeworkService = {
     const id = `hw_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
     const assignment = {
+      ...assignmentData,
       id,
       gameId: assignmentData.gameId || assignmentData.id || 'game',
+      baseGameId: assignmentData.baseGameId || assignmentData.gameId || assignmentData.id,
+      title: assignmentData.title || assignmentData.gameTitle || assignmentData.lessonTitle,
       gameTitle: assignmentData.gameTitle || assignmentData.lessonTitle || assignmentData.title || 'Trò Chơi Ôn Tập',
       customTitle: assignmentData.customTitle || assignmentData.gameTitle || assignmentData.title || 'Bài Tập Về Nhà Qua Game',
       engineType: assignmentData.engineType || assignmentData.gameType || 'wheel',
+      gameType: assignmentData.gameType || assignmentData.engineType || 'wheel',
       teacherId,
       teacherName,
       teacherSubject: currentUser?.subject || assignmentData.category || 'Môn học',
@@ -66,7 +70,8 @@ export const HomeworkService = {
       allowRetry: assignmentData.allowRetry !== false,
       showAnswersAfter: assignmentData.showAnswersAfter !== false,
       shuffleQuestions: Boolean(assignmentData.shuffleQuestions),
-      questions: Array.isArray(assignmentData.questions) ? assignmentData.questions : [],
+      questions: Array.isArray(assignmentData.questions) ? assignmentData.questions : (assignmentData.defaultQuestions || []),
+      defaultQuestions: Array.isArray(assignmentData.defaultQuestions) ? assignmentData.defaultQuestions : (assignmentData.questions || []),
       category: assignmentData.category || 'Game Giáo Dục',
       icon: assignmentData.icon || '🎮',
       gradient: assignmentData.gradient || 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
@@ -332,9 +337,14 @@ export const HomeworkService = {
     const origin = (typeof window !== 'undefined' && window.location.origin) ? window.location.origin : 'https://eduvth.vercel.app';
     const encodedData = encodeAssignmentData({
       id: assignment.id,
-      title: assignment.customTitle || assignment.gameTitle,
-      gameTitle: assignment.gameTitle,
-      engineType: assignment.engineType,
+      gameId: assignment.gameId || assignment.id,
+      baseGameId: assignment.baseGameId || assignment.gameId || assignment.id,
+      title: assignment.customTitle || assignment.gameTitle || assignment.title,
+      gameTitle: assignment.gameTitle || assignment.title,
+      lessonTitle: assignment.customTitle || assignment.gameTitle || assignment.title,
+      engineType: assignment.engineType || assignment.gameType,
+      gameType: assignment.gameType || assignment.engineType,
+      secretImage: assignment.secretImage || assignment.bgImageUrl || null,
       teacherName: assignment.teacherName,
       teacherSubject: assignment.teacherSubject,
       targetClass: assignment.targetClass,
@@ -342,7 +352,8 @@ export const HomeworkService = {
       allowRetry: assignment.allowRetry,
       showAnswersAfter: assignment.showAnswersAfter,
       shuffleQuestions: assignment.shuffleQuestions,
-      questions: assignment.questions,
+      questions: assignment.questions || assignment.defaultQuestions || [],
+      defaultQuestions: assignment.defaultQuestions || assignment.questions || [],
       category: assignment.category,
       icon: assignment.icon,
       gradient: assignment.gradient

@@ -49,9 +49,13 @@ export function AssignHomeworkModal({ game, currentUser, onClose }) {
           const questions = game?.questions || game?.defaultQuestions || [];
           const newAssign = await HomeworkService.createAssignment({
             gameId: game?.id,
+            baseGameId: game?.baseGameId || game?.id,
             gameTitle: game?.lessonTitle || game?.title,
             customTitle: game?.lessonTitle || game?.title,
             engineType: game?.engineType || game?.gameType || 'wheel',
+            gameType: game?.gameType || game?.engineType || 'wheel',
+            secretImage: game?.secretImage || game?.bgImageUrl,
+            bgImageUrl: game?.bgImageUrl || game?.secretImage,
             category: game?.category,
             icon: game?.icon,
             gradient: game?.gradient,

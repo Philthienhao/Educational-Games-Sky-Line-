@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap } from 'lucide-react';
+import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock } from 'lucide-react';
 // Code-Split Game Engines: dynamically loaded on demand with React.lazy
 const WheelOfFortuneGame = React.lazy(() => import('./games/WheelOfFortuneGame').then(m => ({ default: m.WheelOfFortuneGame || m.default })));
 const TugOfWarGame = React.lazy(() => import('./games/TugOfWarGame').then(m => ({ default: m.TugOfWarGame || m.default })));
@@ -110,7 +110,15 @@ class GameErrorBoundary extends React.Component {
   }
 }
 
-export function ClassroomPlayModal({ game, onClose, currentUser }) {
+export function ClassroomPlayModal({ 
+  game, 
+  onClose, 
+  currentUser,
+  isHomework = false,
+  studentName = '',
+  studentClass = '',
+  onHomeworkFinish = null
+}) {
   if (!game) return null;
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -154,14 +162,33 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
 
   // Active turn team index state
   const [activeTeamIndex, setActiveTeamIndex] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  useEffect(() => {
+    if (!isHomework) return;
+    const interval = setInterval(() => {
+      setElapsedSeconds(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isHomework]);
 
   // Dynamic Teams Scoreboard State
-  const [teams, setTeams] = useState([
-    { id: 't1', name: 'Đội 1 (Đỏ)', score: 0, color: '#ef4444' },
-    { id: 't2', name: 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
-    { id: 't3', name: 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
-    { id: 't4', name: 'Đội 4 (Lục)', score: 0, color: '#10b981' }
-  ]);
+  const [teams, setTeams] = useState(() => {
+    if (isHomework && studentName) {
+      return [
+        { id: 't1', name: `${studentName} (Em)`, score: 0, color: '#ef4444' },
+        { id: 't2', name: 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
+        { id: 't3', name: 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
+        { id: 't4', name: 'Đội 4 (Lục)', score: 0, color: '#10b981' }
+      ];
+    }
+    return [
+      { id: 't1', name: 'Đội 1 (Đỏ)', score: 0, color: '#ef4444' },
+      { id: 't2', name: 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
+      { id: 't3', name: 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
+      { id: 't4', name: 'Đội 4 (Lục)', score: 0, color: '#10b981' }
+    ];
+  });
 
   const questions = game.questions || game.defaultQuestions || [];
   let engineType = game.engineType || game.gameType;
@@ -186,6 +213,18 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
       engineType = 'student-group-divider';
     } else if (rawId.includes('2010') || rawId.includes('heart-puzzle') || rawId.includes('heart-reveal') || rawTitle.includes('20/10') || rawTitle.includes('mẹ yêu con') || rawTitle.includes('phụ nữ việt nam') || rawTitle.includes('giải mã bức tranh 20/10')) {
       engineType = 'heart-reveal-2010';
+    } else if (rawId.includes('pirate') || rawTitle.includes('cướp biển') || rawTitle.includes('cuop bien') || rawTitle.includes('tàu cướp biển')) {
+      engineType = 'pirate-ship-battle';
+    } else if (rawId.includes('mario') || rawTitle.includes('mario')) {
+      engineType = 'mario-race';
+    } else if (rawId.includes('tower') || rawTitle.includes('tháp') || rawTitle.includes('kiến trúc sư')) {
+      engineType = 'tower-builder';
+    } else if (rawId.includes('mosquito') || rawTitle.includes('diệt muỗi') || rawTitle.includes('muỗi')) {
+      engineType = 'mosquito-slayer';
+    } else if (rawId.includes('bouncing') || rawTitle.includes('bóng nảy')) {
+      engineType = 'bouncing-words';
+    } else if (rawId.includes('sack') || rawTitle.includes('nhảy bao bố')) {
+      engineType = 'math-sack-race';
     } else if (!engineType) {
       engineType = 'tug-of-war-dual';
     }
@@ -399,6 +438,58 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
           flexDirection: 'column',
           overflow: 'hidden'
         }}>
+          {isHomework && (
+            <div style={{
+              position: 'fixed',
+              top: '12px',
+              right: '16px',
+              zIndex: 10000000,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              background: 'rgba(15, 23, 42, 0.92)',
+              backdropFilter: 'blur(8px)',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: '1.5px solid rgba(0, 168, 150, 0.6)',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.6)'
+            }}>
+              <span style={{ fontSize: '0.82rem', color: '#f8fafc', fontWeight: 800 }}>
+                🏠 BTVN: <strong style={{ color: '#38bdf8' }}>{studentName}</strong> ({studentClass || 'Học sinh'})
+              </span>
+              <span style={{ fontSize: '0.82rem', color: '#fbbf24', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Clock size={14} /> {Math.floor(elapsedSeconds / 60)}:{elapsedSeconds % 60 < 10 ? '0' : ''}{elapsedSeconds % 60}
+              </span>
+              <button
+                onClick={() => {
+                  if (onHomeworkFinish) {
+                    onHomeworkFinish({
+                      score: teams[0]?.score || 100,
+                      timeSpentSeconds: elapsedSeconds,
+                      teams
+                    });
+                  }
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.82rem',
+                  padding: '6px 14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)'
+                }}
+              >
+                <Trophy size={14} />
+                <span>Nộp Bài & Xem Bảng Vàng</span>
+              </button>
+            </div>
+          )}
           <React.Suspense fallback={<GameLoadingFallback />}>
             {engineType === 'duck-race' ? (
               <DuckRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} />
@@ -500,21 +591,76 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h2 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fff' }}>
-                {game.icon || '🎮'} {game.title}
+                {game.icon || '🎮'} {game.lessonTitle || game.title}
               </h2>
-              <span className="badge" style={{ background: '#00a896', color: '#fff', fontWeight: 800, padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem' }}>
-                TRÌNH CHIẾU LỚP HỌC
-              </span>
+              {isHomework ? (
+                <span className="badge" style={{ background: '#d97706', color: '#fff', fontWeight: 800, padding: '3px 10px', borderRadius: '10px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  🏠 BÀI TẬP VỀ NHÀ • {studentName.toUpperCase()} ({studentClass || 'HỌC SINH'})
+                </span>
+              ) : (
+                <span className="badge" style={{ background: '#00a896', color: '#fff', fontWeight: 800, padding: '2px 8px', borderRadius: '10px', fontSize: '0.7rem' }}>
+                  TRÌNH CHIẾU LỚP HỌC
+                </span>
+              )}
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Môn: {game.subject || 'Tổng hợp'} • {questions.length} câu hỏi
+              Môn: {game.teacherSubject || game.subject || 'Tổng hợp'} • {questions.length} câu hỏi
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {engineType !== 'duck-race' && (
+          {isHomework && (
+            <>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                padding: '6px 12px',
+                borderRadius: '10px',
+                color: '#38bdf8',
+                fontWeight: 800,
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <Clock size={15} />
+                <span>{Math.floor(elapsedSeconds / 60)}:{elapsedSeconds % 60 < 10 ? '0' : ''}{elapsedSeconds % 60}</span>
+              </div>
+
+              <button
+                className="btn"
+                onClick={() => {
+                  if (onHomeworkFinish) {
+                    onHomeworkFinish({
+                      score: teams[0]?.score || 0,
+                      timeSpentSeconds: elapsedSeconds,
+                      teams
+                    });
+                  }
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  padding: '7px 16px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+                }}
+              >
+                <Trophy size={16} color="#facc15" />
+                <span>🏁 Nộp Bài & Xem Bảng Vàng</span>
+              </button>
+            </>
+          )}
+
+          {!isHomework && engineType !== 'duck-race' && (
             <button 
               className="btn btn-secondary btn-sm"
               onClick={() => setShowTeamManager(true)}
@@ -536,10 +682,26 @@ export function ClassroomPlayModal({ game, onClose, currentUser }) {
 
           <button 
             className="btn btn-danger btn-sm"
-            onClick={onClose}
+            onClick={() => {
+              if (isHomework) {
+                if (window.confirm("Em có muốn nộp bài tập và xem kết quả Bảng Vàng không?")) {
+                  if (onHomeworkFinish) {
+                    onHomeworkFinish({
+                      score: teams[0]?.score || 0,
+                      timeSpentSeconds: elapsedSeconds,
+                      teams
+                    });
+                  } else {
+                    onClose();
+                  }
+                }
+              } else {
+                onClose();
+              }
+            }}
           >
             <X size={16} />
-            Thoát Trình Chiếu
+            {isHomework ? 'Nộp & Thoát' : 'Thoát Trình Chiếu'}
           </button>
         </div>
       </div>
