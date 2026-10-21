@@ -1,9 +1,21 @@
 import React, { useState, useMemo } from 'react';
-import { BookmarkCheck, Search, PlusCircle, Gamepad2, Sparkles, RefreshCw, Download, Upload } from 'lucide-react';
+import { BookmarkCheck, Search, PlusCircle, Gamepad2, Sparkles, RefreshCw, Download, Upload, Trophy, Share2 } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { StorageService } from '../services/storage';
 
-export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlayGame, onEditGame, onDeleteGame, onBrowseCatalog, onUpdateLessonTitle, onRefreshGames, onOpenAIGenerator }) {
+export function TeacherLibrary({ 
+  savedGames: propSavedGames, 
+  currentUser, 
+  onPlayGame, 
+  onEditGame, 
+  onDeleteGame, 
+  onBrowseCatalog, 
+  onUpdateLessonTitle, 
+  onRefreshGames, 
+  onOpenAIGenerator,
+  onAssignHomework,
+  onOpenHomeworkManager
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [activeCategoryTab, setActiveCategoryTab] = useState('all'); // 'all' | 'quiz' | 'picker'
@@ -146,6 +158,28 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
           </div>
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            {onOpenHomeworkManager && (
+              <button 
+                className="btn"
+                onClick={onOpenHomeworkManager}
+                style={{
+                  background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 900,
+                  padding: '10px 18px',
+                  boxShadow: '0 4px 16px rgba(13, 148, 136, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                title="Xem danh sách bài tập về nhà đã giao và bảng điểm học sinh"
+              >
+                <Trophy size={18} />
+                📋 Quản Lý BTVN & Bảng Điểm
+              </button>
+            )}
+
             <button 
               className="btn"
               onClick={onOpenAIGenerator}
@@ -383,6 +417,7 @@ export function TeacherLibrary({ savedGames: propSavedGames, currentUser, onPlay
               onCustomize={onEditGame}
               onDelete={onDeleteGame}
               onUpdateLessonTitle={onUpdateLessonTitle}
+              onAssignHomework={onAssignHomework}
             />
           ))}
         </div>

@@ -15,13 +15,29 @@ export default defineConfig({
             const baseName = path.basename(cleanUrl);
             
             // Search priority locations
+            const directPublicPath = path.join(__dirname, 'public', cleanUrl.replace(/^\//, ''));
             const candidatePaths = [
+              directPublicPath,
+              path.join(__dirname, cleanUrl.replace(/^\//, '')),
               path.join(__dirname, 'public/textbooks', baseName),
               path.join(__dirname, 'public', baseName),
-              path.join(__dirname, cleanUrl.replace(/^\//, '')),
-              path.join(__dirname, baseName),
-              path.join(__dirname, 'public/textbooks/SGK_lop_7', baseName)
+              path.join(__dirname, 'SGK', baseName),
+              path.join(__dirname, 'textbooks_local_backup', baseName),
+              path.join(__dirname, baseName)
             ];
+
+            // Scan all subdirectories in SGK and textbooks_local_backup
+            const scanRoots = [path.join(__dirname, 'SGK'), path.join(__dirname, 'textbooks_local_backup')];
+            for (const root of scanRoots) {
+              if (fs.existsSync(root)) {
+                try {
+                  const subdirs = fs.readdirSync(root);
+                  for (const sub of subdirs) {
+                    candidatePaths.push(path.join(root, sub, baseName));
+                  }
+                } catch (e) {}
+              }
+            }
 
             let targetFile = candidatePaths.find(p => fs.existsSync(p) && fs.statSync(p).isFile());
 

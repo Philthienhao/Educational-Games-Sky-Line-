@@ -25,7 +25,8 @@ import {
   User,
   Award,
   Activity,
-  KeyRound
+  KeyRound,
+  Trophy
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -93,6 +94,7 @@ export function Sidebar({
     { id: 'homeroom', label: 'Lớp chủ nhiệm', icon: Users, color: '#0284c7' },
     { id: 'catalog', label: 'Kho Game giáo dục', icon: Gamepad2, color: '#0d9488' },
     { id: 'my-games', label: 'Game của tôi', icon: BookmarkCheck, count: myGamesCount, color: '#0284c7' },
+    { id: 'homework-manager', label: 'Bài tập về nhà (BTVN)', icon: Trophy, color: '#f59e0b' },
     { id: 'call-student', label: 'Gọi tên và chia nhóm', icon: UserPlus, color: '#0284c7' },
     { id: 'parent-meeting', label: 'Hỗ trợ họp phụ huynh', icon: HeartHandshake, color: '#ec4899' },
     { id: 'lecture-slides', label: 'Slide bài giảng', icon: Presentation, color: '#6366f1' },

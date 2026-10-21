@@ -72,6 +72,9 @@ const ClassroomTimerManager = lazyWithRetry(() => import('./components/Classroom
 const AiSystemAssistantModal = lazyWithRetry(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
 const AIQuestionGeneratorModal = lazyWithRetry(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
 const IndoorPEDanceGame = lazyWithRetry(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
+const StudentHomeworkArena = lazyWithRetry(() => import('./components/homework/StudentHomeworkArena').then(m => ({ default: m.StudentHomeworkArena })));
+const AssignHomeworkModal = lazyWithRetry(() => import('./components/homework/AssignHomeworkModal').then(m => ({ default: m.AssignHomeworkModal })));
+const TeacherHomeworkManagerModal = lazyWithRetry(() => import('./components/homework/TeacherHomeworkManagerModal').then(m => ({ default: m.TeacherHomeworkManagerModal })));
 
 function ViewLoadingFallback() {
   return (
@@ -199,6 +202,28 @@ function FeatureLockedScreen({ featureName, featureId, onOpenUpgrade, onBrowseCa
   );
 }
 
+function parseHomeworkParams() {
+  try {
+    const search = new URLSearchParams(window.location.search);
+    const hashStr = window.location.hash.replace('#', '').trim();
+    
+    // 1. Direct query param (?hw=... or ?assignId=...)
+    if (search.get('hw')) return { assignmentId: search.get('hw'), encodedData: search.get('d') };
+    if (search.get('assignId')) return { assignmentId: search.get('assignId'), encodedData: search.get('d') };
+    
+    // 2. Hash param (e.g. #play?hw=hw_123&d=...)
+    if (hashStr.includes('hw=') || hashStr.includes('assignId=')) {
+      const queryIdx = hashStr.indexOf('?');
+      if (queryIdx >= 0) {
+        const hashParams = new URLSearchParams(hashStr.substring(queryIdx + 1));
+        const hwId = hashParams.get('hw') || hashParams.get('assignId');
+        if (hwId) return { assignmentId: hwId, encodedData: hashParams.get('d') };
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
 export function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     StorageService.init();
@@ -226,7 +251,8 @@ export function App() {
     'parent-meeting': 'Hỗ Trợ Họp Phụ Huynh',
     'indoor-pe-dance': 'Thử Thách Thể Dục AI',
     'homeroom': 'Lớp Chủ Nhiệm',
-    'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên'
+    'skl-web-links': 'Kho Địa Chỉ Web Giáo Viên',
+    'homework-manager': 'Quản Lý Bài Tập Về Nhà'
   }), []);
 
   const setActiveTab = useCallback((newTab) => {
@@ -280,6 +306,8 @@ export function App() {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isAiWidgetOpen, setIsAiWidgetOpen] = useState(false);
   const [isAIGeneratorOpen, setIsAIGeneratorOpen] = useState(false);
+  const [assigningHomeworkGame, setAssigningHomeworkGame] = useState(null);
+  const [isHomeworkManagerOpen, setIsHomeworkManagerOpen] = useState(false);
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
   const [trialModalInfo, setTrialModalInfo] = useState({
@@ -634,6 +662,20 @@ export function App() {
     });
   }, [baseGames, selectedCategory, searchTerm]);
 
+  // Direct Student Homework Mode (Bypasses Teacher Login completely)
+  const homeworkParams = useMemo(() => parseHomeworkParams(), []);
+
+  if (homeworkParams?.assignmentId) {
+    return (
+      <React.Suspense fallback={<ViewLoadingFallback />}>
+        <StudentHomeworkArena 
+          assignmentId={homeworkParams.assignmentId} 
+          encodedData={homeworkParams.encodedData} 
+        />
+      </React.Suspense>
+    );
+  }
+
   if (!currentUser) {
     return <LoginModal onLoginSuccess={handleLoginSuccess} />;
   }
@@ -914,6 +956,7 @@ export function App() {
                   onPlay={handlePlayBaseGame}
                   onCustomize={handleCustomizeBaseGame}
                   onDelete={handleDeleteBaseGame}
+                  onAssignHomework={(g) => setAssigningHomeworkGame(g)}
                 />
               ))}
             </div>
@@ -979,6 +1022,28 @@ export function App() {
               onUpdateLessonTitle={handleUpdateLessonTitle}
               onRefreshGames={(synced) => setSavedGames(synced)}
               onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
+              onAssignHomework={(g) => setAssigningHomeworkGame(g)}
+              onOpenHomeworkManager={() => setIsHomeworkManagerOpen(true)}
+            />
+          )}
+
+          {/* View 4.5: Quản Lý Bài Tập Về Nhà (BTVN) */}
+          {activeTab === 'homework-manager' && (
+            <TeacherHomeworkManagerModal 
+              currentUser={currentUser}
+              onSelectAssignmentToView={(assign) => {
+                setAssigningHomeworkGame({
+                  id: assign.gameId,
+                  title: assign.gameTitle,
+                  lessonTitle: assign.customTitle || assign.gameTitle,
+                  engineType: assign.engineType,
+                  questions: assign.questions,
+                  category: assign.category,
+                  icon: assign.icon,
+                  gradient: assign.gradient
+                });
+              }}
+              onClose={() => setActiveTab('my-games')}
             />
           )}
 
@@ -1102,6 +1167,34 @@ export function App() {
             game={playingGame}
             onClose={() => setPlayingGame(null)}
             currentUser={currentUser}
+          />
+        )}
+
+        {assigningHomeworkGame && (
+          <AssignHomeworkModal
+            game={assigningHomeworkGame}
+            currentUser={currentUser}
+            onClose={() => setAssigningHomeworkGame(null)}
+          />
+        )}
+
+        {isHomeworkManagerOpen && (
+          <TeacherHomeworkManagerModal
+            currentUser={currentUser}
+            onSelectAssignmentToView={(assign) => {
+              setIsHomeworkManagerOpen(false);
+              setAssigningHomeworkGame({
+                id: assign.gameId,
+                title: assign.gameTitle,
+                lessonTitle: assign.customTitle || assign.gameTitle,
+                engineType: assign.engineType,
+                questions: assign.questions,
+                category: assign.category,
+                icon: assign.icon,
+                gradient: assign.gradient
+              });
+            }}
+            onClose={() => setIsHomeworkManagerOpen(false)}
           />
         )}
       </React.Suspense>

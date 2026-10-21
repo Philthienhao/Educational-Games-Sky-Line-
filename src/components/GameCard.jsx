@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock } from 'lucide-react';
+import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock, Share2 } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
@@ -16,7 +16,8 @@ function GameCardComponent({
   onEditTemplate,
   onDelete, 
   onDeleteBaseGame,
-  onUpdateLessonTitle 
+  onUpdateLessonTitle,
+  onAssignHomework
 }) {
   const isAdmin = currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin';
   const handlePlay = onPlay || onPlayDirect;
@@ -235,6 +236,37 @@ function GameCardComponent({
             <span>{isTrialUsed ? 'Đã Dùng Thử (Cần Nâng Cấp)' : (isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay')}</span>
             <ArrowRight size={16} />
           </button>
+
+          {/* Assign Homework Button (Link & Bảng Điểm Tự Chơi Ở Nhà) */}
+          {!isStudentPicker && onAssignHomework && (
+            <button
+              className="btn btn-secondary"
+              style={{
+                width: '100%',
+                borderRadius: '14px',
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                padding: '9px 14px',
+                background: 'rgba(13, 148, 136, 0.08)',
+                color: '#0d9488',
+                border: '1.5px solid rgba(13, 148, 136, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onClick={() => {
+                try { SoundFX.click(); } catch(e) {}
+                onAssignHomework(game);
+              }}
+              title="Giao bài tập về nhà qua game cho học sinh (Có link, mã QR & bảng điểm)"
+            >
+              <Share2 size={16} color="#0d9488" />
+              <span>Giao Bài Về Nhà (Link & Bảng Điểm)</span>
+            </button>
+          )}
 
           <div style={{ display: 'flex', gap: '8px' }}>
             
