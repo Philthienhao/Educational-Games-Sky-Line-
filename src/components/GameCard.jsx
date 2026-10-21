@@ -34,14 +34,20 @@ function GameCardComponent({
     (currentUser.usedFeatures?.[featureId] || 0) >= 1
   );
 
-  const isStudentPicker = Boolean(
+  const isMysteryBox = Boolean(
+    game?.engineType === 'mystery-box' || 
+    game?.id === 'mystery-gift' || 
+    game?.title === 'Hộp Quà Bí Mật'
+  );
+
+  const isStudentPicker = !isMysteryBox && Boolean(
     game?.isStudentPicker || 
     game?.category === 'Gọi tên và chia nhóm' || 
     game?.category === 'Kho game gọi tên học sinh' || 
     ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(game?.engineType) || 
     ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(game?.baseGameId) ||
     ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(game?.id) ||
-    /đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|hộp quà bí mật|cổ thư|chia nhóm/i.test(game?.title || '')
+    (/đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|cổ thư|chia nhóm/i.test(game?.title || '') && !/hộp quà bí mật/i.test(game?.title || ''))
   );
   const studentList = game?.students || game?.studentList || [];
   const studentCount = Array.isArray(studentList) ? studentList.length : 0;
@@ -238,7 +244,7 @@ function GameCardComponent({
           </button>
 
           {/* Assign Homework Button (Link & Bảng Điểm Tự Chơi Ở Nhà) */}
-          {!isStudentPicker && onAssignHomework && (
+          {onAssignHomework && (
             <button
               className="btn btn-secondary"
               style={{

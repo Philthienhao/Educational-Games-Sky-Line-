@@ -3,7 +3,7 @@ import { UserCheck, Sparkles, Play, Users, Settings, Dices, Award, RefreshCw } f
 import { StorageService } from '../services/storage';
 import { GameCard } from './GameCard';
 
-export default function StudentPickerManager({ currentUser, onPlay, onCustomize, onNavigateToHomeroom }) {
+export default function StudentPickerManager({ currentUser, onPlay, onCustomize, onNavigateToHomeroom, onAssignHomework }) {
   const [baseGames, setBaseGames] = useState([]);
   const [homeroomData, setHomeroomData] = useState(null);
   const [quickPickedStudent, setQuickPickedStudent] = useState(null);
@@ -381,6 +381,7 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
               currentUser={currentUser}
               onPlay={onPlay}
               onCustomize={onCustomize}
+              onAssignHomework={onAssignHomework}
             />
           ))}
         </div>

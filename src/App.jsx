@@ -980,6 +980,7 @@ export function App() {
               onPlay={(game) => handlePlayGameWithTrialCheck(game, false)}
               onCustomize={(template) => setEditingGameTemplate(template)}
               onNavigateToHomeroom={() => setActiveTab('homeroom')}
+              onAssignHomework={(g) => setAssigningHomeworkGame(g)}
             />
           )}
 
