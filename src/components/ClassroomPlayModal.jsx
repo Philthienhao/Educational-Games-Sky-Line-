@@ -118,7 +118,8 @@ export function ClassroomPlayModal({
   studentName = '',
   studentClass = '',
   onHomeworkFinish = null,
-  onAssignHomework = null
+  onAssignHomework = null,
+  onHostLive = null
 }) {
   if (!game) return null;
 
@@ -669,6 +670,18 @@ export function ClassroomPlayModal({
             >
               <Users size={16} />
               ⚙️ Cấu Hình Đội Chơi ({teams.length} đội)
+            </button>
+          )}
+
+          {!isHomework && onHostLive && (
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => onHostLive(game)}
+              style={{ background: 'rgba(2, 132, 199, 0.25)', border: '1px solid #0284c7', color: '#7dd3fc', fontWeight: 800 }}
+              title="Mở phòng đấu nhóm trực tiếp (Giáo viên làm máy chủ điều khiển, học sinh dùng điện thoại)"
+            >
+              <Users size={16} />
+              🎮 Đấu Nhóm Live
             </button>
           )}
 

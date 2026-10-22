@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock, Share2 } from 'lucide-react';
+import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock, Share2, Users } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
@@ -17,7 +17,8 @@ function GameCardComponent({
   onDelete, 
   onDeleteBaseGame,
   onUpdateLessonTitle,
-  onAssignHomework
+  onAssignHomework,
+  onHostLive
 }) {
   const isAdmin = currentUser?.role === 'admin' || currentUser?.username === 'philthienhao' || currentUser?.id === 'user_admin';
   const handlePlay = onPlay || onPlayDirect;
@@ -242,6 +243,37 @@ function GameCardComponent({
             <span>{isTrialUsed ? 'Đã Dùng Thử (Cần Nâng Cấp)' : (isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay')}</span>
             <ArrowRight size={16} />
           </button>
+
+          {/* Live Group Battle Host Mode (Máy Chủ Điều Khiển) */}
+          {isSavedGame && onHostLive && (
+            <button
+              className="btn"
+              style={{
+                width: '100%',
+                borderRadius: '14px',
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                padding: '9px 14px',
+                background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.1) 0%, rgba(13, 148, 136, 0.1) 100%)',
+                color: '#0284c7',
+                border: '1.5px solid rgba(2, 132, 199, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onClick={() => {
+                try { SoundFX.click(); } catch(e) {}
+                onHostLive(game);
+              }}
+              title="Mở phòng thi đấu các nhóm trực tiếp trên máy chiếu với điện thoại học sinh"
+            >
+              <Users size={16} color="#0284c7" />
+              <span>🎮 Đấu Nhóm Live (Máy Chủ Lớp Học)</span>
+            </button>
+          )}
 
           {/* Assign Homework Button - Only visible on saved games after teacher created questions */}
           {isSavedGame && onAssignHomework && (

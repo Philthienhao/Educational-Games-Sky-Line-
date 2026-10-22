@@ -14,7 +14,8 @@ export function TeacherLibrary({
   onRefreshGames, 
   onOpenAIGenerator,
   onAssignHomework,
-  onOpenHomeworkManager
+  onOpenHomeworkManager,
+  onHostLive
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
@@ -418,6 +419,7 @@ export function TeacherLibrary({
               onDelete={onDeleteGame}
               onUpdateLessonTitle={onUpdateLessonTitle}
               onAssignHomework={onAssignHomework}
+              onHostLive={onHostLive}
             />
           ))}
         </div>

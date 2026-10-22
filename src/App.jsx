@@ -75,6 +75,8 @@ const IndoorPEDanceGame = lazyWithRetry(() => import('./components/games/IndoorP
 const StudentHomeworkArena = lazyWithRetry(() => import('./components/homework/StudentHomeworkArena').then(m => ({ default: m.StudentHomeworkArena })));
 const AssignHomeworkModal = lazyWithRetry(() => import('./components/homework/AssignHomeworkModal').then(m => ({ default: m.AssignHomeworkModal })));
 const TeacherHomeworkManagerModal = lazyWithRetry(() => import('./components/homework/TeacherHomeworkManagerModal').then(m => ({ default: m.TeacherHomeworkManagerModal })));
+const TeacherHostArena = lazyWithRetry(() => import('./components/live/TeacherHostArena').then(m => ({ default: m.TeacherHostArena })));
+const StudentGroupArena = lazyWithRetry(() => import('./components/live/StudentGroupArena').then(m => ({ default: m.StudentGroupArena })));
 
 function ViewLoadingFallback() {
   return (
@@ -224,6 +226,24 @@ function parseHomeworkParams() {
   return null;
 }
 
+function parseLiveBattleParams() {
+  try {
+    const search = new URLSearchParams(window.location.search);
+    const hashStr = window.location.hash.replace('#', '').trim();
+    if (search.get('live')) return search.get('live');
+    if (search.get('room')) return search.get('room');
+    if (search.get('pin')) return search.get('pin');
+    if (hashStr.includes('live=') || hashStr.includes('room=') || hashStr.includes('pin=')) {
+      const queryIdx = hashStr.indexOf('?');
+      if (queryIdx >= 0) {
+        const hashParams = new URLSearchParams(hashStr.substring(queryIdx + 1));
+        return hashParams.get('live') || hashParams.get('room') || hashParams.get('pin');
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
 export function App() {
   const [currentUser, setCurrentUser] = useState(() => {
     StorageService.init();
@@ -310,6 +330,7 @@ export function App() {
   const [isHomeworkManagerOpen, setIsHomeworkManagerOpen] = useState(false);
   const [editingGameTemplate, setEditingGameTemplate] = useState(null);
   const [playingGame, setPlayingGame] = useState(null);
+  const [hostingLiveGame, setHostingLiveGame] = useState(null);
   const [trialModalInfo, setTrialModalInfo] = useState({
     isOpen: false,
     featureName: '',
@@ -671,8 +692,17 @@ export function App() {
     });
   }, [baseGames, selectedCategory, searchTerm]);
 
-  // Direct Student Homework Mode (Bypasses Teacher Login completely)
+  // Direct Student Live Group Battle or Homework Mode (Bypasses Teacher Login completely)
+  const liveRoomPin = useMemo(() => parseLiveBattleParams(), []);
   const homeworkParams = useMemo(() => parseHomeworkParams(), []);
+
+  if (liveRoomPin) {
+    return (
+      <React.Suspense fallback={<ViewLoadingFallback />}>
+        <StudentGroupArena roomPin={liveRoomPin} />
+      </React.Suspense>
+    );
+  }
 
   if (homeworkParams?.assignmentId) {
     return (
@@ -1034,6 +1064,7 @@ export function App() {
               onOpenAIGenerator={() => setIsAIGeneratorOpen(true)}
               onAssignHomework={(g) => setAssigningHomeworkGame(g)}
               onOpenHomeworkManager={() => setIsHomeworkManagerOpen(true)}
+              onHostLive={(g) => setHostingLiveGame(g)}
             />
           )}
 
@@ -1182,6 +1213,18 @@ export function App() {
               setPlayingGame(null);
               setAssigningHomeworkGame(g);
             }}
+            onHostLive={(g) => {
+              setPlayingGame(null);
+              setHostingLiveGame(g);
+            }}
+          />
+        )}
+
+        {hostingLiveGame && (
+          <TeacherHostArena 
+            game={hostingLiveGame}
+            currentUser={currentUser}
+            onClose={() => setHostingLiveGame(null)}
           />
         )}
 
