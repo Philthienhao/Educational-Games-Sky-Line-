@@ -516,7 +516,16 @@ export function App() {
     const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
     setSavedGames(updatedGames);
     setActiveTab('my-games');
-    alert(`🎉 Đã lưu bài game "${saved?.title || savedGameData?.title || 'Cá Nhân'}" thành công vào Kho Game Của Tôi!`);
+    alert(`🎉 Đã lưu bài game "${saved?.title || savedGameData?.title || 'Cá Nhân'}" thành công vào Kho Game Của Tôi! Thầy/Cô có thể bấm "Giao Bài Về Nhà" trên thẻ game để gửi link cho học sinh.`);
+  };
+
+  const handleSaveAndAssignHomework = (savedGameData) => {
+    const activeUserId = currentUser?.id || StorageService.getCurrentUser()?.id || 'user_admin';
+    const saved = StorageService.saveTeacherGame(activeUserId, savedGameData);
+    const updatedGames = StorageService.getTeacherSavedGames(activeUserId);
+    setSavedGames(updatedGames);
+    setActiveTab('my-games');
+    setAssigningHomeworkGame(saved || savedGameData);
   };
 
   const handleSaveAndPlay = (savedGameData) => {
@@ -1142,6 +1151,7 @@ export function App() {
           currentUser={currentUser}
           onSaveToMyGames={handleSaveToMyGames}
           onSaveAndPlay={handleSaveAndPlay}
+          onSaveAndAssignHomework={handleSaveAndAssignHomework}
         />
 
         <AdminCreateGameModal 
@@ -1168,6 +1178,10 @@ export function App() {
             game={playingGame}
             onClose={() => setPlayingGame(null)}
             currentUser={currentUser}
+            onAssignHomework={(g) => {
+              setPlayingGame(null);
+              setAssigningHomeworkGame(g);
+            }}
           />
         )}
 

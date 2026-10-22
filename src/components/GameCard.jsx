@@ -243,8 +243,8 @@ function GameCardComponent({
             <ArrowRight size={16} />
           </button>
 
-          {/* Assign Homework Button (Link & Bảng Điểm Tự Chơi Ở Nhà) */}
-          {onAssignHomework && (
+          {/* Assign Homework Button - Only visible on saved games after teacher created questions */}
+          {isSavedGame && onAssignHomework && (
             <button
               className="btn btn-secondary"
               style={{

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock } from 'lucide-react';
+import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock, Share2 } from 'lucide-react';
 // Code-Split Game Engines: dynamically loaded on demand with React.lazy
 const WheelOfFortuneGame = React.lazy(() => import('./games/WheelOfFortuneGame').then(m => ({ default: m.WheelOfFortuneGame || m.default })));
 const TugOfWarGame = React.lazy(() => import('./games/TugOfWarGame').then(m => ({ default: m.TugOfWarGame || m.default })));
@@ -117,7 +117,8 @@ export function ClassroomPlayModal({
   isHomework = false,
   studentName = '',
   studentClass = '',
-  onHomeworkFinish = null
+  onHomeworkFinish = null,
+  onAssignHomework = null
 }) {
   if (!game) return null;
 
@@ -668,6 +669,18 @@ export function ClassroomPlayModal({
             >
               <Users size={16} />
               ⚙️ Cấu Hình Đội Chơi ({teams.length} đội)
+            </button>
+          )}
+
+          {!isHomework && onAssignHomework && (
+            <button 
+              className="btn btn-secondary btn-sm"
+              onClick={() => onAssignHomework(game)}
+              style={{ background: 'rgba(13, 148, 136, 0.25)', border: '1px solid #0d9488', color: '#5eead4', fontWeight: 800 }}
+              title="Giao bài tập về nhà từ trò chơi này cho học sinh"
+            >
+              <Share2 size={16} />
+              🚀 Giao Bài Về Nhà
             </button>
           )}
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Upload, FileSpreadsheet, Plus, Trash2, Save, Play, 
   CheckCircle2, AlertCircle, FileText, Users, ClipboardList, 
-  RotateCcw, UserPlus, Sparkles
+  RotateCcw, UserPlus, Sparkles, Share2
 } from 'lucide-react';
 import { downloadExcelTemplate, downloadStudentListExcelTemplate } from '../utils/excel';
 import { parseUploadedFile, parseStudentRosterFile } from '../utils/universalParser';
@@ -16,18 +16,32 @@ const DEFAULT_SAMPLE_STUDENTS = [
   'Trịnh Bảo Ngọc', 'Đoàn Anh Tuấn', 'Trương Khánh Linh', 'Hồ Thanh Thảo'
 ];
 
-export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser, onSaveAndPlay, onSaveToMyGames }) {
+export function QuestionEditorModal({ 
+  isOpen, 
+  onClose, 
+  gameTemplate, 
+  currentUser, 
+  onSaveAndPlay, 
+  onSaveToMyGames,
+  onSaveAndAssignHomework
+}) {
   if (!isOpen || !gameTemplate) return null;
 
+  const isMysteryBox = Boolean(
+    gameTemplate?.engineType === 'mystery-box' ||
+    gameTemplate?.id === 'mystery-gift' ||
+    gameTemplate?.title === 'Hộp Quà Bí Mật'
+  );
+
   // Determine if this game is a student picker / name race game
-  const isStudentPickerGame = Boolean(
+  const isStudentPickerGame = !isMysteryBox && Boolean(
     gameTemplate?.isStudentPicker ||
     gameTemplate?.category === 'Gọi tên và chia nhóm' ||
     gameTemplate?.category === 'Kho game gọi tên học sinh' ||
     ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(gameTemplate?.engineType) ||
     ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(gameTemplate?.id) ||
     ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(gameTemplate?.baseGameId) ||
-    /đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|hộp quà bí mật|cổ thư|chia nhóm/i.test(gameTemplate?.title || '')
+    (/đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|cổ thư|chia nhóm/i.test(gameTemplate?.title || '') && !/hộp quà bí mật/i.test(gameTemplate?.title || ''))
   );
 
   const [title, setTitle] = useState('');
@@ -472,6 +486,30 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
     const data = getCustomGameData();
     if (onSaveAndPlay) onSaveAndPlay(data);
     try { SoundFX.fanfare(); } catch(e) {}
+    if (onClose) onClose();
+  };
+
+  const handleSaveAndAssignHomework = () => {
+    if (isStudentPickerGame) {
+      const validStudents = students.filter(s => s.name && s.name.trim().length > 0);
+      if (validStudents.length === 0) {
+        alert('Vui lòng thêm ít nhất 1 học sinh tham gia trò chơi.');
+        return;
+      }
+    } else {
+      const finalQs = (questions && questions.length > 0) ? questions : (gameTemplate?.questions || []);
+      if (!finalQs || finalQs.length === 0) {
+        alert('Vui lòng nhập tệp Excel hoặc thêm ít nhất 1 câu hỏi trước khi giao bài.');
+        return;
+      }
+    }
+    const data = getCustomGameData();
+    if (onSaveAndAssignHomework) {
+      onSaveAndAssignHomework(data);
+    } else if (onSaveToMyGames) {
+      onSaveToMyGames(data);
+    }
+    try { SoundFX.correct(); } catch(e) {}
     if (onClose) onClose();
   };
 
@@ -1147,14 +1185,37 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
             Hủy Bỏ
           </button>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
             <button 
               type="button"
               className="btn btn-primary"
               onClick={handleSaveOnly}
               style={{ fontWeight: 700 }}
             >
-              <Save size={16} /> Lưu Vào Kho Game Của Tôi
+              <Save size={16} /> Lưu Vào Kho Game
+            </button>
+
+            <button 
+              type="button"
+              className="btn"
+              onClick={handleSaveAndAssignHomework}
+              style={{ 
+                fontWeight: 900, 
+                padding: '9px 18px', 
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 14px rgba(13, 148, 136, 0.4)',
+                cursor: 'pointer'
+              }}
+              title="Lưu game vào kho của tôi và mở link giao bài tập về nhà cho học sinh"
+            >
+              <Share2 size={16} />
+              <span>🚀 Lưu & Giao Bài Về Nhà (Gửi Link)</span>
             </button>
 
             <button 
@@ -1163,11 +1224,11 @@ export function QuestionEditorModal({ isOpen, onClose, gameTemplate, currentUser
               onClick={handleSaveAndPlayClick}
               style={{ 
                 fontWeight: 900, 
-                padding: '10px 24px', 
+                padding: '9px 20px', 
                 background: isStudentPickerGame ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
               }}
             >
-              <Play size={16} /> 🚀 Bắt Đầu Cho Học Sinh Chơi Ngay
+              <Play size={16} /> Bắt Đầu Chơi Ngay
             </button>
           </div>
         </div>
