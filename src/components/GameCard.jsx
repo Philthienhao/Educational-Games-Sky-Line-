@@ -245,7 +245,7 @@ function GameCardComponent({
           </button>
 
           {/* Live Group Battle Host Mode (Máy Chủ Điều Khiển) */}
-          {isSavedGame && onHostLive && (
+          {onHostLive && !isStudentPicker && (
             <button
               className="btn"
               style={{

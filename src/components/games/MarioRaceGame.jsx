@@ -8,7 +8,7 @@ import {
 import { SoundFX } from '../../utils/sound';
 
 // Top-Level HD Crisp Vector Mario Runner SVG Component
-function MarioSpriteSVG({ color, isJumping, isRunning, isStunned }) {
+export function MarioSpriteSVG({ color, isJumping, isRunning, isStunned }) {
   const capColor = color || '#ef4444';
   const overallColor = color || '#ef4444';
   const shirtColor = 
@@ -79,7 +79,7 @@ function MarioSpriteSVG({ color, isJumping, isRunning, isStunned }) {
 }
 
 // Question Mark (?) Block SVG
-function QuestionBlockSVG({ isHit }) {
+export function QuestionBlockSVG({ isHit }) {
   return (
     <div style={{
       width: '38px',
@@ -325,7 +325,7 @@ const ALL_MARIO_TEAMS = [
   { id: 8, name: 'Mario Xám', color: '#64748b', step: 0, score: 0, isStunned: false },
 ];
 
-export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, setTeams: propSetTeams }) {
+export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, setTeams: propSetTeams, onHostLive }) {
   const questions = (game && game.questions && game.questions.length > 0) 
     ? game.questions 
     : (game && game.defaultQuestions && game.defaultQuestions.length > 0)
@@ -745,6 +745,33 @@ export function MarioRaceGame({ game, onClose, currentUser, teams: propTeams, se
           >
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
+
+          {onHostLive && (
+            <button 
+              onClick={() => {
+                try { SoundFX.click(); } catch(e) {}
+                onHostLive(game);
+              }}
+              style={{ 
+                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)', 
+                border: '1.5px solid rgba(255,255,255,0.4)', 
+                color: '#fff', 
+                padding: '8px 16px', 
+                borderRadius: '10px', 
+                cursor: 'pointer',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '7px',
+                boxShadow: '0 4px 14px rgba(2,132,199,0.45)'
+              }}
+              title="Mở phòng đấu nhóm live trên máy chiếu kết nối điện thoại học sinh"
+            >
+              <Users size={16} color="#ffffff" />
+              <span>🎮 Đấu Nhóm Live</span>
+            </button>
+          )}
 
           <button 
             onClick={() => setIsPaused(!isPaused)} 

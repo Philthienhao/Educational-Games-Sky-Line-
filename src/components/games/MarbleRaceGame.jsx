@@ -3,11 +3,13 @@ import {
   Trophy, RotateCcw, Volume2, VolumeX, Maximize, X, 
   Play, FastForward, Clock, Users, ArrowRight, Award, 
   Sparkles, CheckCircle, RefreshCw, Zap, Shield, HelpCircle,
-  UserPlus, FileText, Upload, Check, Edit3, Trash2
+  UserPlus, FileText, Upload, Check, Edit3, Trash2,
+  QrCode, Smartphone
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { StorageService, isUnwantedTestStudent } from '../../services/storage';
 import { parseStudentRosterFile } from '../../utils/universalParser';
+import { MarbleQrModal } from './MarbleQrModal';
 
 // Color palette for student marbles matching video aesthetic
 const MARBLE_COLORS = [
@@ -144,6 +146,7 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
 
   // Custom Roster State
   const [showRosterModal, setShowRosterModal] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [customRosterText, setCustomRosterText] = useState('');
   const [customClassNameInput, setCustomClassNameInput] = useState('');
   const fileInputRef = useRef(null);
@@ -358,6 +361,24 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
     } catch (e) {}
 
     addCommentary(`Đã nạp danh sách "${className}" (${lines.length} học sinh)! Chuẩn bị xuất phát.`, 0);
+  };
+
+  // Apply Students from QR Code Lobby
+  const handleApplyQrStudents = (qrParticipants, className) => {
+    if (!Array.isArray(qrParticipants) || qrParticipants.length === 0) return;
+    const newStudents = qrParticipants.map((p, idx) => ({
+      id: p.id || `qr_${Date.now()}_${idx}`,
+      name: p.name,
+      avatar: null,
+      number: idx + 1,
+      color: p.color || MARBLE_COLORS[idx % MARBLE_COLORS.length],
+      school: p.school
+    }));
+
+    const finalClassName = className || `Lớp Quét QR (${newStudents.length} HS)`;
+    setSelectedClassName(finalClassName);
+    setStudents(newStudents);
+    addCommentary(`Đã nạp danh sách "${finalClassName}" (${newStudents.length} học sinh qua quét mã QR)! Chuẩn bị xuất phát.`, 0);
   };
 
   // Preset Handlers
@@ -1719,6 +1740,30 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
             <Edit3 size={15} />
             Khung Nhập DS Theo Mong Muốn
           </button>
+
+          {/* Button 3: Quét QR Điền Tên Nhanh */}
+          <button
+            onClick={() => setShowQrModal(true)}
+            title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên vào game"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+              color: '#ffffff',
+              border: '1px solid #c084fc',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 12px rgba(124, 58, 237, 0.45)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <QrCode size={15} />
+            📱 Quét QR Điền Tên Nhanh
+          </button>
         </div>
 
         {/* Controls: Speed, Sync, Sound, Fullscreen, Close */}
@@ -2191,6 +2236,28 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                 >
                   <Edit3 size={14} />
                   Khung Nhập DS Theo Mong Muốn
+                </button>
+
+                <button
+                  onClick={() => setShowQrModal(true)}
+                  title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên vào game"
+                  style={{
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+                    color: '#ffffff',
+                    border: '1px solid #c084fc',
+                    padding: '8px 18px',
+                    borderRadius: '10px',
+                    fontSize: '0.84rem',
+                    fontWeight: 900,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 16px rgba(124, 58, 237, 0.45)'
+                  }}
+                >
+                  <QrCode size={16} />
+                  📱 Quét QR Điền Tên Nhanh (HS Tự Quét)
                 </button>
               </div>
             </div>
@@ -2753,6 +2820,53 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
               </button>
             </div>
 
+            {/* Quick Banner: Open QR Code Option */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(219, 39, 119, 0.15) 100%)',
+              border: '1.5px dashed #c084fc',
+              borderRadius: '14px',
+              padding: '12px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f3e8ff', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Smartphone size={16} color="#c084fc" />
+                  Lớp mới chưa kịp nhập danh sách?
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#d8b4fe', marginTop: '2px' }}>
+                  Mở mã QR ngay trên máy chiếu để học sinh tự quét điện thoại và điền tên vào game!
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRosterModal(false);
+                  setShowQrModal(true);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  padding: '8px 16px',
+                  fontSize: '0.82rem',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
+                }}
+              >
+                <QrCode size={15} />
+                Mở Mã QR Ngay
+              </button>
+            </div>
+
             {/* Class Name Input */}
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#e2e8f0', marginBottom: '6px' }}>
@@ -2976,6 +3090,17 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
           </div>
         </div>
       )}
+
+      {/* 8. MARBLE QR CODE REGISTRATION MODAL */}
+      <MarbleQrModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        currentUser={currentUser}
+        currentStudents={students}
+        onApplyStudents={handleApplyQrStudents}
+        selectedClassName={selectedClassName}
+        setSelectedClassName={setSelectedClassName}
+      />
     </div>
   );
 }

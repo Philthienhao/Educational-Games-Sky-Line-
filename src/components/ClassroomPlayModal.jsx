@@ -360,10 +360,10 @@ export function ClassroomPlayModal({
         component = <PoseImitationGame {...commonProps} onClose={onClose} lessonTitle={game?.lessonTitle} title={game?.title} />;
         break;
       case 'tower-builder':
-        component = <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />;
+        component = <TowerBuilderGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} onHostLive={onHostLive} />;
         break;
       case 'mario-race':
-        component = <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} />;
+        component = <MarioRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} onHostLive={onHostLive} />;
         break;
       case 'indoor-pe-dance':
         component = <IndoorPEDanceGame {...commonProps} title={game?.title} onClose={onClose} />;

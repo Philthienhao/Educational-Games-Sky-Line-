@@ -26,7 +26,8 @@ import {
   Award,
   Activity,
   KeyRound,
-  Trophy
+  Trophy,
+  Edit3
 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -349,11 +350,13 @@ export function Sidebar({
               </div>
 
               <div 
-                onClick={onOpenRoleSwitcher}
+                onClick={isAdmin ? onOpenRoleSwitcher : onOpenChangePassword}
                 style={{ cursor: 'pointer', flex: 1, minWidth: 0 }}
+                title={isAdmin ? "Đổi tài khoản đăng nhập" : "Bấm để tự sửa họ tên giáo viên & mật khẩu"}
               >
-                <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {currentUser?.name || 'Giáo Viên'}
+                <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <span>{currentUser?.name || 'Giáo Viên'}</span>
+                  <Edit3 size={13} color="#0284c7" title="Sửa họ tên giáo viên" />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
                   <span className={isAdmin ? 'role-tag admin' : 'role-tag teacher'}>
@@ -384,7 +387,7 @@ export function Sidebar({
             <div style={{ display: 'flex', gap: '6px', width: '100%' }}>
               <button 
                 onClick={() => { onOpenChangePassword(); setIsMobileOpen(false); }}
-                title="Đổi mật khẩu tài khoản"
+                title="Sửa họ tên giáo viên và đổi mật khẩu tài khoản"
                 style={{
                   flex: 1,
                   background: 'rgba(2, 132, 199, 0.12)',
@@ -402,8 +405,8 @@ export function Sidebar({
                   whiteSpace: 'nowrap'
                 }}
               >
-                <KeyRound size={14} />
-                <span>Đổi mật khẩu</span>
+                <User size={14} />
+                <span>Sửa Họ Tên & Pass</span>
               </button>
 
               <button 

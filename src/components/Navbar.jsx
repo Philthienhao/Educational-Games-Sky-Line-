@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, UserPlus, FlaskRound, Clock, HeartHandshake, Globe, Beaker, KeyRound } from 'lucide-react';
+import { Gamepad2, BookmarkCheck, Shield, PlusCircle, Users, LogIn, LogOut, FileSpreadsheet, Sparkles, Camera, BookOpen, Presentation, GraduationCap, UserCheck, UserPlus, FlaskRound, Clock, HeartHandshake, Globe, Beaker, KeyRound, Edit3 } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { StorageService } from '../services/storage';
 import { compressImage } from '../utils/imageCompressor';
@@ -323,7 +323,7 @@ export function Navbar({
           {/* Logged in User Badge & Logout Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div 
-              onClick={onOpenRoleSwitcher}
+              onClick={currentUser?.role === 'admin' ? onOpenRoleSwitcher : onOpenChangePassword}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -335,7 +335,7 @@ export function Navbar({
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
-              title="Bấm để xem thông tin tài khoản"
+              title={currentUser?.role === 'admin' ? "Bấm để đổi tài khoản đăng nhập (Admin)" : "Bấm để tự sửa họ tên giáo viên & mật khẩu"}
             >
               <div style={{
                 width: '30px',
@@ -353,10 +353,11 @@ export function Navbar({
               </div>
               <div style={{ textAlign: 'left' }}>
                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-bright)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {currentUser?.name}
+                  <span>{currentUser?.name}</span>
                   <span className={currentUser?.role === 'admin' ? 'badge badge-admin' : 'badge badge-teacher'}>
                     {currentUser?.role === 'admin' ? 'ADMIN' : 'GV'}
                   </span>
+                  <Edit3 size={12} color="#38bdf8" title="Sửa họ tên giáo viên" style={{ marginLeft: '2px', opacity: 0.8 }} />
                 </div>
               </div>
             </div>

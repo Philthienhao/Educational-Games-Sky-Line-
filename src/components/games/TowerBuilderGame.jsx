@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import { 
   Volume2, VolumeX, Maximize2, Minimize2, Pause, Play, Flag, 
   RotateCcw, Trophy, Award, Sparkles, AlertTriangle, Shield, Zap, Flame, Crown, CheckCircle2, XCircle,
-  Edit3, Check
+  Edit3, Check, Users
 } from 'lucide-react';
 import { SoundFX } from '../../utils/sound';
 
 // Top-level SVG Graphics for House Building Blocks
-function HouseRoofSVG({ color, teamName, isCurrentTurn }) {
+export function HouseRoofSVG({ color, teamName, isCurrentTurn }) {
   return (
     <div style={{ position: 'relative', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {isCurrentTurn && (
@@ -27,7 +27,7 @@ function HouseRoofSVG({ color, teamName, isCurrentTurn }) {
             fontSize: '0.7rem', 
             fontWeight: 900, 
             padding: '2px 8px', 
-            borderRadius: '10px',
+            borderRadius: '10px', 
             boxShadow: '0 4px 12px rgba(239, 68, 68, 0.6)',
             whiteSpace: 'nowrap',
             marginBottom: '2px'
@@ -63,7 +63,7 @@ function HouseRoofSVG({ color, teamName, isCurrentTurn }) {
   );
 }
 
-function HouseStoryBlockSVG({ floorNumber, isNew, materialType }) {
+export function HouseStoryBlockSVG({ floorNumber, isNew, materialType }) {
   // Determine block style based on material type or standard brick
   const blockBg = materialType === 'wood' ? '#b45309' : (materialType === 'tile' || materialType === 'straw') ? '#ea580c' : '#e2e8f0';
   const strokeColor = materialType === 'wood' ? '#78350f' : (materialType === 'tile' || materialType === 'straw') ? '#9a3412' : '#94a3b8';
@@ -217,7 +217,7 @@ const MONSTERS = [
   { id: 'm4', name: 'Sói Hoang', cost: -10, icon: '🐺', desc: 'Tấn công công trình' },
 ];
 
-export function TowerBuilderGame({ game, onClose, currentUser, onAddPoints }) {
+export function TowerBuilderGame({ game, onClose, currentUser, onAddPoints, onHostLive }) {
   const questions = (game && game.questions && game.questions.length > 0) 
     ? game.questions 
     : (game && game.defaultQuestions && game.defaultQuestions.length > 0)
@@ -594,6 +594,33 @@ export function TowerBuilderGame({ game, onClose, currentUser, onAddPoints }) {
           >
             {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
           </button>
+
+          {onHostLive && (
+            <button 
+              onClick={() => {
+                try { SoundFX.click(); } catch(e) {}
+                onHostLive(game);
+              }}
+              style={{ 
+                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)', 
+                border: '1.5px solid rgba(255,255,255,0.4)', 
+                color: '#fff', 
+                padding: '8px 16px', 
+                borderRadius: '10px', 
+                cursor: 'pointer',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '7px',
+                boxShadow: '0 4px 14px rgba(2,132,199,0.45)'
+              }}
+              title="Mở phòng đấu nhóm live trên máy chiếu kết nối điện thoại học sinh"
+            >
+              <Users size={16} color="#ffffff" />
+              <span>🎮 Đấu Nhóm Live</span>
+            </button>
+          )}
 
           <button 
             onClick={() => setIsPaused(!isPaused)} 

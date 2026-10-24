@@ -77,6 +77,7 @@ const AssignHomeworkModal = lazyWithRetry(() => import('./components/homework/As
 const TeacherHomeworkManagerModal = lazyWithRetry(() => import('./components/homework/TeacherHomeworkManagerModal').then(m => ({ default: m.TeacherHomeworkManagerModal })));
 const TeacherHostArena = lazyWithRetry(() => import('./components/live/TeacherHostArena').then(m => ({ default: m.TeacherHostArena })));
 const StudentGroupArena = lazyWithRetry(() => import('./components/live/StudentGroupArena').then(m => ({ default: m.StudentGroupArena })));
+const MarbleStudentJoin = lazyWithRetry(() => import('./components/games/MarbleStudentJoin').then(m => ({ default: m.MarbleStudentJoin })));
 
 function ViewLoadingFallback() {
   return (
@@ -238,6 +239,24 @@ function parseLiveBattleParams() {
       if (queryIdx >= 0) {
         const hashParams = new URLSearchParams(hashStr.substring(queryIdx + 1));
         return hashParams.get('live') || hashParams.get('room') || hashParams.get('pin');
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+
+function parseMarbleJoinParams() {
+  try {
+    const search = new URLSearchParams(window.location.search);
+    const hashStr = window.location.hash.replace('#', '').trim();
+    if (search.get('marbleJoin')) return search.get('marbleJoin');
+    if (search.get('marblePin')) return search.get('marblePin');
+    if (search.get('marble')) return search.get('marble');
+    if (hashStr.includes('marbleJoin=') || hashStr.includes('marblePin=') || hashStr.includes('marble=')) {
+      const queryIdx = hashStr.indexOf('?');
+      if (queryIdx >= 0) {
+        const hashParams = new URLSearchParams(hashStr.substring(queryIdx + 1));
+        return hashParams.get('marbleJoin') || hashParams.get('marblePin') || hashParams.get('marble');
       }
     }
   } catch (e) {}
@@ -692,9 +711,18 @@ export function App() {
     });
   }, [baseGames, selectedCategory, searchTerm]);
 
-  // Direct Student Live Group Battle or Homework Mode (Bypasses Teacher Login completely)
+  // Direct Student Live Group Battle, Homework Mode or Marble Race Join (Bypasses Teacher Login completely)
   const liveRoomPin = useMemo(() => parseLiveBattleParams(), []);
   const homeworkParams = useMemo(() => parseHomeworkParams(), []);
+  const marbleJoinPin = useMemo(() => parseMarbleJoinParams(), []);
+
+  if (marbleJoinPin) {
+    return (
+      <React.Suspense fallback={<ViewLoadingFallback />}>
+        <MarbleStudentJoin pin={marbleJoinPin} />
+      </React.Suspense>
+    );
+  }
 
   if (liveRoomPin) {
     return (
@@ -996,6 +1024,7 @@ export function App() {
                   onCustomize={handleCustomizeBaseGame}
                   onDelete={handleDeleteBaseGame}
                   onAssignHomework={(g) => setAssigningHomeworkGame(g)}
+                  onHostLive={(g) => setHostingLiveGame(g)}
                 />
               ))}
             </div>

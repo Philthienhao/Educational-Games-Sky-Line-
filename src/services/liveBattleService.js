@@ -29,12 +29,40 @@ export const LiveBattleService = {
       ? game.questions
       : (Array.isArray(game?.defaultQuestions) && game.defaultQuestions.length > 0 ? game.defaultQuestions : []);
 
-    const defaultTeams = [
+    let engineType = game?.engineType || game?.gameType;
+    if (!engineType || engineType === 'wheel' || engineType === 'tug-of-war-dual') {
+      const rawTitle = String(game?.lessonTitle || game?.title || '').toLowerCase();
+      const rawId = String(game?.id || game?.baseGameId || '').toLowerCase();
+      if (rawTitle.includes('mario') || rawId.includes('mario')) {
+        engineType = 'mario-race';
+      } else if (rawTitle.includes('kiến trúc sư') || rawTitle.includes('tháp') || rawTitle.includes('xây') || rawId.includes('tower')) {
+        engineType = 'tower-builder';
+      }
+    }
+    if (!engineType) engineType = 'wheel';
+
+    let defaultTeams = [
       { id: 'team_1', name: 'Nhóm 1 (Đỏ)', color: '#ef4444', icon: '🔴', score: 0, connected: false, members: '', correctCount: 0 },
       { id: 'team_2', name: 'Nhóm 2 (Xanh)', color: '#3b82f6', icon: '🔵', score: 0, connected: false, members: '', correctCount: 0 },
       { id: 'team_3', name: 'Nhóm 3 (Vàng)', color: '#f59e0b', icon: '🟡', score: 0, connected: false, members: '', correctCount: 0 },
       { id: 'team_4', name: 'Nhóm 4 (Lục)', color: '#10b981', icon: '🟢', score: 0, connected: false, members: '', correctCount: 0 }
     ];
+
+    if (engineType === 'mario-race') {
+      defaultTeams = [
+        { id: 'team_1', name: 'Mario Đỏ', color: '#ef4444', icon: '🍄', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_2', name: 'Luigi Lục', color: '#10b981', icon: '⭐', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_3', name: 'Toad Vàng', color: '#f59e0b', icon: '⚡', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_4', name: 'Bowser Lam', color: '#3b82f6', icon: '🐢', score: 0, connected: false, members: '', correctCount: 0 }
+      ];
+    } else if (engineType === 'tower-builder') {
+      defaultTeams = [
+        { id: 'team_1', name: 'Đội Kiến Trúc Đỏ', color: '#ef4444', icon: '🏗️', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_2', name: 'Đội Xây Dựng Lam', color: '#3b82f6', icon: '🏠', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_3', name: 'Đội Thiết Kế Vàng', color: '#f59e0b', icon: '🏰', score: 0, connected: false, members: '', correctCount: 0 },
+        { id: 'team_4', name: 'Đội Kỹ Sư Lục', color: '#10b981', icon: '🏢', score: 0, connected: false, members: '', correctCount: 0 }
+      ];
+    }
 
     const initialRoom = {
       roomPin: pin,
@@ -44,7 +72,7 @@ export const LiveBattleService = {
       teacherSubject: currentUser?.subject || game?.category || 'Môn học',
       gameId: game?.id || 'game',
       gameTitle: game?.lessonTitle || game?.title || 'Đấu Trường Tri Thức',
-      engineType: game?.engineType || game?.gameType || 'wheel',
+      engineType: engineType,
       timePerQuestion: Number(customConfig.timePerQuestion) || 30, // seconds
       status: 'lobby', // 'lobby' | 'playing' | 'question_result' | 'finished'
       currentQuestionIndex: 0,

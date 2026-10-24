@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, UserPlus, Key, Trash2, ShieldCheck, CheckCircle2, AlertCircle, RefreshCw, X, Database, Save, Check } from 'lucide-react';
+import { Users, UserPlus, Key, Trash2, ShieldCheck, CheckCircle2, AlertCircle, RefreshCw, X, Database, Save, Check, Edit3 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { CloudStorageService } from '../services/cloudStorage';
 
@@ -135,6 +135,15 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
     a.click();
     URL.revokeObjectURL(url);
     setSuccessMsg('📥 Đã tải xuống danh sách file tài khoản JSON thành công!');
+  };
+
+  const handleEditTeacherName = (userObj) => {
+    const newName = prompt(`Nhập Họ và tên mới cho tài khoản "${userObj.username}":`, userObj.name || '');
+    if (newName && newName.trim() && newName.trim() !== userObj.name) {
+      StorageService.updateUser(userObj.id, { name: newName.trim() });
+      setSuccessMsg(`🎉 Đã cập nhật họ tên cho tài khoản ${userObj.username} thành "${newName.trim()}"`);
+      loadUsers();
+    }
   };
 
   const handleResetPassword = (userObj) => {
@@ -753,7 +762,14 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
 
                           <div>
                             <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span>{u.name}</span>
+                              <span 
+                                onClick={() => handleEditTeacherName(u)} 
+                                title="Bấm để sửa họ tên giáo viên"
+                                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+                              >
+                                {u.name}
+                                <Edit3 size={13} color="#0284c7" />
+                              </span>
                               {isAdmin && <span style={{ background: '#4338ca', color: '#fff', fontSize: '0.7rem', padding: '1px 7px', borderRadius: '10px' }}>ADMIN CHÍNH</span>}
                               {!isAdmin && isPaid && <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '0.7rem', padding: '1px 7px', borderRadius: '10px', fontWeight: 800 }}>ĐÃ CK</span>}
                             </div>
@@ -763,7 +779,7 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           {/* 2 Ô Vuông: Chưa CK và Đã CK */}
                           {!isAdmin && (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '4px 8px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
@@ -832,6 +848,14 @@ export function UserManagementModal({ isOpen, onClose, currentUser }) {
                               </button>
                             </div>
                           )}
+
+                          <button
+                            onClick={() => handleEditTeacherName(u)}
+                            title="Sửa họ tên giáo viên"
+                            style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '6px 10px', fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer', color: '#166534', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            <Edit3 size={14} /> Sửa Tên
+                          </button>
 
                           <button
                             onClick={() => handleResetPassword(u)}

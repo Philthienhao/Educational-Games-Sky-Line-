@@ -7,6 +7,206 @@ import {
 import confetti from 'canvas-confetti';
 import { LiveBattleService } from '../../services/liveBattleService';
 import { SoundFX } from '../../utils/sound';
+import { MarioSpriteSVG } from '../games/MarioRaceGame';
+import { HouseRoofSVG, HouseStoryBlockSVG } from '../games/TowerBuilderGame';
+
+// Top-Level Component for Live Mario Race Track inside TeacherHostArena
+function LiveMarioRaceTrack({ teams, showAnswer, qAnswers, totalQuestions }) {
+  const maxScore = Math.max(1, ...teams.map(t => t.score || 0), totalQuestions * 100);
+  
+  return (
+    <div style={{
+      background: 'rgba(15, 23, 42, 0.95)',
+      border: '2px solid rgba(239, 68, 68, 0.4)',
+      borderRadius: '20px',
+      padding: '12px 18px',
+      marginBottom: '18px',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      overflow: 'hidden'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#facc15', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          🍄 ĐƯỜNG ĐUA SUPER MARIO LIVE • THI ĐẤU THỜI GIAN THỰC
+        </span>
+        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>
+          🚩 ĐÍCH CÁN LÂU ĐÀI
+        </span>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {teams.map((team) => {
+          const ans = qAnswers?.[team.id];
+          const isCorrect = showAnswer && ans?.isCorrect;
+          const isWrong = showAnswer && ans && !ans.isCorrect;
+          const progress = Math.min(92, Math.max(5, (team.score / maxScore) * 85 + (team.correctCount || 0) * 2));
+
+          return (
+            <div key={team.id} style={{
+              background: 'rgba(30, 41, 59, 0.7)',
+              borderRadius: '12px',
+              padding: '6px 12px',
+              position: 'relative',
+              overflow: 'hidden',
+              border: `1.5px solid ${isCorrect ? '#10b981' : (isWrong ? '#ef4444' : 'rgba(255,255,255,0.08)')}`,
+              transition: 'border 0.3s'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '2px' }}>
+                <span style={{ fontWeight: 900, color: team.color }}>
+                  {team.icon || '🍄'} {team.name}
+                </span>
+                <span style={{ fontWeight: 800, color: '#facc15' }}>
+                  {team.score}đ {isCorrect && <strong style={{ color: '#34d399', marginLeft: '4px' }}>+{ans.points}đ ⭐</strong>}
+                </span>
+              </div>
+
+              <div style={{
+                position: 'relative',
+                height: '42px',
+                background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.15) 0%, rgba(15, 23, 42, 0.4) 65%, #78350f 66%, #451a03 100%)',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '4px',
+                  fontSize: '1.3rem',
+                  zIndex: 2,
+                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))'
+                }}>
+                  🏰
+                </div>
+
+                <div style={{
+                  position: 'absolute',
+                  left: `${progress}%`,
+                  bottom: '2px',
+                  transform: 'translateX(-50%)',
+                  transition: 'left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  zIndex: 5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  {isCorrect && (
+                    <div style={{
+                      fontSize: '0.68rem',
+                      fontWeight: 900,
+                      color: '#facc15',
+                      whiteSpace: 'nowrap',
+                      marginBottom: '-2px'
+                    }}>
+                      ⭐ +{ans.points}
+                    </div>
+                  )}
+                  <div style={{ transform: 'scale(0.55)', transformOrigin: 'bottom center', width: '58px', height: '68px' }}>
+                    <MarioSpriteSVG 
+                      color={team.color} 
+                      isJumping={isCorrect} 
+                      isRunning={!showAnswer && Boolean(ans)} 
+                      isStunned={isWrong}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Top-Level Component for Live Tower Builder Arena inside TeacherHostArena
+function LiveTowerBuilderArena({ teams, showAnswer, qAnswers }) {
+  return (
+    <div style={{
+      background: 'rgba(15, 23, 42, 0.95)',
+      border: '2px solid rgba(2, 132, 199, 0.4)',
+      borderRadius: '20px',
+      padding: '12px 18px',
+      marginBottom: '18px',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      overflow: 'hidden'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          🏗️ ĐẤU TRƯỜNG KIẾN TRÚC SƯ LIVE • THI ĐẤU XÂY THÁP TRỰC TIẾP
+        </span>
+        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>
+          🏢 TÒA THÁP CAO NHẤT CHIẾN THẮNG
+        </span>
+      </div>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${Math.max(2, teams.length)}, 1fr)`,
+        gap: '12px',
+        alignItems: 'flex-end',
+        minHeight: '130px',
+        padding: '6px 0'
+      }}>
+        {teams.map((team) => {
+          const ans = qAnswers?.[team.id];
+          const isCorrect = showAnswer && ans?.isCorrect;
+          const floorCount = Math.min(6, Math.max(1, Math.floor((team.score || 0) / 40) + 1));
+
+          return (
+            <div key={team.id} style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              background: 'rgba(30, 41, 59, 0.6)',
+              borderRadius: '12px',
+              padding: '8px 6px',
+              border: `1.5px solid ${isCorrect ? '#10b981' : 'rgba(255,255,255,0.08)'}`,
+              transition: 'all 0.3s'
+            }}>
+              {isCorrect && (
+                <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#34d399', marginBottom: '2px' }}>
+                  🎉 +{ans.points}đ
+                </div>
+              )}
+
+              {/* Roof */}
+              <div style={{ width: '56px', marginBottom: '-4px', zIndex: 10 }}>
+                <HouseRoofSVG color={team.color} teamName={team.name} isCurrentTurn={false} />
+              </div>
+
+              {/* Stacked floors */}
+              <div style={{ display: 'flex', flexDirection: 'column-reverse', gap: '2px', width: '46px' }}>
+                {Array.from({ length: floorCount }).map((_, fIdx) => {
+                  const material = fIdx % 3 === 0 ? 'tile' : (fIdx % 3 === 1 ? 'wood' : 'standard');
+                  return (
+                    <div key={fIdx} style={{ width: '100%' }}>
+                      <HouseStoryBlockSVG floorNumber={fIdx + 1} isNew={isCorrect && fIdx === floorCount - 1} materialType={material} />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Foundation & Team Label */}
+              <div style={{
+                marginTop: '6px',
+                textAlign: 'center',
+                borderTop: `2px solid ${team.color}`,
+                width: '100%',
+                paddingTop: '4px'
+              }}>
+                <div style={{ fontSize: '0.76rem', fontWeight: 900, color: team.color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {team.name}
+                </div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#facc15' }}>
+                  {team.score}đ • T{floorCount}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function TeacherHostArena({ game, currentUser, onClose }) {
   const [room, setRoom] = useState(null);
@@ -353,7 +553,7 @@ export function TeacherHostArena({ game, currentUser, onClose }) {
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)'
             }}>
               <span className="badge" style={{ background: '#f59e0b', color: '#000', fontWeight: 900, fontSize: '0.9rem', padding: '6px 18px', borderRadius: '14px', marginBottom: '14px' }}>
-                📡 PHÒNG ĐẤU NHÓM LIVE TRÊN MÁY CHIẾU LỚP HỌC
+                {room.engineType === 'mario-race' ? '🍄 PHÒNG ĐẤU ĐƯỜNG ĐUA SUPER MARIO LIVE' : (room.engineType === 'tower-builder' ? '🏗️ PHÒNG ĐẤU KIẾN TRÚC SƯ XÂY THÁP LIVE' : '📡 PHÒNG ĐẤU NHÓM LIVE TRÊN MÁY CHIẾU LỚP HỌC')}
               </span>
 
               <h2 style={{ fontSize: '2rem', fontWeight: 900, margin: '10px 0 6px 0', color: '#f8fafc' }}>
@@ -576,6 +776,24 @@ export function TeacherHostArena({ game, currentUser, onClose }) {
                     {currentQ.question || currentQ.title}
                   </h2>
                 </div>
+
+                {/* Game-Specific Live Visual Arenas (Mario Race & Tower Builder) */}
+                {room.engineType === 'mario-race' && (
+                  <LiveMarioRaceTrack 
+                    teams={room.teams} 
+                    showAnswer={room.showAnswer} 
+                    qAnswers={qAnswers} 
+                    totalQuestions={room.questions?.length || 10} 
+                  />
+                )}
+
+                {room.engineType === 'tower-builder' && (
+                  <LiveTowerBuilderArena 
+                    teams={room.teams} 
+                    showAnswer={room.showAnswer} 
+                    qAnswers={qAnswers} 
+                  />
+                )}
 
                 {/* 4 Options Grid */}
                 <div style={{
