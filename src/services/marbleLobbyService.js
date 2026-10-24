@@ -31,9 +31,9 @@ export const MarbleLobbyService = {
   },
 
   /**
-   * Giáo viên tạo hoặc khởi động phiên phòng chờ quét QR cho Đua Bi
+   * Giáo viên tạo hoặc khởi động phiên phòng chờ quét QR cho bất kỳ game gọi tên học sinh
    */
-  createOrGetLobby: async (currentUser, existingPin = null, customTitle = '') => {
+  createOrGetLobby: async (currentUser, existingPin = null, customTitle = '', gameType = 'marble-race', gameIcon = '🏁') => {
     const teacherId = currentUser?.id || 'teacher';
     const teacherName = currentUser?.name || currentUser?.username || 'Thầy Cô';
     const pin = existingPin ? String(existingPin).trim() : MarbleLobbyService.generatePin();
@@ -48,13 +48,25 @@ export const MarbleLobbyService = {
       return existingLobby;
     }
 
+    const defaultTitle = gameType === 'duck-race' ? 'Đua Vịt Gọi Tên — Quét QR Tham Gia'
+      : gameType === 'turtle-race' ? 'Đua Rùa Gọi Tên — Quét QR Tham Gia'
+      : gameType === 'claw-machine' ? 'Gắp Thú Gọi Tên — Quét QR Tham Gia'
+      : 'Đua Bi Sinh Tử — Quét QR Tham Gia';
+
+    const defaultIcon = gameType === 'duck-race' ? '🦆'
+      : gameType === 'turtle-race' ? '🐢'
+      : gameType === 'claw-machine' ? '🧸'
+      : '🏁';
+
     const newLobby = {
       pin,
       teacherId,
       teacherName,
       teacherSchool: currentUser?.school || 'Sky-Line',
       teacherSubject: currentUser?.subject || '',
-      title: customTitle || 'Đua Bi Sinh Tử — Quét QR Tham Gia',
+      title: customTitle || defaultTitle,
+      gameType: gameType || 'marble-race',
+      gameIcon: gameIcon || defaultIcon,
       status: 'waiting', // 'waiting' | 'racing' | 'closed'
       participants: [],
       createdAt: new Date().toISOString(),

@@ -14,7 +14,11 @@ export function MarbleQrModal({
   currentStudents, 
   onApplyStudents, 
   selectedClassName, 
-  setSelectedClassName 
+  setSelectedClassName,
+  gameType = 'marble-race',
+  gameTitle = 'Đua Bi Sinh Tử',
+  gameIcon = '🏁',
+  themeGradient
 }) {
   const [pin, setPin] = useState('');
   const [lobby, setLobby] = useState(null);
@@ -65,8 +69,8 @@ export function MarbleQrModal({
     const initLobby = async () => {
       setIsInitializing(true);
       try {
-        const title = selectedClassName || 'Đua Bi Sinh Tử';
-        const newOrExisting = await MarbleLobbyService.createOrGetLobby(currentUser, localPin, title);
+        const title = selectedClassName || gameTitle || 'Gọi Tên Học Sinh';
+        const newOrExisting = await MarbleLobbyService.createOrGetLobby(currentUser, localPin, title, gameType, gameIcon);
         if (isMounted && newOrExisting) {
           setLobby(newOrExisting);
           if (Array.isArray(newOrExisting.participants)) {
@@ -214,7 +218,8 @@ export function MarbleQrModal({
     }
 
     const newClassName = `Lớp Quét QR (${participants.length} HS)`;
-    onApplyStudents(participants, newClassName);
+    const names = participants.map(p => p.name);
+    onApplyStudents(participants, newClassName, names);
     onClose();
   };
 
@@ -290,14 +295,15 @@ export function MarbleQrModal({
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #0284c7 0%, #7c3aed 100%)',
+              background: themeGradient || 'linear-gradient(135deg, #0284c7 0%, #7c3aed 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
+              fontSize: '1.4rem',
               boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
             }}>
-              <QrCode size={24} />
+              {gameIcon || <QrCode size={24} />}
             </div>
             <div>
               <h2 style={{
@@ -309,10 +315,10 @@ export function MarbleQrModal({
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                QUÉT MÃ QR — HỌC SINH TỰ ĐIỀN TÊN VÀO GAME
+                QUÉT MÃ QR — ĐIỀN TÊN VÀO {String(gameTitle || 'GAME').toUpperCase()}
               </h2>
               <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
-                Học sinh dùng điện thoại/máy tính bảng quét mã để tự điền tên và trường, không cần tài khoản đăng nhập.
+                Học sinh dùng điện thoại quét mã QR để tự điền tên và trường tham gia {gameTitle || 'game'}.
               </p>
             </div>
           </div>
@@ -778,3 +784,5 @@ export function MarbleQrModal({
     </div>
   );
 }
+
+export const StudentPickerQrModal = MarbleQrModal;

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Sparkles, RefreshCw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, RotateCcw, Zap, Smile, Upload } from 'lucide-react';
+import { Play, Sparkles, RefreshCw, X, Award, Users, Volume2, VolumeX, Settings, Edit3, Check, RotateCcw, Zap, Smile, Upload, QrCode, Smartphone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { StorageService } from '../../services/storage';
 import { parseStudentRosterFile } from '../../utils/universalParser';
+import { StudentPickerQrModal } from './MarbleQrModal';
 
 // Pre-defined student rosters for quick classroom selection
 const DEFAULT_STUDENT_ROSTERS = {
@@ -33,6 +34,7 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
   const [rawStudentNames, setRawStudentNames] = useState([]);
   const [plushieBin, setPlushieBin] = useState([]);
   const [showRosterModal, setShowRosterModal] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [customRosterText, setCustomRosterText] = useState('');
 
   // Mechanical Claw State
@@ -379,6 +381,22 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
     setShowFakeOutBanner(false);
   };
 
+  // Apply Students from QR Code Registration
+  const handleApplyQrStudents = (qrParticipants, className, names) => {
+    if (!Array.isArray(names) || names.length === 0) return;
+    setFullRosterNames(names);
+    setRawStudentNames(names);
+    const finalClassName = className || `Lớp Quét QR (${names.length} HS)`;
+    setSelectedRosterName(finalClassName);
+    setCustomRosterText(names.join('\n'));
+    setClawState('idle');
+    setClawX(50);
+    setClawY(0);
+    setIsClawClosed(false);
+    setTargetPlushie(null);
+    setShowFakeOutBanner(false);
+  };
+
   // Dynamic CSS Transitions for Master Carriage Assembly & Cable Claw Head
   const clawXTransitionStyle = clawState === 'fakeout-switch'
     ? 'left 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)'
@@ -445,6 +463,24 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
             style={{ borderRadius: '12px', padding: '8px 14px', background: 'rgba(139, 92, 246, 0.2)', border: '1px solid #8b5cf6', color: '#c4b5fd' }}
           >
             <Settings size={16} /> Danh Sách Học Sinh
+          </button>
+
+          <button
+            onClick={() => setShowQrModal(true)}
+            disabled={clawState !== 'idle'}
+            className="btn btn-secondary btn-sm"
+            title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên tham gia Gắp Thú"
+            style={{
+              borderRadius: '12px',
+              padding: '8px 14px',
+              background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+              border: '1px solid #c084fc',
+              color: '#ffffff',
+              fontWeight: 900,
+              boxShadow: '0 2px 10px rgba(124, 58, 237, 0.4)'
+            }}
+          >
+            <QrCode size={16} /> 📱 Quét QR Điền Tên
           </button>
 
           <button
@@ -901,6 +937,20 @@ export function ClawMachineGame({ questions, teams, game, activeTeamIndex = 0, o
           </div>
         </div>
       )}
+
+      {/* QR CODE PARTICIPANT REGISTRATION MODAL */}
+      <StudentPickerQrModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        currentUser={currentUser}
+        gameType="claw-machine"
+        gameTitle="Gắp Thú Gọi Tên"
+        gameIcon="🧸"
+        themeGradient="linear-gradient(135deg, #7c3aed 0%, #db2777 100%)"
+        onApplyStudents={handleApplyQrStudents}
+        selectedClassName={selectedRosterName}
+        setSelectedClassName={setSelectedRosterName}
+      />
 
     </div>
   );

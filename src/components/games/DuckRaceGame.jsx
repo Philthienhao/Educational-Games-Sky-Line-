@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Trophy, RotateCcw, Volume2, VolumeX, Maximize, Settings, ArrowLeft, Edit3, X, Check, Upload } from 'lucide-react';
+import { Trophy, RotateCcw, Volume2, VolumeX, Maximize, Settings, ArrowLeft, Edit3, X, Check, Upload, QrCode, Smartphone } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { parseStudentRosterFile } from '../../utils/universalParser';
 import { StorageService } from '../../services/storage';
+import { StudentPickerQrModal } from './MarbleQrModal';
 
 // Pre-defined student rosters for quick classroom selection
 const DEFAULT_STUDENT_ROSTERS = {
@@ -44,6 +45,7 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose, game, cur
   const [fullRosterList, setFullRosterList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [studentList, setStudentList] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)']);
   const [editingRoster, setEditingRoster] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [customRosterText, setCustomRosterText] = useState(DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)'].join('\n'));
 
   // Load students from game object, questions, or teacher homeroom
@@ -266,6 +268,16 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose, game, cur
     setEditingRoster(false);
   };
 
+  // Apply Students from QR Code Registration
+  const handleApplyQrStudents = (qrParticipants, className, names) => {
+    if (!Array.isArray(names) || names.length === 0) return;
+    setFullRosterList(names);
+    setStudentList(names);
+    const finalClassName = className || `Lớp Quét QR (${names.length} HS)`;
+    setSelectedRosterName(finalClassName);
+    setCustomRosterText(names.join('\n'));
+  };
+
   const handleRemoveWinnerAndClose = () => {
     if (allRankings.length > 0) {
       const winnerNames = allRankings.slice(0, winnerCountToPick).map(r => r.name);
@@ -453,6 +465,28 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose, game, cur
               }}
             >
               <Edit3 size={14} /> Sửa HS ({studentList.length})
+            </button>
+
+            <button
+              onClick={() => setShowQrModal(true)}
+              disabled={isRacing}
+              title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên tham gia Đua Vịt"
+              style={{
+                padding: '5px 12px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                border: '1px solid #38bdf8',
+                color: '#fff',
+                fontWeight: 900,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 10px rgba(2, 132, 199, 0.4)'
+              }}
+            >
+              <QrCode size={14} /> 📱 Quét QR Điền Tên
             </button>
 
             <label
@@ -1039,6 +1073,20 @@ export function DuckRaceGame({ questions, teams, onAddPoints, onClose, game, cur
           </div>
         </div>
       )}
+
+      {/* QR CODE PARTICIPANT REGISTRATION MODAL */}
+      <StudentPickerQrModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        currentUser={currentUser}
+        gameType="duck-race"
+        gameTitle="Đua Vịt Gọi Tên"
+        gameIcon="🦆"
+        themeGradient="linear-gradient(135deg, #0284c7 0%, #0369a1 100%)"
+        onApplyStudents={handleApplyQrStudents}
+        selectedClassName={selectedRosterName}
+        setSelectedClassName={setSelectedRosterName}
+      />
 
     </div>
   );

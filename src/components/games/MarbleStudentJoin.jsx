@@ -96,6 +96,69 @@ export function MarbleStudentJoin({ pin }) {
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   }, [studentName]);
 
+  // Dynamic Game Aesthetics & Information
+  const gameInfo = useMemo(() => {
+    const type = lobby?.gameType || 'marble-race';
+    if (type === 'duck-race') {
+      return {
+        title: 'ĐUA VỊT GỌI TÊN',
+        icon: '🦆',
+        subtitle: 'Gia Nhập Đàn Vịt Về Đích',
+        readyText: 'VỊT CỦA BẠN ĐÃ XUỐNG NƯỚC!',
+        badgeText: 'Vịt số #',
+        avatarEmoji: '🦆',
+        colorLabel: 'Màu sắc chú vịt may mắn',
+        promptAction: 'đưa chú vịt của bạn vào đàn bơi',
+        screenPrompt: 'để theo dõi đàn vịt bơi nảy lửa trên sông và cổ vũ cho chú vịt của mình nhé!',
+        bgGradient: 'radial-gradient(circle at 50% 0%, #0369a1 0%, #082f49 70%, #020617 100%)',
+        accentColor: '#38bdf8'
+      };
+    }
+    if (type === 'turtle-race') {
+      return {
+        title: 'ĐUA RÙA GỌI TÊN',
+        icon: '🐢',
+        subtitle: 'Gia Nhập Đội Rùa Về Đích',
+        readyText: 'RÙA CỦA BẠN ĐÃ VÀO VẠCH XUẤT PHÁT!',
+        badgeText: 'Rùa số #',
+        avatarEmoji: '🐢',
+        colorLabel: 'Màu mai rùa may mắn',
+        promptAction: 'đưa chú rùa của bạn vào đường đua bò',
+        screenPrompt: 'để theo dõi cuộc đua rùa kịch tính và cổ vũ cho chú rùa của mình về nhất nhé!',
+        bgGradient: 'radial-gradient(circle at 50% 0%, #065f46 0%, #022c22 70%, #020617 100%)',
+        accentColor: '#34d399'
+      };
+    }
+    if (type === 'claw-machine') {
+      return {
+        title: 'GẮP THÚ GỌI TÊN',
+        icon: '🧸',
+        subtitle: 'Gia Nhập Tủ Gấu Bông May Mắn',
+        readyText: 'GẤU BÔNG CỦA BẠN ĐÃ VÀO TỦ GẮP!',
+        badgeText: 'Gấu bông số #',
+        avatarEmoji: '🧸',
+        colorLabel: 'Màu gấu bông may mắn',
+        promptAction: 'đưa gấu bông của bạn vào tủ máy gắp',
+        screenPrompt: 'để theo dõi tay gắp cơ học hạ xuống gắp trúng gấu bông của mình nhé!',
+        bgGradient: 'radial-gradient(circle at 50% 0%, #6b21a8 0%, #3b0764 70%, #020617 100%)',
+        accentColor: '#c084fc'
+      };
+    }
+    return {
+      title: 'ĐUA BI SINH TỬ',
+      icon: '🏁',
+      subtitle: 'Gia Nhập Vạch Xuất Phát',
+      readyText: 'VIÊN BI CỦA BẠN ĐÃ VÀO VẠCH XUẤT PHÁT!',
+      badgeText: 'Bi số #',
+      avatarEmoji: '🏁',
+      colorLabel: 'Màu viên bi may mắn',
+      promptAction: 'đưa viên bi của bạn vào đường đua',
+      screenPrompt: 'để theo dõi viên bi rơi dốc thác đổ và cổ vũ cho mình về nhất nhé!',
+      bgGradient: 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d16 70%, #030712 100%)',
+      accentColor: '#38bdf8'
+    };
+  }, [lobby?.gameType]);
+
   // Handle Form Submit
   const handleJoin = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
@@ -140,7 +203,6 @@ export function MarbleStudentJoin({ pin }) {
   // Reset to enter for another friend
   const handleEnterAnotherFriend = () => {
     setStudentName('');
-    // Keep school/class for convenience
     setSelectedColor(MARBLE_PALETTE[Math.floor(Math.random() * MARBLE_PALETTE.length)]);
     setJoinedSuccess(false);
   };
@@ -169,7 +231,7 @@ export function MarbleStudentJoin({ pin }) {
           marginBottom: '20px'
         }} />
         <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#38bdf8' }}>
-          Đang kết nối vào phòng Đua Bi #{pin}...
+          Đang kết nối vào phòng #{pin}...
         </h2>
         <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '6px' }}>
           Vui lòng đợi trong giây lát
@@ -182,7 +244,7 @@ export function MarbleStudentJoin({ pin }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d16 70%, #030712 100%)',
+      background: gameInfo.bgGradient,
       color: '#f8fafc',
       fontFamily: "'Segoe UI', Roboto, system-ui, sans-serif",
       padding: '16px 12px 32px 12px',
@@ -212,12 +274,12 @@ export function MarbleStudentJoin({ pin }) {
           borderRadius: '24px',
           fontSize: '0.82rem',
           fontWeight: 800,
-          color: '#38bdf8',
+          color: gameInfo.accentColor,
           marginBottom: '10px',
           backdropFilter: 'blur(8px)'
         }}>
-          <Flame size={16} color="#f59e0b" />
-          <span>PHÒNG ĐUA BI SINH TỬ #{pin}</span>
+          <span>{gameInfo.icon}</span>
+          <span>PHÒNG {gameInfo.title} #{pin}</span>
         </div>
 
         <h1 style={{
@@ -229,7 +291,7 @@ export function MarbleStudentJoin({ pin }) {
           WebkitTextFillColor: 'transparent',
           letterSpacing: '-0.5px'
         }}>
-          🏁 Gia Nhập Vạch Xuất Phát
+          {gameInfo.icon} {gameInfo.subtitle}
         </h1>
 
         <p style={{
@@ -238,7 +300,7 @@ export function MarbleStudentJoin({ pin }) {
           margin: '6px 0 0 0',
           fontWeight: 500
         }}>
-          {lobby?.teacherName ? `Phòng của: ${lobby.teacherName}` : 'Điền tên để đưa viên bi của bạn vào đường đua'}
+          {lobby?.teacherName ? `Phòng của: ${lobby.teacherName}` : `Điền tên để ${gameInfo.promptAction}`}
         </p>
       </div>
 
@@ -487,7 +549,7 @@ export function MarbleStudentJoin({ pin }) {
               color: '#34d399',
               margin: '0 0 6px 0'
             }}>
-              ĐÃ VÀO VẠCH XUẤT PHÁT!
+              {gameInfo.readyText}
             </h2>
 
             <p style={{
@@ -496,7 +558,7 @@ export function MarbleStudentJoin({ pin }) {
               margin: '0 0 16px 0',
               lineHeight: 1.5
             }}>
-              Chúc mừng <strong>{registeredStudent?.name}</strong> đã ghi danh thành công vào cuộc đua bi!
+              Chúc mừng <strong>{registeredStudent?.name}</strong> đã ghi danh thành công vào {gameInfo.title}!
             </p>
 
             {/* Ticket Card */}
@@ -561,7 +623,7 @@ export function MarbleStudentJoin({ pin }) {
                   fontSize: '0.74rem',
                   fontWeight: 800
                 }}>
-                  Bi số #{currentQueueNumber} • Sẵn sàng đua
+                  {gameInfo.icon} {gameInfo.badgeText}{currentQueueNumber} • Sẵn sàng
                 </div>
               </div>
             </div>
@@ -577,7 +639,7 @@ export function MarbleStudentJoin({ pin }) {
               color: '#e0f2fe',
               lineHeight: 1.5
             }}>
-              👀 <strong>Hãy nhìn lên màn hình lớn của Thầy/Cô</strong> để theo dõi viên bi của bạn rơi dốc thác đổ và cổ vũ cho mình về nhất nhé!
+              👀 <strong>Hãy nhìn lên màn hình lớn của Thầy/Cô</strong> {gameInfo.screenPrompt}
             </div>
 
             {/* Enter for another student button */}
