@@ -36,13 +36,21 @@ function lazyWithRetry(componentImport) {
     try {
       return await componentImport();
     } catch (error) {
-      console.warn('Chunk load error, retrying once...', error);
+      console.warn('Chunk load error, retrying after short backoff...', error);
+      await new Promise(r => setTimeout(r, 250));
       try {
         return await componentImport();
       } catch (retryError) {
-        if (typeof window !== 'undefined' && !sessionStorage.getItem('chunk_reload_retry')) {
-          sessionStorage.setItem('chunk_reload_retry', 'true');
-          window.location.reload();
+        console.error('Chunk retry failed:', retryError);
+        if (typeof window !== 'undefined') {
+          const reloadKey = 'gvd_chunk_reload_lock';
+          const lastReload = parseInt(sessionStorage.getItem(reloadKey) || '0', 10);
+          if (Date.now() - lastReload > 12000) {
+            sessionStorage.setItem(reloadKey, String(Date.now()));
+            const cleanUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
+            window.location.href = cleanUrl;
+            return new Promise(() => {});
+          }
         }
         throw retryError;
       }
@@ -62,7 +70,7 @@ const TextbookDownloadManager = lazyWithRetry(() => import('./components/Textboo
 const LectureSlideManager = lazyWithRetry(() => import('./components/LectureSlideManager').then(m => ({ default: m.LectureSlideManager })));
 const SKLWebLinksManager = lazyWithRetry(() => import('./components/SKLWebLinksManager').then(m => ({ default: m.SKLWebLinksManager })));
 const VirtualLabManager = lazyWithRetry(() => import('./components/VirtualLabManager').then(m => ({ default: m.VirtualLabManager })));
-const GeoExperimentsView = lazyWithRetry(() => import('./components/GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView })));
+const GeoExperimentsView = lazyWithRetry(() => import('./components/GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView || m.default })));
 const ParentMeetingSupport = lazyWithRetry(() => import('./components/ParentMeetingSupport').then(m => ({ default: m.ParentMeetingSupport })));
 const UserManagementModal = lazyWithRetry(() => import('./components/UserManagementModal').then(m => ({ default: m.UserManagementModal })));
 const ChangePasswordModal = lazyWithRetry(() => import('./components/ChangePasswordModal').then(m => ({ default: m.ChangePasswordModal })));
@@ -104,6 +112,87 @@ function ViewLoadingFallback() {
       </span>
     </div>
   );
+}
+
+// Top-Level Error Boundary for Individual Tab Views (AGENTS.md Rule 1 Compliance)
+class TabViewErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('Tab View Error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          padding: '48px 24px',
+          textAlign: 'center',
+          color: '#ffffff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '400px'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🎓</div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b', marginBottom: '10px' }}>
+            Không thể tải giao diện mục này
+          </h3>
+          <p style={{ fontSize: '0.88rem', color: '#94a3b8', maxWidth: '460px', marginBottom: '20px', lineHeight: 1.6 }}>
+            Hệ thống vừa cập nhật phiên bản mới hoặc mạng kết nối bị gián đoạn. Vui lòng bấm nút để tải lại bản mới nhất.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                const targetUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
+                window.location.href = targetUrl;
+              }}
+              style={{
+                background: 'linear-gradient(135deg, #00a896 0%, #0284c7 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px 24px',
+                fontWeight: 800,
+                fontSize: '0.92rem',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(0, 168, 150, 0.4)'
+              }}
+            >
+              🔄 Tải Lại Trang
+            </button>
+            {this.props.onResetTab && (
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null });
+                  this.props.onResetTab();
+                }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#e2e8f0',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
+                  fontWeight: 700,
+                  fontSize: '0.9rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Về Thư Viện Game
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 // Reusable Top-Level Component for Locked Trial Features (Compliant with AGENTS.md Rule 1)
@@ -1040,7 +1129,8 @@ export function App() {
           </div>
         )}
 
-        <React.Suspense fallback={<ViewLoadingFallback />}>
+        <TabViewErrorBoundary onResetTab={() => setActiveTab('library')}>
+          <React.Suspense fallback={<ViewLoadingFallback />}>
           {/* View 2: Gọi Tên Học Sinh (Student Picker System - Each mode has 1 trial) */}
           {activeTab === 'call-student' && (
             <StudentPickerManager 
@@ -1187,6 +1277,7 @@ export function App() {
             />
           )}
         </React.Suspense>
+        </TabViewErrorBoundary>
 
         {/* Footer */}
         <footer style={{ padding: '24px', textAlign: 'center', color: '#334155', fontSize: '0.92rem', fontWeight: 600, borderTop: '1.5px solid rgba(13, 148, 136, 0.2)', marginTop: '40px', background: 'rgba(255, 255, 255, 0.8)', borderRadius: '16px' }}>

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v2.0.1_remove_timer_from_catalog';
+const CURRENT_APP_BUILD_VERSION = 'v2.0.2_fix_3d_geo_lazy_loading';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {
@@ -12,6 +12,9 @@ try {
       localStorage.removeItem('gvd_base_games');
       localStorage.removeItem('gvd_saved_games');
     } catch (e) {}
+    if ('sessionStorage' in window) {
+      try { sessionStorage.clear(); } catch (e) {}
+    }
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(n => caches.delete(n))).catch(() => {});
     }
@@ -20,6 +23,20 @@ try {
     }
   }
 } catch (e) {}
+
+// Auto-recover from Vite module preload errors on production deployments
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', (event) => {
+    console.warn('Vite preload error detected, auto-reloading latest bundle...', event);
+    const reloadKey = 'gvd_vite_preload_reload';
+    const lastReload = parseInt(sessionStorage.getItem(reloadKey) || '0', 10);
+    if (Date.now() - lastReload > 12000) {
+      sessionStorage.setItem(reloadKey, String(Date.now()));
+      const targetUrl = window.location.origin + window.location.pathname + '?v=' + Date.now();
+      window.location.href = targetUrl;
+    }
+  });
+}
 
 // Force unregister all stale Service Workers on mobile browsers to prevent stale chunk lockouts
 if ('serviceWorker' in navigator) {
@@ -34,6 +51,7 @@ if ('serviceWorker' in navigator) {
 
 const performHardPurgeAndReload = async () => {
   try {
+    sessionStorage.clear();
     if ('caches' in window) {
       const keys = await caches.keys();
       await Promise.all(keys.map(k => caches.delete(k)));

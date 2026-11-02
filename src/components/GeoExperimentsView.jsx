@@ -16,9 +16,14 @@ import {
   Compass
 } from 'lucide-react';
 import defaultExperiments from '../services/experimentCatalog.json';
-import { InteractiveExperimentCanvas } from './experiments/InteractiveExperimentCanvas';
 
-export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgrade }) {
+const InteractiveExperimentCanvas = React.lazy(() => 
+  import('./experiments/InteractiveExperimentCanvas').then(m => ({ 
+    default: m.InteractiveExperimentCanvas || m.default 
+  }))
+);
+
+export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgrade, onClose }) {
   const [activeExperiment, setActiveExperiment] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
 
@@ -345,11 +350,44 @@ export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgra
 
       {/* Active Experiment Modal Canvas */}
       {activeExperiment && (
-        <InteractiveExperimentCanvas 
-          experiment={{ ...activeExperiment, isGeo: true }}
-          onClose={() => setActiveExperiment(null)}
-        />
+        <React.Suspense fallback={
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            background: 'rgba(7, 21, 33, 0.96)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            gap: '16px',
+            fontFamily: 'Montserrat, system-ui, sans-serif'
+          }}>
+            <div style={{
+              width: '52px',
+              height: '52px',
+              border: '4px solid rgba(56, 189, 248, 0.25)',
+              borderTopColor: '#38bdf8',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <div style={{ fontWeight: 800, fontSize: '1.15rem', color: '#38bdf8' }}>
+              Đang tải không gian mô hình 3D...
+            </div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+              Khởi động engine Three.js và nạp dữ liệu mô phỏng
+            </div>
+          </div>
+        }>
+          <InteractiveExperimentCanvas 
+            experiment={{ ...activeExperiment, isGeo: true }}
+            onClose={() => setActiveExperiment(null)}
+          />
+        </React.Suspense>
       )}
     </div>
   );
 }
+
+export default GeoExperimentsView;
