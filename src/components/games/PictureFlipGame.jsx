@@ -1121,19 +1121,47 @@ export function PictureFlipGame({
 
               <button
                 onClick={() => setShowPasteModal(true)}
-                className="btn btn-secondary btn-sm"
-                style={{ borderRadius: '12px', background: 'rgba(255,255,255,0.08)', fontSize: '0.78rem' }}
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  border: '1.5px solid #38bdf8',
+                  borderRadius: '12px',
+                  padding: '7px 14px',
+                  fontWeight: 900,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 3px 12px rgba(2, 132, 199, 0.45)',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.35)',
+                  transition: 'all 0.15s ease'
+                }}
                 title="Dán hoặc chỉnh sửa danh sách tên học sinh"
               >
-                <FileText size={14} /> Dán Tên HS
+                <FileText size={15} style={{ color: '#ffffff' }} /> Dán Tên HS
               </button>
 
               <label 
-                className="btn btn-secondary btn-sm"
-                style={{ borderRadius: '12px', background: 'rgba(255,255,255,0.08)', fontSize: '0.78rem', cursor: 'pointer' }}
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#ffffff',
+                  border: '1.5px solid #34d399',
+                  borderRadius: '12px',
+                  padding: '7px 14px',
+                  fontWeight: 900,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 3px 12px rgba(16, 185, 129, 0.45)',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.35)',
+                  transition: 'all 0.15s ease'
+                }}
                 title="Tải lên tệp Excel chứa danh sách học sinh"
               >
-                <Upload size={14} /> Tải Excel
+                <Upload size={15} style={{ color: '#ffffff' }} /> Tải Excel
                 <input type="file" accept=".xlsx,.xls,.docx,.txt" onChange={handleRosterFileUpload} style={{ display: 'none' }} />
               </label>
             </div>
