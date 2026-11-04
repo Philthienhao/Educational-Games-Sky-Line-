@@ -2908,10 +2908,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
-  const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
+  const [selectedPlanetKey, setSelectedPlanetKey] = useState('earth');
   const [badgePos, setBadgePos] = useState(null);
   const [showControlsGuide, setShowControlsGuide] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // Sync canvas size when Fullscreen mode changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [isFullscreen]);
 
   // Gesture Pilot & X-Ray Core Exploration State
   const [isGesturePilot, setIsGesturePilot] = useState(() => {
@@ -3386,9 +3394,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
 
-    // 2. Camera setup (Sun on left, planets radiating to right matching reference image)
+    // 2. Camera setup (Harmonious perspective with left Information Card docked)
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 3000);
-    camera.position.set(-25, 140, 245);
+    camera.position.set(15, 140, 260);
     cameraRef.current = camera;
 
     // 3. Renderer setup
@@ -3417,7 +3425,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     controls.enablePan = true;
     controls.maxDistance = 1000;
     controls.minDistance = 3.0;
-    controls.target.set(35, 0, 0);
+    controls.target.set(55, 0, 0);
     controls.update();
 
     // 5. Starfield background & Warp Particles
@@ -3925,15 +3933,19 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       >
         {/* Dedicated Three.js WebGL Mount Target (Empty div, NO React children inside!) */}
         <div ref={mountRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }} />
-        {/* Standard Mode Top Header (only when NOT in cockpit mode) */}
+        {/* Standard Mode Top Header Bar & Launch Pilot Button */}
         {!isGesturePilot && (
-          <div style={{ position: 'absolute', top: '20px', left: '24px', zIndex: 30, display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <div>
+          <div style={{
+            position: 'absolute', top: '16px', left: '20px', right: '20px',
+            zIndex: 30, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            pointerEvents: 'none'
+          }}>
+            <div style={{ pointerEvents: 'auto' }}>
               <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-                THREE.JS · INTERACTIVE EXPERIENCE
+                THREE.JS · VŨ TRỤ HỌC GDPT 2018
               </div>
-              <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
-                HỆ MẶT TRỜI
+              <h2 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#38bdf8', margin: '2px 0 0 0', textShadow: '0 0 16px rgba(56, 189, 248, 0.6)' }}>
+                HỆ MẶT TRỜI 3D
               </h2>
             </div>
 
@@ -3953,7 +3965,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
                 color: '#ffffff', border: '2px solid #fde047',
                 borderRadius: '14px', padding: '10px 18px',
-                fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer',
+                fontWeight: 900, fontSize: '0.88rem', cursor: 'pointer',
                 boxShadow: '0 0 20px rgba(245, 158, 11, 0.6)',
                 display: 'flex', alignItems: 'center', gap: '8px', pointerEvents: 'auto'
               }}
@@ -3978,18 +3990,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           </div>
         )}
 
-        {/* Interactive Celestial Detail Card (Renders when clicked/selected) */}
+        {/* Interactive Celestial Detail Card (Docked on Left Side) */}
         {activePlanet && (
           <div style={{
-            position: 'absolute', top: isGesturePilot ? '65px' : '20px', right: '20px',
-            maxWidth: '350px', width: 'calc(100% - 40px)',
-            maxHeight: 'calc(100% - 85px)', overflowY: 'auto',
-            background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(20px)',
+            position: 'absolute', top: isGesturePilot ? '65px' : '76px', left: '20px',
+            maxWidth: '345px', width: 'calc(100% - 40px)',
+            maxHeight: isGesturePilot ? 'calc(100% - 85px)' : 'calc(100% - 145px)', overflowY: 'auto',
+            background: 'rgba(15, 23, 42, 0.94)', backdropFilter: 'blur(20px)',
             border: `2px solid ${activePlanet.color}`, borderRadius: '20px',
-            padding: '18px', color: '#f8fafc', boxShadow: `0 16px 48px rgba(0, 0, 0, 0.9), 0 0 32px ${activePlanet.color}55`,
+            padding: '16px', color: '#f8fafc', boxShadow: `0 16px 48px rgba(0, 0, 0, 0.9), 0 0 32px ${activePlanet.color}55`,
             zIndex: 100, pointerEvents: 'auto'
           }}>
-            {/* Header: Title, Subtitle, Close */}
+            {/* Header: Title, Subtitle, Toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid rgba(255, 255, 255, 0.15)', paddingBottom: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ width: '14px', height: '14px', borderRadius: '50%', background: activePlanet.color, boxShadow: `0 0 12px ${activePlanet.color}` }} />
@@ -4004,18 +4016,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               </div>
               <button
                 onClick={() => {
-                  setSelectedPlanetKey(null);
+                  setSelectedPlanetKey(prev => prev === 'earth' ? 'sun' : 'earth');
                   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                   setIsSpeaking(false);
                 }}
                 style={{
                   background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1',
                   borderRadius: '10px', width: '28px', height: '28px', cursor: 'pointer',
-                  fontWeight: 900, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  fontWeight: 900, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                title="Đóng bảng thông tin"
+                title="Đổi xem Trái Đất / Mặt Trời"
               >
-                ✕
+                🔄
               </button>
             </div>
 

@@ -70,15 +70,18 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
 
   useEffect(() => {
     loadExperiments();
-    if (currentUser?.subject && (currentUser.subject.includes('Địa') || currentUser.subject.includes('Dia'))) {
-      setSelectedSubject('Địa lí');
-      setSelectedGrade('6');
-    }
   }, [currentUser]);
 
   const loadExperiments = () => {
     const list = ExperimentService.getExperiments(currentUser?.id);
-    setExperiments(list);
+    // KHTN only contains KHTN subjects (Hóa học, Vật lí, Sinh học, Khoa học tự nhiên).
+    // Geography (Địa lí) has its own dedicated module, so exclude all Geography experiments here.
+    const khtnOnlyList = list.filter(exp => 
+      exp.subject !== 'Địa lí' && 
+      exp.subject !== 'Địa lý' && 
+      !exp.interactiveType?.startsWith('geo_')
+    );
+    setExperiments(khtnOnlyList);
   };
 
   const handleDelete = async (expId, title, e) => {
@@ -120,18 +123,14 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
     loadExperiments();
   };
 
-  // Filtering Logic
+  // Filtering Logic (Pure KHTN Subjects Only)
   const filteredExperiments = experiments.filter(exp => {
     const matchGrade = selectedGrade === 'all' || String(exp.grade) === String(selectedGrade);
     const isKHTNFilter = selectedSubject === 'KHTN' || selectedSubject === 'Khoa học tự nhiên';
-    
-    // Support both 'Địa lí' and 'Địa lý' spellings
-    const isGeoSubject = selectedSubject === 'Địa lí' || selectedSubject === 'Địa lý';
-    const expIsGeo = exp.subject === 'Địa lí' || exp.subject === 'Địa lý';
 
     const matchSubject = selectedSubject === 'all' || 
-      (isGeoSubject ? expIsGeo : exp.subject === selectedSubject) || 
-      (isKHTNFilter && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên' || expIsGeo || Number(exp.grade) <= 9));
+      exp.subject === selectedSubject || 
+      (isKHTNFilter && (exp.subjectCategory === 'KHTN' || exp.subject === 'Khoa học tự nhiên' || Number(exp.grade) <= 9));
     
     // Normalize diacritics for search matching: treat 'lý' and 'lí' identically
     const normSearch = (searchTerm || '').trim().toLowerCase().replace(/lý/g, 'lí');
@@ -151,9 +150,8 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
 
   const getSubjectBadgeColor = (subject) => {
     if (subject === 'Hóa học') return { bg: 'rgba(239, 68, 68, 0.12)', color: '#dc2626', border: 'rgba(239, 68, 68, 0.3)' };
-    if (subject === 'Vật lí') return { bg: 'rgba(2, 132, 199, 0.12)', color: '#0284c7', border: 'rgba(2, 132, 199, 0.3)' };
+    if (subject === 'Vật lí' || subject === 'Vật lý') return { bg: 'rgba(2, 132, 199, 0.12)', color: '#0284c7', border: 'rgba(2, 132, 199, 0.3)' };
     if (subject === 'Sinh học') return { bg: 'rgba(16, 185, 129, 0.12)', color: '#059669', border: 'rgba(16, 185, 129, 0.3)' };
-    if (subject === 'Địa lí') return { bg: 'rgba(245, 158, 11, 0.12)', color: '#b45309', border: 'rgba(245, 158, 11, 0.3)' };
     return { bg: 'rgba(13, 148, 136, 0.12)', color: '#0d9488', border: 'rgba(13, 148, 136, 0.3)' };
   };
 
@@ -223,35 +221,6 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
           </div>
 
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => {
-                if (onOpenGeoExperiments) {
-                  onOpenGeoExperiments();
-                } else {
-                  setSelectedSubject('Địa lí');
-                  setSelectedGrade('6');
-                  setSearchTerm('');
-                }
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '12px 20px',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 18px rgba(217, 119, 6, 0.35)'
-              }}
-            >
-              <Sparkles size={18} color="#ffffff" /> 🌍 Mô hình 3D Địa Lí
-            </button>
-
-
             <button 
               onClick={() => handleLaunchExperiment({
                 id: 'exp_chem_sandbox_00',
@@ -463,11 +432,10 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
               }}
             >
               <option value="all">Tất Cả Phân Môn</option>
+              <option value="Khoa học tự nhiên">KHTN (Lớp 6-9)</option>
               <option value="Hóa học">Hóa học</option>
               <option value="Vật lí">Vật lí</option>
               <option value="Sinh học">Sinh học</option>
-              <option value="Địa lí">Địa lí (Lớp 6)</option>
-              <option value="Khoa học tự nhiên">KHTN (Lớp 6-9)</option>
             </select>
           </div>
         </div>
