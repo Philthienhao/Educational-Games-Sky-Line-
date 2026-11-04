@@ -146,6 +146,54 @@ const SOLAR_PLANETS_CONFIG = {
   }
 };
 
+const SOLAR_TEXTURE_URLS = {
+  sun: '/textures/solar/sun.jpg',
+  mercury: '/textures/solar/mercury.jpg',
+  venus: '/textures/solar/venus.jpg',
+  earth: '/textures/solar/earth.jpg',
+  earthClouds: '/textures/solar/earth_atmosphere.jpg',
+  earthNight: '/textures/solar/earth_nightmap.jpg',
+  earthNormal: '/textures/solar/earth_normalmap.jpg',
+  moon: '/textures/solar/moonmap.jpg',
+  mars: '/textures/solar/mars.jpg',
+  jupiter: '/textures/solar/jupiter.jpg',
+  saturn: '/textures/solar/saturn.jpg',
+  saturnRing: '/textures/solar/saturn_ring.png',
+  uranus: '/textures/solar/uranus.jpg',
+  neptune: '/textures/solar/neptune.jpg',
+  stars: '/textures/solar/stars.jpg'
+};
+
+const sharedTextureLoader = new THREE.TextureLoader();
+const solarRealTexturesCache = {};
+
+function getRealisticSolarTexture(key, fallbackColor) {
+  if (solarRealTexturesCache[key]) {
+    return solarRealTexturesCache[key];
+  }
+  const url = SOLAR_TEXTURE_URLS[key];
+  if (url) {
+    try {
+      const tex = sharedTextureLoader.load(
+        url,
+        (loadedTex) => {
+          if (loadedTex) loadedTex.colorSpace = THREE.SRGBColorSpace;
+        },
+        undefined,
+        (err) => {
+          console.warn(`NASA texture load notice for ${key}:`, err);
+        }
+      );
+      tex.colorSpace = THREE.SRGBColorSpace;
+      solarRealTexturesCache[key] = tex;
+      return tex;
+    } catch (e) {
+      console.warn('TextureLoader exception:', e);
+    }
+  }
+  return createPhotorealisticPlanetTexture(key, fallbackColor);
+}
+
 const planetTextureCache = {};
 let saturnRingsTextureCache = null;
 
@@ -3429,8 +3477,25 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     controls.update();
 
     // 5. Starfield background & Warp Particles
+    try {
+      const starTex = getRealisticSolarTexture('stars');
+      if (starTex) {
+        const starGeo = new THREE.SphereGeometry(900, 32, 32);
+        const starMat = new THREE.MeshBasicMaterial({
+          map: starTex,
+          side: THREE.BackSide,
+          toneMapped: false,
+          color: new THREE.Color(0.85, 0.85, 0.95),
+        });
+        const starSphere = new THREE.Mesh(starGeo, starMat);
+        scene.add(starSphere);
+      }
+    } catch (e) {
+      console.warn("Starfield background warning:", e);
+    }
+
     const starsGeo = new THREE.BufferGeometry();
-    const starCount = 3000;
+    const starCount = 2000;
     const starPositions = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount * 3; i += 3) {
       starPositions[i] = (Math.random() - 0.5) * 1400;
@@ -3459,9 +3524,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
     // Sun
     const sunConfig = SOLAR_PLANETS_CONFIG.sun;
-    const sunTexture = createPhotorealisticPlanetTexture('sun', sunConfig.color);
+    const sunTexture = getRealisticSolarTexture('sun', sunConfig.color);
     const sunGeo = new THREE.SphereGeometry(sunConfig.radius, 32, 32);
-    const sunMat = new THREE.MeshBasicMaterial({ map: sunTexture });
+    const sunMat = new THREE.MeshBasicMaterial({ map: sunTexture, color: new THREE.Color(1.15, 1.08, 0.95) });
     const sunMesh = new THREE.Mesh(sunGeo, sunMat);
     sunMesh.userData = { key: 'sun' };
 
@@ -3506,10 +3571,14 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       scene.add(orbitLine);
       orbitLines[key] = orbitLine;
 
-      // Planet Sphere Mesh
-      const texture = createPhotorealisticPlanetTexture(key, cfg.color);
-      const pGeo = new THREE.SphereGeometry(cfg.radius, 24, 24);
-      const pMat = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.65, metalness: 0.1 });
+      // Planet Sphere Mesh with Real NASA Texture
+      const texture = getRealisticSolarTexture(key, cfg.color);
+      const pGeo = new THREE.SphereGeometry(cfg.radius, 32, 32);
+      const pMat = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: key === 'earth' ? 0.45 : key === 'venus' ? 0.6 : 0.8,
+        metalness: 0.05
+      });
       const pMesh = new THREE.Mesh(pGeo, pMat);
       pMesh.userData = { key };
 
@@ -3535,15 +3604,21 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
       // Earth's Cloud Layer & Moon
       if (cfg.hasMoon) {
-        const cloudsTexture = createPhotorealisticPlanetTexture('earthClouds', '#ffffff');
-        const cloudsGeo = new THREE.SphereGeometry(cfg.radius * 1.025, 24, 24);
-        const cloudsMat = new THREE.MeshStandardMaterial({ map: cloudsTexture, transparent: true, opacity: 0.7 });
+        const cloudsTexture = getRealisticSolarTexture('earthClouds', '#ffffff');
+        const cloudsGeo = new THREE.SphereGeometry(cfg.radius * 1.025, 32, 32);
+        const cloudsMat = new THREE.MeshStandardMaterial({
+          map: cloudsTexture,
+          transparent: true,
+          opacity: 0.78,
+          blending: THREE.NormalBlending,
+          depthWrite: false
+        });
         const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
         cloudsMesh.name = 'earthClouds';
         group.add(cloudsMesh);
 
-        const moonTexture = createPhotorealisticPlanetTexture('mercury', '#cbd5e1');
-        const moonGeo = new THREE.SphereGeometry(cfg.radius * 0.28, 16, 16);
+        const moonTexture = getRealisticSolarTexture('moon', '#cbd5e1');
+        const moonGeo = new THREE.SphereGeometry(cfg.radius * 0.28, 20, 20);
         const moonMat = new THREE.MeshStandardMaterial({ map: moonTexture, roughness: 0.9 });
         const moonMesh = new THREE.Mesh(moonGeo, moonMat);
         moonMesh.name = 'earthMoon';
@@ -3554,9 +3629,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       // Saturn & Uranus Rings
       if (cfg.hasRings) {
         if (key === 'saturn') {
-          const ringTexture = createPhotorealisticSaturnRingsTexture();
+          const ringTexture = getRealisticSolarTexture('saturnRing');
           const innerR = cfg.radius * 1.25;
-          const outerR = cfg.radius * 2.25;
+          const outerR = cfg.radius * 2.3;
           const ringGeo = new THREE.RingGeometry(innerR, outerR, 256, 16);
           applyRadialUVsToRingGeometry(ringGeo, innerR, outerR);
           ringGeo.rotateX(-Math.PI / 2);
@@ -6536,101 +6611,895 @@ function GeoVolcanoSim({ onLog }) {
   );
 }
 
-// 9. Earthquake & Tectonic Fault Seismic Wave Simulator
-function GeoEarthquakeSim({ onLog }) {
-  const [magnitude, setMagnitude] = useState(6.5); // Richter
-  const [isShaking, setIsShaking] = useState(false);
+// 9. QuakeGlobe 3D & Tectonic Fault Seismic Wave Simulator (QuakeGlobe + USGS)
+const FALLBACK_EARTHQUAKES = [
+  { id: 'fb1', mag: 9.1, place: 'Tohoku, Đông Bắc Nhật Bản (Động đất & Sóng thần 2011)', coords: [142.37, 38.30, 29], time: 1299824784000, plate: 'Đới hút chìm Rãnh Nhật Bản (Mảng Thái Bình Dương chui dưới Mảng Bắc Mỹ)' },
+  { id: 'fb2', mag: 9.1, place: 'Banda Aceh, Sumatra, Indonesia (Động đất Ấn Độ Dương 2004)', coords: [95.85, 3.31, 30], time: 1104022733000, plate: 'Đới hút chìm Rãnh Sunda (Mảng Ấn-Úc xô ép Mảng Á-Âu)' },
+  { id: 'fb3', mag: 9.5, place: 'Valdivia, Chile (Trận động đất mạnh nhất lịch sử nhân loại 1960)', coords: [-73.05, -39.50, 33], time: -303292800000, plate: 'Đới hút chìm Rãnh Peru-Chile (Mảng Nazca chui dưới Mảng Nam Mỹ)' },
+  { id: 'fb4', mag: 7.8, place: 'Kahramanmaraş, Thổ Nhĩ Kỳ & Syria (2023)', coords: [37.03, 37.17, 10], time: 1675647460000, plate: 'Đứt gãy Đông Anatolia (Mảng Ả Rập va chạm trượt Mảng Tiểu Á)' },
+  { id: 'fb5', mag: 7.9, place: 'San Francisco, California, Hoa Kỳ (1906)', coords: [-122.50, 37.75, 8], time: -2010412800000, plate: 'Đứt gãy trượt bằng San Andreas (Mảng Thái Bình Dương - Bắc Mỹ)' },
+  { id: 'fb6', mag: 7.7, place: 'Hoa Liên (Hualien), Đài Loan (2024)', coords: [121.60, 23.80, 15], time: 1712102280000, plate: 'Ranh giới va mảng Biển Philippines và mảng Á-Âu' },
+  { id: 'fb7', mag: 6.8, place: 'Điện Biên - Lai Châu, Việt Nam (1935 & 1983)', coords: [103.01, 21.38, 12], time: 422582400000, plate: 'Đới đứt gãy Sông Mã & Sông Hồng (Tây Bắc Bộ Việt Nam)' },
+  { id: 'fb8', mag: 7.4, place: 'Palu, Sulawesi, Indonesia (2018)', coords: [119.84, -0.25, 20], time: 1538130120000, plate: 'Đới đứt gãy trượt bằng Palu-Koro (Đông Nam Á)' },
+  { id: 'fb9', mag: 7.6, place: 'Bán đảo Noto, Ishikawa, Nhật Bản (2024)', coords: [137.24, 37.50, 16], time: 1704092400000, plate: 'Ranh giới biến dạng nén ép Mảng Biển Nhật Bản' },
+  { id: 'fb10', mag: 7.2, place: 'Quần đảo Kermadec, New Zealand', coords: [-178.80, -30.10, 34], time: 1679000000000, plate: 'Đới hút chìm Rãnh Tonga-Kermadec (Vành đai lửa TBD)' },
+  { id: 'fb11', mag: 7.0, place: 'Port-au-Prince, Haiti (2010)', coords: [-72.53, 18.45, 13], time: 1263333200000, plate: 'Đới đứt gãy trượt Enriquillo-Plantain Garden (Vùng biển Caribe)' },
+  { id: 'fb12', mag: 6.5, place: 'Acre, Tây Bắc Brazil (Động đất chấn tiêu sâu)', coords: [-70.80, -8.30, 608], time: 1642000000000, plate: 'Phần chìm sâu của Mảng Nazca dưới thạch quyển Nam Mỹ (Sâu 608km)' },
+  { id: 'fb13', mag: 6.8, place: 'Khu vực Tonga - Fiji (Chấn tiêu siêu sâu)', coords: [-179.20, -21.10, 580], time: 1665000000000, plate: 'Mảng Thái Bình Dương chui sâu vào tầng Manti trên' },
+  { id: 'fb14', mag: 5.8, place: 'Kon Plông, Kon Tum, Việt Nam (Động đất kích hoạt hồ chứa)', coords: [108.31, 14.85, 8], time: 1658000000000, plate: 'Đới đứt gãy đới đứt gãy Rào Quán - A Lưới - Kon Tum' },
+  { id: 'fb15', mag: 8.2, place: 'Bán đảo Alaska, Hoa Kỳ (2021)', coords: [-157.90, 55.36, 32], time: 1627530000000, plate: 'Đới hút chìm Rãnh Aleutian (Vành đai lửa Bắc TBD)' },
+  { id: 'fb16', mag: 7.1, place: 'Mexico City, Mexico (2017)', coords: [-98.48, 18.58, 51], time: 1505844800000, plate: 'Đới hút chìm mảng Cocos dưới mảng Bắc Mỹ' },
+  { id: 'fb17', mag: 7.7, place: 'Gorkha, Kathmandu, Nepal (2015)', coords: [84.73, 28.23, 8], time: 1429940000000, plate: 'Đới va chạm lục địa Á-Âu và Ấn Độ (Kiến tạo dải Himalaya)' },
+  { id: 'fb18', mag: 7.3, place: 'Fukushima, Nhật Bản (2022)', coords: [141.60, 37.70, 60], time: 1647441600000, plate: 'Vành đai lửa Thái Bình Dương (Đới xô húc mảng)' },
+  { id: 'fb19', mag: 6.4, place: 'Petrinja, Croatia (2020)', coords: [16.22, 45.42, 10], time: 1609240000000, plate: 'Đới nén ép Mảng Adria và Mảng Á-Âu' },
+  { id: 'fb20', mag: 7.5, place: 'Quần đảo Solomon, Nam Thái Bình Dương', coords: [156.40, -8.00, 24], time: 1360000000000, plate: 'Rãnh San Cristobal (Vành đai lửa Tây Nam TBD)' },
+];
 
-  const handleTriggerQuake = () => {
+const PACIFIC_RING_OF_FIRE = [
+  [-74, -45], [-71, -30], [-77, -12], [-84, 10], [-98, 17],
+  [-119, 34], [-125, 48], [-150, 60], [-175, 52], [160, 55],
+  [142, 40], [139, 35], [121, 24], [125, 10], [128, 2],
+  [140, -4], [168, -16], [178, -38], [170, -45]
+];
+
+function geoLatLonToVector3(lat, lon, radius) {
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  const y = radius * Math.cos(phi);
+  return new THREE.Vector3(x, y, z);
+}
+
+function getQuakeMagnitudeColor(mag) {
+  if (mag >= 7.0) return '#ef4444'; // Red
+  if (mag >= 6.0) return '#f97316'; // Orange
+  if (mag >= 5.0) return '#eab308'; // Yellow
+  return '#84cc16'; // Lime
+}
+
+function GeoEarthquakeSim({ onLog, experiment, isFullscreen, toggleFullscreen }) {
+  const mountRef = useRef(null);
+  const [viewMode, setViewMode] = useState('globe'); // 'globe' or 'crossSection'
+  const [quakes, setQuakes] = useState(FALLBACK_EARTHQUAKES);
+  const [isLoadingUsgs, setIsLoadingUsgs] = useState(false);
+  const [usgsStatus, setUsgsStatus] = useState('Đang dùng kho 20 chấn động mẫu nổi bật');
+  const [selectedQuake, setSelectedQuake] = useState(FALLBACK_EARTHQUAKES[0]);
+  const [minMag, setMinMag] = useState(4.5);
+  const [depthFilter, setDepthFilter] = useState('all'); // 'all', 'shallow', 'mid', 'deep'
+  const [autoRotate, setAutoRotate] = useState(true);
+
+  // Cross-section state
+  const [magnitude, setMagnitude] = useState(6.5);
+  const [focalDepth, setFocalDepth] = useState(25); // km
+  const [isShaking, setIsShaking] = useState(false);
+  const [waveStep, setWaveStep] = useState(0);
+
+  const controlsRef = useRef(null);
+  const cameraRef = useRef(null);
+  const earthMeshRef = useRef(null);
+
+  // Fetch real-time USGS GeoJSON feed
+  const loadUsgsData = async () => {
+    setIsLoadingUsgs(true);
+    setUsgsStatus('Đang kết nối trạm vệ tinh USGS (Hoa Kỳ)...');
+    try {
+      const res = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && Array.isArray(data.features) && data.features.length > 0) {
+        const parsed = data.features.map(f => ({
+          id: f.id,
+          mag: Number(f.properties?.mag?.toFixed(1) || 4.5),
+          place: f.properties?.place || 'Khu vực chưa định danh',
+          coords: f.geometry?.coordinates || [0, 0, 10], // [lon, lat, depth]
+          time: f.properties?.time || Date.now(),
+          plate: f.properties?.mag >= 7.0 ? 'Vành đai lửa Thái Bình Dương (Đứt gãy quy mô lớn)' : 'Đới đứt gãy kiến tạo khu vực'
+        }));
+        setQuakes(parsed);
+        setSelectedQuake(parsed[0]);
+        setUsgsStatus(`✅ Đã nạp ${parsed.length} trận động đất thực tế 30 ngày qua (USGS Live)`);
+        if (onLog) onLog(`🌐 Đã đồng bộ ${parsed.length} trận động đất từ hệ thống quan trắc địa chấn toàn cầu USGS!`);
+      }
+    } catch (err) {
+      console.warn("USGS fetch notice:", err);
+      setUsgsStatus('⚠️ Không có kết nối mạng internet trực tiếp, đang hiển thị 20 trận động đất tiêu biểu.');
+    } finally {
+      setIsLoadingUsgs(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsgsData();
+  }, []);
+
+  // Filtered quakes list
+  const filteredQuakes = quakes.filter(q => {
+    if (q.mag < minMag) return false;
+    const depth = q.coords[2] || 10;
+    if (depthFilter === 'shallow' && depth > 70) return false;
+    if (depthFilter === 'mid' && (depth <= 70 || depth > 300)) return false;
+    if (depthFilter === 'deep' && depth <= 300) return false;
+    return true;
+  });
+
+  // Camera Fly-To preset region
+  const flyToCoords = (lat, lon) => {
+    if (!controlsRef.current || !cameraRef.current) return;
+    const targetVec = geoLatLonToVector3(lat, lon, 110);
+    const cam = cameraRef.current;
+    cam.position.copy(targetVec);
+    controlsRef.current.target.set(0, 0, 0);
+    controlsRef.current.update();
+  };
+
+  // Three.js 3D QuakeGlobe Scene
+  useEffect(() => {
+    if (viewMode !== 'globe') return;
+    const container = mountRef.current;
+    if (!container) return;
+    container.innerHTML = '';
+
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020617);
+
+    // Stars background
+    try {
+      const starTex = getRealisticSolarTexture('stars');
+      if (starTex) {
+        const starGeo = new THREE.SphereGeometry(600, 32, 32);
+        const starMat = new THREE.MeshBasicMaterial({
+          map: starTex,
+          side: THREE.BackSide,
+          toneMapped: false,
+          color: new THREE.Color(0.85, 0.85, 0.95),
+        });
+        const starSphere = new THREE.Mesh(starGeo, starMat);
+        scene.add(starSphere);
+      }
+    } catch (e) {
+      console.warn('Star background warning:', e);
+    }
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1500);
+    camera.position.set(0, 20, 115);
+    cameraRef.current = camera;
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (e) {
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+    }
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enableZoom = true;
+    controls.minDistance = 55;
+    controls.maxDistance = 300;
+    controlsRef.current = controls;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    dirLight.position.set(80, 50, 100);
+    scene.add(dirLight);
+
+    const earthRadius = 40;
+    const globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+    earthMeshRef.current = globeGroup;
+
+    // Earth Sphere
+    const earthTex = getRealisticSolarTexture('earth');
+    const earthGeo = new THREE.SphereGeometry(earthRadius, 64, 64);
+    const earthMat = new THREE.MeshStandardMaterial({
+      map: earthTex,
+      roughness: 0.55,
+      metalness: 0.05
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    globeGroup.add(earthMesh);
+
+    // Subtle atmospheric glow layer
+    const atmoGeo = new THREE.SphereGeometry(earthRadius * 1.018, 32, 32);
+    const atmoMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.BackSide
+    });
+    globeGroup.add(new THREE.Mesh(atmoGeo, atmoMat));
+
+    // Pacific Ring of Fire 3D Luminous Curve
+    try {
+      const ringPts = PACIFIC_RING_OF_FIRE.map(([lon, lat]) => geoLatLonToVector3(lat, lon, earthRadius * 1.008));
+      const ringCurve = new THREE.CatmullRomCurve3(ringPts, false);
+      const ringGeom = new THREE.BufferGeometry().setFromPoints(ringCurve.getPoints(120));
+      const ringMat = new THREE.LineBasicMaterial({ color: 0xef4444, linewidth: 2, transparent: true, opacity: 0.75 });
+      const ringLine = new THREE.Line(ringGeom, ringMat);
+      globeGroup.add(ringLine);
+    } catch (e) {
+      console.warn("Ring of fire curve warning:", e);
+    }
+
+    // Earthquake Epicenter Markers
+    const markerGroup = new THREE.Group();
+    globeGroup.add(markerGroup);
+
+    const markersData = [];
+    filteredQuakes.forEach(q => {
+      const lon = q.coords[0];
+      const lat = q.coords[1];
+      const depth = q.coords[2] || 10;
+      const pos = geoLatLonToVector3(lat, lon, earthRadius * 1.005);
+      const colorHex = getQuakeMagnitudeColor(q.mag);
+
+      // Marker Spike/Cylinder
+      const pinHeight = Math.max(1.5, (q.mag - 3.5) * 2.2);
+      const pinRadius = Math.max(0.4, (q.mag - 3.5) * 0.28);
+      const pinGeo = new THREE.CylinderGeometry(pinRadius * 0.3, pinRadius, pinHeight, 8);
+      pinGeo.translate(0, pinHeight / 2, 0);
+      pinGeo.rotateX(Math.PI / 2);
+
+      const pinMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(colorHex) });
+      const pinMesh = new THREE.Mesh(pinGeo, pinMat);
+      pinMesh.position.copy(pos);
+      pinMesh.lookAt(0, 0, 0);
+      pinMesh.userData = { quake: q };
+      markerGroup.add(pinMesh);
+      markersData.push(pinMesh);
+
+      // Pulsing outer shockwave ring for significant earthquakes (M >= 6.0)
+      if (q.mag >= 6.0) {
+        const ringGeo = new THREE.RingGeometry(pinRadius * 1.5, pinRadius * 3.2, 16);
+        const ringMat = new THREE.MeshBasicMaterial({ color: new THREE.Color(colorHex), side: THREE.DoubleSide, transparent: true, opacity: 0.65 });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.position.copy(pos.clone().multiplyScalar(1.002));
+        ringMesh.lookAt(0, 0, 0);
+        markerGroup.add(ringMesh);
+      }
+    });
+
+    // Raycasting for Mouse Interaction
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let isDragging = false;
+    let downPos = { x: 0, y: 0 };
+
+    const handlePointerDown = (e) => {
+      isDragging = false;
+      downPos = { x: e.clientX, y: e.clientY };
+    };
+
+    const handlePointerUp = (e) => {
+      const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
+      if (dist > 6) return; // Orbit drag
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(markersData, false);
+      if (intersects.length > 0) {
+        const clicked = intersects[0].object.userData?.quake;
+        if (clicked) {
+          setSelectedQuake(clicked);
+          if (onLog) {
+            onLog(`📍 Tâm chấn M${clicked.mag} - ${clicked.place} (Độ sâu: ${clicked.coords[2]}km)`);
+          }
+        }
+      }
+    };
+
+    const handlePointerMove = (e) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(markersData, false);
+      renderer.domElement.style.cursor = intersects.length > 0 ? 'pointer' : 'grab';
+    };
+
+    const dom = renderer.domElement;
+    dom.addEventListener('pointerdown', handlePointerDown);
+    dom.addEventListener('pointerup', handlePointerUp);
+    dom.addEventListener('pointermove', handlePointerMove);
+
+    // Single RAF loop with clean unmount (Rule 16)
+    let animId;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      if (autoRotate && !isDragging) {
+        globeGroup.rotation.y += 0.0018;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const handleResize = () => {
+      if (!container) return;
+      const newW = container.clientWidth || 800;
+      const newH = container.clientHeight || 500;
+      camera.aspect = newW / newH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(newW, newH);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      dom.removeEventListener('pointerdown', handlePointerDown);
+      dom.removeEventListener('pointerup', handlePointerUp);
+      dom.removeEventListener('pointermove', handlePointerMove);
+      renderer.dispose();
+      if (container.contains(dom)) {
+        container.removeChild(dom);
+      }
+    };
+  }, [viewMode, filteredQuakes.length, minMag, depthFilter, autoRotate]);
+
+  // Cross-section seismic trigger
+  const handleTriggerCrossQuake = () => {
     setIsShaking(true);
-    if (onLog) onLog(`⚡ ĐỨT GÃY MẢNG KIẾN TẠO! Giải phóng ứng suất địa chất ➔ Động đất ${magnitude.toFixed(1)} độ Richter! Sóng địa chất P và S chấn động mạnh lên tâm chấn.`);
-    setTimeout(() => setIsShaking(false), 3000);
+    setWaveStep(1);
+    if (onLog) {
+      onLog(`⚡ ĐỨT GÃY KIẾN TẠO! Giải phóng ứng suất tại Chấn tiêu độ sâu ${focalDepth}km ➔ Động đất ${magnitude.toFixed(1)} Richter. Sóng P và S truyền mạnh lên Tâm chấn bề mặt.`);
+    }
+    let step = 1;
+    const timer = setInterval(() => {
+      step++;
+      setWaveStep(step);
+      if (step >= 6) {
+        clearInterval(timer);
+        setTimeout(() => setIsShaking(false), 800);
+      }
+    }, 250);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '16px' }}>
-      <style>{`
-        @keyframes quakeShake {
-          0% { transform: translate(0, 0); }
-          20% { transform: translate(-6px, 4px); }
-          40% { transform: translate(6px, -5px); }
-          60% { transform: translate(-5px, 5px); }
-          80% { transform: translate(5px, -3px); }
-          100% { transform: translate(0, 0); }
-        }
-        .earthquake-shake {
-          animation: quakeShake 0.15s infinite;
-        }
-      `}</style>
-      <div style={{ flex: 1, background: '#070f1e', borderRadius: '16px', border: '1.5px solid rgba(56, 189, 248, 0.4)', padding: '20px', position: 'relative', overflow: 'hidden' }}>
-        <svg width="100%" height="100%" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet" className={isShaking ? "earthquake-shake" : ""}>
-          <rect width="600" height="320" fill="#030816" />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', color: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
+      {/* Top Header Mode Switch & Filters */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', background: 'rgba(15, 23, 42, 0.85)', padding: '10px 14px', borderRadius: '12px', border: '1px solid rgba(56, 189, 248, 0.3)', backdropFilter: 'blur(10px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setViewMode('globe')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              border: viewMode === 'globe' ? '1.5px solid #38bdf8' : '1px solid rgba(255,255,255,0.1)',
+              background: viewMode === 'globe' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'rgba(30, 41, 59, 0.6)',
+              color: '#fff',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            🌐 Quả Cầu 3D Vành Đai Lửa (QuakeGlobe USGS)
+          </button>
 
-          {/* Tectonic Plate 1 (Left) */}
-          <path d="M 0 120 L 295 120 L 285 320 L 0 320 Z" fill="#1e293b" stroke="#3b82f6" strokeWidth="2" />
-          <text x="80" y="200" fill="#94a3b8" fontSize="12" fontWeight="bold">Mảng Kiến Tạo A</text>
-
-          {/* Tectonic Plate 2 (Right) */}
-          <path d="M 305 120 L 600 120 L 600 320 L 315 320 Z" fill="#0f172a" stroke="#0284c7" strokeWidth="2" />
-          <text x="400" y="200" fill="#94a3b8" fontSize="12" fontWeight="bold">Mảng Kiến Tạo B</text>
-
-          {/* Fault Line */}
-          <line x1="295" y1="120" x2="285" y2="320" stroke="#ef4444" strokeWidth="3" strokeDasharray="4,4" />
-
-          {/* Hypocenter (Chấn Tiêu) */}
-          <circle cx="290" cy="220" r="12" fill="#ef4444" stroke="#fef08a" strokeWidth="2" />
-          <text x="290" y="245" fill="#fca5a5" fontSize="10" fontWeight="900" textAnchor="middle">
-            Chấn Tiêu (Hypocenter)
-          </text>
-
-          {/* Epicenter (Tâm Chấn) */}
-          <polygon points="295,120 287,105 303,105" fill="#f59e0b" />
-          <circle cx="295" cy="120" r="6" fill="#f59e0b" />
-          <text x="295" y="95" fill="#fde047" fontSize="11" fontWeight="900" textAnchor="middle">
-            Tâm Chấn Bề Mặt (Epicenter)
-          </text>
-
-          {/* Surface Buildings */}
-          <rect x="150" y="70" width="40" height="50" fill="#334155" stroke="#64748b" strokeWidth="1" />
-          <rect x="420" y="60" width="50" height="60" fill="#334155" stroke="#64748b" strokeWidth="1" />
-
-          {/* Seismic Waves */}
-          {isShaking && (
-            <g transform="translate(290, 220)">
-              <circle cx="0" cy="0" r="40" fill="none" stroke="#ef4444" strokeWidth="2" opacity="0.8" />
-              <circle cx="0" cy="0" r="70" fill="none" stroke="#f59e0b" strokeWidth="2" opacity="0.6" />
-              <circle cx="0" cy="0" r="100" fill="none" stroke="#38bdf8" strokeWidth="2" opacity="0.4" />
-            </g>
-          )}
-
-          <g transform="translate(430, 20)">
-            <rect x="0" y="0" width="150" height="50" rx="8" fill="rgba(15, 23, 42, 0.9)" stroke="#0284c7" strokeWidth="1.5" />
-            <text x="10" y="18" fill="#38bdf8" fontSize="9" fontWeight="900">Máy Đo Địa Chấn (Richter)</text>
-            <text x="10" y="38" fill="#ef4444" fontSize="13" fontWeight="900" fontFamily="monospace">
-              {magnitude.toFixed(1)} Richter
-            </text>
-          </g>
-        </svg>
-      </div>
-
-      <div style={{ background: 'rgba(15, 23, 42, 0.95)', padding: '14px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
-          <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700 }}>
-            Độ Cường Độ (Richter): <b style={{ color: magnitude > 7.0 ? '#ef4444' : '#38bdf8', fontSize: '1rem', fontFamily: 'monospace' }}>{magnitude.toFixed(1)}</b>
-          </span>
-          <input 
-            type="range" min="1.0" max="9.0" step="0.1" value={magnitude} 
-            onChange={e => setMagnitude(Number(e.target.value))} 
-            style={{ flex: 1, accentColor: '#0284c7', cursor: 'pointer' }} 
-          />
+          <button
+            onClick={() => setViewMode('crossSection')}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              border: viewMode === 'crossSection' ? '1.5px solid #f97316' : '1px solid rgba(255,255,255,0.1)',
+              background: viewMode === 'crossSection' ? 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)' : 'rgba(30, 41, 59, 0.6)',
+              color: '#fff',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            🌋 Mặt Cắt Chấn Tiêu & Sóng P/S
+          </button>
         </div>
 
-        <button 
-          onClick={handleTriggerQuake}
-          style={{ background: 'linear-gradient(135deg, #0284c7 0%, #0284c7 100%)', border: 'none', color: '#fff', borderRadius: '10px', padding: '10px 20px', fontSize: '0.88rem', fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)' }}
-        >
-          ⚡ Kích Hoạt Động Đất
-        </button>
+        {/* Action Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {viewMode === 'globe' && (
+            <>
+              <button
+                onClick={() => setAutoRotate(prev => !prev)}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: autoRotate ? '#10b981' : '#475569',
+                  color: '#fff',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Tự động xoay quả cầu"
+              >
+                {autoRotate ? '⏸ Dừng xoay' : '▶ Tự xoay 3D'}
+              </button>
+
+              <button
+                onClick={loadUsgsData}
+                disabled={isLoadingUsgs}
+                style={{
+                  padding: '5px 10px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  background: 'rgba(2, 132, 199, 0.3)',
+                  color: '#38bdf8',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: isLoadingUsgs ? 'wait' : 'pointer'
+                }}
+              >
+                {isLoadingUsgs ? '⏳ Đang nạp...' : '🔄 Làm mới USGS'}
+              </button>
+            </>
+          )}
+
+          {toggleFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '6px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(30, 41, 59, 0.8)',
+                color: '#fff',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              {isFullscreen ? '🗗 Thu nhỏ' : '⛶ Toàn màn hình'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Interactive Stage */}
+      <div style={{ flex: 1, position: 'relative', minHeight: 0, borderRadius: '16px', overflow: 'hidden', border: '1.5px solid rgba(56, 189, 248, 0.25)', background: '#020617' }}>
+        {viewMode === 'globe' ? (
+          <>
+            {/* 3D Canvas Mount */}
+            <div ref={mountRef} style={{ width: '100%', height: '100%', cursor: 'grab' }} />
+
+            {/* Quick Regional Fly-To Bar */}
+            <div style={{ position: 'absolute', top: '12px', left: '12px', display: 'flex', gap: '6px', flexWrap: 'wrap', zIndex: 10 }}>
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8', background: 'rgba(15, 23, 42, 0.85)', padding: '4px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                📍 Điểm nóng:
+              </span>
+              {[
+                { name: '🌋 Vành đai lửa TBD', lat: 10, lon: 155 },
+                { name: '🇯🇵 Nhật Bản', lat: 36, lon: 139 },
+                { name: '🇮🇩 Indonesia', lat: -2, lon: 102 },
+                { name: '🇻🇳 Việt Nam', lat: 16, lon: 107 },
+                { name: '🇺🇸 California (San Andreas)', lat: 35, lon: -119 },
+                { name: '🇨🇱 Chile (Valdivia)', lat: -33, lon: -71 },
+                { name: '🇹🇷 Thổ Nhĩ Kỳ', lat: 38, lon: 36 }
+              ].map(dest => (
+                <button
+                  key={dest.name}
+                  onClick={() => flyToCoords(dest.lat, dest.lon)}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.85)',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    color: '#e2e8f0',
+                    fontSize: '0.72rem',
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  {dest.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Left Top Filter & Legend HUD (Inspired by QuakeGlobe FilterPanel & MagnitudeLegend) */}
+            <div style={{ position: 'absolute', top: '50px', left: '12px', width: '230px', background: 'rgba(15, 23, 42, 0.92)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '12px', padding: '10px 12px', backdropFilter: 'blur(8px)', zIndex: 10, fontSize: '0.76rem' }}>
+              <div style={{ fontWeight: 800, color: '#38bdf8', marginBottom: '6px', display: 'flex', justifyContent: 'space-between' }}>
+                <span>🧭 BỘ LỌC ĐỊA CHẤN</span>
+                <span style={{ color: '#f59e0b', fontFamily: 'monospace' }}>{filteredQuakes.length} trận</span>
+              </div>
+
+              {/* Min Magnitude Filter */}
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.7rem', marginBottom: '3px' }}>Độ lớn tối thiểu (Richter): <b>M{minMag.toFixed(1)}+</b></div>
+                <div style={{ display: 'flex', gap: '3px' }}>
+                  {[4.5, 5.0, 6.0, 7.0].map(val => (
+                    <button
+                      key={val}
+                      onClick={() => setMinMag(val)}
+                      style={{
+                        flex: 1,
+                        padding: '3px 0',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        borderRadius: '4px',
+                        border: minMag === val ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.1)',
+                        background: minMag === val ? '#0284c7' : '#1e293b',
+                        color: '#fff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      M{val}+
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Depth Filter */}
+              <div style={{ marginBottom: '8px' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.7rem', marginBottom: '3px' }}>Độ sâu chấn tiêu:</div>
+                <div style={{ display: 'flex', gap: '3px' }}>
+                  {[
+                    { id: 'all', label: 'Tất cả' },
+                    { id: 'shallow', label: 'Nông (<70km)' },
+                    { id: 'mid', label: 'Vừa' },
+                    { id: 'deep', label: 'Sâu (>300km)' }
+                  ].map(df => (
+                    <button
+                      key={df.id}
+                      onClick={() => setDepthFilter(df.id)}
+                      style={{
+                        flex: 1,
+                        padding: '3px 0',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        borderRadius: '4px',
+                        border: depthFilter === df.id ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.1)',
+                        background: depthFilter === df.id ? '#d97706' : '#1e293b',
+                        color: '#fff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {df.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Magnitude Color Scale Legend */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '6px' }}>
+                <div style={{ color: '#94a3b8', fontSize: '0.68rem', marginBottom: '4px', fontWeight: 700 }}>Thang độ Richter:</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontSize: '0.68rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#84cc16' }} />
+                    <span>M &lt; 5.0 (Nhẹ)</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#eab308' }} />
+                    <span>M 5.0–5.9</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316' }} />
+                    <span>M 6.0–6.9</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
+                    <span>M ≥ 7.0 (Thảm họa)</span>
+                  </div>
+                </div>
+                <div style={{ marginTop: '5px', fontSize: '0.65rem', color: '#ef4444', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ width: '12px', height: '2px', background: '#ef4444' }} />
+                  <span>Đường đỏ: Vành đai lửa TBD</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side Selected Earthquake Information Card */}
+            {selectedQuake && (
+              <div style={{ position: 'absolute', top: '12px', right: '12px', width: '280px', background: 'rgba(15, 23, 42, 0.95)', border: `1.5px solid ${getQuakeMagnitudeColor(selectedQuake.mag)}`, borderRadius: '12px', padding: '12px 14px', backdropFilter: 'blur(10px)', zIndex: 10, fontSize: '0.78rem', boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 800 }}>CHI TIẾT ĐỘNG ĐẤT</span>
+                  <span style={{ background: getQuakeMagnitudeColor(selectedQuake.mag), color: '#fff', padding: '2px 8px', borderRadius: '999px', fontWeight: 900, fontSize: '0.76rem' }}>
+                    M {selectedQuake.mag} Richter
+                  </span>
+                </div>
+
+                <div style={{ fontSize: '0.92rem', fontWeight: 900, color: '#f8fafc', marginBottom: '6px', lineHeight: 1.3 }}>
+                  📍 {selectedQuake.place}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: 'rgba(0,0,0,0.3)', padding: '6px 8px', borderRadius: '6px', marginBottom: '8px', fontSize: '0.72rem' }}>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Độ sâu: </span>
+                    <b style={{ color: '#38bdf8' }}>{selectedQuake.coords[2]} km</b>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Vĩ độ: </span>
+                    <b>{selectedQuake.coords[1]?.toFixed(2)}°</b>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Kinh độ: </span>
+                    <b>{selectedQuake.coords[0]?.toFixed(2)}°</b>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>Thời gian: </span>
+                    <b>{new Date(selectedQuake.time).toLocaleDateString('vi-VN')}</b>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '0.72rem', color: '#cbd5e1', lineHeight: 1.4, background: 'rgba(56, 189, 248, 0.08)', padding: '6px 8px', borderRadius: '6px', borderLeft: `3px solid ${getQuakeMagnitudeColor(selectedQuake.mag)}` }}>
+                  <b>Kiến tạo địa chất:</b> {selectedQuake.plate}
+                </div>
+
+                <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+                  <button
+                    onClick={() => flyToCoords(selectedQuake.coords[1], selectedQuake.coords[0])}
+                    style={{
+                      flex: 1,
+                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                      border: 'none',
+                      color: '#fff',
+                      borderRadius: '6px',
+                      padding: '5px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🎯 Zoom tới tâm chấn
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMagnitude(selectedQuake.mag);
+                      setFocalDepth(Math.min(100, Math.max(10, selectedQuake.coords[2])));
+                      setViewMode('crossSection');
+                    }}
+                    style={{
+                      flex: 1,
+                      background: 'rgba(234, 88, 12, 0.3)',
+                      border: '1px solid #ea580c',
+                      color: '#fdba74',
+                      borderRadius: '6px',
+                      padding: '5px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🌋 Xem mặt cắt P/S
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Status Feed */}
+            <div style={{ position: 'absolute', bottom: '10px', left: '12px', right: '12px', background: 'rgba(15, 23, 42, 0.85)', padding: '6px 12px', borderRadius: '8px', fontSize: '0.72rem', color: '#94a3b8', display: 'flex', justifyContent: 'space-between', alignItems: 'center', pointerEvents: 'none', backdropFilter: 'blur(6px)' }}>
+              <span>📡 Nguồn dữ liệu: <b>{usgsStatus}</b></span>
+              <span>Kéo chuột để xoay 360° | Cuộn chuột để phóng to/thu nhỏ | Nhấp điểm để xem thông tin</span>
+            </div>
+          </>
+        ) : (
+          /* Mode 2: Cross Section (Mặt cắt Chấn Tiêu & Sóng Địa Chấn P/S) */
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '16px', boxSizing: 'border-box', background: '#030816' }}>
+            <style>{`
+              @keyframes quakeVibe {
+                0% { transform: translate(0, 0); }
+                20% { transform: translate(-${magnitude * 0.9}px, ${magnitude * 0.7}px); }
+                40% { transform: translate(${magnitude * 0.9}px, -${magnitude * 0.8}px); }
+                60% { transform: translate(-${magnitude * 0.7}px, ${magnitude * 0.8}px); }
+                80% { transform: translate(${magnitude * 0.8}px, -${magnitude * 0.5}px); }
+                100% { transform: translate(0, 0); }
+              }
+              .quake-shake-active {
+                animation: quakeVibe 0.12s infinite;
+              }
+            `}</style>
+
+            <div style={{ flex: 1, position: 'relative', overflow: 'hidden', borderRadius: '12px', border: '1.5px solid rgba(56, 189, 248, 0.4)', background: '#050b1a' }}>
+              <svg width="100%" height="100%" viewBox="0 0 760 380" preserveAspectRatio="xMidYMid meet" className={isShaking ? "quake-shake-active" : ""}>
+                <defs>
+                  <linearGradient id="crustGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#334155" />
+                    <stop offset="100%" stopColor="#1e293b" />
+                  </linearGradient>
+                  <linearGradient id="mantleGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#78350f" />
+                    <stop offset="100%" stopColor="#451a03" />
+                  </linearGradient>
+                  <radialGradient id="hypoGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#ff0000" stopOpacity="1" />
+                    <stop offset="50%" stopColor="#ff8800" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#ff8800" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+
+                {/* Sky Atmosphere */}
+                <rect x="0" y="0" width="760" height="90" fill="#0c182c" />
+
+                {/* Ground Surface (Vỏ Trái Đất - Crust) */}
+                <rect x="0" y="90" width="760" height="150" fill="url(#crustGrad)" stroke="#475569" strokeWidth="1" />
+                <text x="30" y="115" fill="#94a3b8" fontSize="11" fontWeight="800">LỚP VỎ TRÁI ĐẤT (Thạch quyển - Độ sâu 0 - 35km)</text>
+
+                {/* Upper Mantle (Lớp Manti Trên) */}
+                <rect x="0" y="240" width="760" height="140" fill="url(#mantleGrad)" />
+                <text x="30" y="265" fill="#d97706" fontSize="11" fontWeight="800">LỚP MANTI TRÊN (Tầng quyển mềm Asthenosphere)</text>
+
+                {/* Tectonic Plate Boundary Split / Fault Plane (Mặt Đứt Gãy) */}
+                <path d="M 370 90 L 390 240 L 410 380" stroke="#ef4444" strokeWidth="4" strokeDasharray="6,4" fill="none" />
+                <text x="400" y="320" fill="#fca5a5" fontSize="10" fontWeight="700">Mặt phẳng đứt gãy kiến tạo</text>
+
+                {/* Surface Buildings / Schools / Bridges */}
+                <g transform="translate(180, 50)">
+                  <rect x="0" y="10" width="35" height="30" fill="#475569" stroke="#94a3b8" strokeWidth="1" />
+                  <rect x="5" y="15" width="6" height="6" fill="#fef08a" />
+                  <rect x="15" y="15" width="6" height="6" fill="#fef08a" />
+                  <rect x="25" y="15" width="6" height="6" fill="#fef08a" />
+                  <text x="17" y="5" fill="#cbd5e1" fontSize="9" textAnchor="middle">Trường học</text>
+                </g>
+
+                <g transform="translate(480, 42)">
+                  <rect x="0" y="8" width="45" height="40" fill="#334155" stroke="#94a3b8" strokeWidth="1" />
+                  <rect x="6" y="14" width="7" height="7" fill="#fef08a" />
+                  <rect x="18" y="14" width="7" height="7" fill="#fef08a" />
+                  <rect x="30" y="14" width="7" height="7" fill="#fef08a" />
+                  <text x="22" y="3" fill="#cbd5e1" fontSize="9" textAnchor="middle">Khu dân cư</text>
+                </g>
+
+                {/* Hypocenter (Chấn tiêu) coordinates based on focalDepth slider */}
+                {/* 10km ~ y=120, 100km ~ y=230 */}
+                {(() => {
+                  const hypoY = 110 + (focalDepth / 100) * 110;
+                  const hypoX = 370 + (focalDepth / 100) * 18;
+                  const epiX = 370;
+                  const epiY = 90;
+
+                  return (
+                    <g>
+                      {/* Vertical line connecting Hypocenter to Epicenter */}
+                      <line x1={hypoX} y1={hypoY} x2={epiX} y2={epiY} stroke="#f59e0b" strokeWidth="2" strokeDasharray="3,3" />
+
+                      {/* Expanding Shockwaves from Hypocenter when shaking */}
+                      {isShaking && (
+                        <g>
+                          {/* P-Waves (Sóng dọc - Tốc độ cao, lan truyền trước) */}
+                          <circle cx={hypoX} cy={hypoY} r={waveStep * 28} fill="none" stroke="#38bdf8" strokeWidth="3" opacity={Math.max(0, 1 - waveStep * 0.16)} />
+                          <circle cx={hypoX} cy={hypoY} r={waveStep * 22} fill="none" stroke="#38bdf8" strokeWidth="2" opacity={Math.max(0, 1 - waveStep * 0.16)} />
+
+                          {/* S-Waves (Sóng ngang - Tốc độ chậm hơn, phá hủy mạnh) */}
+                          {waveStep >= 2 && (
+                            <circle cx={hypoX} cy={hypoY} r={(waveStep - 1.5) * 18} fill="none" stroke="#ef4444" strokeWidth="3.5" opacity={Math.max(0, 1 - (waveStep - 1.5) * 0.2)} strokeDasharray="5,3" />
+                          )}
+
+                          {/* Surface Waves along Crust */}
+                          {waveStep >= 3 && (
+                            <g>
+                              <line x1={epiX - (waveStep - 2) * 45} y1={epiY} x2={epiX + (waveStep - 2) * 45} y2={epiY} stroke="#f59e0b" strokeWidth="5" opacity="0.9" />
+                            </g>
+                          )}
+                        </g>
+                      )}
+
+                      {/* Hypocenter Glowing Source */}
+                      <circle cx={hypoX} cy={hypoY} r="18" fill="url(#hypoGlow)" />
+                      <circle cx={hypoX} cy={hypoY} r="6" fill="#ffffff" />
+                      <text x={hypoX + 22} y={hypoY + 4} fill="#fca5a5" fontSize="11" fontWeight="900">
+                        ⚡ Chấn Tiêu (Hypocenter)
+                      </text>
+                      <text x={hypoX + 22} y={hypoY + 18} fill="#fde047" fontSize="9">
+                        Độ sâu chấn tiêu: {focalDepth} km
+                      </text>
+
+                      {/* Epicenter on Surface */}
+                      <polygon points={`${epiX},${epiY} ${epiX - 10},${epiY - 18} ${epiX + 10},${epiY - 18}`} fill="#ef4444" />
+                      <circle cx={epiX} cy={epiY} r="6" fill="#ef4444" stroke="#ffffff" strokeWidth="2" />
+                      <text x={epiX} y={epiY - 24} fill="#ef4444" fontSize="12" fontWeight="900" textAnchor="middle">
+                        🎯 Tâm Chấn (Epicenter)
+                      </text>
+                      <text x={epiX} y={epiY - 11} fill="#ffffff" fontSize="9" fontWeight="700" textAnchor="middle">
+                        (Mặt đất thẳng đứng trên chấn tiêu)
+                      </text>
+                    </g>
+                  );
+                })()}
+
+                {/* Explanatory Wave Legend Overlay */}
+                <g transform="translate(20, 290)">
+                  <rect x="0" y="0" width="300" height="75" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#0284c7" strokeWidth="1" />
+                  <text x="10" y="16" fill="#38bdf8" fontSize="10" fontWeight="900">PHÂN BIỆT CÁC LOẠI SÓNG ĐỊA CHẤN:</text>
+
+                  <line x1="12" y1="32" x2="35" y2="32" stroke="#38bdf8" strokeWidth="2.5" />
+                  <text x="42" y="35" fill="#e2e8f0" fontSize="9">
+                    <b>Sóng P (Primary)</b>: Sóng dọc, nhanh nhất (~6-8 km/s), nén dãn.
+                  </text>
+
+                  <line x1="12" y1="50" x2="35" y2="50" stroke="#ef4444" strokeWidth="2.5" strokeDasharray="4,2" />
+                  <text x="42" y="53" fill="#e2e8f0" fontSize="9">
+                    <b>Sóng S (Secondary)</b>: Sóng ngang, chậm hơn (~3.5-4.5 km/s), rung lắc mạnh.
+                  </text>
+
+                  <line x1="12" y1="67" x2="35" y2="67" stroke="#f59e0b" strokeWidth="3" />
+                  <text x="42" y="70" fill="#e2e8f0" fontSize="9">
+                    <b>Sóng Mặt (Surface)</b>: Biên độ lớn nhất, gây đổ sập công trình.
+                  </text>
+                </g>
+
+                {/* Seismograph Richter Meter Top Right */}
+                <g transform="translate(560, 15)">
+                  <rect x="0" y="0" width="180" height="65" rx="8" fill="rgba(15, 23, 42, 0.95)" stroke={getQuakeMagnitudeColor(magnitude)} strokeWidth="2" />
+                  <text x="12" y="20" fill="#94a3b8" fontSize="9" fontWeight="900">MÁY ĐO ĐỊA CHẤN (RICHTER)</text>
+                  <text x="12" y="44" fill={getQuakeMagnitudeColor(magnitude)} fontSize="20" fontWeight="900" fontFamily="monospace">
+                    {magnitude.toFixed(1)} Richter
+                  </text>
+                  <text x="12" y="58" fill="#fde047" fontSize="8" fontWeight="700">
+                    {magnitude < 5.0 ? 'Rung lắc nhẹ, đồ vật đung đưa' : magnitude < 7.0 ? 'Nứt tường nhà, gãy cột điện' : 'Phá hủy diện rộng, nứt đất thảm họa'}
+                  </text>
+                </g>
+              </svg>
+            </div>
+
+            {/* Bottom Controls Bar for Cross-Section */}
+            <div style={{ marginTop: '12px', background: 'rgba(15, 23, 42, 0.95)', padding: '12px 18px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+              {/* Magnitude Slider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
+                  Độ Richter: <b style={{ color: getQuakeMagnitudeColor(magnitude), fontSize: '1rem', fontFamily: 'monospace' }}>{magnitude.toFixed(1)}</b>
+                </span>
+                <input
+                  type="range" min="2.0" max="9.5" step="0.1" value={magnitude}
+                  onChange={e => setMagnitude(Number(e.target.value))}
+                  style={{ flex: 1, accentColor: getQuakeMagnitudeColor(magnitude), cursor: 'pointer' }}
+                />
+              </div>
+
+              {/* Focal Depth Slider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px' }}>
+                <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
+                  Độ sâu chấn tiêu: <b style={{ color: '#38bdf8', fontSize: '1rem', fontFamily: 'monospace' }}>{focalDepth} km</b>
+                </span>
+                <input
+                  type="range" min="10" max="100" step="5" value={focalDepth}
+                  onChange={e => setFocalDepth(Number(e.target.value))}
+                  style={{ flex: 1, accentColor: '#38bdf8', cursor: 'pointer' }}
+                />
+              </div>
+
+              {/* Trigger Button */}
+              <button
+                onClick={handleTriggerCrossQuake}
+                disabled={isShaking}
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                  border: 'none',
+                  color: '#fff',
+                  borderRadius: '10px',
+                  padding: '10px 22px',
+                  fontSize: '0.9rem',
+                  fontWeight: 900,
+                  cursor: isShaking ? 'wait' : 'pointer',
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.45)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                {isShaking ? '⚡ ĐANG RUNG LẮC...' : '⚡ Kích Hoạt Động Đất'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -9263,7 +10132,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_04':
       case 'geo_6_04':
       case 'geo_earthquake':
-        return <GeoEarthquakeSim onLog={addLog} />;
+        return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_05':
       case 'geo_6_05':
       case 'geo_water_cycle':
@@ -9291,7 +10160,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           return <GeoVolcanoSim onLog={addLog} />;
         }
         if (detectedType === 'geo_earthquake') {
-          return <GeoEarthquakeSim onLog={addLog} />;
+          return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'geo_water_cycle') {
           return <GeoWaterCycleSim onLog={addLog} />;
@@ -9322,7 +10191,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
             return <GeoVolcanoSim onLog={addLog} />;
           }
           if (title.includes('động đất') || title.includes('sóng') || title.includes('chấn động')) {
-            return <GeoEarthquakeSim onLog={addLog} />;
+            return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('tuần hoàn') || title.includes('nước') || title.includes('mưa')) {
             return <GeoWaterCycleSim onLog={addLog} />;
