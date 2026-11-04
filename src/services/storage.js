@@ -1024,6 +1024,19 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: []
   },
   {
+    id: 'khtn-virtual-lab-game',
+    title: '🧪 Mô Phỏng Thí Nghiệm KHTN (3D Virtual Lab)',
+    subtitle: 'Thực Hành & Mô Phỏng Vật Lý, Hóa Học, Sinh Học GDPT 2018',
+    category: 'Khám phá 3D',
+    subject: 'KHTN / Khoa Học',
+    icon: '🧪',
+    gradient: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+    description: 'Thư viện mô phỏng thí nghiệm thực hành trực quan chuẩn SGK GDPT 2018: Định luật Ohm, Sự nở vì nhiệt, Cấu tạo nguyên tử, Phản ứng hóa học, Quang hợp & Tế bào.',
+    engineType: 'khtn-virtual-lab',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
     id: 'bouncing-words-game',
     title: 'Từ Ơi, Đứng Lại!',
     subtitle: 'Thẻ Từ Vựng Bay & Ghép Câu Hoàn Chỉnh',
@@ -2745,8 +2758,14 @@ export const StorageService = {
       return { allowed: true, isUnlimited: true };
     }
 
-    // Google Trial Account Check: 1 trial per specific feature/game
     const normFeatureId = String(featureId || 'game').trim().toLowerCase();
+
+    // Educational 3D Geography simulations & KHTN Virtual Lab are 100% accessible for teaching
+    if (normFeatureId.startsWith('geo_') || normFeatureId.startsWith('geo-') || normFeatureId.startsWith('khtn') || normFeatureId.startsWith('exp_') || normFeatureId.includes('virtual_lab') || normFeatureId === 'geo-3d-model') {
+      return { allowed: true, isUnlimited: true, featureId: normFeatureId, featureName: StorageService.getFeatureDisplayName(normFeatureId) };
+    }
+
+    // Google Trial Account Check: 1 trial per specific feature/game
     const usedFeatures = (user.usedFeatures && typeof user.usedFeatures === 'object') ? user.usedFeatures : {};
     const usedCount = Number(usedFeatures[normFeatureId] || 0);
 

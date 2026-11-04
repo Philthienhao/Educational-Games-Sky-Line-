@@ -13,7 +13,8 @@ import {
   BookOpen, 
   CheckCircle2, 
   FlaskConical,
-  Compass
+  Compass,
+  ArrowLeft
 } from 'lucide-react';
 import defaultExperiments from '../services/experimentCatalog.json';
 
@@ -100,6 +101,28 @@ export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgra
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px', position: 'relative', zIndex: 2 }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: '#0f172a',
+                    color: '#ffffff',
+                    border: '1.5px solid rgba(255,255,255,0.25)',
+                    borderRadius: '12px',
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                  }}
+                  title="Quay lại Kho Game"
+                >
+                  <ArrowLeft size={16} /> Quay lại
+                </button>
+              )}
               <div style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
                 width: '50px',

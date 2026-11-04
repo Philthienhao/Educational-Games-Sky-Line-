@@ -14,12 +14,13 @@ import {
   Filter, 
   CheckCircle2, 
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  ArrowLeft
 } from 'lucide-react';
 import { ExperimentService } from '../services/experimentService';
 import { InteractiveExperimentCanvas, detectExperimentInteractiveType } from './experiments/InteractiveExperimentCanvas';
 
-export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTrialOrRun, onOpenUpgrade }) {
+export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTrialOrRun, onOpenUpgrade, onClose }) {
   const [experiments, setExperiments] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [selectedSubject, setSelectedSubject] = useState('all');
@@ -173,6 +174,28 @@ export function VirtualLabManager({ currentUser, onOpenGeoExperiments, onCheckTr
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: '#0f172a',
+                    color: '#ffffff',
+                    border: '1.5px solid rgba(255,255,255,0.25)',
+                    borderRadius: '12px',
+                    padding: '8px 16px',
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                  }}
+                  title="Quay lại Kho Game"
+                >
+                  <ArrowLeft size={16} /> Quay lại
+                </button>
+              )}
               <div style={{
                 background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
                 width: '46px',

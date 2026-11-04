@@ -34,6 +34,7 @@ const MathSackRaceGame = React.lazy(() => import('./games/MathSackRaceGame').the
 const PirateShipBattleGame = React.lazy(() => import('./games/PirateShipBattleGame').then(m => ({ default: m.PirateShipBattleGame || m.default })));
 const ClassroomTimerGame = React.lazy(() => import('./games/ClassroomTimerGame').then(m => ({ default: m.ClassroomTimerGame || m.default })));
 const GeoExperimentsView = React.lazy(() => import('./GeoExperimentsView').then(m => ({ default: m.GeoExperimentsView || m.default })));
+const VirtualLabManager = React.lazy(() => import('./VirtualLabManager').then(m => ({ default: m.VirtualLabManager || m.default })));
 const InteractiveExperimentCanvas = React.lazy(() => import('./experiments/InteractiveExperimentCanvas').then(m => ({ default: m.InteractiveExperimentCanvas || m.default })));
 const StudentGroupDividerGame = React.lazy(() => import('./games/StudentGroupDividerGame').then(m => ({ default: m.StudentGroupDividerGame || m.default })));
 const MarbleRaceGame = React.lazy(() => import('./games/MarbleRaceGame').then(m => ({ default: m.MarbleRaceGame || m.default })));
@@ -315,7 +316,7 @@ export function ClassroomPlayModal({
         component = <MysteryBoxGame {...commonProps} />;
         break;
       case 'picture-reveal':
-        component = <PictureFlipGame {...commonProps} game={game} secretImage={game?.secretImage || game?.bgImageUrl} />;
+        component = <PictureFlipGame {...commonProps} game={game} secretImage={game?.secretImage || game?.bgImageUrl} currentUser={currentUser} />;
         break;
       case 'crossword':
         component = <CrosswordGame {...commonProps} />;
@@ -419,7 +420,7 @@ export function ClassroomPlayModal({
     );
   };
 
-  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race' || engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') {
+  if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'khtn-virtual-lab' || engineType === 'virtual-lab' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race' || engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
         <div style={{
@@ -523,6 +524,10 @@ export function ClassroomPlayModal({
               <PirateShipBattleGame {...commonProps} game={game} onClose={onClose} />
             ) : engineType === 'classroom-timer' ? (
               <ClassroomTimerGame onClose={onClose} />
+            ) : (engineType === 'khtn-virtual-lab' || engineType === 'virtual-lab') ? (
+              <VirtualLabManager currentUser={currentUser} onClose={onClose} />
+            ) : (engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || (engineType === 'geo-3d-model' && game?.interactiveType)) ? (
+              <InteractiveExperimentCanvas experiment={{ ...game, interactiveType: game?.interactiveType || 'geo_earth_structure', isGeo: true }} onClose={onClose} />
             ) : engineType === 'geo-3d-model' ? (
               <GeoExperimentsView currentUser={currentUser} onClose={onClose} />
             ) : engineType === 'student-group-divider' ? (
@@ -662,7 +667,7 @@ export function ClassroomPlayModal({
             </>
           )}
 
-          {!isHomework && engineType !== 'duck-race' && (
+          {!isHomework && engineType !== 'duck-race' && engineType !== 'picture-reveal' && (
             <button 
               className="btn btn-secondary btn-sm"
               onClick={() => setShowTeamManager(true)}
@@ -732,8 +737,8 @@ export function ClassroomPlayModal({
         </div>
       </div>
 
-      {/* ALL TEAMS SCOREBOARD BAR - Hidden for Tug Of War, Head Tilt, Pose Imitation & Duck Race */}
-      {engineType !== 'tug-of-war-dual' && engineType !== 'tug-of-war' && engineType !== 'head-tilt' && engineType !== 'pose-imitation' && engineType !== 'duck-race' && (
+      {/* ALL TEAMS SCOREBOARD BAR - Hidden for Tug Of War, Head Tilt, Pose Imitation, Duck Race & Picture Reveal */}
+      {engineType !== 'tug-of-war-dual' && engineType !== 'tug-of-war' && engineType !== 'head-tilt' && engineType !== 'pose-imitation' && engineType !== 'duck-race' && engineType !== 'picture-reveal' && (
         <div style={{
           padding: '12px 24px',
           background: 'rgba(30, 41, 59, 0.6)',

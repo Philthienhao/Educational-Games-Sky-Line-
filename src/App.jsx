@@ -1226,6 +1226,7 @@ export function App() {
               onCheckTrialOrRun={handleCheckTrialOrRun}
               onOpenUpgrade={setTrialModalInfo}
               onOpenGeoExperiments={() => setActiveTab('geo-experiments')} 
+              onClose={() => setActiveTab('catalog')}
             />
           )}
 
@@ -1235,6 +1236,7 @@ export function App() {
               currentUser={currentUser} 
               onCheckTrialOrRun={handleCheckTrialOrRun}
               onOpenUpgrade={setTrialModalInfo}
+              onClose={() => setActiveTab('catalog')}
             />
           )}
 
