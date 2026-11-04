@@ -2956,7 +2956,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
-  const [selectedPlanetKey, setSelectedPlanetKey] = useState('earth');
+  const [selectedPlanetKey, setSelectedPlanetKey] = useState(null);
   const [badgePos, setBadgePos] = useState(null);
   const [showControlsGuide, setShowControlsGuide] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -2985,13 +2985,24 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   const [showDebugHud, setShowDebugHud] = useState(false);
 
   const lastBadgeTimeRef = useRef(0);
+  const controlsRef = useRef(null);
+  const planetGroupsRef = useRef({});
+  const lastTrackedPosRef = useRef(null);
 
-  const handleSelectCelestial = (key) => {
+  const flyToPlanet = (key) => {
     if (!key || !SOLAR_PLANETS_CONFIG[key]) {
       setSelectedPlanetKey(null);
+      selectedPlanetKeyRef.current = null;
+      lastTrackedPosRef.current = null;
+      if (controlsRef.current && cameraRef.current) {
+        cameraRef.current.position.set(0, 140, 240);
+        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.update();
+      }
       return;
     }
     setSelectedPlanetKey(key);
+    selectedPlanetKeyRef.current = key;
     setTargetPlanetKey(key);
     const cfg = SOLAR_PLANETS_CONFIG[key];
     if (cfg) {
@@ -3000,6 +3011,24 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         onLog(`🎯 Khám phá hành tinh: ${cfg.name} (${cfg.enName}) - ${cfg.dist}`);
       }
     }
+    const pos = new THREE.Vector3();
+    if (key === 'sun') {
+      pos.set(0, 0, 0);
+    } else if (planetGroupsRef.current[key]) {
+      planetGroupsRef.current[key].getWorldPosition(pos);
+    }
+    const radius = cfg?.radius || 4;
+    const offsetDist = Math.max(radius * 3.8, 14);
+    if (controlsRef.current && cameraRef.current) {
+      cameraRef.current.position.set(pos.x + offsetDist, pos.y + offsetDist * 0.4, pos.z + offsetDist);
+      controlsRef.current.target.copy(pos);
+      controlsRef.current.update();
+    }
+    lastTrackedPosRef.current = pos.clone();
+  };
+
+  const handleSelectCelestial = (key) => {
+    flyToPlanet(key);
   };
 
   const handleSpeakPlanetInfo = (planet) => {
@@ -3442,9 +3471,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x020617);
 
-    // 2. Camera setup (Harmonious perspective with left Information Card docked)
+    // 2. Camera setup (Harmonious perspective with overview of the entire Solar System)
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 3000);
-    camera.position.set(15, 140, 260);
+    camera.position.set(0, 140, 240);
     cameraRef.current = camera;
 
     // 3. Renderer setup
@@ -3473,8 +3502,9 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     controls.enablePan = true;
     controls.maxDistance = 1000;
     controls.minDistance = 3.0;
-    controls.target.set(55, 0, 0);
+    controls.target.set(0, 0, 0);
     controls.update();
+    controlsRef.current = controls;
 
     // 5. Starfield background & Warp Particles
     try {
@@ -3507,13 +3537,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
     const starField = new THREE.Points(starsGeo, starsMat);
     scene.add(starField);
 
-    // 6. Lights
-    const ambientLight = new THREE.AmbientLight(0x555566, 0.9);
+    // 6. Lights (Vibrant and Photorealistic illumination)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.PointLight(0xffffff, 3.2, 1000);
+    const sunLight = new THREE.PointLight(0xfffaed, 1500, 600, 0.6);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
+
+    // Directional headlight attached to camera (illuminates the active view without pitch-black back-sides)
+    const cameraHeadlight = new THREE.DirectionalLight(0xffffff, 0.85);
+    camera.add(cameraHeadlight);
+    scene.add(camera);
 
     // 7. Celestial Mesh Creation
     const planetGroups = {};
@@ -3559,6 +3594,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
 
       // Group parent (positioned on orbit)
       const group = new THREE.Group();
+      group.position.set(Math.cos(orbitAngles[key]) * cfg.orbitRadius, 0, Math.sin(orbitAngles[key]) * cfg.orbitRadius);
       scene.add(group);
       planetGroups[key] = group;
 
@@ -3609,8 +3645,8 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         const cloudsMat = new THREE.MeshStandardMaterial({
           map: cloudsTexture,
           transparent: true,
-          opacity: 0.78,
-          blending: THREE.NormalBlending,
+          opacity: 0.55,
+          blending: THREE.AdditiveBlending,
           depthWrite: false
         });
         const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
@@ -3664,6 +3700,32 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
         }
       }
     });
+
+    planetGroupsRef.current = planetGroups;
+
+    // Asteroid Belt (Vành đai tiểu hành tinh giữa Sao Hỏa và Sao Mộc)
+    const asteroidCount = 420;
+    const asteroidGeo = new THREE.DodecahedronGeometry(0.55, 1);
+    const asteroidMat = new THREE.MeshStandardMaterial({
+      color: 0x948270,
+      roughness: 0.95,
+      metalness: 0.05
+    });
+    const asteroidBeltMesh = new THREE.InstancedMesh(asteroidGeo, asteroidMat, asteroidCount);
+    const asteroidDummy = new THREE.Object3D();
+    for (let i = 0; i < asteroidCount; i++) {
+      const angle = (i / asteroidCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.35;
+      const radius = 80 + Math.random() * 11; // Orbit between Mars (72) and Jupiter (96)
+      const y = (Math.random() - 0.5) * 3.5;
+      const scale = 0.4 + Math.random() * 0.85;
+      asteroidDummy.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+      asteroidDummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+      asteroidDummy.scale.set(scale, scale, scale);
+      asteroidDummy.updateMatrix();
+      asteroidBeltMesh.setMatrixAt(i, asteroidDummy.matrix);
+    }
+    asteroidBeltMesh.instanceMatrix.needsUpdate = true;
+    scene.add(asteroidBeltMesh);
 
     // 8. Raycasting for Mouse Clicks & Hover Pointer Feedback
     const raycaster = new THREE.Raycaster();
@@ -3777,6 +3839,11 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           orbitLine.material.opacity = isSel ? 0.85 : 0.25;
         }
       });
+
+      // Rotate Asteroid Belt
+      if (isPlayingRef.current && asteroidBeltMesh) {
+        asteroidBeltMesh.rotation.y += delta * 0.04 * speedRef.current;
+      }
 
       // AI Hand Gesture Spaceship Flight & Dynamic Core Cutaway Visibility
       if (isGesturePilotRef.current) {
@@ -3895,26 +3962,25 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
       } else {
         controls.enabled = true;
 
-        // Camera Lerp Space Travel Physics ONLY when Orbit Controls active
+        // Orbit Controls Delta Tracking: smooth orbit tracking without fighting user mouse rotation
         const selKey = selectedPlanetKeyRef.current;
         if (selKey) {
-          let targetWorldPos = new THREE.Vector3();
-          let radius = 10;
-
+          const curPos = new THREE.Vector3();
           if (selKey === 'sun') {
-            targetWorldPos.set(0, 0, 0);
-            radius = SOLAR_PLANETS_CONFIG.sun.radius;
+            curPos.set(0, 0, 0);
           } else if (planetMeshes[selKey]) {
-            planetMeshes[selKey].getWorldPosition(targetWorldPos);
-            radius = SOLAR_PLANETS_CONFIG[selKey]?.radius || 10;
+            planetMeshes[selKey].getWorldPosition(curPos);
           }
 
-          const targetCamPos = targetWorldPos.clone().add(new THREE.Vector3(0, radius * 0.8, radius * 3.5));
-          camera.position.lerp(targetCamPos, 0.05);
-          controls.target.lerp(targetWorldPos, 0.05);
+          if (lastTrackedPosRef.current) {
+            const deltaMove = curPos.clone().sub(lastTrackedPosRef.current);
+            camera.position.add(deltaMove);
+            controls.target.add(deltaMove);
+          }
+          lastTrackedPosRef.current = curPos.clone();
 
           // Calculate 2D Screen Position for floating badge
-          const proj = targetWorldPos.clone().project(camera);
+          const proj = curPos.clone().project(camera);
           const containerW = container?.clientWidth || width;
           const containerH = container?.clientHeight || height;
           const sx = (proj.x * 0.5 + 0.5) * containerW;
@@ -3926,6 +3992,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
             setBadgePos({ x: Math.round(sx), y: Math.round(sy) });
           }
         } else {
+          lastTrackedPosRef.current = null;
           if (lastBadgeTimeRef.current !== 0) {
             lastBadgeTimeRef.current = 0;
             setBadgePos(null);
@@ -4091,18 +4158,18 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               </div>
               <button
                 onClick={() => {
-                  setSelectedPlanetKey(prev => prev === 'earth' ? 'sun' : 'earth');
+                  flyToPlanet(null);
                   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
                   setIsSpeaking(false);
                 }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)', border: 'none', color: '#cbd5e1',
+                  background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', color: '#fca5a5',
                   borderRadius: '10px', width: '28px', height: '28px', cursor: 'pointer',
                   fontWeight: 900, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                title="Đổi xem Trái Đất / Mặt Trời"
+                title="Đóng bảng & Quay về toàn cảnh Hệ Mặt Trời"
               >
-                🔄
+                ✕
               </button>
             </div>
 
@@ -4190,6 +4257,56 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
           </div>
         )}
 
+        {/* Docked Solar Overview Guidance Card (when no planet is selected) */}
+        {!activePlanet && !isGesturePilot && (
+          <div style={{
+            position: 'absolute', top: '76px', left: '20px',
+            maxWidth: '330px', width: 'calc(100% - 40px)',
+            background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(20px)',
+            border: '1.5px solid rgba(56, 189, 248, 0.35)', borderRadius: '20px',
+            padding: '16px', color: '#f8fafc',
+            boxShadow: '0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(56, 189, 248, 0.2)',
+            zIndex: 30, pointerEvents: 'auto'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '1.25rem' }}>🔭</span>
+              <div>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.12em' }}>CHẾ ĐỘ TỔNG QUAN</div>
+                <h4 style={{ fontSize: '0.98rem', fontWeight: 900, color: '#ffffff', margin: 0 }}>HỆ MẶT TRỜI 3D CHUẨN GDPT</h4>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.74rem', color: '#94a3b8', margin: '0 0 12px 0', lineHeight: 1.5 }}>
+              • Giữ chuột trái & kéo để xoay 360° tự do.<br/>
+              • Cuộn chuột để phóng to / thu nhỏ góc nhìn.<br/>
+              • Bấm trực tiếp vào bất kỳ hành tinh nào để bay cận cảnh xem bản đồ NASA 3D & cấu tạo lõi bên trong.
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => handleSelectCelestial('earth')}
+                style={{
+                  flex: 1, background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.3) 0%, rgba(56, 189, 248, 0.3) 100%)',
+                  border: '1.5px solid #38bdf8', borderRadius: '10px', padding: '8px 10px',
+                  color: '#38bdf8', fontSize: '0.76rem', fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                }}
+              >
+                🌍 Xem Trái Đất
+              </button>
+              <button
+                onClick={() => handleSelectCelestial('sun')}
+                style={{
+                  flex: 1, background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%)',
+                  border: '1.5px solid #f59e0b', borderRadius: '10px', padding: '8px 10px',
+                  color: '#fbbf24', fontSize: '0.76rem', fontWeight: 800, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                }}
+              >
+                ☀️ Xem Mặt Trời
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Quick Planet Selector Pills (Standard Orbit Mode) */}
         {!isGesturePilot && (
           <div style={{
@@ -4204,6 +4321,7 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               🎯 KHÁM PHÁ:
             </span>
             {[
+              { key: null, label: '🔭 Toàn cảnh Hệ' },
               { key: 'sun', label: '☀️ Mặt Trời' },
               { key: 'mercury', label: '⚪ Sao Thủy' },
               { key: 'venus', label: '🟡 Sao Kim' },
@@ -4214,10 +4332,10 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
               { key: 'uranus', label: '💎 Sao Thiên Vương' },
               { key: 'neptune', label: '🔵 Sao Hải Vương' }
             ].map(item => {
-              const isSel = selectedPlanetKey === item.key;
+              const isSel = (item.key === null && selectedPlanetKey === null) || (item.key !== null && selectedPlanetKey === item.key);
               return (
                 <button
-                  key={item.key}
+                  key={item.key || 'overview'}
                   onClick={() => handleSelectCelestial(item.key)}
                   style={{
                     background: isSel ? 'rgba(56, 189, 248, 0.35)' : 'rgba(255, 255, 255, 0.06)',
