@@ -106,4 +106,7 @@
 - **State Change Guard in Observers & Listeners**:
   - Trong các trình lắng nghe DOM (`MutationObserver`, resize, scroll), chỉ được gọi hàm cập nhật state khi giá trị mới thực sự khác giá trị cũ (`setState(prev => prev !== next ? next : prev)`).
 
+## 17. No Promotional Announcement Banners & Popups Invariant (Cấm Hiển Thị Banner Thông Báo Tính Năng Mới)
+- **Strict No Feature Promotion Banners**: TUYỆT ĐỐI KHÔNG hiển thị banner nổi bật, banner giới thiệu tính năng/trò chơi mới (như "TRÒ CHƠI MỚI", "TÍNH NĂNG MỚI", spotlight banner giới thiệu cập nhật) trên giao diện chính của hệ thống.
+- **Clean Interface Integration**: Mọi trò chơi, chức năng hoặc mục mới bắt buộc phải được tích hợp tự nhiên, trực tiếp vào Kho Game, Sidebar hoặc danh mục công cụ tương ứng mà không chèn thêm bất kỳ banner thông báo/quảng cáo nào.
 
