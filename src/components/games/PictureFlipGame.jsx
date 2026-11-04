@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import { 
   Eye, CheckCircle2, XCircle, Sparkles, Image as ImageIcon, Upload, 
   ArrowLeft, Users, User, Shuffle, Trophy, RotateCcw, Plus, Trash2, 
-  Edit3, Clock, Search, Pause, Play, FileText, ChevronRight, Award
+  Edit3, Clock, Search, Pause, Play, FileText, ChevronRight, Award,
+  X, Grid
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
@@ -1527,30 +1528,68 @@ export function PictureFlipGame({
             );
           })}
         </div>
+
+        {/* Banner Đoán Bức Tranh Tổng Thể */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '4px' }}>
+          <button
+            onClick={handleRevealAll}
+            style={{
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              color: '#ffffff',
+              border: '2px solid #fef08a',
+              borderRadius: '16px',
+              padding: '10px 24px',
+              fontSize: '0.98rem',
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.45)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Bấm khi học sinh đã đoán đúng bức tranh bí ẩn để mở toàn bộ bức tranh"
+          >
+            <Sparkles size={18} /> 🎯 ĐOÁN ĐÚNG TRANH TỔNG THỂ ➔ MỞ TOÀN BỘ ẢNH!
+          </button>
+        </div>
       </div>
 
-      {/* 4. QUESTION MODAL POPUP (PORTALED TO DOCUMENT.BODY) */}
+      {/* 4. QUESTION MODAL POPUP (FULL-SCREEN THEATER STAGE PORTALED TO DOCUMENT.BODY) */}
       {activeTileIndex !== null && currentQ && ReactDOM.createPortal(
         <div style={{
           position: 'fixed',
           inset: 0,
           width: '100vw',
           height: '100vh',
-          background: 'linear-gradient(135deg, #0b1120 0%, #0f172a 100%)',
-          border: '8px solid #38bdf8',
+          background: 'radial-gradient(circle at 50% 15%, #1e293b 0%, #0b1120 60%, #030712 100%)',
+          border: '4px solid #38bdf8',
+          boxShadow: 'inset 0 0 80px rgba(56, 189, 248, 0.2), 0 0 60px rgba(0, 0, 0, 0.8)',
           zIndex: 9999999,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          padding: '32px 48px',
+          padding: '24px 36px',
           boxSizing: 'border-box',
           overflowY: 'auto'
         }}>
           
           {/* Header Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px', borderBottom: '1.5px solid rgba(56, 189, 248, 0.25)', paddingBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-              <span className="badge badge-teacher" style={{ fontSize: '1.1rem', padding: '8px 20px', borderRadius: '14px', fontWeight: 900 }}>
+              <span style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                color: '#ffffff',
+                border: '1.5px solid #38bdf8',
+                borderRadius: '16px',
+                padding: '8px 22px',
+                fontSize: '1.15rem',
+                fontWeight: 900,
+                boxShadow: '0 4px 16px rgba(2, 132, 199, 0.45)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
                 🧩 MẢNH GHÉP SỐ #{activeTileIndex + 1}
               </span>
 
@@ -1575,8 +1614,8 @@ export function PictureFlipGame({
                       color: '#fff',
                       border: 'none',
                       borderRadius: '10px',
-                      padding: '4px 10px',
-                      fontSize: '0.78rem',
+                      padding: '5px 12px',
+                      fontSize: '0.8rem',
                       fontWeight: 800,
                       cursor: 'pointer',
                       display: 'flex',
@@ -1594,8 +1633,8 @@ export function PictureFlipGame({
                       color: '#fff',
                       border: '1px solid rgba(255,255,255,0.25)',
                       borderRadius: '10px',
-                      padding: '4px 10px',
-                      fontSize: '0.78rem',
+                      padding: '5px 12px',
+                      fontSize: '0.8rem',
                       fontWeight: 800,
                       cursor: 'pointer'
                     }}
@@ -1619,7 +1658,7 @@ export function PictureFlipGame({
                   </span>
                   <button
                     onClick={() => setTurnTeam((currentTeamIdx + 1) % localTeams.length)}
-                    style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: 'none', borderRadius: '8px', padding: '3px 8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer' }}
+                    style={{ background: 'rgba(255,255,255,0.15)', color: '#fff', border: 'none', borderRadius: '8px', padding: '4px 10px', fontSize: '0.78rem', fontWeight: 800, cursor: 'pointer' }}
                   >
                     Đổi Đội
                   </button>
@@ -1627,8 +1666,9 @@ export function PictureFlipGame({
               )}
             </div>
 
-            {/* 20 Seconds Countdown Timer Display */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Timer & Nút Thoát Ra Lại Xem Toàn Bộ Mảnh Ghép */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* 20 Seconds Countdown Timer Display */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -1638,12 +1678,12 @@ export function PictureFlipGame({
                 padding: '8px 20px',
                 borderRadius: '24px',
                 fontWeight: 900,
-                fontSize: '1.2rem',
+                fontSize: '1.15rem',
                 border: '1.5px solid rgba(255,255,255,0.4)',
                 boxShadow: timeLeft <= 5 ? '0 0 20px rgba(239, 68, 68, 0.8)' : '0 4px 16px rgba(2, 132, 199, 0.4)',
                 transition: 'all 0.3s ease'
               }}>
-                ⏱️ Thời gian: <span style={{ fontSize: '1.45rem', color: '#fef08a' }}>{timeLeft}s</span>
+                ⏱️ Thời gian: <span style={{ fontSize: '1.4rem', color: '#fef08a' }}>{timeLeft}s</span>
               </div>
 
               <button
@@ -1653,125 +1693,201 @@ export function PictureFlipGame({
                   border: '1px solid rgba(255,255,255,0.25)',
                   color: '#fff',
                   borderRadius: '16px',
-                  padding: '8px 12px',
+                  padding: '8px 14px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: '6px',
                   fontWeight: 800,
-                  fontSize: '0.8rem'
+                  fontSize: '0.85rem'
                 }}
                 title={isTimerPaused ? 'Tiếp tục đếm ngược' : 'Tạm dừng thời gian'}
               >
-                {isTimerPaused ? <Play size={15} /> : <Pause size={15} />}
+                {isTimerPaused ? <Play size={16} /> : <Pause size={16} />}
                 {isTimerPaused ? 'Tiếp tục' : 'Tạm dừng'}
+              </button>
+
+              {/* Nút thoát ra lại để xem toàn bộ mảnh ghép */}
+              <button
+                onClick={handleCloseQuestion}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(185, 28, 28, 0.45) 100%)',
+                  border: '2px solid #ef4444',
+                  borderRadius: '16px',
+                  color: '#fecaca',
+                  padding: '8px 18px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.35)',
+                  transition: 'all 0.2s ease'
+                }}
+                title="Thoát ra để xem lại toàn bộ bảng mảnh ghép tổng quan"
+              >
+                <X size={18} style={{ color: '#f87171' }} /> Thoát Về Mảnh Ghép
               </button>
             </div>
           </div>
 
-          {/* Question Image if present */}
-          {currentQ.image && (
-            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <img 
-                src={currentQ.image} 
-                alt="Câu hỏi" 
-                style={{ maxHeight: '240px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
-              />
+          {/* Main Stage: Question Box + 2x2 Answers Grid */}
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: '100%',
+            maxWidth: '1280px',
+            margin: '0 auto',
+            gap: '22px',
+            padding: '10px 0'
+          }}>
+
+            {/* Question Card Box */}
+            <div style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.88) 100%)',
+              backdropFilter: 'blur(20px)',
+              border: '2px solid rgba(56, 189, 248, 0.45)',
+              borderRadius: '24px',
+              padding: '28px 40px',
+              textAlign: 'center',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(56, 189, 248, 0.15)'
+            }}>
+              {/* Question Image if present */}
+              {currentQ.image && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img 
+                    src={currentQ.image} 
+                    alt="Câu hỏi" 
+                    style={{ maxHeight: '220px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                  />
+                </div>
+              )}
+
+              {/* Question Text */}
+              <h3 style={{
+                fontSize: 'clamp(1.5rem, 2.5vw, 2.35rem)',
+                fontWeight: 900,
+                color: '#ffffff',
+                margin: 0,
+                lineHeight: 1.45,
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.7)'
+              }}>
+                {currentQ.question}
+              </h3>
             </div>
-          )}
 
-          {/* Question Text */}
-          <h3 style={{ fontSize: '2.1rem', fontWeight: 900, color: '#ffffff', marginBottom: '24px', lineHeight: 1.45, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-            {currentQ.question}
-          </h3>
+            {/* Options Grid: STRICT 2x2 Layout (50% - 50% on Row 1, 50% - 50% on Row 2) */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '18px',
+              width: '100%'
+            }}>
+              {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
+                const qOpts = Array.isArray(currentQ?.options) ? currentQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+                if (!isOptionValidForQuestion(qOpts, idx)) return null;
+                const optText = qOpts[idx] || '';
+                const isSelected = selectedOption === optLabel;
+                const isCorrect = currentQ.correct === optLabel;
 
-          {/* Options Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-            {['A', 'B', 'C', 'D'].map((optLabel, idx) => {
-              const qOpts = Array.isArray(currentQ?.options) ? currentQ.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
-              if (!isOptionValidForQuestion(qOpts, idx)) return null;
-              const optText = qOpts[idx] || '';
-              const isSelected = selectedOption === optLabel;
-              const isCorrect = currentQ.correct === optLabel;
+                let bg = 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)';
+                let border = '2.5px solid #94a3b8';
+                let textColor = '#0f172a';
+                let badgeBg = optLabel === 'A' ? '#0284c7' : optLabel === 'B' ? '#7c3aed' : optLabel === 'C' ? '#ea580c' : '#059669';
+                let boxShadow = '0 6px 18px rgba(0, 0, 0, 0.25)';
 
-              let bg = '#ffffff';
-              let border = '2.5px solid #cbd5e1';
-              let textColor = '#0f172a';
-              let badgeBg = '#2563eb';
-
-              if (answerState) {
-                if (isCorrect) {
-                  bg = '#dcfce7';
-                  border = '2.5px solid #16a34a';
-                  textColor = '#14532d';
-                  badgeBg = '#16a34a';
-                } else if (isSelected && !isCorrect) {
-                  bg = '#fee2e2';
-                  border = '2.5px solid #dc2626';
-                  textColor = '#7f1d1d';
-                  badgeBg = '#dc2626';
+                if (answerState) {
+                  if (isCorrect) {
+                    bg = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    border = '3px solid #6ee7b7';
+                    textColor = '#ffffff';
+                    badgeBg = '#065f46';
+                    boxShadow = '0 0 30px rgba(16, 185, 129, 0.7)';
+                  } else if (isSelected && !isCorrect) {
+                    bg = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                    border = '3px solid #fca5a5';
+                    textColor = '#ffffff';
+                    badgeBg = '#991b1b';
+                    boxShadow = '0 0 30px rgba(239, 68, 68, 0.7)';
+                  } else {
+                    bg = 'rgba(255, 255, 255, 0.2)';
+                    border = '2px solid rgba(255, 255, 255, 0.15)';
+                    textColor = '#94a3b8';
+                    badgeBg = '#475569';
+                  }
                 }
-              }
 
-              return (
-                <button
-                  key={optLabel}
-                  onClick={() => handleAnswerOption(optLabel)}
-                  disabled={!!answerState}
-                  style={{
-                    padding: '18px 22px',
-                    borderRadius: '20px',
-                    background: bg,
-                    border: border,
-                    color: textColor,
-                    textAlign: 'left',
-                    fontWeight: 900,
-                    fontSize: '1.25rem',
-                    lineHeight: 1.4,
-                    cursor: answerState ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '14px',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <span style={{
-                    width: '38px',
-                    height: '38px',
-                    minWidth: '38px',
-                    borderRadius: '12px',
-                    background: badgeBg,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 900,
-                    fontSize: '1.2rem',
-                    color: '#ffffff',
-                    flexShrink: 0
-                  }}>
-                    {optLabel}
-                  </span>
-                  <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={optLabel}
+                    onClick={() => handleAnswerOption(optLabel)}
+                    disabled={!!answerState}
+                    style={{
+                      minHeight: '76px',
+                      padding: '16px 24px',
+                      borderRadius: '20px',
+                      background: bg,
+                      border: border,
+                      color: textColor,
+                      textAlign: 'left',
+                      fontWeight: 900,
+                      fontSize: 'clamp(1.1rem, 1.4vw, 1.35rem)',
+                      lineHeight: 1.35,
+                      cursor: answerState ? 'default' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      boxShadow: boxShadow,
+                      transition: 'all 0.2s ease',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <span style={{
+                      width: '44px',
+                      height: '44px',
+                      minWidth: '44px',
+                      borderRadius: '14px',
+                      background: badgeBg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 900,
+                      fontSize: '1.3rem',
+                      color: '#ffffff',
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}>
+                      {optLabel}
+                    </span>
+                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Feedback & Actions Bar */}
           {answerState && (
             <div style={{
-              padding: '18px 24px',
-              borderRadius: '20px',
-              background: answerState === 'correct' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
-              border: answerState === 'correct' ? '2px solid #10b981' : '2px solid #ef4444',
+              padding: '18px 28px',
+              borderRadius: '22px',
+              background: answerState === 'correct' 
+                ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 78, 59, 0.45) 100%)' 
+                : 'linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(127, 29, 29, 0.45) 100%)',
+              border: answerState === 'correct' ? '2.5px solid #10b981' : '2.5px solid #ef4444',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: '12px'
+              gap: '14px',
+              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.5)'
             }}>
-              <div style={{ fontWeight: 900, fontSize: '1.2rem', color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
+              <div style={{ fontWeight: 900, fontSize: '1.25rem', color: answerState === 'correct' ? '#6ee7b7' : '#fca5a5' }}>
                 {answerState === 'correct' ? (
                   playMode === 'student' 
                     ? `🎉 CHÍNH XÁC! ${activeStudent?.name} ĐƯỢC +100 ĐIỂM! MẢNH GHÉP #${activeTileIndex + 1} ĐÃ ĐƯỢC LẬT MỞ!`
@@ -1779,11 +1895,11 @@ export function PictureFlipGame({
                 ) : answerState === 'timeout' ? (
                   `⏱️ HẾT GIỜ! Học sinh chưa đưa ra câu trả lời!`
                 ) : (
-                  `❌ TIẾC QUÁ! CÂU TRẢ LỜI CHƯA ĐÚNG! Thầy cô có thể gọi học sinh khác cứu trợ.`
+                  `❌ TIẾC QUÁ! CÂU TRẢ LỜI CHƯA ĐÚNG! Thầy cô có thể gọi học sinh khác cứu trợ hoặc quay lại bảng mảnh ghép.`
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {answerState !== 'correct' && playMode === 'student' && (
                   <button
                     onClick={() => {
@@ -1792,19 +1908,49 @@ export function PictureFlipGame({
                       setTimeLeft(20);
                       handleTriggerRandomPicker();
                     }}
-                    className="btn btn-secondary"
-                    style={{ padding: '10px 18px', fontSize: '0.95rem', fontWeight: 800, borderRadius: '12px', background: 'rgba(245, 158, 11, 0.25)', border: '1px solid #f59e0b', color: '#fef08a' }}
+                    style={{
+                      padding: '12px 20px',
+                      fontSize: '0.95rem',
+                      fontWeight: 800,
+                      borderRadius: '14px',
+                      background: 'rgba(245, 158, 11, 0.3)',
+                      border: '1.5px solid #f59e0b',
+                      color: '#fef08a',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
                   >
-                    🎲 Gọi Em Khác Cứu Trợ
+                    <Shuffle size={16} /> 🎲 Gọi Em Khác Cứu Trợ
                   </button>
                 )}
 
                 <button 
-                  className="btn btn-primary" 
                   onClick={handleCloseQuestion} 
-                  style={{ padding: '12px 28px', fontSize: '1.05rem', fontWeight: 900, borderRadius: '14px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', border: 'none' }}
+                  style={{
+                    padding: '14px 30px',
+                    fontSize: '1.15rem',
+                    fontWeight: 900,
+                    borderRadius: '16px',
+                    background: answerState === 'correct' 
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+                      : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    color: '#ffffff',
+                    border: '2px solid rgba(255, 255, 255, 0.4)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    boxShadow: answerState === 'correct' 
+                      ? '0 6px 25px rgba(16, 185, 129, 0.55)' 
+                      : '0 6px 25px rgba(2, 132, 199, 0.55)'
+                  }}
                 >
-                  Tiếp Tục ➔
+                  <Grid size={20} />
+                  {answerState === 'correct' 
+                    ? '🖼️ QUAY LẠI BẢNG MẢNH GHÉP (ĐOÁN HÌNH TỔNG THỂ) ➔' 
+                    : '↩️ QUAY LẠI BẢNG MẢNH GHÉP'}
                 </button>
               </div>
             </div>
