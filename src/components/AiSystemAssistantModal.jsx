@@ -520,19 +520,19 @@ export function AiSystemAssistantModal({
           </span>
 
           {[
-            '🎮 Đua vịt',
-            '👤 Gọi tên học sinh',
-            '👤 Game Nghiêng đầu',
-            '🏃‍♂️ Bắt chước nhanh',
-            '📊 Slide bài giảng',
-            '📖 Tải SGK PDF',
-            '🤝 Họp phụ huynh',
-            '✨ Cách tạo game mới',
-            '📥 Nhập danh sách Excel'
-          ].map((chip, idx) => (
+            { label: '🎮 Đua vịt', query: 'Đua vịt' },
+            { label: '👤 Gọi tên học sinh', query: 'Gọi tên học sinh' },
+            { label: '👤 Game Nghiêng đầu', query: 'Nghiêng đầu' },
+            { label: '🏃‍♂️ Bắt chước nhanh', query: 'Bắt chước nhanh' },
+            { label: '📊 Slide bài giảng', query: 'Slide bài giảng' },
+            { label: '📖 Tải SGK PDF', query: 'Tải SGK' },
+            { label: '🤝 Họp phụ huynh', query: 'Họp phụ huynh' },
+            { label: '✨ Cách tạo game mới', query: 'Cách tạo game' },
+            { label: '📥 Nhập danh sách Excel', query: 'Nhập danh sách học sinh' }
+          ].map((chipItem, idx) => (
             <button
               key={idx}
-              onClick={() => handleQuickChipClick(chip.replace(/^[^\w\sà-ỹÀ-Ỹ]+/u, '').trim())}
+              onClick={() => handleQuickChipClick(chipItem.query)}
               style={{
                 background: '#ffffff',
                 border: '1px solid #cbd5e1',
@@ -546,7 +546,7 @@ export function AiSystemAssistantModal({
                 transition: 'all 0.2s ease'
               }}
             >
-              {chip}
+              {chipItem.label}
             </button>
           ))}
         </div>
