@@ -1137,8 +1137,6 @@ export function App() {
               searchTerm={searchTerm} 
               onCheckTrialOrRun={handleCheckTrialOrRun}
               onOpenUpgrade={setTrialModalInfo}
-              onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
-              onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
               onPlayGame={(gameObj) => handlePlayGameWithTrialCheck(gameObj, false)}
               onSelectTab={(tabId) => setActiveTab(tabId)}
               onApplyAIGameQuestions={handleApplyAIGameQuestions}
