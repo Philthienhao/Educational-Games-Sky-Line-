@@ -928,50 +928,6 @@ export function TextbookDownloadManager({
             >
               <CloudDownload size={20} color="#0d9488" /> Mở Thư Mục Google Drive Gốc
             </a>
-
-            {onOpenVirtualLab && (
-              <button
-                onClick={onOpenVirtualLab}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                  color: '#2dd4bf',
-                  border: '1.5px solid rgba(45, 212, 191, 0.5)',
-                  padding: '12px 22px',
-                  borderRadius: '16px',
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-                }}
-              >
-                <Sparkles size={18} color="#2dd4bf" /> 🧪 Xem Thí Nghiệm Trực Quan Từ SGK
-              </button>
-            )}
-
-            {onOpenGeoExperiments && (
-              <button 
-                onClick={onOpenGeoExperiments}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-                  color: '#ffffff',
-                  border: '1.5px solid #fde047',
-                  padding: '12px 22px',
-                  borderRadius: '16px',
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
-                  cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
-                }}
-              >
-                <Sparkles size={18} color="#ffffff" /> 🚀 Mô hình 3D Địa Lí & Lái Phi Thuyền
-              </button>
-            )}
           </div>
         </div>
 
