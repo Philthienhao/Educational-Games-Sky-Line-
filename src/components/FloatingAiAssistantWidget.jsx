@@ -54,9 +54,9 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
       className="floating-thayhao-bubble-container"
       style={{
         position: 'fixed',
-        bottom: '28px',
-        right: '28px',
-        zIndex: 999999,
+        bottom: '36px',
+        right: '32px',
+        zIndex: 2147483647,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
