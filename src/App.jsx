@@ -78,6 +78,7 @@ const TrialUpgradeModal = lazyWithRetry(() => import('./components/TrialUpgradeM
 const StudentPickerManager = lazyWithRetry(() => import('./components/StudentPickerManager'));
 const ClassroomTimerManager = lazyWithRetry(() => import('./components/ClassroomTimerManager'));
 const AiSystemAssistantModal = lazyWithRetry(() => import('./components/AiSystemAssistantModal').then(m => ({ default: m.AiSystemAssistantModal })));
+const FloatingAiAssistantWidget = lazyWithRetry(() => import('./components/FloatingAiAssistantWidget').then(m => ({ default: m.FloatingAiAssistantWidget })));
 const AIQuestionGeneratorModal = lazyWithRetry(() => import('./components/AIQuestionGeneratorModal').then(m => ({ default: m.AIQuestionGeneratorModal })));
 const IndoorPEDanceGame = lazyWithRetry(() => import('./components/games/IndoorPEDanceGame').then(m => ({ default: m.IndoorPEDanceGame })));
 const StudentHomeworkArena = lazyWithRetry(() => import('./components/homework/StudentHomeworkArena').then(m => ({ default: m.StudentHomeworkArena })));
@@ -1548,6 +1549,13 @@ export function App() {
           onOpenUserManagement={() => setIsUserManagementOpen(true)}
           savedGames={savedGames}
         />
+
+        {/* Bong bóng chat & Trợ lý Thầy Hảo Địa Lí (Góc màn hình) */}
+        {!playingGame && !hostingLiveGame && (
+          <FloatingAiAssistantWidget 
+            onOpenSearchModal={() => setIsAiWidgetOpen(true)}
+          />
+        )}
 
         {/* Trial Expired / Unlimited Upgrade Modal */}
         <TrialUpgradeModal 
