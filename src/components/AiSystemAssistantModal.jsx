@@ -77,14 +77,59 @@ export function AiSystemAssistantModal({
   }, [chatMessages, isOpen]);
 
   // Master System Database Index (Catalog Games + Saved Games + Tools + Guides)
+  // Master System Database Index (Catalog Games + Saved Games + Tools + Guides)
   const systemIndex = useMemo(() => {
-    if (!isOpen) return { games: [], tools: [], systemFaqs: [] };
+    // 1. Gather all games: Base Catalog Games + User Saved Games
+    const baseGames = StorageService.getBaseGames() || [];
     const allTeacherGames = StorageService.getTeacherSavedGames(currentUser?.id) || [];
-    const games = [
-      ...(savedGames.length > 0 ? savedGames : allTeacherGames)
-    ];
+    const gameMap = new Map();
+    baseGames.forEach(g => { if (g && (g.id || g.title)) gameMap.set(g.id || g.title, g); });
+    (savedGames.length > 0 ? savedGames : allTeacherGames).forEach(g => {
+      if (g && (g.id || g.title)) gameMap.set(g.id || g.title, g);
+    });
+    const games = Array.from(gameMap.values());
 
     const tools = [
+      {
+        id: 'tool_call_student',
+        title: 'Gọi Tên Học Sinh & Chia Nhóm',
+        type: 'tab',
+        tabId: 'call-student',
+        icon: '👤',
+        category: 'Công cụ lớp học',
+        description: 'Vòng quay gọi tên ngẫu nhiên, chia nhóm tự động và game Đoán bóng tìm con phục vụ họp phụ huynh.',
+        keywords: ['goi ten', 'goi ten hoc sinh', 'goi hoc sinh', 'goi hs', 'chia nhom', 'vong quay', 'quay so', 'ngau nhien', 'chon hoc sinh', 'doan bong', 'doan bong tim con']
+      },
+      {
+        id: 'tool_duck_race',
+        title: 'Trò Chơi Đua Vịt & Đua Rùa',
+        type: 'tab',
+        tabId: 'catalog',
+        icon: '🦆',
+        category: 'Game thi đua',
+        description: 'Trò chơi đua vịt & đua rùa kịch tính theo danh sách học sinh hoặc các tổ trong lớp.',
+        keywords: ['dua vit', 'dua rua', 'game dua vit', 'vit boi', 'vit', 'rua', 'dua top', 'thi dua']
+      },
+      {
+        id: 'tool_head_tilt',
+        title: 'Game Nghiêng Đầu Camera AI',
+        type: 'tab',
+        tabId: 'catalog',
+        icon: '👤',
+        category: 'Game Camera AI',
+        description: 'Học sinh nghiêng đầu sang trái/phải để chọn đáp án A/B thông qua Camera Webcam thông minh.',
+        keywords: ['nghieng dau', 'game nghieng dau', 'camera nghieng dau', 'nghieng dau chuan', 'camera ai', 'webcam']
+      },
+      {
+        id: 'tool_pose',
+        title: 'Game Bắt Chước Nhanh AI Camera',
+        type: 'tab',
+        tabId: 'catalog',
+        icon: '🏃‍♂️',
+        category: 'Game Camera AI',
+        description: 'Học sinh tạo dáng cơ thể đúng theo động tác mẫu, AI nhận diện và chấm điểm vận động.',
+        keywords: ['bat chuoc', 'bat chuoc nhanh', 'tao dang', 'camera bat chuoc', 'the duc', 'van dong']
+      },
       {
         id: 'tool_catalog',
         title: 'Kho Game Giáo Dục',
@@ -92,8 +137,8 @@ export function AiSystemAssistantModal({
         tabId: 'catalog',
         icon: '🎮',
         category: 'Thư viện game',
-        description: 'Tổng hợp tất cả các trò chơi trắc nghiệm, tương tác camera AI và đua top học sinh.',
-        keywords: ['kho game', 'danh sach game', 'tat ca game', 'giao duc', 'tro choi']
+        description: 'Tổng hợp hơn 40 trò chơi trắc nghiệm 3D, thi đua đội nhóm, tương tác camera AI.',
+        keywords: ['kho game', 'danh sach game', 'tat ca game', 'giao duc', 'tro choi', 'game']
       },
       {
         id: 'tool_my_games',
@@ -103,17 +148,7 @@ export function AiSystemAssistantModal({
         icon: '📑',
         category: 'Thư viện cá nhân',
         description: 'Xem, chỉnh sửa, nhân bản và trình chiếu các bộ game trắc nghiệm do thầy cô tự tạo.',
-        keywords: ['game cua toi', 'game da luu', 'bo cau hoi cua toi', 'sua game']
-      },
-      {
-        id: 'tool_call_student',
-        title: 'Gọi Tên Học Sinh & Đoán Bóng Tìm Con',
-        type: 'tab',
-        tabId: 'call-student',
-        icon: '👤',
-        category: 'Công cụ lớp học',
-        description: 'Vòng quay gọi tên ngẫu nhiên, ghép ảnh học sinh và game Đoán bóng tìm con phục vụ họp phụ huynh.',
-        keywords: ['goi ten', 'doan bong tim con', 'bONG', 'quay ten', 'ngau nhien', 'goi hoc sinh']
+        keywords: ['game cua toi', 'game da luu', 'bo cau hoi cua toi', 'sua game', 'kho game cua toi']
       },
       {
         id: 'tool_timer',
@@ -123,7 +158,7 @@ export function AiSystemAssistantModal({
         icon: '⏱️',
         category: 'Công cụ lớp học',
         description: 'Đồng hồ đếm ngược, đếm tiến, tính giờ làm bài thi đấu cho các đội chơi.',
-        keywords: ['dong ho', 'bam gio', 'dem nguoc', 'tinh gio', 'timer']
+        keywords: ['dong ho', 'bam gio', 'dem nguoc', 'tinh gio', 'timer', 'dong ho bam gio']
       },
       {
         id: 'tool_homeroom',
@@ -133,17 +168,17 @@ export function AiSystemAssistantModal({
         icon: '👥',
         category: 'Quản lý lớp',
         description: 'Quản lý danh sách học sinh, sơ đồ chỗ ngồi, điểm thi đua tổ, ảnh tập thể lớp và phiếu nhận xét.',
-        keywords: ['chu nhiem', 'lop chu nhiem', 'so do lop', 'nhan xet', 'hoc sinh', 'thi dua']
+        keywords: ['chu nhiem', 'lop chu nhiem', 'so do lop', 'nhan xet', 'hoc sinh', 'thi dua', 'danh sach lop', 'so do ban']
       },
       {
         id: 'tool_parent_meeting',
-        title: 'Họp Phụ Huynh & Game Bắt Chước',
+        title: 'Họp Phụ Huynh & Đoán Bóng Tìm Con',
         type: 'tab',
         tabId: 'parent-meeting',
         icon: '🤝',
         category: 'Hoạt động trường',
-        description: 'Kịch bản họp phụ huynh đầu năm/cuối năm, game Đoán bóng tìm con và video vinh danh học sinh.',
-        keywords: ['hop phu huynh', 'phu huynh', 'doan bong', 'vinh danh', 'kich ban']
+        description: 'Kịch bản họp phụ huynh, game Đoán bóng tìm con và video vinh danh học sinh.',
+        keywords: ['hop phu huynh', 'phu huynh', 'doan bong', 'vinh danh', 'kich ban', 'doan bong tim con']
       },
       {
         id: 'tool_textbook',
@@ -153,7 +188,7 @@ export function AiSystemAssistantModal({
         icon: '📖',
         category: 'Tài liệu',
         description: 'Tải và đọc trực tuyến SGK các môn Lớp 6, 7, 8, 9 (Chân trời sáng tạo, Kết nối tri thức, Cánh diều).',
-        keywords: ['tai sgk', 'sach giao khoa', 'pdf', 'lop 6', 'lop 7', 'lop 8', 'lop 9', 'dia ly', 'khtn']
+        keywords: ['tai sgk', 'sach giao khoa', 'pdf', 'sgk', 'lop 6', 'lop 7', 'lop 8', 'lop 9', 'dia ly', 'khtn', 'toan', 'van']
       },
       {
         id: 'tool_virtual_lab',
@@ -163,7 +198,7 @@ export function AiSystemAssistantModal({
         icon: '🧪',
         category: 'Mô phỏng 3D',
         description: 'Phòng thí nghiệm ảo tương tác: phản ứng Hóa học, mạch điện Vật lý, tế bào Sinh học.',
-        keywords: ['thi nghiem', 'khtn', 'hoa hoc', 'vat ly', 'sinh hoc', 'phong thi nghiem']
+        keywords: ['thi nghiem', 'khtn', 'hoa hoc', 'vat ly', 'sinh hoc', 'phong thi nghiem', '3d khtn']
       },
       {
         id: 'tool_geo_3d',
@@ -173,7 +208,7 @@ export function AiSystemAssistantModal({
         icon: '🌍',
         category: 'Mô phỏng 3D',
         description: 'Mô hình 3D chuyển động Trái Đất, Hệ Mặt Trời, cấu tạo địa chất và các hành tinh.',
-        keywords: ['3d dia ly', 'dia ly 3d', 'he mat troi', 'trai dat', 'xoay 3d', 'hanh tinh']
+        keywords: ['3d dia ly', 'dia ly 3d', 'he mat troi', 'trai dat', 'xoay 3d', 'hanh tinh', 'dong dat']
       },
       {
         id: 'tool_slides',
@@ -183,7 +218,7 @@ export function AiSystemAssistantModal({
         icon: '📊',
         category: 'Giảng dạy',
         description: 'Quản lý danh mục Slide bài giảng điện tử theo môn học, nhúng Canva / Google Slides chiếu trực tiếp.',
-        keywords: ['slide', 'bai giang', 'trinh chieu', 'powerpoint', 'canva', 'drive']
+        keywords: ['slide', 'bai giang', 'trinh chieu', 'powerpoint', 'canva', 'drive', 'google slide']
       },
       {
         id: 'tool_create_game',
@@ -193,14 +228,46 @@ export function AiSystemAssistantModal({
         icon: '✨',
         category: 'Tạo nội dung',
         description: 'Công cụ nhập câu hỏi thủ công hoặc tải file Excel trắc nghiệm để sinh game giáo dục mới.',
-        keywords: ['tao game', 'nhap cau hoi', 'tao bo cau hoi', 'them game', 'excel', 'tao moi']
+        keywords: ['tao game', 'nhap cau hoi', 'tao bo cau hoi', 'them game', 'excel', 'tao moi', 'cach tao game']
       }
     ];
 
     const systemFaqs = [
       {
+        id: 'faq_call_student',
+        keywords: ['goi ten', 'goi ten hoc sinh', 'goi hoc sinh', 'goi hs', 'vong quay', 'chia nhom', 'quay ten', 'ngau nhien'],
+        title: 'Tính Năng Gọi Tên Học Sinh & Chia Nhóm',
+        answer: 'Mục **Gọi Tên Học Sinh & Chia Nhóm** cung cấp các công cụ ngẫu nhiên tiện lợi trong lớp học:\n• **Vòng Quay & Gọi Tên Ngẫu Nhiên**: Chọn học sinh trả lời bài hoặc phát biểu.\n• **Chia Nhóm Tự Động**: Chia nhanh cả lớp thành các nhóm cân bằng để hoạt động đội hình.\n• **Game Đoán Bóng Tìm Con**: Trò chơi đoán bóng nhận diện học sinh dành riêng cho họp phụ huynh!',
+        tabId: 'call-student',
+        actionText: '👤 Mở Gọi Tên Học Sinh Ngay'
+      },
+      {
+        id: 'faq_duck_race',
+        keywords: ['dua vit', 'game dua vit', 'cach choi dua vit', 'tro choi dua vit'],
+        title: 'Trò Chơi Đua Vịt Kịch Tính',
+        answer: 'Trò chơi **Đua Vịt** giúp tạo không khí sôi động trong lớp học:\n• Các chú vịt đại diện cho học sinh hoặc các tổ sẽ bơi đua về đích dựa trên số điểm trả lời câu hỏi trắc nghiệm đúng.\n• Thầy/Cô có thể tải file Excel danh sách học sinh để tự động gắn tên học sinh vào từng chú vịt bơi!',
+        tabId: 'catalog',
+        actionText: '🦆 Mở Kho Game Đua Vịt'
+      },
+      {
+        id: 'faq_head_tilt',
+        keywords: ['nghieng dau', 'game nghieng dau', 'camera nghieng dau', 'tro choi nghieng dau'],
+        title: 'Trò Chơi Nghiêng Đầu Camera AI',
+        answer: 'Trò chơi **Nghiêng Đầu Chuẩn** sử dụng Webcam nhận diện cử chỉ đầu học sinh:\n• Học sinh nghiêng đầu sang trái để chọn **Đáp án A**, nghiêng sang phải để chọn **Đáp án B**.\n• Thầy/Cô có thể tải mẫu Excel 2 đáp án (A & B) để tự soạn bộ câu hỏi cho riêng môn học của mình!',
+        tabId: 'catalog',
+        actionText: '👤 Mở Game Nghiêng Đầu Camera'
+      },
+      {
+        id: 'faq_pose_imitation',
+        keywords: ['bat chuoc', 'bat chuoc nhanh', 'game bat chuoc', 'camera bat chuoc', 'the duc'],
+        title: 'Trò Chơi Bắt Chước Nhanh AI Camera',
+        answer: 'Học sinh vận động và tạo dáng cơ thể đúng theo các động tác mẫu xuất hiện trên màn hình, AI sẽ chấm điểm độ chuẩn xác của tư thế theo thời gian thực.',
+        tabId: 'catalog',
+        actionText: '🏃‍♂️ Mở Bắt Chước Nhanh'
+      },
+      {
         id: 'faq_create_game',
-        keywords: ['cach tao game', 'lam sao tao game', 'tao cau hoi', 'nhap excel cau hoi', 'huong dan tao game'],
+        keywords: ['cach tao game', 'lam sao tao game', 'tao cau hoi', 'nhap excel cau hoi', 'huong dan tao game', 'tao game'],
         title: 'Hướng dẫn Tạo Game Giáo Dục Mới',
         answer: 'Để tạo một game trắc nghiệm mới:\n1. Bấm vào nút **"✨ Tạo Game Mới"** trên thanh Menu trái hoặc ở đầu trang "Game Của Tôi".\n2. Chọn loại trò chơi mong muốn (ví dụ: *Nghiêng Đầu, Đua Vịt, Kéo Co, Ai Là Triệu Phú...*).\n3. Nhập tiêu đề, chọn môn học và tải lên file Excel câu hỏi hoặc nhập trực tiếp từng câu.\n4. Bấm **"Lưu Game"** để bắt đầu trình chiếu trên lớp!',
         actionType: 'create_game',
@@ -241,7 +308,7 @@ export function AiSystemAssistantModal({
     ];
 
     return { games, tools, systemFaqs };
-  }, [savedGames]);
+  }, [savedGames, currentUser, isOpen]);
 
   // Execute Search & Question Answering
   const handleSearchAndAsk = (queryText) => {
@@ -257,50 +324,80 @@ export function AiSystemAssistantModal({
     };
 
     const cleanQ = removeAccents(rawQuery);
+    const words = cleanQ.split(/\s+/).filter(w => w.length > 0);
 
-    // 1. Search Games & Tools Matching
-    const matchedTools = systemIndex.tools.filter(t => {
-      const titleMatch = removeAccents(t.title).includes(cleanQ);
-      const descMatch = removeAccents(t.description).includes(cleanQ);
-      const kwMatch = t.keywords.some(k => removeAccents(k).includes(cleanQ) || cleanQ.includes(removeAccents(k)));
-      return titleMatch || descMatch || kwMatch;
-    });
+    // Scoring helper for fuzzy search
+    const getMatchScore = (title, desc, keywords = []) => {
+      const cTitle = removeAccents(title || '');
+      const cDesc = removeAccents(desc || '');
+      const cKw = (keywords || []).map(k => removeAccents(k));
 
-    const matchedGames = systemIndex.games.filter(g => {
-      const gTitle = removeAccents(g.title || g.name || '');
-      const gDesc = removeAccents(g.description || '');
-      const gSub = removeAccents(g.subject || g.category || '');
-      return gTitle.includes(cleanQ) || gDesc.includes(cleanQ) || gSub.includes(cleanQ);
-    });
+      let score = 0;
+      // Exact query match in title or keywords
+      if (cTitle.includes(cleanQ)) score += 40;
+      if (cKw.some(k => k.includes(cleanQ) || cleanQ.includes(k))) score += 35;
+      if (cDesc.includes(cleanQ)) score += 15;
 
-    // 2. Search System FAQs
-    const matchedFaqs = systemIndex.systemFaqs.filter(f => {
-      const titleMatch = removeAccents(f.title).includes(cleanQ);
-      const ansMatch = removeAccents(f.answer).includes(cleanQ);
-      const kwMatch = f.keywords.some(k => removeAccents(k).includes(cleanQ) || cleanQ.includes(removeAccents(k)));
-      return titleMatch || ansMatch || kwMatch;
-    });
+      // Word token matching
+      for (const w of words) {
+        if (cTitle.includes(w)) score += 10;
+        if (cKw.some(k => k.includes(w))) score += 8;
+        if (cDesc.includes(w)) score += 3;
+      }
+
+      return score;
+    };
+
+    // 1. Search Tools
+    const scoredTools = systemIndex.tools
+      .map(t => ({ item: t, score: getMatchScore(t.title, t.description, t.keywords) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.item);
+
+    // 2. Search Games
+    const scoredGames = systemIndex.games
+      .map(g => ({ 
+        item: g, 
+        score: getMatchScore(g.title || g.name || '', g.description || '', [g.subject || '', g.category || '', g.gameType || '']) 
+      }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.item);
+
+    // 3. Search FAQs
+    const scoredFaqs = systemIndex.systemFaqs
+      .map(f => ({ item: f, score: getMatchScore(f.title, f.answer, f.keywords) }))
+      .filter(x => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(x => x.item);
 
     // Construct Bot Response
     let botText = '';
     let resultsPayload = {
-      tools: matchedTools,
-      games: matchedGames,
-      faqs: matchedFaqs
+      tools: scoredTools.slice(0, 3),
+      games: scoredGames.slice(0, 4),
+      faqs: scoredFaqs.slice(0, 2)
     };
 
-    const totalResults = matchedTools.length + matchedGames.length;
+    const totalResults = resultsPayload.tools.length + resultsPayload.games.length;
 
-    if (matchedFaqs.length > 0) {
-      const topFaq = matchedFaqs[0];
+    if (scoredFaqs.length > 0) {
+      const topFaq = scoredFaqs[0];
       botText = `💡 **${topFaq.title}**\n\n${topFaq.answer}`;
       if (totalResults > 0) {
-        botText += `\n\n🔍 **Dưới đây là các trò chơi & công cụ tìm thấy liên quan đến từ khóa "${rawQuery}":**`;
+        botText += `\n\n🔍 **Thầy/Cô có thể bấm vào nút bên dưới để mở trực tiếp tính năng:**`;
       }
     } else if (totalResults > 0) {
-      botText = `🎯 Em đã tìm thấy **${totalResults} kết quả** phù hợp với từ khóa **"${rawQuery}"**. Thầy/Cô bấm vào nút để mở ngay nhé:`;
+      botText = `🎯 Em đã tìm thấy **${totalResults} kết quả** phù hợp với từ khóa **"${rawQuery}"**. Thầy/Cô bấm vào nút bên dưới để mở ngay nhé:`;
     } else {
-      botText = `🔍 Không tìm thấy nội dung nào trùng khớp hoàn toàn với **"${rawQuery}"**.\n\nThầy/Cô có thể thử tìm bằng từ khóa ngắn hơn như: *Đua vịt, Nghiêng đầu, Gọi tên, Slide, SGK, Lớp chủ nhiệm, Hướng dẫn tạo game...*`;
+      botText = `🔍 Không tìm thấy nội dung nào trùng khớp hoàn toàn với **"${rawQuery}"**.\n\nThầy/Cô có thể thử tìm bằng từ khóa phổ biến như: *Đua vịt, Nghiêng đầu, Gọi tên học sinh, Slide, SGK, Lớp chủ nhiệm, Hướng dẫn tạo game...*`;
+      // Provide fallback quick recommendations so user is never stranded
+      resultsPayload = {
+        tools: systemIndex.tools.slice(0, 3),
+        games: systemIndex.games.slice(0, 2),
+        faqs: []
+      };
     }
 
     const botMsg = {
