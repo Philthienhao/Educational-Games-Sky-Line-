@@ -580,6 +580,23 @@ export function TextbookDownloadManager({
     setReaderViewMode(hasHostedPdf ? preferredMode : 'text');
     setIsPdfLoading(hasHostedPdf);
 
+    // Fast asynchronous preflight to detect 404/missing PDF URLs before showing broken iframe
+    if (pdfUrl && !pdfUrl.startsWith('blob:')) {
+      fetch(pdfUrl, { method: 'HEAD' })
+        .then(res => {
+          const contentType = res.headers.get('content-type') || '';
+          if (!res.ok || contentType.includes('text/html')) {
+            setPdfLoadError(true);
+            setIsPdfLoading(false);
+          } else {
+            setPdfLoadError(false);
+          }
+        })
+        .catch(() => {
+          // Keep default if HEAD fails due to network or CORS
+        });
+    }
+
     // Preload text or generate rich pedagogical synopsis in background
     setIsLoadingText(true);
     setReaderText('');
@@ -603,6 +620,113 @@ export function TextbookDownloadManager({
       setReaderText(generateTextbookSynopsis(book));
     }
     setIsLoadingText(false);
+  };
+
+  // Reusable Fallback Card for Cloud Storage / Drive Books (Guarantees ZERO 404)
+  const renderCloudDriveFallbackCard = () => {
+    if (!readingBook) return null;
+    return (
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px',
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        textAlign: 'center',
+        gap: '18px'
+      }}>
+        <div style={{
+          width: '84px',
+          height: '84px',
+          borderRadius: '24px',
+          background: '#ccfbf1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 10px 25px rgba(13, 148, 136, 0.25)'
+        }}>
+          <BookOpen size={44} color="#0d9488" />
+        </div>
+
+        <div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '8px' }}>
+            🎓 {readingBook.grade} • {getSubjectName(readingBook)}
+          </div>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
+            Kho Tệp PDF Gốc: {readingBook.title}
+          </h3>
+          <p style={{ fontSize: '0.92rem', color: '#475569', maxWidth: '580px', lineHeight: 1.6, margin: '0 auto' }}>
+            Toàn bộ tệp PDF gốc của khối lớp này được lưu trữ tập trung tại Google Drive chính thức. Thầy cô có thể mở đọc từ Google Drive, hoặc nạp file PDF từ máy tính để lật trang trực tiếp ngay trên hệ thống!
+          </p>
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '6px' }}>
+          <a
+            href={getDriveUrlForBook(readingBook)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+              color: '#ffffff',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '14px',
+              fontWeight: 900,
+              fontSize: '0.92rem',
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 15px rgba(2, 132, 199, 0.35)'
+            }}
+          >
+            <CloudDownload size={18} /> 📂 Mở Kho PDF Khối {readingBook.grade} (Google Drive)
+          </a>
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              background: '#ffffff',
+              color: '#0f766e',
+              border: '1.5px solid #0d9488',
+              padding: '12px 22px',
+              borderRadius: '14px',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.06)'
+            }}
+          >
+            <Upload size={18} /> 📥 Nạp File PDF Từ Máy Tính (Lật Trang Ngay)
+          </button>
+
+          <button
+            onClick={() => setReaderViewMode('text')}
+            style={{
+              background: '#eff6ff',
+              color: '#1d4ed8',
+              border: '1.5px solid #bfdbfe',
+              padding: '12px 22px',
+              borderRadius: '14px',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
+            }}
+          >
+            <BookOpen size={18} /> 📖 Đọc Bản Số Hóa & Soạn Bài AI
+          </button>
+        </div>
+      </div>
+    );
   };
 
   // Custom PDF Upload Handler
@@ -1304,14 +1428,14 @@ export function TextbookDownloadManager({
                       🎓 {readingBook.grade}
                     </span>
                     <span style={{
-                      background: activePdfUrl ? '#10b981' : '#0284c7',
+                      background: activePdfUrl && !pdfLoadError ? '#10b981' : '#0284c7',
                       color: '#ffffff',
                       padding: '2px 8px',
                       borderRadius: '8px',
                       fontSize: '0.74rem',
                       fontWeight: 900
                     }}>
-                      {activePdfUrl ? '⚡ ĐỌC PDF TRỰC TIẾP' : '📖 SÁCH SỐ HÓA TRỰC TIẾP'}
+                      {activePdfUrl && !pdfLoadError ? '⚡ ĐỌC PDF TRỰC TIẾP' : '📖 SÁCH SỐ HÓA & GOOGLE DRIVE'}
                     </span>
                   </div>
                   <h3 style={{
@@ -1650,7 +1774,7 @@ export function TextbookDownloadManager({
 
               {/* FLIPBOOK VIEW MODE */}
               {readerViewMode === 'flipbook' && (
-                activePdfUrl ? (
+                activePdfUrl && !pdfLoadError ? (
                   <div style={{
                     flex: 1,
                     display: 'flex',
@@ -1892,6 +2016,11 @@ export function TextbookDownloadManager({
                               <iframe
                                 key={`${activePdfUrl}-p${flipbookPage}`}
                                 src={`${activePdfUrl}#page=${flipbookPage}&toolbar=0&navpanes=0&statusbar=0&view=FitH`}
+                                onLoad={() => setIsPdfLoading(false)}
+                                onError={() => {
+                                  setIsPdfLoading(false);
+                                  setPdfLoadError(true);
+                                }}
                                 style={{ width: '100%', height: '100%', border: 'none', background: '#525659' }}
                                 title={`Trang ${flipbookPage}`}
                               />
@@ -1904,6 +2033,11 @@ export function TextbookDownloadManager({
                               <iframe
                                 key={`${activePdfUrl}-p${flipbookPage + 1}`}
                                 src={`${activePdfUrl}#page=${Math.min(flipbookTotalPages, flipbookPage + 1)}&toolbar=0&navpanes=0&statusbar=0&view=FitH`}
+                                onLoad={() => setIsPdfLoading(false)}
+                                onError={() => {
+                                  setIsPdfLoading(false);
+                                  setPdfLoadError(true);
+                                }}
                                 style={{ width: '100%', height: '100%', border: 'none', background: '#525659' }}
                                 title={`Trang ${flipbookPage + 1}`}
                               />
@@ -1918,6 +2052,11 @@ export function TextbookDownloadManager({
                             <iframe
                               key={`${activePdfUrl}-p${flipbookPage}`}
                               src={`${activePdfUrl}#page=${flipbookPage}&toolbar=0&navpanes=0&statusbar=0&view=FitH`}
+                              onLoad={() => setIsPdfLoading(false)}
+                              onError={() => {
+                                setIsPdfLoading(false);
+                                setPdfLoadError(true);
+                              }}
                               style={{ width: '100%', height: '100%', border: 'none', background: '#525659' }}
                               title={`Trang ${flipbookPage}`}
                             />
@@ -1974,12 +2113,14 @@ export function TextbookDownloadManager({
                       <span>Có thể chuyển sang chế độ <strong>"Kéo Cuộn PDF"</strong> ở góc phải trên để cuộn liên tục</span>
                     </div>
                   </div>
-                ) : null
+                ) : (
+                  renderCloudDriveFallbackCard()
+                )
               )}
 
               {/* PDF VIEW MODE */}
               {readerViewMode === 'pdf' && (
-                activePdfUrl ? (
+                activePdfUrl && !pdfLoadError ? (
                   <div style={{ width: '100%', height: '100%', position: 'relative', background: '#525659' }}>
                     {isPdfLoading && (
                       <div style={{
@@ -2072,107 +2213,7 @@ export function TextbookDownloadManager({
                     />
                   </div>
                 ) : (
-                  /* Clean, helpful card for books whose PDF is on Google Drive — NEVER 404 */
-                  <div style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '40px 24px',
-                    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-                    textAlign: 'center',
-                    gap: '18px'
-                  }}>
-                    <div style={{
-                      width: '84px',
-                      height: '84px',
-                      borderRadius: '24px',
-                      background: '#ccfbf1',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 10px 25px rgba(13, 148, 136, 0.25)'
-                    }}>
-                      <BookOpen size={44} color="#0d9488" />
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#e0f2fe', color: '#0369a1', padding: '4px 12px', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '8px' }}>
-                        🎓 {readingBook.grade} • {getSubjectName(readingBook)}
-                      </div>
-                      <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', margin: '0 0 8px 0' }}>
-                        Kho Tệp PDF Gốc: {readingBook.title}
-                      </h3>
-                      <p style={{ fontSize: '0.92rem', color: '#475569', maxWidth: '580px', lineHeight: 1.6, margin: '0 auto' }}>
-                        Toàn bộ tệp PDF gốc của khối lớp này được lưu trữ tập trung tại Google Drive chính thức. Thầy cô có thể đọc bản số hóa chi tiết ngay trên hệ thống, hoặc tải file PDF từ Google Drive để lưu về máy tính!
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '6px' }}>
-                      <button
-                        onClick={() => setReaderViewMode('text')}
-                        style={{
-                          background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '12px 24px',
-                          borderRadius: '14px',
-                          fontWeight: 900,
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          boxShadow: '0 4px 15px rgba(13, 148, 136, 0.35)'
-                        }}
-                      >
-                        <BookOpen size={18} /> 📖 Đọc Bản Số Hóa & Trích Xuất AI Ngay
-                      </button>
-
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        style={{
-                          background: '#ffffff',
-                          color: '#0f766e',
-                          border: '1.5px solid #0d9488',
-                          padding: '12px 22px',
-                          borderRadius: '14px',
-                          fontWeight: 800,
-                          fontSize: '0.92rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          boxShadow: '0 2px 10px rgba(0,0,0,0.06)'
-                        }}
-                      >
-                        <Upload size={18} /> 📂 Nạp File PDF Từ Máy Tính
-                      </button>
-
-                      <a
-                        href={getDriveUrlForBook(readingBook)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          background: '#eff6ff',
-                          color: '#1d4ed8',
-                          border: '1.5px solid #bfdbfe',
-                          padding: '12px 22px',
-                          borderRadius: '14px',
-                          fontWeight: 800,
-                          fontSize: '0.92rem',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
-                        }}
-                      >
-                        <CloudDownload size={18} /> 📥 Tải File PDF Gốc Khối {readingBook.grade} (Drive)
-                      </a>
-                    </div>
-                  </div>
+                  renderCloudDriveFallbackCard()
                 )
               )}
 
