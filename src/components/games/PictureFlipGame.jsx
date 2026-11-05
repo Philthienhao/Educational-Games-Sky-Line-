@@ -634,30 +634,55 @@ export function PictureFlipGame({
   const [showRandomModal, setShowRandomModal] = useState(false);
   const rollIntervalRef = useRef(null);
 
-  // Load Initial Students from Homeroom or Default Sample
+  // Load Initial Students from Game Payload (Priority #1) -> Homeroom (Priority #2) -> Default Sample (Fallback)
   useEffect(() => {
     let names = [];
+    let loadedFromGame = false;
     let loadedFromHomeroom = false;
 
-    try {
-      const hr = StorageService.getTeacherHomeroom(currentUser?.id);
-      if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
-        names = hr.students.map(s => {
-          if (typeof s === 'string') return s.trim();
-          if (typeof s === 'object' && s !== null) return (s.name || s.studentName || '').trim();
-          return '';
-        }).filter(Boolean);
+    // 1. FIRST PRIORITY: Saved Students from this game package!
+    if (Array.isArray(game?.students) && game.students.length > 0) {
+      names = game.students.map(s => {
+        if (typeof s === 'string') return s.trim();
+        if (typeof s === 'object' && s !== null) return (s.name || s.studentName || '').trim();
+        return '';
+      }).filter(Boolean);
 
-        if (names.length > 0) {
-          loadedFromHomeroom = true;
-          setSelectedRosterName(hr.className || 'Lớp Chủ Nhiệm');
-        }
+      if (names.length > 0) {
+        loadedFromGame = true;
+        setSelectedRosterName(game.title ? `⭐ Danh sách game: ${game.title}` : '⭐ Danh Sách Theo Game');
       }
-    } catch (e) {
-      console.warn("Could not load homeroom students for picture flip:", e);
+    } else if (Array.isArray(game?.studentList) && game.studentList.length > 0) {
+      names = game.studentList.map(s => typeof s === 'string' ? s.trim() : (s?.name || '').trim()).filter(Boolean);
+      if (names.length > 0) {
+        loadedFromGame = true;
+        setSelectedRosterName(game.title ? `⭐ Danh sách game: ${game.title}` : '⭐ Danh Sách Theo Game');
+      }
     }
 
-    if (!loadedFromHomeroom || names.length === 0) {
+    // 2. SECOND PRIORITY: Teacher Homeroom Roster
+    if (!loadedFromGame || names.length === 0) {
+      try {
+        const hr = StorageService.getTeacherHomeroom(currentUser?.id);
+        if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
+          names = hr.students.map(s => {
+            if (typeof s === 'string') return s.trim();
+            if (typeof s === 'object' && s !== null) return (s.name || s.studentName || '').trim();
+            return '';
+          }).filter(Boolean);
+
+          if (names.length > 0) {
+            loadedFromHomeroom = true;
+            setSelectedRosterName(hr.className || 'Lớp Chủ Nhiệm');
+          }
+        }
+      } catch (e) {
+        console.warn("Could not load homeroom students for picture flip:", e);
+      }
+    }
+
+    // 3. FALLBACK: Default Sample Roster
+    if (names.length === 0) {
       names = DEFAULT_STUDENT_ROSTERS['Lớp 9A1 (Mẫu 24 HS)'];
       setSelectedRosterName('Lớp 9A1 (Mẫu 24 HS)');
     }
@@ -673,7 +698,7 @@ export function PictureFlipGame({
     setStudents(studentObjects);
     setActiveStudentId(studentObjects[0]?.id || null);
     setCustomRosterRawText(names.join('\n'));
-  }, [currentUser]);
+  }, [currentUser, game]);
 
   const activeStudent = useMemo(() => {
     return students.find(s => s.id === activeStudentId) || students[0] || null;
@@ -694,7 +719,13 @@ export function PictureFlipGame({
     setSelectedRosterName(rosterKey);
     let names = [];
 
-    if (rosterKey === 'Lớp Chủ Nhiệm') {
+    if (rosterKey.startsWith('⭐') || rosterKey.includes('Theo Game') || (game?.title && rosterKey.includes(game.title))) {
+      if (Array.isArray(game?.students) && game.students.length > 0) {
+        names = game.students.map(s => (typeof s === 'object' && s !== null) ? (s.name || s.studentName || '') : String(s || '')).filter(Boolean);
+      } else if (Array.isArray(game?.studentList) && game.studentList.length > 0) {
+        names = game.studentList.map(s => typeof s === 'string' ? s : (s?.name || '')).filter(Boolean);
+      }
+    } else if (rosterKey === 'Lớp Chủ Nhiệm') {
       try {
         const hr = StorageService.getTeacherHomeroom(currentUser?.id);
         if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
@@ -1112,10 +1143,15 @@ export function PictureFlipGame({
                 }}
               >
                 <option value="Lớp Chủ Nhiệm">🏫 Lớp Chủ Nhiệm</option>
+                {Boolean((Array.isArray(game?.students) && game.students.length > 0) || (Array.isArray(game?.studentList) && game.studentList.length > 0)) && (
+                  <option value={game.title ? `⭐ Danh sách game: ${game.title}` : '⭐ Danh Sách Theo Game'}>
+                    ⭐ Danh Sách Lưu Theo Game ({(game?.students?.length || game?.studentList?.length)} HS)
+                  </option>
+                )}
                 {Object.keys(DEFAULT_STUDENT_ROSTERS).map(rName => (
                   <option key={rName} value={rName}>{rName}</option>
                 ))}
-                {selectedRosterName && !DEFAULT_STUDENT_ROSTERS[selectedRosterName] && selectedRosterName !== 'Lớp Chủ Nhiệm' && (
+                {selectedRosterName && !DEFAULT_STUDENT_ROSTERS[selectedRosterName] && selectedRosterName !== 'Lớp Chủ Nhiệm' && !selectedRosterName.startsWith('⭐') && (
                   <option value={selectedRosterName}>{selectedRosterName}</option>
                 )}
               </select>

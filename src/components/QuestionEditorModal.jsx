@@ -44,6 +44,14 @@ export function QuestionEditorModal({
     (/đua vịt|đua rùa|đua bi|gắp thú|phi hành gia|chiếc mũ|cổ thư|chia nhóm/i.test(gameTemplate?.title || '') && !/hộp quà bí mật/i.test(gameTemplate?.title || ''))
   );
 
+  // Determine if this is Picture Reveal / Flip game (requires both questions and optional saved student roster)
+  const isPictureReveal = !isMysteryBox && Boolean(
+    gameTemplate?.engineType === 'picture-reveal' ||
+    /mảnh ghép|bức ảnh|picture-flip/i.test(gameTemplate?.title || '') ||
+    /mảnh ghép|bức ảnh|picture-flip/i.test(gameTemplate?.id || '') ||
+    /mảnh ghép|bức ảnh|picture-flip/i.test(gameTemplate?.baseGameId || '')
+  );
+
   const [title, setTitle] = useState('');
   const [lessonTitle, setLessonTitle] = useState('');
   const [subject, setSubject] = useState(currentUser?.subject || 'Tổng hợp');
@@ -66,7 +74,7 @@ export function QuestionEditorModal({
       setUploadError('');
       setUploadSuccess('');
 
-      if (isStudentPickerGame) {
+      if (isStudentPickerGame || isPictureReveal) {
         // Initialize Students List
         let initialStudents = [];
         if (Array.isArray(gameTemplate.students) && gameTemplate.students.length > 0) {
@@ -81,7 +89,7 @@ export function QuestionEditorModal({
             name: typeof s === 'string' ? s : (s.name || s.studentName || ''),
             note: typeof s === 'string' ? '' : (s.note || '')
           })).filter(s => s.name.trim().length > 0);
-        } else if (Array.isArray(gameTemplate.questions) && gameTemplate.questions.length > 0) {
+        } else if (isStudentPickerGame && Array.isArray(gameTemplate.questions) && gameTemplate.questions.length > 0) {
           // If stored questions were created from student names
           const candidateStudents = gameTemplate.questions.map((q, idx) => ({
             id: q.id || `st_${idx}_${Date.now()}`,
@@ -113,14 +121,16 @@ export function QuestionEditorModal({
           initialStudents = DEFAULT_SAMPLE_STUDENTS.map((name, idx) => ({
             id: `st_${idx}_${Date.now()}`,
             name,
-            note: 'Lớp 10A1'
+            note: isPictureReveal ? 'Lớp mẫu' : 'Lớp 10A1'
           }));
         }
 
         setStudents(initialStudents);
         setBulkPasteText(initialStudents.map(s => s.name).join('\n'));
-      } else {
-        // Normal Quiz Game Questions
+      }
+
+      if (!isStudentPickerGame) {
+        // Normal Quiz Game Questions (including Picture Reveal)
         const existingQs = gameTemplate.questions || gameTemplate.defaultQuestions || [];
         const normalizedQs = (Array.isArray(existingQs) ? existingQs : []).map((q, idx) => ({
           id: q?.id || `q_${idx}_${Date.now()}`,
@@ -132,7 +142,7 @@ export function QuestionEditorModal({
         setQuestions(normalizedQs);
       }
     }
-  }, [gameTemplate, isStudentPickerGame, currentUser]);
+  }, [gameTemplate, isStudentPickerGame, isPictureReveal, currentUser]);
 
   // Handle Secret Key Image File Upload (Picture Reveal)
   const handleSecretImageFileUpload = (e) => {
@@ -210,6 +220,38 @@ export function QuestionEditorModal({
       }
     } catch (err) {
       setUploadError(err.message || 'Lỗi khi nhập file.');
+      SoundFX.wrong();
+    } finally {
+      setIsProcessingFile(false);
+      e.target.value = '';
+    }
+  };
+
+  // Dedicated Student Roster File Upload (used for Picture Flip and student lists)
+  const handleStudentRosterFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessingFile(true);
+    setUploadError('');
+    setUploadSuccess('');
+
+    try {
+      const parsedStudents = await parseStudentRosterFile(file);
+      if (!parsedStudents || parsedStudents.length === 0) {
+        throw new Error('Không tìm thấy danh sách học sinh hợp lệ trong file.');
+      }
+      const formatted = parsedStudents.map((s, idx) => ({
+        id: `st_${Date.now()}_${idx}`,
+        name: s.name || `Học sinh ${idx + 1}`,
+        note: s.note || ''
+      }));
+      setStudents(formatted);
+      setBulkPasteText(formatted.map(s => s.name).join('\n'));
+      setUploadSuccess(`Đã nạp thành công ${formatted.length} học sinh từ tệp ${file.name}!`);
+      SoundFX.correct();
+    } catch (err) {
+      setUploadError(err.message || 'Lỗi khi đọc file danh sách học sinh.');
       SoundFX.wrong();
     } finally {
       setIsProcessingFile(false);
@@ -419,7 +461,14 @@ export function QuestionEditorModal({
       };
     }
 
-    // Normal Quiz Game Payload
+    // Normal Quiz Game Payload (including Picture Reveal with optional saved students)
+    const cleanStudents = (students && students.length > 0 ? students : []).map((s, idx) => ({
+      id: s.id || `st_${idx}_${Date.now()}`,
+      name: String(s.name || '').trim() || `Học sinh ${idx + 1}`,
+      note: String(s.note || '').trim()
+    })).filter(s => s.name.length > 0);
+    const cleanStudentList = cleanStudents.map(s => s.name);
+
     return {
       id: isAlreadySaved ? gameTemplate.id : `saved_${Date.now()}`,
       userId: currentUser?.id || 'user_admin',
@@ -434,6 +483,8 @@ export function QuestionEditorModal({
       description: description || gameTemplate?.description || '',
       secretImage: secretImage || gameTemplate?.secretImage || gameTemplate?.bgImageUrl || '',
       bgImageUrl: secretImage || gameTemplate?.secretImage || gameTemplate?.bgImageUrl || '',
+      students: cleanStudents,
+      studentList: cleanStudentList,
       questions: ((questions && questions.length > 0) ? questions : (gameTemplate?.questions || [])).map(q => {
         if (!q || !Array.isArray(q.options)) return q;
         const cleanOpts = q.options.map(o => String(o || '').trim());
@@ -634,7 +685,7 @@ export function QuestionEditorModal({
           </div>
 
           {/* Secret Key Image Uploader Section (Special for Picture Reveal Game) */}
-          {(gameTemplate.engineType === 'picture-reveal') && (
+          {isPictureReveal && (
             <div style={{
               background: 'rgba(236, 72, 153, 0.1)',
               border: '1.5px solid rgba(236, 72, 153, 0.4)',
@@ -732,6 +783,192 @@ export function QuestionEditorModal({
             </div>
           )}
 
+          {/* Dành riêng cho Lật Mảnh Ghép: Bỏ Tên Học Sinh Vào Sẵn Để Lưu Vào Game Của Tôi */}
+          {isPictureReveal && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(15, 23, 42, 0.65) 100%)',
+              border: '2px solid rgba(56, 189, 248, 0.45)',
+              borderRadius: '18px',
+              padding: '20px 24px',
+              boxShadow: '0 8px 25px rgba(2, 132, 199, 0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              {/* Header with Title and Student Count */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(2, 132, 199, 0.4)'
+                  }}>
+                    <Users size={22} color="#ffffff" />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#38bdf8', margin: 0 }}>
+                        Danh Sách Học Sinh Bỏ Sẵn Vào Game Lật Mảnh Ghép
+                      </h4>
+                      <span style={{
+                        background: 'rgba(56, 189, 248, 0.2)',
+                        border: '1px solid #38bdf8',
+                        color: '#fef08a',
+                        borderRadius: '20px',
+                        padding: '2px 10px',
+                        fontSize: '0.8rem',
+                        fontWeight: 800
+                      }}>
+                        {students.length} học sinh
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '3px 0 0 0' }}>
+                      Bỏ sẵn tên học sinh tại đây để lưu vào <strong>"Game Của Tôi"</strong> — lần sau mở game chơi lại là có sẵn ngay, không cần chọn lại!
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Action Buttons */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={handleLoadFromHomeroom}
+                    className="btn btn-secondary btn-sm"
+                    style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', fontWeight: 800 }}
+                    title="Nạp nhanh toàn bộ học sinh từ Lớp Chủ Nhiệm của bạn"
+                  >
+                    🏫 Lấy Từ Lớp Chủ Nhiệm
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBulkPasteText(students.map(s => s.name).join('\n'));
+                      setShowBulkPasteModal(true);
+                    }}
+                    className="btn btn-secondary btn-sm"
+                    style={{ background: 'rgba(2, 132, 199, 0.25)', border: '1px solid #0284c7', color: '#38bdf8', fontWeight: 800 }}
+                    title="Dán nhanh danh sách học sinh từ Excel hoặc văn bản"
+                  >
+                    <ClipboardList size={15} /> Dán Nhanh (Excel/Word)
+                  </button>
+
+                  <input 
+                    type="file"
+                    accept=".xlsx,.xls,.docx,.doc,.txt"
+                    onChange={handleStudentRosterFileUpload}
+                    style={{ display: 'none' }}
+                    id="flip-student-file-input"
+                  />
+                  <label
+                    htmlFor="flip-student-file-input"
+                    className="btn btn-secondary btn-sm"
+                    style={{ background: 'rgba(245, 158, 11, 0.2)', border: '1px solid #f59e0b', color: '#fef08a', fontWeight: 800, cursor: 'pointer', margin: 0 }}
+                    title="Nhập danh sách học sinh từ file Excel"
+                  >
+                    <FileSpreadsheet size={15} /> Tải File Excel...
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleAddStudent}
+                    className="btn btn-secondary btn-sm"
+                    style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)', color: '#fff', fontWeight: 800 }}
+                  >
+                    <Plus size={15} /> Thêm Em
+                  </button>
+
+                  {students.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleClearAllStudents}
+                      className="btn btn-secondary btn-sm"
+                      style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#fca5a5' }}
+                      title="Xóa danh sách để nhập lại từ đầu"
+                    >
+                      <Trash2 size={14} /> Xóa Hết
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Student Chips / List */}
+              <div style={{
+                maxHeight: '220px',
+                overflowY: 'auto',
+                background: 'rgba(15, 23, 42, 0.8)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '12px',
+                padding: '12px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+                gap: '8px'
+              }}>
+                {students.length === 0 ? (
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '20px', color: '#94a3b8', fontSize: '0.88rem' }}>
+                    Chưa có học sinh nào. Hãy bấm <strong>"🏫 Lấy Từ Lớp Chủ Nhiệm"</strong> hoặc <strong>"📋 Dán Nhanh"</strong> để thêm học sinh vào game!
+                  </div>
+                ) : (
+                  students.map((student, idx) => (
+                    <div 
+                      key={student.id || idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'rgba(30, 41, 59, 0.9)',
+                        border: '1px solid rgba(56, 189, 248, 0.3)',
+                        borderRadius: '8px',
+                        padding: '6px 10px'
+                      }}
+                    >
+                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#38bdf8', minWidth: '22px' }}>
+                        #{idx + 1}
+                      </span>
+                      <input
+                        type="text"
+                        value={student.name}
+                        onChange={(e) => handleStudentChange(student.id, 'name', e.target.value)}
+                        placeholder="Tên học sinh..."
+                        style={{
+                          flex: 1,
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          outline: 'none',
+                          width: '100%'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteStudent(student.id)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#ef4444',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                        title="Xóa học sinh này"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Standard Excel Import Section */}
           <div style={{
             padding: '16px 20px',
@@ -808,8 +1045,8 @@ export function QuestionEditorModal({
             </div>
           )}
 
-          {/* Quick Bulk Paste Section for Student Picker Games */}
-          {isStudentPickerGame && showBulkPasteModal && (
+          {/* Quick Bulk Paste Section for Student Picker & Picture Flip Games */}
+          {(isStudentPickerGame || isPictureReveal) && showBulkPasteModal && (
             <div style={{
               background: 'rgba(15, 23, 42, 0.95)',
               border: '1.5px solid #0284c7',
