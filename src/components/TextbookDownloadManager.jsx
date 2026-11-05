@@ -64,6 +64,9 @@ export function TextbookDownloadManager({
   // Toast Notification for Drive Download
   const [toastMessage, setToastMessage] = useState(null);
 
+  // High-performance Drive preview detector
+  const isDrivePreview = Boolean(activePdfUrl && activePdfUrl.includes('drive.google.com'));
+
   // Pre-warm browser cache in background for high-speed instant PDF opening
   useEffect(() => {
     if (typeof window !== 'undefined' && 'fetch' in window) {
@@ -129,9 +132,27 @@ export function TextbookDownloadManager({
       return '/textbooks/LSDL7.pdf';
     }
 
-    if (book.pdfUrl) return book.pdfUrl;
+    const isLocalhost = typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '0.0.0.0'
+    );
 
-    // Do NOT return relative paths that don't exist on server or cross-origin blocked drive links
+    // If running in development (localhost), use local Vite streaming directly from SGK folder
+    if (isLocalhost && book.pdfUrl) {
+      return book.pdfUrl;
+    }
+
+    // In production web deployment, Google Drive Preview embed provides 100% reliable, zero-404 reading
+    if (book.drivePreviewUrl) {
+      return book.drivePreviewUrl;
+    }
+
+    // Fallback to hosted PDF with cache-busting query parameter
+    if (book.pdfUrl) {
+      return `${book.pdfUrl}?v=20261105_v3`;
+    }
+
     return null;
   };
 
@@ -431,12 +452,21 @@ export function TextbookDownloadManager({
       return;
     }
 
-    const fileId = book.id || book.fileName;
+    const driveId = book.driveId;
     const targetDriveUrl = getDriveUrlForBook(book);
     const gradeName = book.grade || 'Lớp';
 
     try {
-      setDownloadingId(fileId);
+      setDownloadingId(book.id || book.fileName);
+
+      // If book has Google Drive file ID, trigger direct Google Drive file download
+      if (driveId) {
+        setToastMessage(`📥 Đang tải xuống tệp PDF gốc: [${book.title}]...`);
+        setTimeout(() => setToastMessage(null), 4000);
+        window.open(`https://drive.google.com/uc?export=download&id=${driveId}`, '_blank');
+        return;
+      }
+
       const pdfUrl = getPdfUrlForBook(book);
       
       // If book has a local PDF ready, trigger direct instant browser download
@@ -580,21 +610,31 @@ export function TextbookDownloadManager({
     setReaderViewMode(hasHostedPdf ? preferredMode : 'text');
     setIsPdfLoading(hasHostedPdf);
 
-    // Fast asynchronous preflight to detect 404/missing PDF URLs before showing broken iframe
-    if (pdfUrl && !pdfUrl.startsWith('blob:')) {
+    // Fast asynchronous preflight for local server URLs (exclude blob: and Google Drive links)
+    if (pdfUrl && !pdfUrl.startsWith('blob:') && !pdfUrl.includes('drive.google.com')) {
       fetch(pdfUrl, { method: 'HEAD' })
         .then(res => {
           const contentType = res.headers.get('content-type') || '';
           if (!res.ok || contentType.includes('text/html')) {
-            setPdfLoadError(true);
-            setIsPdfLoading(false);
+            if (book.drivePreviewUrl) {
+              setActivePdfUrl(book.drivePreviewUrl);
+              setPdfLoadError(false);
+            } else {
+              setPdfLoadError(true);
+              setIsPdfLoading(false);
+            }
           } else {
             setPdfLoadError(false);
           }
         })
         .catch(() => {
-          // Keep default if HEAD fails due to network or CORS
+          if (book.drivePreviewUrl) {
+            setActivePdfUrl(book.drivePreviewUrl);
+            setPdfLoadError(false);
+          }
         });
+    } else {
+      setPdfLoadError(false);
     }
 
     // Preload text or generate rich pedagogical synopsis in background
@@ -1435,7 +1475,7 @@ export function TextbookDownloadManager({
                       fontSize: '0.74rem',
                       fontWeight: 900
                     }}>
-                      {activePdfUrl && !pdfLoadError ? '⚡ ĐỌC PDF TRỰC TIẾP' : '📖 SÁCH SỐ HÓA & GOOGLE DRIVE'}
+                      {activePdfUrl && !pdfLoadError ? (isDrivePreview ? '⚡ ĐỌC TRỰC TIẾP HD' : '⚡ ĐỌC PDF TRỰC TIẾP') : '📖 SÁCH SỐ HÓA & GOOGLE DRIVE'}
                     </span>
                   </div>
                   <h3 style={{
@@ -1796,124 +1836,145 @@ export function TextbookDownloadManager({
                       zIndex: 10
                     }}>
                       {/* Flip Controls: Prev / Page Input / Next */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button
-                          onClick={handlePrevPage}
-                          disabled={flipbookPage <= 1}
-                          style={{
-                            background: flipbookPage <= 1 ? 'rgba(255,255,255,0.08)' : '#0d9488',
-                            color: '#ffffff',
-                            border: 'none',
-                            padding: '8px 14px',
-                            borderRadius: '10px',
-                            fontWeight: 800,
-                            fontSize: '0.85rem',
-                            cursor: flipbookPage <= 1 ? 'not-allowed' : 'pointer',
+                      {isDrivePreview ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, flexWrap: 'wrap' }}>
+                          <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
-                            boxShadow: flipbookPage <= 1 ? 'none' : '0 2px 8px rgba(13,148,136,0.4)',
-                            transition: 'all 0.2s'
-                          }}
-                          title="Lật trang trước (Phím ⬅)"
-                        >
-                          <ChevronLeft size={16} /> Trang Trước
-                        </button>
-
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          background: 'rgba(255,255,255,0.1)',
-                          padding: '4px 12px',
-                          borderRadius: '10px',
-                          color: '#f8fafc',
-                          fontWeight: 800,
-                          fontSize: '0.88rem'
-                        }}>
-                          <span>Trang</span>
-                          <input
-                            type="text"
-                            value={pageJumpInput}
-                            onChange={(e) => setPageJumpInput(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') handlePageJump(pageJumpInput);
-                            }}
-                            style={{
-                              width: '46px',
-                              textAlign: 'center',
-                              padding: '4px 6px',
-                              borderRadius: '6px',
-                              border: '1.5px solid #2dd4bf',
-                              background: '#0f172a',
-                              color: '#ffffff',
-                              fontWeight: 900,
-                              fontSize: '0.88rem',
-                              outline: 'none'
-                            }}
-                          />
-                          <span style={{ color: '#94a3b8' }}>/ {flipbookTotalPages}</span>
-                          <button
-                            onClick={() => handlePageJump(pageJumpInput)}
-                            style={{
-                              background: '#0284c7',
-                              color: '#ffffff',
-                              border: 'none',
-                              padding: '4px 10px',
-                              borderRadius: '6px',
-                              fontWeight: 800,
-                              fontSize: '0.78rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Đến
-                          </button>
+                            gap: '8px',
+                            background: 'rgba(16, 185, 129, 0.15)',
+                            border: '1px solid rgba(16, 185, 129, 0.35)',
+                            padding: '6px 14px',
+                            borderRadius: '10px',
+                            color: '#34d399',
+                            fontSize: '0.82rem',
+                            fontWeight: 800
+                          }}>
+                            <Sparkles size={15} /> Bản Đọc HD Trực Tiếp — Lăn chuột hoặc dùng thanh công cụ bên trong để đổi trang, phóng to
+                          </div>
                         </div>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              onClick={handlePrevPage}
+                              disabled={flipbookPage <= 1}
+                              style={{
+                                background: flipbookPage <= 1 ? 'rgba(255,255,255,0.08)' : '#0d9488',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '8px 14px',
+                                borderRadius: '10px',
+                                fontWeight: 800,
+                                fontSize: '0.85rem',
+                                cursor: flipbookPage <= 1 ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                boxShadow: flipbookPage <= 1 ? 'none' : '0 2px 8px rgba(13,148,136,0.4)',
+                                transition: 'all 0.2s'
+                              }}
+                              title="Lật trang trước (Phím ⬅)"
+                            >
+                              <ChevronLeft size={16} /> Trang Trước
+                            </button>
 
-                        <button
-                          onClick={handleNextPage}
-                          disabled={flipbookPage >= flipbookTotalPages}
-                          style={{
-                            background: flipbookPage >= flipbookTotalPages ? 'rgba(255,255,255,0.08)' : '#0d9488',
-                            color: '#ffffff',
-                            border: 'none',
-                            padding: '8px 14px',
-                            borderRadius: '10px',
-                            fontWeight: 800,
-                            fontSize: '0.85rem',
-                            cursor: flipbookPage >= flipbookTotalPages ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            boxShadow: flipbookPage >= flipbookTotalPages ? 'none' : '0 2px 8px rgba(13,148,136,0.4)',
-                            transition: 'all 0.2s'
-                          }}
-                          title="Lật trang sau (Phím ➡)"
-                        >
-                          Trang Sau <ChevronRight size={16} />
-                        </button>
-                      </div>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              background: 'rgba(255,255,255,0.1)',
+                              padding: '4px 12px',
+                              borderRadius: '10px',
+                              color: '#f8fafc',
+                              fontWeight: 800,
+                              fontSize: '0.88rem'
+                            }}>
+                              <span>Trang</span>
+                              <input
+                                type="text"
+                                value={pageJumpInput}
+                                onChange={(e) => setPageJumpInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handlePageJump(pageJumpInput);
+                                }}
+                                style={{
+                                  width: '46px',
+                                  textAlign: 'center',
+                                  padding: '4px 6px',
+                                  borderRadius: '6px',
+                                  border: '1.5px solid #2dd4bf',
+                                  background: '#0f172a',
+                                  color: '#ffffff',
+                                  fontWeight: 900,
+                                  fontSize: '0.88rem',
+                                  outline: 'none'
+                                }}
+                              />
+                              <span style={{ color: '#94a3b8' }}>/ {flipbookTotalPages}</span>
+                              <button
+                                onClick={() => handlePageJump(pageJumpInput)}
+                                style={{
+                                  background: '#0284c7',
+                                  color: '#ffffff',
+                                  border: 'none',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  fontWeight: 800,
+                                  fontSize: '0.78rem',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Đến
+                              </button>
+                            </div>
 
-                      {/* Smooth Page Scrubbing Slider ("Kéo Thanh Trượt Lật Trang Mượt Mà") */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px', maxWidth: '360px' }}>
-                        <Sliders size={16} color="#2dd4bf" />
-                        <input
-                          type="range"
-                          min="1"
-                          max={flipbookTotalPages}
-                          value={flipbookPage}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value, 10);
-                            setFlipbookPage(val);
-                            setPageJumpInput(String(val));
-                          }}
-                          style={{
-                            flex: 1,
-                            accentColor: '#2dd4bf',
-                            cursor: 'pointer'
-                          }}
-                        />
-                      </div>
+                            <button
+                              onClick={handleNextPage}
+                              disabled={flipbookPage >= flipbookTotalPages}
+                              style={{
+                                background: flipbookPage >= flipbookTotalPages ? 'rgba(255,255,255,0.08)' : '#0d9488',
+                                color: '#ffffff',
+                                border: 'none',
+                                padding: '8px 14px',
+                                borderRadius: '10px',
+                                fontWeight: 800,
+                                fontSize: '0.85rem',
+                                cursor: flipbookPage >= flipbookTotalPages ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                boxShadow: flipbookPage >= flipbookTotalPages ? 'none' : '0 2px 8px rgba(13,148,136,0.4)',
+                                transition: 'all 0.2s'
+                              }}
+                              title="Lật trang sau (Phím ➡)"
+                            >
+                              Trang Sau <ChevronRight size={16} />
+                            </button>
+                          </div>
+
+                          {/* Smooth Page Scrubbing Slider ("Kéo Thanh Trượt Lật Trang Mượt Mà") */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: '220px', maxWidth: '360px' }}>
+                            <Sliders size={16} color="#2dd4bf" />
+                            <input
+                              type="range"
+                              min="1"
+                              max={flipbookTotalPages}
+                              value={flipbookPage}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                setFlipbookPage(val);
+                                setPageJumpInput(String(val));
+                              }}
+                              style={{
+                                flex: 1,
+                                accentColor: '#2dd4bf',
+                                cursor: 'pointer'
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
 
                       {/* Quick Bookmarks & Spread View */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -1967,39 +2028,41 @@ export function TextbookDownloadManager({
                       overflow: 'hidden'
                     }}>
                       {/* Left Floating Turn Arrow */}
-                      <button
-                        onClick={handlePrevPage}
-                        disabled={flipbookPage <= 1}
-                        style={{
-                          position: 'absolute',
-                          left: '16px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: 'rgba(15, 23, 42, 0.75)',
-                          backdropFilter: 'blur(8px)',
-                          color: '#ffffff',
-                          border: '1.5px solid rgba(255,255,255,0.2)',
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: flipbookPage <= 1 ? 'not-allowed' : 'pointer',
-                          opacity: flipbookPage <= 1 ? 0.3 : 0.9,
-                          zIndex: 15,
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                          transition: 'all 0.2s'
-                        }}
-                        title="Lật trang trước (Phím ⬅)"
-                      >
-                        <ChevronLeft size={28} />
-                      </button>
+                      {!isDrivePreview && (
+                        <button
+                          onClick={handlePrevPage}
+                          disabled={flipbookPage <= 1}
+                          style={{
+                            position: 'absolute',
+                            left: '16px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'rgba(15, 23, 42, 0.75)',
+                            backdropFilter: 'blur(8px)',
+                            color: '#ffffff',
+                            border: '1.5px solid rgba(255,255,255,0.2)',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: flipbookPage <= 1 ? 'not-allowed' : 'pointer',
+                            opacity: flipbookPage <= 1 ? 0.3 : 0.9,
+                            zIndex: 15,
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+                            transition: 'all 0.2s'
+                          }}
+                          title="Lật trang trước (Phím ⬅)"
+                        >
+                          <ChevronLeft size={28} />
+                        </button>
+                      )}
 
                       {/* Book Container Frame */}
                       <div style={{
                         width: '100%',
-                        maxWidth: flipbookSpreadMode ? '1380px' : '860px',
+                        maxWidth: isDrivePreview ? '1280px' : (flipbookSpreadMode ? '1380px' : '860px'),
                         height: '100%',
                         maxHeight: 'calc(100vh - 180px)',
                         background: '#ffffff',
@@ -2009,7 +2072,22 @@ export function TextbookDownloadManager({
                         display: 'flex',
                         position: 'relative'
                       }}>
-                        {flipbookSpreadMode ? (
+                        {isDrivePreview ? (
+                          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                            <iframe
+                              key={activePdfUrl}
+                              src={activePdfUrl}
+                              onLoad={() => setIsPdfLoading(false)}
+                              onError={() => {
+                                setIsPdfLoading(false);
+                                setPdfLoadError(true);
+                              }}
+                              allow="autoplay"
+                              style={{ width: '100%', height: '100%', border: 'none', background: '#202124' }}
+                              title={readingBook.title}
+                            />
+                          </div>
+                        ) : flipbookSpreadMode ? (
                           <>
                             {/* Left Page in Spread */}
                             <div style={{ flex: 1, height: '100%', borderRight: '2px solid #cbd5e1', position: 'relative' }}>
@@ -2065,34 +2143,36 @@ export function TextbookDownloadManager({
                       </div>
 
                       {/* Right Floating Turn Arrow */}
-                      <button
-                        onClick={handleNextPage}
-                        disabled={flipbookPage >= flipbookTotalPages}
-                        style={{
-                          position: 'absolute',
-                          right: '16px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          background: 'rgba(15, 23, 42, 0.75)',
-                          backdropFilter: 'blur(8px)',
-                          color: '#ffffff',
-                          border: '1.5px solid rgba(255,255,255,0.2)',
-                          width: '48px',
-                          height: '48px',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: flipbookPage >= flipbookTotalPages ? 'not-allowed' : 'pointer',
-                          opacity: flipbookPage >= flipbookTotalPages ? 0.3 : 0.9,
-                          zIndex: 15,
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-                          transition: 'all 0.2s'
-                        }}
-                        title="Lật trang sau (Phím ➡)"
-                      >
-                        <ChevronRight size={28} />
-                      </button>
+                      {!isDrivePreview && (
+                        <button
+                          onClick={handleNextPage}
+                          disabled={flipbookPage >= flipbookTotalPages}
+                          style={{
+                            position: 'absolute',
+                            right: '16px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            background: 'rgba(15, 23, 42, 0.75)',
+                            backdropFilter: 'blur(8px)',
+                            color: '#ffffff',
+                            border: '1.5px solid rgba(255,255,255,0.2)',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: flipbookPage >= flipbookTotalPages ? 'not-allowed' : 'pointer',
+                            opacity: flipbookPage >= flipbookTotalPages ? 0.3 : 0.9,
+                            zIndex: 15,
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+                            transition: 'all 0.2s'
+                          }}
+                          title="Lật trang sau (Phím ➡)"
+                        >
+                          <ChevronRight size={28} />
+                        </button>
+                      )}
                     </div>
 
                     {/* Bottom Hint Banner */}
@@ -2196,18 +2276,19 @@ export function TextbookDownloadManager({
                     )}
                     <iframe
                       key={activePdfUrl}
-                      src={`${activePdfUrl}#toolbar=1&navpanes=1&statusbar=1&view=FitH`}
+                      src={isDrivePreview ? activePdfUrl : `${activePdfUrl}#toolbar=1&navpanes=1&statusbar=1&view=FitH`}
                       onLoad={() => setIsPdfLoading(false)}
                       onError={() => {
                         setIsPdfLoading(false);
                         setPdfLoadError(true);
                       }}
+                      allow="autoplay"
                       style={{
                         width: '100%',
                         height: '100%',
                         border: 'none',
                         display: 'block',
-                        background: '#525659'
+                        background: '#202124'
                       }}
                       title={readingBook.title}
                     />
