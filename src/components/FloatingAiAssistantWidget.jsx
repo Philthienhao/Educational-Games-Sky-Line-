@@ -54,9 +54,9 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
       className="floating-thayhao-bubble-container"
       style={{
         position: 'fixed',
-        bottom: '24px',
-        right: '24px',
-        zIndex: 9990,
+        bottom: '28px',
+        right: '28px',
+        zIndex: 999999,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'flex-end',
@@ -73,7 +73,7 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
         @media (max-width: 768px) {
           .floating-thayhao-bubble-container {
             bottom: 84px !important;
-            right: 16px !important;
+            right: 18px !important;
           }
         }
       `}</style>
@@ -100,13 +100,13 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
               animation: 'actionPopIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
               transition: 'transform 0.18s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             <div style={{
               background: 'rgba(15, 23, 42, 0.95)',
               color: '#ffffff',
-              padding: '7px 14px',
+              padding: '8px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 800,
@@ -146,13 +146,13 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
               animation: 'actionPopIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
               transition: 'transform 0.18s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             <div style={{
               background: 'rgba(15, 23, 42, 0.95)',
               color: '#ffffff',
-              padding: '7px 14px',
+              padding: '8px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 800,
@@ -190,13 +190,13 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
               animation: 'actionPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
               transition: 'transform 0.18s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             <div style={{
               background: 'rgba(15, 23, 42, 0.95)',
               color: '#fde047',
-              padding: '7px 14px',
+              padding: '8px 14px',
               borderRadius: '12px',
               fontSize: '0.82rem',
               fontWeight: 900,
@@ -225,93 +225,133 @@ export function FloatingAiAssistantWidget({ onOpenSearchModal }) {
         </div>
       )}
 
-      {/* MAIN BONG BÓNG CHAT THẦY HẢO ĐỊA LÍ */}
+      {/* MAIN BONG BÓNG CHAT THẦY HẢO ĐỊA LÍ WITH PROMINENT LABEL PILL */}
       <div
-        onClick={() => setIsOpen((prev) => !prev)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        title={isOpen ? 'Bấm để đóng menu liên hệ' : 'Bong bóng chat Thầy Hảo Địa Lí - Bấm để chat Zalo, Facebook hoặc Trợ lý 24/7'}
         style={{
           position: 'relative',
-          width: '68px',
-          height: '68px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-          padding: '3px',
-          cursor: 'pointer',
-          boxShadow: isHovered 
-            ? '0 12px 28px rgba(13, 148, 136, 0.5), 0 6px 16px rgba(0,0,0,0.25)' 
-            : '0 8px 24px rgba(13, 148, 136, 0.35), 0 4px 12px rgba(0,0,0,0.18)',
-          transform: isHovered ? 'scale(1.08)' : 'scale(1)',
-          transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          userSelect: 'none'
+          gap: '10px'
         }}
       >
-        {/* Avatar Image Cropped Container */}
-        <div style={{
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          overflow: 'hidden',
-          background: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <img 
-            src="/assets/thayhaodiali.jpg" 
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/assets/thayhao_assistant_avatar.png';
-            }}
-            alt="Thầy Hảo Địa Lí"
+        {/* Subtle persistent label pill so user immediately spots it */}
+        {!isOpen && (
+          <div 
+            onClick={() => setIsOpen(true)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'top center'
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              padding: '7px 16px',
+              borderRadius: '24px',
+              fontSize: '0.82rem',
+              fontWeight: 800,
+              boxShadow: '0 4px 16px rgba(13, 148, 136, 0.4), 0 2px 6px rgba(0,0,0,0.2)',
+              border: '2px solid #ffffff',
+              whiteSpace: 'nowrap',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              userSelect: 'none',
+              transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease'
             }}
-          />
-        </div>
+          >
+            <span>💬 Chat Thầy Hảo</span>
+          </div>
+        )}
 
-        {/* Small Active Green Status Indicator */}
-        <div 
-          title="Đang trực tuyến 24/7"
+        {/* Circular Avatar Bubble */}
+        <div
+          onClick={() => setIsOpen((prev) => !prev)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          title={isOpen ? 'Bấm để đóng menu' : 'Bong bóng chat Thầy Hảo Địa Lí - Bấm để liên hệ & hỗ trợ 24/7'}
           style={{
-            position: 'absolute',
-            top: '2px',
-            right: '2px',
-            width: '16px',
-            height: '16px',
+            position: 'relative',
+            width: '70px',
+            height: '70px',
             borderRadius: '50%',
-            background: '#10b981',
-            border: '2.5px solid #ffffff',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-          }} 
-        />
+            background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+            padding: '3px',
+            cursor: 'pointer',
+            boxShadow: isHovered 
+              ? '0 14px 32px rgba(13, 148, 136, 0.55), 0 6px 18px rgba(0,0,0,0.3)' 
+              : '0 8px 24px rgba(13, 148, 136, 0.4), 0 4px 12px rgba(0,0,0,0.2)',
+            transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+            transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            userSelect: 'none',
+            flexShrink: 0
+          }}
+        >
+          {/* Avatar Image Cropped Container */}
+          <div style={{
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            background: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <img 
+              src="/assets/thayhaodiali.jpg" 
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/assets/thayhao_assistant_avatar.png';
+              }}
+              alt="Thầy Hảo Địa Lí"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'top center'
+              }}
+            />
+          </div>
 
-        {/* Small Toggle Icon Badge at Bottom Right */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-2px',
-          right: '-2px',
-          width: '26px',
-          height: '26px',
-          borderRadius: '50%',
-          background: isOpen ? '#ef4444' : '#0d9488',
-          color: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '2px solid #ffffff',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-          transition: 'background 0.2s, transform 0.2s',
-          transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)'
-        }}>
-          {isOpen ? <X size={15} /> : <MessageCircle size={14} color="#ffffff" />}
+          {/* Small Active Green Status Indicator */}
+          <div 
+            title="Đang trực tuyến 24/7"
+            style={{
+              position: 'absolute',
+              top: '2px',
+              right: '2px',
+              width: '16px',
+              height: '16px',
+              borderRadius: '50%',
+              background: '#10b981',
+              border: '2.5px solid #ffffff',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+            }} 
+          />
+
+          {/* Small Toggle Icon Badge at Bottom Right */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-2px',
+            right: '-2px',
+            width: '26px',
+            height: '26px',
+            borderRadius: '50%',
+            background: isOpen ? '#ef4444' : '#0d9488',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid #ffffff',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+            transition: 'background 0.2s, transform 0.2s',
+            transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)'
+          }}>
+            {isOpen ? <X size={15} /> : <MessageCircle size={14} color="#ffffff" />}
+          </div>
         </div>
       </div>
     </div>
