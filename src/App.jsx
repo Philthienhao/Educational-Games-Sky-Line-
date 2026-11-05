@@ -481,7 +481,14 @@ export function App() {
     setPlayingGame(game);
   }, [currentUser]);
 
-  const handleApplyAIGameQuestions = (aiQuestions, targetGameType = 'tug-of-war-dual', targetGameTitle = null, autoLaunch = true) => {
+  const handleApplyAIGameQuestions = (
+    aiQuestions, 
+    targetGameType = 'tug-of-war-dual', 
+    targetGameTitle = null, 
+    autoLaunch = true,
+    targetSubject = null,
+    targetGrade = null
+  ) => {
     if (!aiQuestions || aiQuestions.length === 0) return;
 
     let engineType = targetGameType || 'tug-of-war-dual';
@@ -506,14 +513,15 @@ export function App() {
     else if (engineType === 'pose-imitation') { icon = '🏃‍♂️'; defaultName = 'Bắt Chước Tư Thế Camera'; }
     else if (engineType === 'indoor-pe-dance') { icon = '🏃‍♂️'; defaultName = 'Thử thách thể dục'; }
     else if (engineType === 'mosquito-slayer') { icon = '🦟'; defaultName = 'Dũng Sĩ Diệt Muỗi'; }
+    else if (engineType === 'train') { icon = '🚂'; defaultName = 'Đoàn Tàu Tri Thức'; }
 
     const titleText = targetGameTitle || `${defaultName} (AI - ${new Date().toLocaleDateString('vi-VN')})`;
 
     const newAiGame = {
       id: `game_ai_${Date.now()}`,
       title: titleText,
-      subject: 'Địa Lí',
-      grade: '6',
+      subject: targetSubject || currentUser?.subject || 'Kiến thức chung',
+      grade: targetGrade || 'Chung',
       gameType: engineType,
       engineType: engineType,
       icon: icon,
@@ -529,6 +537,7 @@ export function App() {
     if (autoLaunch) {
       handlePlayGameWithTrialCheck(newAiGame, true);
     }
+    return newAiGame;
   };
 
   // Sync body class for playing game view
@@ -1130,6 +1139,9 @@ export function App() {
               onOpenUpgrade={setTrialModalInfo}
               onOpenVirtualLab={() => setActiveTab('virtual-lab')} 
               onOpenGeoExperiments={() => setActiveTab('geo-experiments')}
+              onPlayGame={(gameObj) => handlePlayGameWithTrialCheck(gameObj, false)}
+              onSelectTab={(tabId) => setActiveTab(tabId)}
+              onApplyAIGameQuestions={handleApplyAIGameQuestions}
             />
           )}
 

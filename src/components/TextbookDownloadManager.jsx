@@ -5,6 +5,7 @@ import {
   Maximize2, Minimize2, Upload, BookOpenCheck, ChevronLeft, ChevronRight, Sliders, ZoomIn, 
   ZoomOut, RotateCw, FileUp, Layers, MoveHorizontal
 } from 'lucide-react';
+import { AITextbookGameModal } from './AITextbookGameModal';
 import catalogData from '../services/textbookCatalog.json';
 
 const GOOGLE_DRIVE_FOLDER_ID = '1pCBvcvkADMVeaNWGMylxwQTToYC9PJHZ';
@@ -32,7 +33,10 @@ export function TextbookDownloadManager({
   onOpenVirtualLab, 
   onOpenGeoExperiments,
   onCheckTrialOrRun,
-  onOpenUpgrade
+  onOpenUpgrade,
+  onPlayGame,
+  onSelectTab,
+  onApplyAIGameQuestions
 }) {
   const [selectedGrade, setSelectedGrade] = useState('Tất cả');
   const [selectedSubject, setSelectedSubject] = useState('Tất cả các môn');
@@ -64,6 +68,19 @@ export function TextbookDownloadManager({
 
   // Toast Notification for Drive Download
   const [toastMessage, setToastMessage] = useState(null);
+
+  // AI Game Creator Modal State
+  const [aiGameModalBook, setAiGameModalBook] = useState(null);
+  const [isAiGameModalOpen, setIsAiGameModalOpen] = useState(false);
+
+  const handleOpenAiGameCreator = (book) => {
+    if (!book) return;
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('ai:game_from_textbook', `AI Tạo Game: ${book.title}`)) {
+      return;
+    }
+    setAiGameModalBook(book);
+    setIsAiGameModalOpen(true);
+  };
 
   // Pre-warm browser cache in background for high-speed instant PDF opening
   useEffect(() => {
@@ -1305,7 +1322,7 @@ export function TextbookDownloadManager({
                     onClick={() => handleOpenReader(book)}
                     title="Đọc trực tiếp sách giáo khoa trên hệ thống, không cần qua Google Drive"
                     style={{
-                      flex: 1.5,
+                      flex: 1.3,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -1322,7 +1339,32 @@ export function TextbookDownloadManager({
                       transition: 'all 0.2s'
                     }}
                   >
-                    <BookOpen size={18} /> Đọc Sách Trực Tiếp
+                    <BookOpen size={17} /> Đọc Sách
+                  </button>
+
+                  {/* AI Game Creator Button directly on book card */}
+                  <button
+                    onClick={() => handleOpenAiGameCreator(book)}
+                    title={`AI tự động tạo trò chơi tương tác từ sách ${book.title}`}
+                    style={{
+                      flex: 1.1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '12px 12px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.3)',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Sparkles size={16} /> AI Tạo Game
                   </button>
 
                   {/* Download Button */}
@@ -1635,6 +1677,28 @@ export function TextbookDownloadManager({
                   }}
                 >
                   <Download size={15} /> Tải PDF
+                </button>
+
+                {/* AI Game Creator Button inside Reader Toolbar */}
+                <button
+                  onClick={() => handleOpenAiGameCreator(readingBook)}
+                  title="AI tự động tạo Game giáo dục từ cuốn sách này"
+                  style={{
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    fontWeight: 900,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.35)'
+                  }}
+                >
+                  <Sparkles size={15} /> ✨ AI Tạo Game
                 </button>
 
                 {/* Open in New Window / Tab */}
@@ -2317,6 +2381,28 @@ export function TextbookDownloadManager({
                         <Copy size={14} /> Sao Chép
                       </button>
 
+                      {/* AI Game Creator from Text Extract */}
+                      <button
+                        onClick={() => handleOpenAiGameCreator(readingBook)}
+                        title="AI phân tích nội dung bài học này để tạo Game giáo dục tương tác"
+                        style={{
+                          background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '7px 14px',
+                          borderRadius: '10px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
+                        }}
+                      >
+                        <Sparkles size={14} /> ✨ AI Tạo Game Từ Bài Này
+                      </button>
+
                       {onOpenVirtualLab && (
                         <button
                           onClick={onOpenVirtualLab}
@@ -2406,6 +2492,46 @@ export function TextbookDownloadManager({
           </div>
         </div>
       )}
+
+      {/* AI Game Creator Modal from Textbook */}
+      <AITextbookGameModal
+        isOpen={isAiGameModalOpen}
+        onClose={() => setIsAiGameModalOpen(false)}
+        book={aiGameModalBook}
+        bookText={readerText}
+        currentUser={currentUser}
+        onCreateGameAndPlay={(gameObj) => {
+          if (onApplyAIGameQuestions) {
+            onApplyAIGameQuestions(
+              gameObj.questions,
+              gameObj.gameType,
+              gameObj.title,
+              true,
+              gameObj.subject,
+              gameObj.grade
+            );
+          } else if (onPlayGame) {
+            onPlayGame(gameObj);
+          }
+        }}
+        onCreateGameAndSave={(gameObj) => {
+          if (onApplyAIGameQuestions) {
+            onApplyAIGameQuestions(
+              gameObj.questions,
+              gameObj.gameType,
+              gameObj.title,
+              false,
+              gameObj.subject,
+              gameObj.grade
+            );
+          }
+          if (onSelectTab) {
+            onSelectTab('my-games');
+          }
+          setToastMessage(`💾 Đã tạo thành công game "${gameObj.title}" và lưu vào Game Của Tôi!`);
+          setTimeout(() => setToastMessage(null), 4500);
+        }}
+      />
 
     </div>
   );
