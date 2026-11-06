@@ -4844,150 +4844,741 @@ function GeoSolarSystemSim({ experiment, onLog, isFullscreen, toggleFullscreen }
   );
 }
 
-// 2. Real Astronomical Sun-Earth-Moon Orbit Simulator
-function GeoEarthSunMoonSim({ onLog }) {
+// 2. Real Astronomical Sun-Earth-Moon 3D Simulator (Photorealistic Three.js Engine)
+function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
+  const mountRef = useRef(null);
   const [mode, setMode] = useState('free'); // 'free', 'day_night', 'solar_eclipse', 'lunar_eclipse'
   const [isPlaying, setIsPlaying] = useState(true);
   const [speed, setSpeed] = useState(1);
-  const [timeStep, setTimeStep] = useState(0);
+  const [cameraView, setCameraView] = useState('overview'); // 'overview', 'earth', 'sun', 'moon'
+  const [showAxis, setShowAxis] = useState(true);
+  const [showOrbits, setShowOrbits] = useState(true);
+  const [showShadows, setShowShadows] = useState(true);
 
-  const animRef = useRef(null);
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
+  const controlsRef = useRef(null);
+  const reqIdRef = useRef(null);
 
+  // References for dynamic 3D elements
+  const earthOrbitGroupRef = useRef(null);
+  const earthTiltGroupRef = useRef(null);
+  const earthMeshRef = useRef(null);
+  const earthCloudsMeshRef = useRef(null);
+  const earthAxisLineRef = useRef(null);
+  const moonGroupRef = useRef(null);
+  const moonMeshRef = useRef(null);
+  const sunMeshRef = useRef(null);
+  const shadowConeRef = useRef(null);
+  const earthOrbitLineRef = useRef(null);
+  const moonOrbitLineRef = useRef(null);
+
+  const speedRef = useRef(speed);
+  speedRef.current = speed;
+  const isPlayingRef = useRef(isPlaying);
+  isPlayingRef.current = isPlaying;
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
+  const showAxisRef = useRef(showAxis);
+  showAxisRef.current = showAxis;
+  const showOrbitsRef = useRef(showOrbits);
+  showOrbitsRef.current = showOrbits;
+  const showShadowsRef = useRef(showShadows);
+  showShadowsRef.current = showShadows;
+
+  // Handle Fullscreen & Window resize
   useEffect(() => {
-    if (!isPlaying) return;
-    let lastTime = performance.now();
-
-    const animate = (now) => {
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-
-      setTimeStep(prev => prev + dt * speed);
-      animRef.current = requestAnimationFrame(animate);
+    const handleResize = () => {
+      if (!mountRef.current || !rendererRef.current || !cameraRef.current) return;
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      if (width === 0 || height === 0) return;
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(width, height);
     };
 
-    animRef.current = requestAnimationFrame(animate);
+    window.addEventListener('resize', handleResize);
+    const timer = setTimeout(handleResize, 150);
     return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timer);
     };
-  }, [isPlaying, speed]);
+  }, [isFullscreen]);
 
-  // Orbital Mechanics Math
-  // Earth revolves around Sun: 1 cycle = ~20 seconds
-  const earthOrbitAngle = mode === 'solar_eclipse' ? Math.PI : mode === 'lunar_eclipse' ? Math.PI : (timeStep * 0.25) % (Math.PI * 2);
-  
-  // Moon orbits around Earth: ~12-13 times faster than Earth's orbit around Sun
-  const moonOrbitAngle = mode === 'solar_eclipse' ? Math.PI : mode === 'lunar_eclipse' ? 0 : (timeStep * 0.25 * 12.3) % (Math.PI * 2);
+  // Main Three.js Scene Setup
+  useEffect(() => {
+    const container = mountRef.current;
+    if (!container) return;
 
-  // Earth spins on axis: ~365 times faster than Earth orbit
-  const earthSpinAngle = (timeStep * 50) % 360;
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
 
-  // Sun center position
-  const sunX = 250;
-  const sunY = 150;
-  const earthOrbitR = 120;
+    // 1. Scene
+    const scene = new THREE.Scene();
+    sceneRef.current = scene;
 
-  // Earth coordinates
-  const earthX = sunX + earthOrbitR * Math.cos(earthOrbitAngle);
-  const earthY = sunY + earthOrbitR * Math.sin(earthOrbitAngle);
+    // 2. Camera
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.5, 3000);
+    camera.position.set(0, 110, 180);
+    cameraRef.current = camera;
 
-  // Moon coordinates around Earth
-  const moonOrbitR = 34;
-  const moonX = earthX + moonOrbitR * Math.cos(moonOrbitAngle);
-  const moonY = earthY + moonOrbitR * Math.sin(moonOrbitAngle);
+    // 3. Renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    container.innerHTML = '';
+    container.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
 
+    // 4. OrbitControls
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.enableZoom = true;
+    controls.zoomSpeed = 1.1;
+    controls.enablePan = true;
+    controls.maxDistance = 600;
+    controls.minDistance = 8.0;
+    controls.target.set(0, 0, 0);
+    controls.update();
+    controlsRef.current = controls;
+
+    // 5. Starfield Background
+    try {
+      const starTex = getRealisticSolarTexture('stars');
+      if (starTex) {
+        const starGeo = new THREE.SphereGeometry(850, 32, 32);
+        const starMat = new THREE.MeshBasicMaterial({
+          map: starTex,
+          side: THREE.BackSide,
+          toneMapped: false,
+          color: new THREE.Color(0.85, 0.85, 0.95),
+        });
+        const starSphere = new THREE.Mesh(starGeo, starMat);
+        scene.add(starSphere);
+      }
+    } catch (e) {}
+
+    // Tiny glittering star points
+    const starsGeo = new THREE.BufferGeometry();
+    const starCount = 1500;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      starPositions[i] = (Math.random() - 0.5) * 1200;
+      starPositions[i + 1] = (Math.random() - 0.5) * 1200;
+      starPositions[i + 2] = (Math.random() - 0.5) * 1200;
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.2, transparent: true, opacity: 0.85 });
+    const starField = new THREE.Points(starsGeo, starsMat);
+    scene.add(starField);
+
+    // 6. Lighting
+    // Ambient light: Soft enough so the dark hemisphere is a true Night
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.22);
+    scene.add(ambientLight);
+
+    // Sun Point Light: Dynamic solar light illuminating Earth and Moon
+    const sunLight = new THREE.PointLight(0xfff5e6, 3.2, 800, 0.25);
+    sunLight.position.set(0, 0, 0);
+    scene.add(sunLight);
+
+    // Soft camera directional headlight
+    const cameraHeadlight = new THREE.DirectionalLight(0xffffff, 0.35);
+    camera.add(cameraHeadlight);
+    scene.add(camera);
+
+    // 7. Sun (Mặt Trời 3D)
+    const sunRadius = 16;
+    const sunGeo = new THREE.SphereGeometry(sunRadius, 32, 32);
+    const sunTex = getRealisticSolarTexture('sun', '#ffaa00');
+    const sunMat = new THREE.MeshBasicMaterial({ map: sunTex, color: new THREE.Color(1.15, 1.08, 0.95) });
+    const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+    scene.add(sunMesh);
+    sunMeshRef.current = sunMesh;
+
+    // Sun Corona Glow
+    const sunGlowGeo = new THREE.SphereGeometry(sunRadius * 1.35, 24, 24);
+    const sunGlowMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.32, side: THREE.BackSide });
+    const sunGlowMesh = new THREE.Mesh(sunGlowGeo, sunGlowMat);
+    sunMesh.add(sunGlowMesh);
+
+    // 8. Earth Orbit System
+    const earthOrbitR = 85;
+    const earthOrbitGroup = new THREE.Group();
+    earthOrbitGroup.position.set(earthOrbitR, 0, 0);
+    scene.add(earthOrbitGroup);
+    earthOrbitGroupRef.current = earthOrbitGroup;
+
+    // Earth Orbit Path Line
+    const earthOrbitCurve = new THREE.EllipseCurve(0, 0, earthOrbitR, earthOrbitR, 0, 2 * Math.PI, false, 0);
+    const earthOrbitPoints = earthOrbitCurve.getPoints(128);
+    const earthOrbitGeo = new THREE.BufferGeometry().setFromPoints(earthOrbitPoints.map(p => new THREE.Vector3(p.x, 0, p.y)));
+    const earthOrbitMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 });
+    const earthOrbitLine = new THREE.LineLoop(earthOrbitGeo, earthOrbitMat);
+    scene.add(earthOrbitLine);
+    earthOrbitLineRef.current = earthOrbitLine;
+
+    // Earth Tilt Group (Tilted at 23.44° = 23°27')
+    const earthTiltGroup = new THREE.Group();
+    earthTiltGroup.rotation.z = (23.44 * Math.PI) / 180; // 23.44 degrees obliquity of the ecliptic
+    earthOrbitGroup.add(earthTiltGroup);
+    earthTiltGroupRef.current = earthTiltGroup;
+
+    // Earth Sphere Mesh
+    const earthRadius = 6.4;
+    const earthGeo = new THREE.SphereGeometry(earthRadius, 32, 32);
+    const earthTex = getRealisticSolarTexture('earth', '#2563eb');
+    const earthMat = new THREE.MeshStandardMaterial({
+      map: earthTex,
+      roughness: 0.45,
+      metalness: 0.05
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    earthTiltGroup.add(earthMesh);
+    earthMeshRef.current = earthMesh;
+
+    // Earth Clouds Layer
+    const cloudsTex = getRealisticSolarTexture('earthClouds', '#ffffff');
+    const cloudsGeo = new THREE.SphereGeometry(earthRadius * 1.025, 32, 32);
+    const cloudsMat = new THREE.MeshStandardMaterial({
+      map: cloudsTex,
+      transparent: true,
+      opacity: 0.55,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const cloudsMesh = new THREE.Mesh(cloudsGeo, cloudsMat);
+    earthTiltGroup.add(cloudsMesh);
+    earthCloudsMeshRef.current = cloudsMesh;
+
+    // Earth 23.5° Rotation Axis Indicator (North & South Poles)
+    const axisGroup = new THREE.Group();
+    const axisLineGeo = new THREE.CylinderGeometry(0.12, 0.12, earthRadius * 3.0, 16);
+    const axisLineMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+    const axisCylinder = new THREE.Mesh(axisLineGeo, axisLineMat);
+    axisGroup.add(axisCylinder);
+
+    // North Pole Marker (Cyan)
+    const northGeo = new THREE.ConeGeometry(0.65, 1.4, 16);
+    const northMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+    const northCone = new THREE.Mesh(northGeo, northMat);
+    northCone.position.set(0, earthRadius * 1.5, 0);
+    axisGroup.add(northCone);
+
+    // South Pole Marker (Yellow)
+    const southGeo = new THREE.ConeGeometry(0.65, 1.4, 16);
+    const southMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+    const southCone = new THREE.Mesh(southGeo, southMat);
+    southCone.position.set(0, -earthRadius * 1.5, 0);
+    southCone.rotation.z = Math.PI;
+    axisGroup.add(southCone);
+
+    earthTiltGroup.add(axisGroup);
+    earthAxisLineRef.current = axisGroup;
+
+    // 9. Moon Orbit System around Earth
+    const moonOrbitR = 19;
+    const moonGroup = new THREE.Group();
+    // Moon orbit inclination ~5.14 degrees relative to ecliptic
+    moonGroup.rotation.x = (5.14 * Math.PI) / 180;
+    earthOrbitGroup.add(moonGroup);
+    moonGroupRef.current = moonGroup;
+
+    // Moon Orbit Path Line
+    const moonOrbitCurve = new THREE.EllipseCurve(0, 0, moonOrbitR, moonOrbitR, 0, 2 * Math.PI, false, 0);
+    const moonOrbitPoints = moonOrbitCurve.getPoints(96);
+    const moonOrbitGeo = new THREE.BufferGeometry().setFromPoints(moonOrbitPoints.map(p => new THREE.Vector3(p.x, 0, p.y)));
+    const moonOrbitMat = new THREE.LineBasicMaterial({ color: 0xcbd5e1, transparent: true, opacity: 0.35 });
+    const moonOrbitLine = new THREE.LineLoop(moonOrbitGeo, moonOrbitMat);
+    moonGroup.add(moonOrbitLine);
+    moonOrbitLineRef.current = moonOrbitLine;
+
+    // Moon Mesh
+    const moonRadius = 1.85;
+    const moonGeo = new THREE.SphereGeometry(moonRadius, 24, 24);
+    const moonTex = getRealisticSolarTexture('moon', '#cbd5e1');
+    const moonMat = new THREE.MeshStandardMaterial({
+      map: moonTex,
+      roughness: 0.9,
+      color: new THREE.Color(1, 1, 1)
+    });
+    const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+    moonMesh.position.set(moonOrbitR, 0, 0);
+    moonGroup.add(moonMesh);
+    moonMeshRef.current = moonMesh;
+
+    // 10. Shadow Cones for Solar & Lunar Eclipse
+    const shadowGroup = new THREE.Group();
+    scene.add(shadowGroup);
+    shadowConeRef.current = shadowGroup;
+
+    // Animation Loop Variables
+    let earthAngle = 0;
+    let moonAngle = 0;
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      const delta = Math.min(clock.getDelta(), 0.1);
+
+      // Sun self-rotation
+      if (sunMesh) {
+        sunMesh.rotation.y += delta * 0.15;
+      }
+
+      if (isPlayingRef.current) {
+        const curSpeed = speedRef.current;
+        const curMode = modeRef.current;
+
+        if (curMode === 'free') {
+          // Earth revolves around Sun (~365 days / cycle)
+          earthAngle += delta * 0.12 * curSpeed;
+          // Moon revolves around Earth (~12.3 times faster)
+          moonAngle += delta * 0.12 * 12.3 * curSpeed;
+        } else if (curMode === 'day_night') {
+          // In Day & Night mode: Earth is locked at fixed orbital angle to clearly study 24h rotation
+          earthAngle = Math.PI * 0.5;
+          moonAngle += delta * 0.4 * curSpeed;
+        } else if (curMode === 'solar_eclipse') {
+          // Solar Eclipse: Sun -> Moon -> Earth (Moon aligned in front of Earth)
+          earthAngle = 0;
+          moonAngle = Math.PI; // Moon is directly between Sun (at 0,0,0) and Earth (at +85,0,0)
+        } else if (curMode === 'lunar_eclipse') {
+          // Lunar Eclipse: Sun -> Earth -> Moon (Earth aligned between Sun and Moon)
+          earthAngle = 0;
+          moonAngle = 0; // Moon is on the opposite side of Sun relative to Earth
+        }
+
+        // Earth self-rotation on 23.44° axis (~365 times per orbit)
+        if (earthMeshRef.current) {
+          earthMeshRef.current.rotation.y += delta * 0.8 * curSpeed;
+        }
+        if (earthCloudsMeshRef.current) {
+          earthCloudsMeshRef.current.rotation.y += delta * 0.92 * curSpeed;
+        }
+      }
+
+      // Update Earth orbit position
+      const eX = Math.cos(earthAngle) * earthOrbitR;
+      const eZ = Math.sin(earthAngle) * earthOrbitR;
+      if (earthOrbitGroupRef.current) {
+        earthOrbitGroupRef.current.position.set(eX, 0, eZ);
+      }
+
+      // Update Moon orbit position
+      const mX = Math.cos(moonAngle) * moonOrbitR;
+      const mZ = Math.sin(moonAngle) * moonOrbitR;
+      if (moonMeshRef.current) {
+        moonMeshRef.current.position.set(mX, 0, mZ);
+        // Moon tidal locking rotation
+        moonMeshRef.current.rotation.y = moonAngle;
+
+        // Dynamic Blood Moon color in Lunar Eclipse
+        if (modeRef.current === 'lunar_eclipse') {
+          moonMeshRef.current.material.color.setHex(0xb91c1c); // Deep copper red (Trăng Máu)
+        } else {
+          moonMeshRef.current.material.color.setHex(0xffffff);
+        }
+      }
+
+      // Visibility toggles
+      if (earthAxisLineRef.current) {
+        earthAxisLineRef.current.visible = showAxisRef.current;
+      }
+      if (earthOrbitLineRef.current) {
+        earthOrbitLineRef.current.visible = showOrbitsRef.current;
+      }
+      if (moonOrbitLineRef.current) {
+        moonOrbitLineRef.current.visible = showOrbitsRef.current;
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+      reqIdRef.current = requestAnimationFrame(animate);
+    };
+
+    reqIdRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (reqIdRef.current) cancelAnimationFrame(reqIdRef.current);
+      if (controlsRef.current) controlsRef.current.dispose();
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+        if (rendererRef.current.domElement && rendererRef.current.domElement.parentNode) {
+          rendererRef.current.domElement.parentNode.removeChild(rendererRef.current.domElement);
+        }
+      }
+    };
+  }, []);
+
+  // Handle Mode Change & Audio Logs
   const handleSetMode = (m) => {
     setMode(m);
-    if (m === 'free') onLog("Chuyển sang mô hình Chuyển động Tự do Thực tế: Trái Đất tự quay quanh trục nghiêng 23.5°, tịnh tiến quanh Mặt Trời, Mặt Trăng quay quanh Trái Đất.");
-    if (m === 'day_night') onLog("Chế độ Ngày & Đêm: Thể hiện Trái Đất quay trên trục nghiêng 23°27' gây hiện tượng luân phiên Ngày và Đêm.");
-    if (m === 'solar_eclipse') onLog("Chế độ Nhật Thực Trực quan: Mặt Trăng đi đúng vào đường thẳng giữa Mặt Trời và Trái Đất, che bóng Umbra lên bề mặt Trái Đất.");
-    if (m === 'lunar_eclipse') onLog("Chế độ Nguyệt Thực Trực quan: Trái Đất đi đúng vào giữa Mặt Trời và Mặt Trăng, nón bóng tối Trái Đất che phủ Mặt Trăng.");
+    modeRef.current = m;
+
+    if (m === 'free') {
+      onLog("Chuyển sang chế độ Quay Thực Tế: Trái Đất tự quay quanh trục nghiêng 23°27', quay quanh Mặt Trời (1 năm) và Mặt Trăng quay quanh Trái Đất (~12 vòng/năm).");
+      switchCamera('overview');
+    }
+    if (m === 'day_night') {
+      onLog("Chế độ Ngày & Đêm 3D: Quan sát Trái Đất quay trên trục nghiêng 23°27'. Nửa diện tích nhận tia sáng Mặt Trời là ban Ngày, nửa đối diện trong bóng tối là ban Đêm.");
+      switchCamera('earth');
+    }
+    if (m === 'solar_eclipse') {
+      onLog("Chế độ Nhật Thực 3D: Mặt Trăng đi vào chính giữa đường thẳng nối Mặt Trời và Trái Đất (Mặt Trời — Mặt Trăng — Trái Đất), bóng tối của Mặt Trăng đổ lên Trái Đất.");
+      switchCamera('earth');
+    }
+    if (m === 'lunar_eclipse') {
+      onLog("Chế độ Nguyệt Thực 3D: Trái Đất nằm thẳng hàng ở giữa Mặt Trời và Mặt Trăng (Mặt Trời — Trái Đất — Mặt Trăng). Mặt Trăng đi vào nón bóng tối Trái Đất tạo hiện tượng Trăng Máu (Blood Moon).");
+      switchCamera('moon');
+    }
+  };
+
+  // Camera presets
+  const switchCamera = (viewKey) => {
+    setCameraView(viewKey);
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!camera || !controls) return;
+
+    if (viewKey === 'overview') {
+      camera.position.set(0, 110, 180);
+      controls.target.set(0, 0, 0);
+    } else if (viewKey === 'earth') {
+      const eGroup = earthOrbitGroupRef.current;
+      if (eGroup) {
+        const ePos = new THREE.Vector3();
+        eGroup.getWorldPosition(ePos);
+        camera.position.set(ePos.x + 18, ePos.y + 12, ePos.z + 24);
+        controls.target.copy(ePos);
+      } else {
+        camera.position.set(95, 12, 24);
+        controls.target.set(85, 0, 0);
+      }
+    } else if (viewKey === 'sun') {
+      camera.position.set(0, 5, 25);
+      const eGroup = earthOrbitGroupRef.current;
+      if (eGroup) {
+        const ePos = new THREE.Vector3();
+        eGroup.getWorldPosition(ePos);
+        controls.target.copy(ePos);
+      }
+    } else if (viewKey === 'moon') {
+      const mMesh = moonMeshRef.current;
+      if (mMesh) {
+        const mPos = new THREE.Vector3();
+        mMesh.getWorldPosition(mPos);
+        camera.position.set(mPos.x + 8, mPos.y + 6, mPos.z + 10);
+        controls.target.copy(mPos);
+      }
+    }
+    controls.update();
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '14px' }}>
-      <div style={{ flex: 1, background: '#020617', borderRadius: '16px', border: '1px solid rgba(13, 148, 136, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        <svg width="100%" height="100%" viewBox="0 0 500 300">
-          {/* Starry bg */}
-          <rect x="0" y="0" width="500" height="300" fill="#020617" />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '12px', background: '#020617', borderRadius: '16px', padding: '12px', border: '1px solid rgba(13, 148, 136, 0.3)' }}>
+      {/* 3D Canvas Area */}
+      <div 
+        ref={mountRef} 
+        style={{ 
+          flex: 1, 
+          minHeight: '380px', 
+          borderRadius: '14px', 
+          overflow: 'hidden', 
+          position: 'relative',
+          cursor: 'grab',
+          background: 'radial-gradient(ellipse at center, #0f172a 0%, #020617 100%)'
+        }}
+      >
+        {/* Floating Top HUD Status */}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          left: '14px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          zIndex: 10,
+          pointerEvents: 'none'
+        }}>
+          <div style={{
+            background: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(8px)',
+            border: '1.5px solid rgba(45, 212, 191, 0.4)',
+            padding: '8px 14px',
+            borderRadius: '12px',
+            color: '#2dd4bf',
+            fontWeight: 800,
+            fontSize: '0.82rem',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span style={{ fontSize: '1rem' }}>🌐</span> 
+            <span>Mô Hình 3D Vũ Trụ Chuẩn Địa Lí 6: Trái Đất (Trục 23°27') — Mặt Trăng — Mặt Trời</span>
+          </div>
 
-          {/* Earth's Orbit Ellipse around Sun */}
-          <circle cx={sunX} cy={sunY} r={earthOrbitR} fill="none" stroke="rgba(56, 189, 248, 0.2)" strokeWidth="1.5" strokeDasharray="4 4" />
+          {mode === 'day_night' && (
+            <div style={{ background: 'rgba(234, 179, 8, 0.9)', color: '#000', padding: '6px 12px', borderRadius: '10px', fontWeight: 900, fontSize: '0.78rem' }}>
+              ☀️ Chế độ Ngày & Đêm: Tia sáng Mặt Trời chiếu rọi nửa Trái Đất, nửa sau chìm trong bóng tối. Trục nghiêng 23°27' gây hiện tượng ngày đêm dài ngắn theo mùa.
+            </div>
+          )}
 
-          {/* Sun Rays & Radiance */}
-          <circle cx={sunX} cy={sunY} r="32" fill="#f59e0b" style={{ filter: 'drop-shadow(0 0 25px #fde047)' }} />
-          <text x={sunX} y={sunY + 4} fill="#0f172a" fontSize="10" fontWeight="900" textAnchor="middle">MẶT TRỜI</text>
-
-          {/* Solar Light Beams */}
-          <line x1={sunX} y1={sunY} x2={earthX} y2={earthY} stroke="rgba(253, 224, 71, 0.25)" strokeWidth="1" strokeDasharray="3 3" />
-
-          {/* Moon's Orbit Path around Earth */}
-          <circle cx={earthX} cy={earthY} r={moonOrbitR} fill="none" stroke="rgba(203, 213, 225, 0.25)" strokeWidth="1" strokeDasharray="2 2" />
-
-          {/* Shadow Cones for Eclipse Modes */}
           {mode === 'solar_eclipse' && (
-            <polygon points={`${sunX},${sunY - 20} ${earthX},${earthY - 6} ${earthX},${earthY + 6} ${sunX},${sunY + 20}`} fill="rgba(15, 23, 42, 0.6)" stroke="#ef4444" strokeWidth="1" strokeDasharray="2 2" />
+            <div style={{ background: 'rgba(2, 132, 199, 0.9)', color: '#fff', padding: '6px 12px', borderRadius: '10px', fontWeight: 900, fontSize: '0.78rem' }}>
+              🌑 Nhật Thực: Mặt Trời — Mặt Trăng — Trái Đất thẳng hàng. Mặt Trăng che khuất đĩa sáng Mặt Trời, bóng tối đổ xuống mặt đất.
+            </div>
           )}
+
           {mode === 'lunar_eclipse' && (
-            <polygon points={`${earthX},${earthY - 14} ${moonX + 40},${moonY - 22} ${moonX + 40},${moonY + 22} ${earthX},${earthY + 14}`} fill="rgba(15, 23, 42, 0.7)" stroke="#7c3aed" strokeWidth="1" strokeDasharray="2 2" />
+            <div style={{ background: 'rgba(185, 28, 28, 0.9)', color: '#fff', padding: '6px 12px', borderRadius: '10px', fontWeight: 900, fontSize: '0.78rem' }}>
+              🌕 Nguyệt Thực: Mặt Trời — Trái Đất — Mặt Trăng thẳng hàng. Mặt Trăng đi vào vùng bóng tối của Trái Đất và chuyển sang màu đỏ ánh đồng (Trăng Máu).
+            </div>
           )}
+        </div>
 
-          {/* Earth Group with Tilted Axis */}
-          <g transform={`translate(${earthX}, ${earthY})`}>
-            {/* Day / Night Shading */}
-            <circle cx="0" cy="0" r="16" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.5" />
-            
-            {/* Dark night hemisphere facing away from Sun */}
-            {(() => {
-              const sunAngleToEarth = Math.atan2(sunY - earthY, sunX - earthX);
-              const rotationDeg = (sunAngleToEarth * 180 / Math.PI) + 90;
-              return (
-                <g transform={`rotate(${rotationDeg})`}>
-                  <path 
-                    d="M 0 -16 A 16 16 0 0 1 0 16 Z" 
-                    fill="rgba(15, 23, 42, 0.82)" 
-                  />
-                </g>
-              );
-            })()}
+        {/* Camera Views Selector on Canvas */}
+        <div style={{
+          position: 'absolute',
+          top: '12px',
+          right: '14px',
+          display: 'flex',
+          gap: '6px',
+          zIndex: 10
+        }}>
+          {[
+            { key: 'overview', label: '🔭 Toàn Cảnh' },
+            { key: 'earth', label: '🌍 Cận Cảnh Trái Đất' },
+            { key: 'sun', label: '☀️ Từ Mặt Trời' },
+            { key: 'moon', label: '🌕 Từ Mặt Trăng' }
+          ].map(view => (
+            <button
+              key={view.key}
+              onClick={() => switchCamera(view.key)}
+              style={{
+                background: cameraView === view.key ? '#0d9488' : 'rgba(15, 23, 42, 0.85)',
+                color: '#ffffff',
+                border: cameraView === view.key ? '1px solid #2dd4bf' : '1px solid rgba(255,255,255,0.15)',
+                borderRadius: '10px',
+                padding: '6px 10px',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                backdropFilter: 'blur(6px)'
+              }}
+            >
+              {view.label}
+            </button>
+          ))}
+          {toggleFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              style={{
+                background: 'rgba(15, 23, 42, 0.85)',
+                color: '#2dd4bf',
+                border: '1px solid rgba(45, 212, 191, 0.4)',
+                borderRadius: '10px',
+                padding: '6px 10px',
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                cursor: 'pointer'
+              }}
+            >
+              {isFullscreen ? 'Thu Nhỏ' : 'Toàn Màn Hình'}
+            </button>
+          )}
+        </div>
 
-            {/* Earth 23.5° Tilted Axis Line */}
-            <line x1="-6" y1="-22" x2="6" y2="22" stroke="#ef4444" strokeWidth="1.5" />
-            <text x="0" y="28" fill="#38bdf8" fontSize="9" fontWeight="bold" textAnchor="middle">Trái Đất (Trục 23.5°)</text>
-          </g>
-
-          {/* Moon Body */}
-          <g transform={`translate(${moonX}, ${moonY})`}>
-            <circle cx="0" cy="0" r="6" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
-            <text x="0" y="-9" fill="#cbd5e1" fontSize="8" fontWeight="bold" textAnchor="middle">Mặt Trăng</text>
-          </g>
-
-        </svg>
-
-        <div style={{ position: 'absolute', top: '12px', left: '16px', background: 'rgba(15, 23, 42, 0.85)', padding: '8px 12px', borderRadius: '10px', border: '1px solid rgba(13, 148, 136, 0.3)', color: '#2dd4bf', fontSize: '0.78rem', fontWeight: 800 }}>
-          ⚙️ Tỉ lệ quay: 1 Vòng Trái Đất = ~12 Vòng Mặt Trăng
+        {/* Bottom Orbit Info Badge */}
+        <div style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '14px',
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          padding: '6px 12px',
+          borderRadius: '10px',
+          color: '#cbd5e1',
+          fontSize: '0.75rem',
+          fontWeight: 700,
+          pointerEvents: 'none'
+        }}>
+          💡 Dùng chuột kéo để xoay 360° • Cuộn chuột để Phóng to / Thu nhỏ • Chuột phải để di chuyển
         </div>
       </div>
 
-      {/* Mode Controls & Play/Pause */}
-      <div style={{ background: 'rgba(15, 23, 42, 0.95)', padding: '14px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => handleSetMode('free')} style={{ background: mode === 'free' ? '#0d9488' : '#1e293b', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
+      {/* Control Panel Bar */}
+      <div style={{
+        background: 'rgba(15, 23, 42, 0.95)',
+        padding: '12px 16px',
+        borderRadius: '14px',
+        border: '1px solid rgba(13, 148, 136, 0.3)',
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px'
+      }}>
+        {/* Astronomical Modes */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 800 }}>CHẾ ĐỘ THIÊN VĂN:</span>
+          <button 
+            onClick={() => handleSetMode('free')} 
+            style={{ 
+              background: mode === 'free' ? 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)' : '#1e293b', 
+              color: '#fff', 
+              border: mode === 'free' ? '1.5px solid #2dd4bf' : '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: '10px', 
+              padding: '8px 14px', 
+              fontWeight: 800, 
+              fontSize: '0.82rem', 
+              cursor: 'pointer',
+              boxShadow: mode === 'free' ? '0 4px 12px rgba(13, 148, 136, 0.4)' : 'none'
+            }}
+          >
             🌍 Quay Thực Tế
           </button>
-          <button onClick={() => handleSetMode('day_night')} style={{ background: mode === 'day_night' ? '#eab308' : '#1e293b', color: mode === 'day_night' ? '#000' : '#fff', border: 'none', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
-            ☀️ Ngày & Đêm
+          <button 
+            onClick={() => handleSetMode('day_night')} 
+            style={{ 
+              background: mode === 'day_night' ? 'linear-gradient(135deg, #eab308 0%, #f59e0b 100%)' : '#1e293b', 
+              color: mode === 'day_night' ? '#000' : '#fff', 
+              border: mode === 'day_night' ? '1.5px solid #fde047' : '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: '10px', 
+              padding: '8px 14px', 
+              fontWeight: 900, 
+              fontSize: '0.82rem', 
+              cursor: 'pointer',
+              boxShadow: mode === 'day_night' ? '0 4px 12px rgba(234, 179, 8, 0.4)' : 'none'
+            }}
+          >
+            ☀️ Ngày & Đêm 3D
           </button>
-          <button onClick={() => handleSetMode('solar_eclipse')} style={{ background: mode === 'solar_eclipse' ? '#0284c7' : '#1e293b', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
-            🌑 Nhật Thực
+          <button 
+            onClick={() => handleSetMode('solar_eclipse')} 
+            style={{ 
+              background: mode === 'solar_eclipse' ? 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)' : '#1e293b', 
+              color: '#fff', 
+              border: mode === 'solar_eclipse' ? '1.5px solid #7dd3fc' : '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: '10px', 
+              padding: '8px 14px', 
+              fontWeight: 800, 
+              fontSize: '0.82rem', 
+              cursor: 'pointer',
+              boxShadow: mode === 'solar_eclipse' ? '0 4px 12px rgba(2, 132, 199, 0.4)' : 'none'
+            }}
+          >
+            🌑 Nhật Thực 3D
           </button>
-          <button onClick={() => handleSetMode('lunar_eclipse')} style={{ background: mode === 'lunar_eclipse' ? '#7c3aed' : '#1e293b', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 12px', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
-            🌕 Nguyệt Thực
+          <button 
+            onClick={() => handleSetMode('lunar_eclipse')} 
+            style={{ 
+              background: mode === 'lunar_eclipse' ? 'linear-gradient(135deg, #b91c1c 0%, #ef4444 100%)' : '#1e293b', 
+              color: '#fff', 
+              border: mode === 'lunar_eclipse' ? '1.5px solid #f87171' : '1px solid rgba(255,255,255,0.1)', 
+              borderRadius: '10px', 
+              padding: '8px 14px', 
+              fontWeight: 800, 
+              fontSize: '0.82rem', 
+              cursor: 'pointer',
+              boxShadow: mode === 'lunar_eclipse' ? '0 4px 12px rgba(185, 28, 28, 0.4)' : 'none'
+            }}
+          >
+            🌕 Nguyệt Thực (Trăng Máu)
           </button>
         </div>
 
-        <button onClick={() => setIsPlaying(!isPlaying)} style={{ background: isPlaying ? '#eab308' : '#0d9488', color: isPlaying ? '#000' : '#fff', border: 'none', borderRadius: '10px', padding: '8px 16px', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer' }}>
-          {isPlaying ? '⏸️ Dừng' : '▶️ Chạy'}
-        </button>
+        {/* Visibility Toggles & Speed */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+          {/* Axis Toggle */}
+          <button
+            onClick={() => {
+              const next = !showAxis;
+              setShowAxis(next);
+              showAxisRef.current = next;
+            }}
+            style={{
+              background: showAxis ? 'rgba(239, 68, 68, 0.2)' : '#1e293b',
+              color: showAxis ? '#f87171' : '#64748b',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            📏 Trục 23°27' {showAxis ? 'BẬT' : 'TẮT'}
+          </button>
+
+          {/* Orbit Lines Toggle */}
+          <button
+            onClick={() => {
+              const next = !showOrbits;
+              setShowOrbits(next);
+              showOrbitsRef.current = next;
+            }}
+            style={{
+              background: showOrbits ? 'rgba(56, 189, 248, 0.2)' : '#1e293b',
+              color: showOrbits ? '#38bdf8' : '#64748b',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              borderRadius: '8px',
+              padding: '6px 10px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            ⭕ Quỹ Đạo {showOrbits ? 'BẬT' : 'TẮT'}
+          </button>
+
+          {/* Speed Buttons */}
+          <div style={{ display: 'flex', gap: '4px', background: '#0f172a', padding: '3px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            {[0.5, 1, 2, 5].map(s => (
+              <button
+                key={s}
+                onClick={() => setSpeed(s)}
+                style={{
+                  background: speed === s ? '#0d9488' : 'transparent',
+                  color: speed === s ? '#fff' : '#94a3b8',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '4px 8px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                {s}x
+              </button>
+            ))}
+          </div>
+
+          {/* Play/Pause */}
+          <button 
+            onClick={() => setIsPlaying(!isPlaying)} 
+            style={{ 
+              background: isPlaying ? 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)' : 'linear-gradient(135deg, #0d9488 0%, #059669 100%)', 
+              color: isPlaying ? '#000' : '#fff', 
+              border: 'none', 
+              borderRadius: '10px', 
+              padding: '8px 16px', 
+              fontWeight: 900, 
+              fontSize: '0.82rem', 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {isPlaying ? '⏸️ Tạm Dừng' : '▶️ Tiếp Tục'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -10242,7 +10833,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_02':
       case 'geo_6_02':
       case 'geo_earth_sun_moon':
-        return <GeoEarthSunMoonSim onLog={addLog} />;
+        return <GeoEarthSunMoonSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_03':
       case 'geo_6_03':
       case 'geo_volcano':
@@ -10303,7 +10894,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
             return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('ngày') || title.includes('đêm') || title.includes('trăng') || title.includes('thực')) {
-            return <GeoEarthSunMoonSim onLog={addLog} />;
+            return <GeoEarthSunMoonSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('núi lửa') || title.includes('magma')) {
             return <GeoVolcanoSim onLog={addLog} />;
