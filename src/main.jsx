@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './styles/index.css';
 
-const CURRENT_APP_BUILD_VERSION = 'v2.0.8_3d_earth_sun_moon';
+const CURRENT_APP_BUILD_VERSION = 'v2.0.9_3d_earth_moon_sun_orbit_lock';
 try {
   const savedVer = localStorage.getItem('gvd_app_build_version');
   if (savedVer !== CURRENT_APP_BUILD_VERSION) {

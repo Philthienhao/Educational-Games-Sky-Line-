@@ -4886,6 +4886,10 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
   showOrbitsRef.current = showOrbits;
   const showShadowsRef = useRef(showShadows);
   showShadowsRef.current = showShadows;
+  const cameraViewRef = useRef(cameraView);
+  cameraViewRef.current = cameraView;
+  const earthAngleRef = useRef(0);
+  const moonAngleRef = useRef(0);
 
   // Handle Fullscreen & Window resize
   useEffect(() => {
@@ -5117,8 +5121,6 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
     shadowConeRef.current = shadowGroup;
 
     // Animation Loop Variables
-    let earthAngle = 0;
-    let moonAngle = 0;
     let clock = new THREE.Clock();
 
     const animate = () => {
@@ -5135,21 +5137,21 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
 
         if (curMode === 'free') {
           // Earth revolves around Sun (~365 days / cycle)
-          earthAngle += delta * 0.12 * curSpeed;
+          earthAngleRef.current += delta * 0.12 * curSpeed;
           // Moon revolves around Earth (~12.3 times faster)
-          moonAngle += delta * 0.12 * 12.3 * curSpeed;
+          moonAngleRef.current += delta * 0.12 * 12.3 * curSpeed;
         } else if (curMode === 'day_night') {
-          // In Day & Night mode: Earth is locked at fixed orbital angle to clearly study 24h rotation
-          earthAngle = Math.PI * 0.5;
-          moonAngle += delta * 0.4 * curSpeed;
+          // In Day & Night mode: slow orbital drift so rotation can be studied in close-up
+          earthAngleRef.current += delta * 0.015 * curSpeed;
+          moonAngleRef.current += delta * 0.25 * curSpeed;
         } else if (curMode === 'solar_eclipse') {
           // Solar Eclipse: Sun -> Moon -> Earth (Moon aligned in front of Earth)
-          earthAngle = 0;
-          moonAngle = Math.PI; // Moon is directly between Sun (at 0,0,0) and Earth (at +85,0,0)
+          earthAngleRef.current = 0;
+          moonAngleRef.current = Math.PI;
         } else if (curMode === 'lunar_eclipse') {
           // Lunar Eclipse: Sun -> Earth -> Moon (Earth aligned between Sun and Moon)
-          earthAngle = 0;
-          moonAngle = 0; // Moon is on the opposite side of Sun relative to Earth
+          earthAngleRef.current = 0;
+          moonAngleRef.current = 0;
         }
 
         // Earth self-rotation on 23.44° axis (~365 times per orbit)
@@ -5161,20 +5163,23 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
         }
       }
 
+      const curEarthAngle = earthAngleRef.current;
+      const curMoonAngle = moonAngleRef.current;
+
       // Update Earth orbit position
-      const eX = Math.cos(earthAngle) * earthOrbitR;
-      const eZ = Math.sin(earthAngle) * earthOrbitR;
+      const eX = Math.cos(curEarthAngle) * earthOrbitR;
+      const eZ = Math.sin(curEarthAngle) * earthOrbitR;
       if (earthOrbitGroupRef.current) {
         earthOrbitGroupRef.current.position.set(eX, 0, eZ);
       }
 
       // Update Moon orbit position
-      const mX = Math.cos(moonAngle) * moonOrbitR;
-      const mZ = Math.sin(moonAngle) * moonOrbitR;
+      const mX = Math.cos(curMoonAngle) * moonOrbitR;
+      const mZ = Math.sin(curMoonAngle) * moonOrbitR;
       if (moonMeshRef.current) {
         moonMeshRef.current.position.set(mX, 0, mZ);
         // Moon tidal locking rotation
-        moonMeshRef.current.rotation.y = moonAngle;
+        moonMeshRef.current.rotation.y = curMoonAngle;
 
         // Dynamic Blood Moon color in Lunar Eclipse
         if (modeRef.current === 'lunar_eclipse') {
@@ -5182,6 +5187,21 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
         } else {
           moonMeshRef.current.material.color.setHex(0xffffff);
         }
+      }
+
+      // Dynamic Camera lock/follow when viewing Earth or Moon
+      if (cameraViewRef.current === 'earth' && earthOrbitGroupRef.current) {
+        const ePos = new THREE.Vector3();
+        earthOrbitGroupRef.current.getWorldPosition(ePos);
+        const shift = ePos.clone().sub(controls.target);
+        controls.target.copy(ePos);
+        camera.position.add(shift);
+      } else if (cameraViewRef.current === 'moon' && moonMeshRef.current) {
+        const mPos = new THREE.Vector3();
+        moonMeshRef.current.getWorldPosition(mPos);
+        const shift = mPos.clone().sub(controls.target);
+        controls.target.copy(mPos);
+        camera.position.add(shift);
       }
 
       // Visibility toggles
@@ -5229,10 +5249,21 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
     }
     if (m === 'solar_eclipse') {
       onLog("Chế độ Nhật Thực 3D: Mặt Trăng đi vào chính giữa đường thẳng nối Mặt Trời và Trái Đất (Mặt Trời — Mặt Trăng — Trái Đất), bóng tối của Mặt Trăng đổ lên Trái Đất.");
-      switchCamera('earth');
+      earthAngleRef.current = 0;
+      moonAngleRef.current = Math.PI;
+      if (earthOrbitGroupRef.current) earthOrbitGroupRef.current.position.set(85, 0, 0);
+      if (moonMeshRef.current) moonMeshRef.current.position.set(-19, 0, 0);
+      switchCamera('overview');
     }
     if (m === 'lunar_eclipse') {
       onLog("Chế độ Nguyệt Thực 3D: Trái Đất nằm thẳng hàng ở giữa Mặt Trời và Mặt Trăng (Mặt Trời — Trái Đất — Mặt Trăng). Mặt Trăng đi vào nón bóng tối Trái Đất tạo hiện tượng Trăng Máu (Blood Moon).");
+      earthAngleRef.current = 0;
+      moonAngleRef.current = 0;
+      if (earthOrbitGroupRef.current) earthOrbitGroupRef.current.position.set(85, 0, 0);
+      if (moonMeshRef.current) {
+        moonMeshRef.current.position.set(19, 0, 0);
+        moonMeshRef.current.material.color.setHex(0xb91c1c);
+      }
       switchCamera('moon');
     }
   };
@@ -5240,6 +5271,7 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
   // Camera presets
   const switchCamera = (viewKey) => {
     setCameraView(viewKey);
+    cameraViewRef.current = viewKey;
     const camera = cameraRef.current;
     const controls = controlsRef.current;
     if (!camera || !controls) return;
@@ -5252,14 +5284,17 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
       if (eGroup) {
         const ePos = new THREE.Vector3();
         eGroup.getWorldPosition(ePos);
-        camera.position.set(ePos.x + 18, ePos.y + 12, ePos.z + 24);
+        const dir = ePos.length() > 0.01 ? ePos.clone().normalize() : new THREE.Vector3(1, 0, 0);
+        // Angle to see both day and night
+        const perp = new THREE.Vector3(-dir.z, 0.4, dir.x).normalize();
+        camera.position.copy(ePos).add(perp.multiplyScalar(22));
         controls.target.copy(ePos);
       } else {
         camera.position.set(95, 12, 24);
         controls.target.set(85, 0, 0);
       }
     } else if (viewKey === 'sun') {
-      camera.position.set(0, 5, 25);
+      camera.position.set(0, 6, 26);
       const eGroup = earthOrbitGroupRef.current;
       if (eGroup) {
         const ePos = new THREE.Vector3();
@@ -5271,7 +5306,7 @@ function GeoEarthSunMoonSim({ onLog, isFullscreen, toggleFullscreen }) {
       if (mMesh) {
         const mPos = new THREE.Vector3();
         mMesh.getWorldPosition(mPos);
-        camera.position.set(mPos.x + 8, mPos.y + 6, mPos.z + 10);
+        camera.position.set(mPos.x + 8, mPos.y + 5, mPos.z + 10);
         controls.target.copy(mPos);
       }
     }
