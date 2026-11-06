@@ -1,5 +1,187 @@
 [
   {
+    "id": "exp_khtn_3d_chem_ball_stick",
+    "title": "🔬 Mô Hình 3D Phân Tử Hữu Cơ (Quả Cầu & Que Nối - Không Gian Lấp Đầy VDW)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Hợp chất hữu cơ, Hydrocarbon & Cấu trúc Phân tử (KHTN 9 - GDPT 2018)",
+    "objective": "Khám phá cấu trúc không gian 3D tương tác của các phân tử hữu cơ cơ bản: Methane (CH4), Dichloromethane (CH2Cl2), Ethane (C2H6), Propane (C3H8), Butane (C4H10), Isobutane (i-C4H10), Ethene (C2H4), Ethyne (C2H2), Benzene (C6H6). Hỗ trợ xoay liên kết đơn C-C, hiển thị khung bao tứ diện, mặt phẳng liên kết và đo đạc góc liên kết, chiều dài liên kết thực nghiệm.",
+    "equipment": [
+      "Mô hình quả cầu nguyên tử CPK (Cacbon, Hydro, Clo)",
+      "Que nối liên kết đơn, đôi, ba (Cylinder bonds)",
+      "Bộ điều khiển góc quay liên kết C-C đơn (0° - 360°)",
+      "Khung bao hình học không gian (Tetrahedron, Planar Polygon)",
+      "Chế độ hiển thị Quả cầu & Que nối (Ball-and-stick) và Bán kính Van der Waals (Space-filling)"
+    ],
+    "steps": [
+      "1. Chọn phân tử hữu cơ cần khảo sát từ thanh menu bên trái.",
+      "2. Dùng chuột xoay, thu phóng và pan để quan sát cấu trúc không gian 3D từ mọi góc độ.",
+      "3. Chuyển đổi giữa chế độ 'Quả cầu - Que nối' và 'Không gian lấp đầy Van der Waals'.",
+      "4. Bật khung bao hình học để thấy góc tứ diện 109.5° của CH4 hoặc mặt phẳng liên kết của C2H4, C6H6.",
+      "5. Kéo thanh trượt góc quay C-C để khảo sát cấu dạng che khuất và xen kẽ của C2H6, C4H10."
+    ],
+    "phenomenon": "Phân tử hiển thị dưới dạng 3D chuẩn xác theo tỷ lệ picometer (pm). Khi xoay liên kết C-C, các nguyên tử H xoay mượt mà quanh trục liên kết biểu diễn đúng hiện tượng đồng phân cấu dạng.",
+    "explanation": "Cấu trúc không gian của phân tử hữu cơ được quyết định bởi lai hóa của nguyên tử Carbon (sp3 góc 109.5°, sp2 góc 120°, sp góc 180°). Liên kết đơn sigma C-C có khả năng tự do quay quanh trục, trong khi liên kết đôi pi giữ nguyên cấu trúc phẳng.",
+    "interactiveType": "chem_ball_stick"
+  },
+  {
+    "id": "exp_khtn_3d_chem_titration",
+    "title": "🧪 Thí Nghiệm Chuẩn Độ Dung Dịch Axit - Bazơ 3D (Buret, Máy Khuấy Từ & Đồ Thị pH)",
+    "subject": "Hóa học",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Acid - Base - Muối & Thang đo pH (KHTN 8 - GDPT 2018)",
+    "objective": "Tiến hành chuẩn độ chính xác dung dịch Acid mạnh (HCl 0.1M) bằng dung dịch Base mạnh (NaOH 0.1M) trên hệ thiết bị 3D gồm Buret chia độ 50ml, giá kẹp, bình tam giác Erlenmeyer và máy khuấy từ. Khảo sát bước nhảy pH tại điểm tương đương (pH = 7) và sự đổi màu của chất chỉ thị.",
+    "equipment": [
+      "Buret chia độ 50ml chứa dung dịch chuẩn NaOH 0.1M",
+      "Khóa vặn buret điều tiết lưu lượng giọt nhỏ giọt",
+      "Bình tam giác Erlenmeyer 250ml chứa 20ml dung dịch HCl 0.1M",
+      "Máy khuấy từ kỹ thuật số kèm cá từ xoay liên tục",
+      "Cảm biến đo pH điện tử real-time",
+      "Chất chỉ thị màu: Phenolphthalein, Quỳ tím, Methyl da cam"
+    ],
+    "steps": [
+      "1. Chọn chất chỉ thị thích hợp (Phenolphthalein: không màu sang hồng nhạt; Quỳ tím: đỏ sang xanh; Methyl da cam: đỏ sang vàng).",
+      "2. Bật máy khuấy từ để cá từ quay đều trong bình tam giác.",
+      "3. Mở khóa buret hoặc bấm '💧 Nhỏ 1 Giọt' (0.05ml) / '💧 Nhỏ 1ml' để dung dịch NaOH chảy vào bình.",
+      "4. Theo dõi đường cong chuẩn độ pH (S-curve) và giá trị pH điện tử theo thể tích NaOH tiêu tốn.",
+      "5. Dừng chuẩn độ chính xác tại điểm tương đương khi dung dịch vừa chuyển màu bền vững."
+    ],
+    "phenomenon": "Dung dịch ban đầu có pH = 1.0. Khi thêm NaOH, pH tăng chậm. Đến gần 20.00 ml NaOH, xuất hiện bước nhảy vọt pH từ 3.5 đến 10.5. Dung dịch lập tức chuyển màu chỉ thị rực rỡ và máy cảnh báo đạt Điểm Tương Đương.",
+    "explanation": "Phản ứng trung hòa: H⁺ + OH⁻ → H₂O. Tại điểm tương đương, số mol OH⁻ thêm vào vừa đủ phản ứng hết với số mol H⁺ ban đầu, pH của dung dịch bằng 7.00.",
+    "interactiveType": "chem_titration"
+  },
+  {
+    "id": "exp_khtn_3d_physics_optics",
+    "title": "🌈 Thí Nghiệm Quang Học 3D: Khúc Xạ Ánh Sáng, Phản Xạ Toàn Phần & Tán Sắc Lăng Kính",
+    "subject": "Vật lí",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Ánh sáng - Khúc xạ, Phản xạ Toàn phần & Tán sắc (KHTN 9 - GDPT 2018)",
+    "objective": "Khảo sát định luật khúc xạ ánh sáng Snell-Descartes, hiện tượng phản xạ toàn phần và góc giới hạn phản xạ i_gh, cùng hiện tượng tán sắc ánh sáng trắng qua lăng kính tam giác trên bàn quang học 3D tương tác.",
+    "equipment": [
+      "Bàn quang học 3D với đĩa tròn chia độ 360°",
+      "Nguồn phát tia Laser đơn sắc và chùm sáng trắng song song",
+      "Khối bán trụ thủy tinh chiết suất n = 1.50",
+      "Lăng kính tam giác đều chiết suất tán sắc n(λ)"
+    ],
+    "steps": [
+      "1. Chọn khối môi trường: Khối bán trụ thủy tinh hoặc Lăng kính tam giác.",
+      "2. Điều chỉnh góc tới i bằng thanh trượt hoặc kéo trực tiếp nguồn sáng.",
+      "3. Quan sát góc khúc xạ r theo định luật Snell: n1 * sin(i) = n2 * sin(r).",
+      "4. Tăng góc tới vượt qua góc giới hạn i_gh = arcsin(1/n) ≈ 41.8° để chứng minh hiện tượng phản xạ toàn phần.",
+      "5. Đổi sang Lăng kính để quan sát chùm sáng trắng bị tán sắc thành dải 7 màu biến thiên liên tục từ đỏ đến tím."
+    ],
+    "phenomenon": "Tia sáng bị gãy khúc tại mặt phân cách giữa hai môi trường. Khi góc tới lớn hơn góc tới hạn, tia khúc xạ biến mất hoàn toàn, 100% ánh sáng bị phản xạ trở lại môi trường cũ. Qua lăng kính, ánh sáng trắng tách thành dải màu cầu vồng (Đỏ, Da cam, Vàng, Lục, Lam, Chàm, Tím).",
+    "explanation": "Hiện tượng khúc xạ do vận tốc truyền ánh sáng thay đổi khi đi qua hai môi trường có chiết suất khác nhau. Phản xạ toàn phần xảy ra khi ánh sáng truyền từ môi trường chiết quang hơn sang kém chiết quang hơn với i >= i_gh. Tán sắc xảy ra do chiết suất của môi trường phụ thuộc vào bước sóng ánh sáng (n_tím > n_đỏ).",
+    "interactiveType": "physics_refraction"
+  },
+  {
+    "id": "exp_khtn_3d_physics_current_field",
+    "title": "🧲 Mô Hình 3D Từ Trường Dòng Điện & Ma Trận Kim Nam Châm (Dây Thẳng, Vòng Tròn, Solenoid)",
+    "subject": "Vật lí",
+    "subjectCategory": "KHTN",
+    "grade": 9,
+    "chapter": "Điện từ học - Từ trường của dòng điện chạy trong các dây dẫn (KHTN 9 - GDPT 2018)",
+    "objective": "Mô phỏng 3D tương tác từ trường sinh ra bởi dòng điện chạy trong: Dây dẫn thẳng dài vô hạn, Khung dây tròn và Ống dây hình trụ (Solenoid). Khảo sát đường sức từ và hướng định vị của ma trận kim nam châm theo Quy tắc Bàn Tay Phải.",
+    "equipment": [
+      "Mô hình dây dẫn thẳng, khung dây tròn và cuộn dây solenoid 3D",
+      "Bộ nguồn điện một chiều DC kèm thanh trượt điều chỉnh cường độ I (0 - 10A)",
+      "Nút đảo chiều cực dòng điện",
+      "Ma trận kim nam châm thử 3D (Cực Bắc N màu đỏ, Cực Nam S màu xanh)",
+      "Đường sức từ 3D động với mũi tên chỉ chiều véctơ cảm ứng từ B"
+    ],
+    "steps": [
+      "1. Chọn cấu hình hình học dây dẫn: Dây thẳng / Dây tròn / Cuộn Solenoid.",
+      "2. Điều chỉnh cường độ dòng điện I và bấm đảo chiều dòng điện.",
+      "3. Quan sát các hạt electron chuyển động dọc theo dây dẫn thể hiện chiều dòng điện.",
+      "4. Quan sát các kim nam châm tự động quay và định hướng tiếp tuyến với các đường sức từ.",
+      "5. Áp dụng quy tắc nắm tay phải để kiểm chứng chiều của đường sức từ."
+    ],
+    "phenomenon": "Xung quanh dây thẳng, các đường cảm ứng từ là các đường tròn đồng tâm. Với cuộn dây Solenoid, từ trường bên trong ống là từ trường đều với các đường sức song song cách đều nhau, hướng từ cực Nam ra cực Bắc của ống dây.",
+    "explanation": "Dòng điện là dòng chuyển dời có hướng của các điện tích, sinh ra từ trường trong không gian xung quanh. Hướng của véctơ cảm ứng từ B tuân theo Quy tắc nắm bàn tay phải: Ngón cái chỉ chiều dòng điện, các ngón tay khum lại chỉ chiều đường sức từ.",
+    "interactiveType": "physics_magnetic_field"
+  },
+  {
+    "id": "exp_khtn_3d_physics_pendulum",
+    "title": "⏱️ Khảo Sát Dao Động Con Lắc Đơn 3D & Trường Trọng Lực Đa Hành Tinh",
+    "subject": "Vật lí",
+    "subjectCategory": "KHTN",
+    "grade": 8,
+    "chapter": "Dao động cơ học & Chuyển động tuần hoàn (KHTN 8 - GDPT 2018)",
+    "objective": "Khảo sát quy luật dao động điều hòa của con lắc đơn: Chu kỳ T = 2π√(L/g), sự phụ thuộc vào chiều dài dây treo L, khối lượng vật nặng m và gia tốc trọng trường g trên các thiên thể khác nhau (Trái Đất, Mặt Trăng, Sao Hỏa, Sao Mộc). Tích hợp đồng hồ bấm giờ 10 chu kỳ đo đạc thực nghiệm.",
+    "equipment": [
+      "Giá thí nghiệm kim loại vững chắc kèm trục treo ma sát siêu nhỏ",
+      "Dây treo không giãn có thể thay đổi chiều dài (0.5m - 2.5m)",
+      "Quả nặng kim loại có thể thay đổi khối lượng (0.1kg - 1.0kg)",
+      "Thước đo góc gắn trên trục treo",
+      "Đồng hồ bấm giây kỹ thuật số đếm chu kỳ dao động",
+      "Bộ mô phỏng trọng lực đa hành tinh: Trái Đất (9.8m/s²), Mặt Trăng (1.62m/s²), Sao Hỏa (3.71m/s²), Sao Mộc (24.79m/s²)"
+    ],
+    "steps": [
+      "1. Chọn chiều dài dây L và góc lệch ban đầu θ0 (kéo quả nặng hoặc dùng slider).",
+      "2. Chọn môi trường trọng lực: Trái Đất, Mặt Trăng, Sao Hỏa hoặc Sao Mộc.",
+      "3. Bấm 'Bắt đầu đếm 10 dao động' để đồng hồ tự động ghi nhận thời gian thực nghiệm.",
+      "4. So sánh chu kỳ thực nghiệm đo được với chu kỳ lý thuyết T = 2π√(L/g).",
+      "5. Thay đổi khối lượng m để chứng minh chu kỳ không phụ thuộc vào khối lượng quả nặng."
+    ],
+    "phenomenon": "Con lắc dao động qua lại quanh vị trí cân bằng. Khi tăng chiều dài dây L hoặc giảm trọng lực g (như trên Mặt Trăng), con lắc dao động chậm lại rõ rệt. Khi đưa lên Sao Mộc (g lớn), con lắc dao động rất nhanh.",
+    "explanation": "Phương trình vi phân dao động của con lắc đơn: θ''(t) + (g/L)*sin(θ) = 0. Với góc lệch nhỏ (sinθ ≈ θ), dao động là điều hòa với chu kỳ T = 2π√(L/g), hoàn toàn độc lập với khối lượng m của vật.",
+    "interactiveType": "physics_pendulum"
+  },
+  {
+    "id": "exp_khtn_3d_bio_plasmolysis",
+    "title": "🌿 Mô Hình Tế Bào Thực Vật Co & Dãn Nguyên Sinh 3D (Môi Trường Thẩm Thấu)",
+    "subject": "Sinh học",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Tế bào - Đơn vị cơ sở của sự sống & Trao đổi chất qua màng (KHTN 6 - GDPT 2018)",
+    "objective": "Quan sát mô hình 3D cắt lớp tế bào thực vật (Thành tế bào Cellulose cứng cáp, màng sinh chất bán thấm, không bào trung tâm chứa sắc tố, lục lạp và nhân tế bào). Khảo sát hiện tượng co nguyên sinh (plasmolysis) khi ngâm trong dung dịch ưu trương (NaCl 10%) và dãn nguyên sinh (deplasmolysis) khi đưa vào dung dịch nhược trương (nước cất).",
+    "equipment": [
+      "Mô hình 3D tế bào thực vật đa lớp độ phân giải cao",
+      "Hệ thống mô phỏng dòng hạt nước thẩm thấu (Osmosis flux particles)",
+      "Bộ điều khiển môi trường dung dịch: Đẳng trương (Isotonic 0.9%), Ưu trương (Hypertonic NaCl 10%), Nhược trương (Hypotonic Nước cất)",
+      "Đồ thị biểu diễn thể tích không bào và áp suất thẩm thấu real-time"
+    ],
+    "steps": [
+      "1. Quan sát tế bào ở trạng thái bình thường (môi trường đẳng trương): Khí khổng mở, không bào căng đầy, màng sinh chất áp sát thành tế bào.",
+      "2. Bấm chọn 'Dung dịch Ưu trương (NaCl 10%)': Quan sát nước từ trong không bào thoát ra ngoài tế bào.",
+      "3. Theo dõi màng sinh chất tách dần khỏi thành tế bào cứng cáp (hiện tượng co nguyên sinh).",
+      "4. Bấm chọn 'Dung dịch Nhược trương (Nước cất)': Nước ồ ạt thẩm thấu ngược trở lại vào không bào.",
+      "5. Quan sát không bào căng phồng trở lại và màng sinh chất áp sát trở lại thành tế bào (dãn nguyên sinh)."
+    ],
+    "phenomenon": "Trong môi trường ưu trương, các phân tử nước thoát ra ngoài làm không bào co lại, màng sinh chất co rúm và tách khỏi thành xenlulozo. Khi cho nước cất vào, nước thẩm thấu vào tế bào làm không bào nở to, tế bào lấy lại hình dạng căng tròn ban đầu.",
+    "explanation": "Thẩm thấu là sự khuếch tán của các phân tử nước qua màng bán thấm từ nơi có thế nước cao (nồng độ chất tan thấp) đến nơi có thế nước thấp (nồng độ chất tan cao). Thành tế bào thực vật bằng xenlulozo có cấu trúc cứng cố định hình dạng tế bào, ngăn không cho tế bào bị vỡ khi dãn nguyên sinh.",
+    "interactiveType": "biology_cell_plasmolysis"
+  },
+  {
+    "id": "exp_khtn_3d_bio_microscope",
+    "title": "🔬 Kính Hiển Vi Quang Học 3D & Quan Sát Mẫu Vi Thể (Tế Bào Biểu Bì Vảy Hành)",
+    "subject": "Sinh học",
+    "subjectCategory": "KHTN",
+    "grade": 6,
+    "chapter": "Kính hiển vi quang học & Quan sát tế bào sinh vật (KHTN 6 - GDPT 2018)",
+    "objective": "Làm quen cấu tạo phần cứng 3D hoàn chỉnh của kính hiển vi quang học phòng thí nghiệm (Ống kính thị kính, đĩa quay vật kính 10x, 40x, 100x, bàn mang tiêu bản, ốc vi cấp, ốc sơ cấp, tụ quang và nguồn đèn LED). Chuyển sang góc nhìn thị kính để quan sát các mẫu tiêu bản vi thể: Tế bào biểu bì vảy hành, Tế bào niêm mạc miệng và Tế bào máu người.",
+    "equipment": [
+      "Kính hiển vi quang học 3D đầy đủ cơ cấu chuyển động cơ khí",
+      "Đĩa xoay 3 vật kính: x10 (vàng), x40 (xanh dương), x100 (trắng soi dầu)",
+      "Ốc điều chỉnh độ nét sơ cấp (Coarse focus) và vi cấp (Fine focus)",
+      "Hệ thống đèn LED chiếu sáng và màn chắn sáng tụ quang",
+      "Bộ sưu tập tiêu bản vi thể: Biểu bì vảy hành, Biểu bì niêm mạc khoang miệng, Tế bào hồng cầu máu"
+    ],
+    "steps": [
+      "1. Khảo sát các bộ phận trên thân kính hiển vi 3D bằng cách xoay và phóng to các cụm chi tiết.",
+      "2. Xoay đĩa vật kính để đổi độ phóng đại từ x10 lên x40 hoặc x100.",
+      "3. Bấm '👁️ Nhìn Qua Thị Kính' để chuyển sang góc nhìn quang học thực tế.",
+      "4. Chọn tiêu bản mẫu (Vảy hành / Niêm mạc miệng / Máu) và xoay núm vi cấp/sơ cấp để lấy nét hình ảnh tế bào.",
+      "5. Điều chỉnh độ sáng đèn chiếu để phân biệt rõ màng tế bào, tế bào chất và nhân tế bào."
+    ],
+    "phenomenon": "Khi nhìn qua thị kính và vặn đúng núm lấy nét, hình ảnh tế bào hiển thị sắc nét với tỷ lệ phóng đại chính xác. Các tế bào xếp khít nhau như viên gạch (tế bào hành lá) hoặc các tế bào rời rạc hình tròn (hồng cầu).",
+    "explanation": "Kính hiển vi quang học sử dụng hệ thống thấu kính hội tụ (thị kính và vật kính) để khuếch đại góc trông của mắt đối với các vật thể siêu nhỏ, cho phép quan sát chi tiết cấu trúc tế bào vượt qua giới hạn độ phân giải của mắt người.",
+    "interactiveType": "biology_microscope"
+  },
+  {
     "id": "exp_chem_sandbox_00",
     "title": "🧪 Phòng Thí Nghiệm Mở (Sandbox Nguyên Tố & Hóa Chất Tự Chọn)",
     "subject": "Hóa học",

@@ -7,6 +7,13 @@ import { GeoVolcano3DSim } from './GeoVolcano3DSim';
 import { GeoWaterCycle3DSim } from './GeoWaterCycle3DSim';
 import { GeoGlacialRiver3DSim } from './GeoGlacialRiver3DSim';
 import { GeoEarthquake3DSim } from './GeoEarthquake3DSim';
+import { KhtnChemBallStick3DSim } from './KhtnChemBallStick3DSim';
+import { KhtnChemTitration3DSim } from './KhtnChemTitration3DSim';
+import { KhtnBioPlasmolysis3DSim } from './KhtnBioPlasmolysis3DSim';
+import { KhtnPhysicsOptics3DSim } from './KhtnPhysicsOptics3DSim';
+import { KhtnPhysicsPendulum3DSim } from './KhtnPhysicsPendulum3DSim';
+import { KhtnPhysicsCurrentField3DSim } from './KhtnPhysicsCurrentField3DSim';
+import { KhtnBioMicroscope3DSim } from './KhtnBioMicroscope3DSim';
 
 // --- TOP-LEVEL SOLAR SYSTEM 3D PROCEDURAL TEXTURES & CONFIG (Rule 1 compliance) ---
 const SOLAR_PLANETS_CONFIG = {
@@ -10241,28 +10248,65 @@ export const detectExperimentInteractiveType = (exp) => {
   const expText = String(exp.explanation || '').toLowerCase();
   const fullText = `${title} ${obj} ${eq} ${expText}`;
 
+  // 1. Geography 3D Models
   if (fullText.includes('cấu tạo trái đất') || fullText.includes('bóc tách') || fullText.includes('bên trong trái đất') || fullText.includes('earth_structure') || fullText.includes('geo_6_06')) {
     return 'geo_earth_structure';
   }
-
   if (fullText.includes('hệ mặt trời') || fullText.includes('nhật thực') || fullText.includes('nguyệt thực') || fullText.includes('hành tinh')) {
     return 'geo_solar_system';
   }
-
   if (fullText.includes('núi lửa') || fullText.includes('volcano')) {
     return 'geo_volcano';
   }
-
   if (fullText.includes('động đất') || fullText.includes('earthquake')) {
     return 'geo_earthquake';
   }
-
   if (fullText.includes('vòng tuần hoàn') || fullText.includes('water_cycle')) {
     return 'geo_water_cycle';
   }
-
   if (fullText.includes('kiến tạo mảng') || fullText.includes('plate_tectonics')) {
     return 'geo_plate_tectonics';
+  }
+  if (fullText.includes('sông băng') || fullText.includes('băng tuyết') || fullText.includes('thung lũng chữ u') || fullText.includes('glacial_river')) {
+    return 'geo_glacial_river';
+  }
+
+  // 2. Chemistry 3D Models
+  if (fullText.includes('phân tử') || fullText.includes('quả cầu') || fullText.includes('que nối') || 
+      fullText.includes('methane') || fullText.includes('metan') || fullText.includes('etan') || fullText.includes('ethane') ||
+      fullText.includes('etilen') || fullText.includes('axetilen') || fullText.includes('benzen') || fullText.includes('butan') ||
+      fullText.includes('đồng phân') || fullText.includes('ball_stick')) {
+    return 'chem_ball_stick';
+  }
+
+  if (fullText.includes('chuẩn độ') || fullText.includes('buret') || fullText.includes('erlenmeyer') || 
+      fullText.includes('bình tam giác') || fullText.includes('máy khuấy từ') || fullText.includes('quỳ tím') || 
+      fullText.includes('phenolphthalein') || fullText.includes('axit') || fullText.includes('acid') || fullText.includes('base') || fullText.includes('bazo')) {
+    return 'chemistry_acid_base';
+  }
+
+  // 3. Biology 3D Models
+  if (fullText.includes('co nguyên sinh') || fullText.includes('dãn nguyên sinh') || fullText.includes('thẩm thấu') || 
+      fullText.includes('ưu trương') || fullText.includes('nhược trương') || fullText.includes('lẻ bạn') || fullText.includes('plasmolysis')) {
+    return 'biology_cell_plasmolysis';
+  }
+
+  if (fullText.includes('kính hiển vi') || fullText.includes('vật kính') || fullText.includes('thị kính') || fullText.includes('vảy hành') || fullText.includes('tế bào biểu bì')) {
+    return 'biology_microscope';
+  }
+
+  // 4. Physics 3D Models
+  if (fullText.includes('khúc xạ') || fullText.includes('phản xạ toàn phần') || fullText.includes('lăng kính') || 
+      fullText.includes('tán sắc') || fullText.includes('bán trụ') || fullText.includes('chiết suất') || fullText.includes('giao thoa') || fullText.includes('snell')) {
+    return 'physics_refraction';
+  }
+
+  if (fullText.includes('con lắc') || fullText.includes('dao động') || fullText.includes('rơi tự do') || fullText.includes('chu kỳ') || fullText.includes('trọng lực')) {
+    return 'physics_pendulum';
+  }
+
+  if (fullText.includes('từ trường') || fullText.includes('kim nam châm') || fullText.includes('solenoid') || fullText.includes('nắm tay phải') || fullText.includes('đường sức từ')) {
+    return 'physics_magnetic_field';
   }
 
   if (fullText.includes('tách oxi') || fullText.includes('tách oxygen') || fullText.includes('điện phân nước') || 
@@ -10276,20 +10320,12 @@ export const detectExperimentInteractiveType = (exp) => {
     return 'chem9_alcohol_combustion';
   }
 
-  if (fullText.includes('quỳ tím') || fullText.includes('phenolphthalein') || fullText.includes('axit') || fullText.includes('base') || fullText.includes('bazo')) {
-    return 'chemistry_acid_base';
-  }
-
   if (fullText.includes('fe2o3') || fullText.includes('khử sắt')) {
     return 'chem9_fe2o3_co';
   }
 
   if (fullText.includes('mạch điện') || fullText.includes('dòng điện') || fullText.includes('vôn kế')) {
     return 'physics_circuit';
-  }
-
-  if (fullText.includes('kính hiển vi') || fullText.includes('tế bào')) {
-    return 'biology_microscope';
   }
 
   return 'khtn_dynamic_lab';
@@ -10852,19 +10888,33 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         return <Chem9ProteinPropertiesSim onLog={addLog} />;
 
       case 'physics_refraction':
-        return <PhysicsRefractionSim onLog={addLog} />;
+      case 'physics_optics':
+        return <KhtnPhysicsOptics3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'physics_circuit':
         return <PhysicsCircuitSim onLog={addLog} />;
       case 'physics_pendulum':
-        return <PhysicsPendulumSim onLog={addLog} />;
+      case 'physics_oscillator':
+        return <KhtnPhysicsPendulum3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+      case 'physics_magnetic_field':
+      case 'physics_current_field':
+        return <KhtnPhysicsCurrentField3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'physics_spring':
         return <PhysicsSpringSim onLog={addLog} />;
       case 'biology_microscope':
-        return <BiologyMicroscopeSim onLog={addLog} />;
+        return <KhtnBioMicroscope3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'biology_cell_plasmolysis':
-        return <BiologyCellPlasmolysisSim onLog={addLog} />;
+      case 'plasmolysis':
+        return <KhtnBioPlasmolysis3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'biology_dna_extraction':
         return <BiologyDNAExtractionSim onLog={addLog} />;
+      case 'chem_ball_stick':
+      case 'chemistry_organic_molecule':
+      case 'ball_stick':
+        return <KhtnChemBallStick3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+      case 'chemistry_acid_base':
+      case 'chem_titration':
+      case 'titration':
+        return <KhtnChemTitration3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_01':
       case 'geo_6_01':
       case 'geo_solar_system':
@@ -10898,6 +10948,27 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       default: {
         const detectedType = detectExperimentInteractiveType(experiment);
+        if (detectedType === 'chem_ball_stick') {
+          return <KhtnChemBallStick3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'chemistry_acid_base' || detectedType === 'chem_titration') {
+          return <KhtnChemTitration3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'physics_refraction' || detectedType === 'physics_optics') {
+          return <KhtnPhysicsOptics3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'physics_pendulum' || detectedType === 'physics_oscillator') {
+          return <KhtnPhysicsPendulum3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'physics_magnetic_field' || detectedType === 'physics_current_field') {
+          return <KhtnPhysicsCurrentField3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'biology_cell_plasmolysis' || detectedType === 'plasmolysis') {
+          return <KhtnBioPlasmolysis3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'biology_microscope') {
+          return <KhtnBioMicroscope3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
         if (detectedType === 'geo_earth_structure') {
           return <GeoEarthStructureSim onLog={addLog} />;
         }
@@ -10915,6 +10986,9 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
         }
         if (detectedType === 'geo_plate_tectonics') {
           return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        }
+        if (detectedType === 'geo_glacial_river') {
+          return <GeoGlacialRiver3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'chem_water_oxygen_separation') {
           return <ChemWaterOxygenSeparationSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
@@ -10951,6 +11025,29 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
             return <GeoGlacialRiver3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        } else {
+          // KHTN Subject fallback matching
+          if (title.includes('phân tử') || title.includes('quả cầu') || title.includes('que nối') || title.includes('metan') || title.includes('etan') || title.includes('etilen') || title.includes('axetilen') || title.includes('benzen') || title.includes('butan')) {
+            return <KhtnChemBallStick3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('chuẩn độ') || title.includes('buret') || title.includes('axit') || title.includes('acid') || title.includes('base') || title.includes('bazo')) {
+            return <KhtnChemTitration3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('khúc xạ') || title.includes('lăng kính') || title.includes('tán sắc') || title.includes('quang học') || title.includes('giao thoa')) {
+            return <KhtnPhysicsOptics3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('con lắc') || title.includes('dao động') || title.includes('rơi tự do')) {
+            return <KhtnPhysicsPendulum3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('từ trường') || title.includes('nam châm') || title.includes('solenoid') || title.includes('dòng điện')) {
+            return <KhtnPhysicsCurrentField3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('co nguyên sinh') || title.includes('dãn nguyên sinh') || title.includes('thẩm thấu') || title.includes('lẻ bạn')) {
+            return <KhtnBioPlasmolysis3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
+          if (title.includes('kính hiển vi') || title.includes('vảy hành') || title.includes('biểu bì')) {
+            return <KhtnBioMicroscope3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          }
         }
         return <KHTNDynamicLabSim experiment={experiment} onLog={addLog} onSensorUpdate={handleSensorUpdate} />;
       }
