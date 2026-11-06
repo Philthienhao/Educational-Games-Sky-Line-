@@ -4,7 +4,7 @@ console.log('🚀 Deploying latest build directly to Vercel Production...');
 
 try {
   // 1. Create deployment to Vercel
-  const deployOutput = execSync('npx vercel --prod --yes', { encoding: 'utf-8' });
+  const deployOutput = execSync('npx -y vercel --prod --yes', { encoding: 'utf-8' });
   console.log(deployOutput);
 
   // Extract deployment ID (e.g. dpl_xxx)
@@ -14,9 +14,9 @@ try {
     console.log(`✅ Deployment ID: ${deploymentId}`);
 
     console.log('🔗 Binding production aliases donghedayhoc.vercel.app, eduvth.vercel.app, giao-vien-sky-line.vercel.app...');
-    execSync(`npx vercel alias set ${deploymentId} donghedayhoc.vercel.app`, { stdio: 'inherit' });
-    execSync(`npx vercel alias set ${deploymentId} eduvth.vercel.app`, { stdio: 'inherit' });
-    execSync(`npx vercel alias set ${deploymentId} giao-vien-sky-line.vercel.app`, { stdio: 'inherit' });
+    execSync(`npx -y vercel alias set ${deploymentId} donghedayhoc.vercel.app`, { stdio: 'inherit' });
+    execSync(`npx -y vercel alias set ${deploymentId} eduvth.vercel.app`, { stdio: 'inherit' });
+    execSync(`npx -y vercel alias set ${deploymentId} giao-vien-sky-line.vercel.app`, { stdio: 'inherit' });
     // IMPORTANT: NEVER alias magnificatedu.vercel.app here! That domain belongs EXCLUSIVELY to magnificatedu-giangviengiaoly!
     console.log('🎉 Production domains updated successfully!');
   } else {

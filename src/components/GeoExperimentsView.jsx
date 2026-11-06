@@ -154,41 +154,6 @@ export function GeoExperimentsView({ currentUser, onCheckTrialOrRun, onOpenUpgra
               Tập hợp đầy đủ 7 mô hình tương tác 3D/SVG trực quan chuyên sâu môn Địa lý 6: Vũ trụ, Trái Đất, Núi lửa, Động đất, Vòng tuần hoàn nước & Sông suối băng tan.
             </p>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-            <button 
-              onClick={() => {
-                const solarExp = geoExperiments.find(e => e.interactiveType === 'geo_solar_system') || geoExperiments[0];
-                handleLaunchExperiment(solarExp, { startInCockpit: true });
-              }}
-              style={{
-                background: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '16px',
-                padding: '12px 20px',
-                fontWeight: 900,
-                fontSize: '0.92rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 6px 24px rgba(245, 158, 11, 0.35)'
-              }}
-            >
-              <Sparkles size={18} color="#ffffff" /> 🚀 BẬT PHI THUYỀN LÁI VŨ TRỤ 3D NGAY
-            </button>
-
-            <div style={{ background: '#ffffff', border: '1.5px solid rgba(245, 158, 11, 0.4)', borderRadius: '16px', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 4px 14px rgba(15, 23, 42, 0.05)' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.72rem', color: '#475569', fontWeight: 800 }}>TÁC GIẢ BỘ MÔ NÂNG CAO</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 900, color: '#d97706' }}>Thầy Hảo Địa Lý</div>
-              </div>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '1.1rem', boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)' }}>
-                🌐
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
