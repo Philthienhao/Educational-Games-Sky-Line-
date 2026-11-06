@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GeoPlateTectonicsSim } from './GeoPlateTectonicsSim';
+import { GeoVolcano3DSim } from './GeoVolcano3DSim';
+import { GeoWaterCycle3DSim } from './GeoWaterCycle3DSim';
+import { GeoGlacialRiver3DSim } from './GeoGlacialRiver3DSim';
+import { GeoEarthquake3DSim } from './GeoEarthquake3DSim';
 
 // --- TOP-LEVEL SOLAR SYSTEM 3D PROCEDURAL TEXTURES & CONFIG (Rule 1 compliance) ---
 const SOLAR_PLANETS_CONFIG = {
@@ -10872,15 +10876,15 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_03':
       case 'geo_6_03':
       case 'geo_volcano':
-        return <GeoVolcanoSim onLog={addLog} />;
+        return <GeoVolcano3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_04':
       case 'geo_6_04':
       case 'geo_earthquake':
-        return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+        return <GeoEarthquake3DSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_05':
       case 'geo_6_05':
       case 'geo_water_cycle':
-        return <GeoWaterCycleSim onLog={addLog} />;
+        return <GeoWaterCycle3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_6_06':
       case 'geo_6_06':
       case 'geo_earth_structure':
@@ -10888,7 +10892,7 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
       case 'exp_geo_6_07':
       case 'geo_6_07':
       case 'geo_glacial_river':
-        return <GeoGlacialRiverSim onLog={addLog} />;
+        return <GeoGlacialRiver3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
       case 'exp_geo_plate_tectonics':
       case 'geo_plate_tectonics':
         return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
@@ -10901,13 +10905,13 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
           return <GeoSolarSystemSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'geo_volcano') {
-          return <GeoVolcanoSim onLog={addLog} />;
+          return <GeoVolcano3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'geo_earthquake') {
-          return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+          return <GeoEarthquake3DSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'geo_water_cycle') {
-          return <GeoWaterCycleSim onLog={addLog} />;
+          return <GeoWaterCycle3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
         if (detectedType === 'geo_plate_tectonics') {
           return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
@@ -10932,19 +10936,19 @@ export function InteractiveExperimentCanvas({ experiment, onClose }) {
             return <GeoEarthSunMoonSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('núi lửa') || title.includes('magma')) {
-            return <GeoVolcanoSim onLog={addLog} />;
+            return <GeoVolcano3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('động đất') || title.includes('sóng') || title.includes('chấn động')) {
-            return <GeoEarthquakeSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
+            return <GeoEarthquake3DSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('tuần hoàn') || title.includes('nước') || title.includes('mưa')) {
-            return <GeoWaterCycleSim onLog={addLog} />;
+            return <GeoWaterCycle3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           if (title.includes('bóc tách') || title.includes('cấu tạo') || title.includes('manti') || title.includes('nhân') || title.includes('lõi')) {
             return <GeoEarthStructureSim onLog={addLog} />;
           }
           if (title.includes('sông') || title.includes('suối') || title.includes('băng') || title.includes('tuyết')) {
-            return <GeoGlacialRiverSim onLog={addLog} />;
+            return <GeoGlacialRiver3DSim onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
           }
           return <GeoPlateTectonicsSim experiment={experiment} onLog={addLog} isFullscreen={isFullscreen} toggleFullscreen={toggleFullscreen} />;
         }
