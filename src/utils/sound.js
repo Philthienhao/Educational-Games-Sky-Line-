@@ -213,5 +213,8 @@ export const SoundFX = {
   playCorrect: function() { this.correct(); },
   playWrong: function() { this.wrong(); },
   playClick: function() { this.click(); },
-  playWin: function() { this.fanfare(); }
+  playWin: function() { this.fanfare(); },
+  tap: function() { this.click(); },
+  play: function() { this.click(); },
+  applause: function() { this.fanfare(); }
 };

@@ -8,8 +8,21 @@ import { SoundFX } from '../utils/sound';
 import { 
   WORKSHEET_THEMES, 
   EXERCISE_TYPES, 
-  generateAITextbookWorksheet 
+  generateAITextbookWorksheet,
+  generateCurriculumFallbackWorksheet 
 } from '../services/aiWorksheetService';
+
+const safePlaySound = (type = 'click') => {
+  try {
+    if (typeof window !== 'undefined' && SoundFX) {
+      if (typeof SoundFX[type] === 'function') {
+        SoundFX[type]();
+      } else if (typeof SoundFX.click === 'function') {
+        SoundFX.click();
+      }
+    }
+  } catch (e) {}
+};
 
 // ==========================================
 // TOP-LEVEL SUB-COMPONENTS (Rule 1 Compliance)
@@ -400,31 +413,57 @@ export function AITextbookWorksheetModal({
 
   // Auto-init on opening
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && book) {
       setCopySuccess(false);
       setActiveTab('worksheet');
       const isKid = (book.grade || '').includes('1') || (book.grade || '').includes('2') || (book.grade || '').includes('3') || (book.grade || '').includes('4') || (book.grade || '').includes('5');
-      setSelectedTheme(isKid ? 'primary_cute' : 'standard_secondary');
+      const initialTheme = isKid ? 'primary_cute' : 'standard_secondary';
+      setSelectedTheme(initialTheme);
       
-      // Auto generate initial worksheet on open
-      handleGenerate();
+      // 1. Immediately create rich worksheet from curriculum engine so teacher NEVER faces empty screen
+      const immediateWs = generateCurriculumFallbackWorksheet({
+        textbookTitle: book.title || 'Sách Giáo Khoa',
+        grade: book.grade || 'Lớp 2',
+        subject: book.subject || 'Tiếng Việt',
+        theme: initialTheme,
+        selectedTypes
+      });
+      setWorksheetData(immediateWs);
+
+      // 2. Then trigger asynchronous AI enhancement
+      performGeneration(initialTheme, selectedTypes, promptCommand);
     }
   }, [isOpen, book?.id]);
 
   const handleToggleType = (typeId) => {
-    SoundFX.tap();
-    setSelectedTypes(prev => {
-      if (prev.includes(typeId)) {
-        if (prev.length === 1) return prev; // Keep at least one
-        return prev.filter(t => t !== typeId);
-      } else {
-        return [...prev, typeId];
-      }
+    safePlaySound('click');
+    const updatedTypes = selectedTypes.includes(typeId)
+      ? (selectedTypes.length === 1 ? selectedTypes : selectedTypes.filter(t => t !== typeId))
+      : [...selectedTypes, typeId];
+    
+    setSelectedTypes(updatedTypes);
+    
+    // Immediately refresh visible sections
+    const refreshedWs = generateCurriculumFallbackWorksheet({
+      textbookTitle: book.title || 'Sách Giáo Khoa',
+      grade: book.grade || 'Lớp 2',
+      subject: book.subject || 'Tiếng Việt',
+      theme: selectedTheme,
+      selectedTypes: updatedTypes,
+      promptCommand
     });
+    setWorksheetData(refreshedWs);
   };
 
-  const handleGenerate = async () => {
-    SoundFX.play();
+  const handleSelectTheme = (themeId) => {
+    safePlaySound('click');
+    setSelectedTheme(themeId);
+    if (worksheetData) {
+      setWorksheetData(prev => prev ? ({ ...prev, theme: themeId }) : prev);
+    }
+  };
+
+  const performGeneration = async (themeToUse, typesToUse, commandToUse) => {
     setIsLoading(true);
     setLoadingStep('🤖 Gemini AI đang phân tích bài học và soạn phiếu bài tập...');
 
@@ -442,32 +481,47 @@ export function AITextbookWorksheetModal({
       const result = await generateAITextbookWorksheet({
         book,
         bookText: effectiveText,
-        promptCommand,
-        theme: selectedTheme,
-        selectedTypes
+        promptCommand: commandToUse || promptCommand,
+        theme: themeToUse || selectedTheme,
+        selectedTypes: typesToUse || selectedTypes
       });
 
       if (result && result.worksheet) {
         setWorksheetData(result.worksheet);
-        SoundFX.applause();
+        safePlaySound('fanfare');
       }
     } catch (err) {
       console.error('Worksheet generation error:', err);
+      // Fallback guarantees worksheet is always populated
+      const fallback = generateCurriculumFallbackWorksheet({
+        textbookTitle: book.title || 'Sách Giáo Khoa',
+        grade: book.grade || 'Lớp 2',
+        subject: book.subject || 'Tiếng Việt',
+        theme: themeToUse || selectedTheme,
+        selectedTypes: typesToUse || selectedTypes,
+        promptCommand: commandToUse || promptCommand
+      });
+      setWorksheetData(fallback);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleGenerate = async () => {
+    safePlaySound('click');
+    await performGeneration(selectedTheme, selectedTypes, promptCommand);
+  };
+
   // Print A4 Worksheet
   const handlePrint = () => {
-    SoundFX.tap();
+    safePlaySound('click');
     window.print();
   };
 
   // Copy Plain Text for Word
   const handleCopyWord = () => {
     if (!worksheetData) return;
-    SoundFX.tap();
+    safePlaySound('click');
 
     let text = `${worksheetData.title}\n${worksheetData.subtitle}\n`;
     text += `Trường: ${worksheetData.school || 'Sky-Line'}\n`;
@@ -743,10 +797,7 @@ export function AITextbookWorksheetModal({
                   return (
                     <div 
                       key={th.id}
-                      onClick={() => {
-                        SoundFX.tap();
-                        setSelectedTheme(th.id);
-                      }}
+                      onClick={() => handleSelectTheme(th.id)}
                       style={{
                         padding: '10px 12px',
                         borderRadius: '12px',
@@ -893,7 +944,7 @@ export function AITextbookWorksheetModal({
             >
               <button
                 onClick={() => {
-                  SoundFX.tap();
+                  safePlaySound('click');
                   setActiveTab('worksheet');
                 }}
                 style={{
@@ -914,7 +965,7 @@ export function AITextbookWorksheetModal({
               </button>
               <button
                 onClick={() => {
-                  SoundFX.tap();
+                  safePlaySound('click');
                   setActiveTab('answer_key');
                 }}
                 style={{
