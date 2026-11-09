@@ -30,7 +30,7 @@ const safePlaySound = (type = 'click') => {
 
 function MultipleChoiceSection({ section, sectionIdx, onUpdateItem, onRemoveItem, isEditing }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
         <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
           {section.title}
@@ -50,7 +50,7 @@ function MultipleChoiceSection({ section, sectionIdx, onUpdateItem, onRemoveItem
           <div 
             key={item.id || itemIdx}
             style={{
-              padding: '8px 12px',
+              padding: '10px 14px',
               borderRadius: '8px',
               backgroundColor: '#f8fafc',
               border: '1px dashed #cbd5e1'
@@ -76,7 +76,7 @@ function MultipleChoiceSection({ section, sectionIdx, onUpdateItem, onRemoveItem
                   key={optIdx}
                   style={{
                     fontSize: '0.82rem',
-                    padding: '4px 8px',
+                    padding: '6px 10px',
                     borderRadius: '6px',
                     backgroundColor: '#ffffff',
                     border: '1px solid #e2e8f0',
@@ -96,7 +96,7 @@ function MultipleChoiceSection({ section, sectionIdx, onUpdateItem, onRemoveItem
 
 function FillBlankSection({ section, sectionIdx }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
         {section.title}
       </h4>
@@ -111,7 +111,7 @@ function FillBlankSection({ section, sectionIdx }) {
           <div 
             key={item.id || itemIdx}
             style={{
-              padding: '8px 12px',
+              padding: '10px 14px',
               borderRadius: '8px',
               backgroundColor: '#f8fafc',
               border: '1px dashed #cbd5e1'
@@ -127,8 +127,8 @@ function FillBlankSection({ section, sectionIdx }) {
             </div>
             {item.wordBank && item.wordBank.length > 0 && (
               <div style={{ 
-                marginTop: '6px', 
-                padding: '4px 8px', 
+                marginTop: '8px', 
+                padding: '4px 10px', 
                 borderRadius: '6px', 
                 background: '#e0f2fe', 
                 display: 'inline-flex',
@@ -150,7 +150,7 @@ function FillBlankSection({ section, sectionIdx }) {
 
 function MatchingSection({ section }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
         {section.title}
       </h4>
@@ -164,10 +164,10 @@ function MatchingSection({ section }) {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '16px',
-        padding: '10px 14px',
-        borderRadius: '8px',
+        padding: '12px 16px',
+        borderRadius: '10px',
         backgroundColor: '#f8fafc',
-        border: '1px dashed #cbd5e1'
+        border: '1.5px dashed #cbd5e1'
       }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ fontWeight: 800, fontSize: '0.82rem', color: '#64748b', textTransform: 'uppercase' }}>Cột A</div>
@@ -175,7 +175,7 @@ function MatchingSection({ section }) {
             <div 
               key={idx}
               style={{
-                padding: '8px 10px',
+                padding: '8px 12px',
                 borderRadius: '6px',
                 backgroundColor: '#ffffff',
                 border: '1px solid #cbd5e1',
@@ -199,7 +199,7 @@ function MatchingSection({ section }) {
             <div 
               key={idx}
               style={{
-                padding: '8px 10px',
+                padding: '8px 12px',
                 borderRadius: '6px',
                 backgroundColor: '#ffffff',
                 border: '1px solid #cbd5e1',
@@ -222,7 +222,7 @@ function MatchingSection({ section }) {
 
 function TrueFalseSection({ section }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
         {section.title}
       </h4>
@@ -237,7 +237,7 @@ function TrueFalseSection({ section }) {
           <div 
             key={idx}
             style={{
-              padding: '8px 12px',
+              padding: '10px 14px',
               borderRadius: '8px',
               backgroundColor: '#f8fafc',
               border: '1px dashed #cbd5e1',
@@ -274,7 +274,7 @@ function TrueFalseSection({ section }) {
 
 function TableMatrixSection({ section }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
         {section.title}
       </h4>
@@ -340,7 +340,7 @@ function TableMatrixSection({ section }) {
 
 function ShortAnswerSection({ section }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
+    <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ margin: '0 0 4px 0', fontSize: '0.98rem', fontWeight: 800, color: '#1e293b' }}>
         {section.title}
       </h4>
@@ -614,13 +614,18 @@ export function AITextbookWorksheetModal({
             top: 0 !important;
             width: 100% !important;
             margin: 0 !important;
-            padding: 10mm 15mm !important;
+            padding: 10mm 12mm !important;
             box-shadow: none !important;
             border: none !important;
+            background-color: #ffffff !important;
+          }
+          .worksheet-section {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           @page {
             size: A4 portrait;
-            margin: 10mm 12mm;
+            margin: 10mm 10mm;
           }
         }
       `}</style>
@@ -924,10 +929,8 @@ export function AITextbookWorksheetModal({
               flex: 1,
               backgroundColor: '#0b1120',
               overflowY: 'auto',
-              padding: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
+              padding: '24px 20px 48px 20px',
+              display: 'block'
             }}
           >
             {/* View Mode Switcher Tabs */}
@@ -935,11 +938,14 @@ export function AITextbookWorksheetModal({
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '8px',
-                marginBottom: '16px',
+                marginBottom: '20px',
                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 padding: '4px',
-                borderRadius: '10px'
+                borderRadius: '10px',
+                width: 'fit-content',
+                margin: '0 auto 20px auto'
               }}
             >
               <button
@@ -996,7 +1002,8 @@ export function AITextbookWorksheetModal({
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: '12px',
+                  margin: '0 auto'
                 }}
               >
                 <RefreshCw size={36} className="animate-spin" />
@@ -1004,26 +1011,29 @@ export function AITextbookWorksheetModal({
               </div>
             )}
 
-            {/* A4 Paper Container */}
+            {/* A4 Paper Container - 100% Seamless Continuous Document */}
             {!isLoading && worksheetData && (
               <div 
                 id="worksheet-printable-area"
                 ref={printAreaRef}
                 style={{
                   width: '100%',
-                  maxWidth: '780px',
+                  maxWidth: '820px',
+                  margin: '0 auto',
+                  height: 'auto',
                   minHeight: '1000px',
+                  display: 'block',
                   backgroundColor: '#ffffff',
                   color: '#0f172a',
-                  borderRadius: selectedTheme === 'primary_cute' ? '16px' : '4px',
-                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.45)',
-                  padding: '36px 40px',
+                  borderRadius: selectedTheme === 'primary_cute' ? '18px' : '6px',
+                  boxShadow: '0 12px 45px rgba(0, 0, 0, 0.55)',
+                  padding: '40px 44px 48px 44px',
                   boxSizing: 'border-box',
                   border: selectedTheme === 'primary_cute' 
                     ? '4px solid #7dd3fc' 
                     : selectedTheme === 'eco_bw'
                     ? '2px solid #000000'
-                    : '2px solid #475569',
+                    : '2px solid #64748b',
                   position: 'relative'
                 }}
               >
