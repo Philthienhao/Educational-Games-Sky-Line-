@@ -33,34 +33,68 @@ const safePlaySound = (type = 'click') => {
 // ==========================================
 
 const CUTE_ILLUSTRATIONS_MAP = {
+  // Animals
   cat: { icon: '🐱', label: 'Con mèo', bg: '#fef3c7', border: '#fcd34d' },
   dog: { icon: '🐶', label: 'Cún con', bg: '#fee2e2', border: '#fca5a5' },
-  bird: { icon: '🐦', label: 'Chim nhỏ', bg: '#e0f2fe', border: '#7dd3fc' },
-  fish: { icon: '🐟', label: 'Cá bơi', bg: '#ccfbf1', border: '#5eead4' },
   bunny: { icon: '🐰', label: 'Thỏ trắng', bg: '#fce7f3', border: '#f472b6' },
-  lion: { icon: '🦁', label: 'Sư tử', bg: '#fef3c7', border: '#f59e0b' },
-  turtle: { icon: '🐢', label: 'Rùa con', bg: '#dcfce7', border: '#86efac' },
+  bear: { icon: '🐻', label: 'Gấu bông', bg: '#ffedd5', border: '#fdba74' },
+  bird: { icon: '🐦', label: 'Chim nhỏ', bg: '#e0f2fe', border: '#7dd3fc' },
   duck: { icon: '🦆', label: 'Vịt con', bg: '#fef9c3', border: '#fde047' },
+  fish: { icon: '🐟', label: 'Cá bơi', bg: '#ccfbf1', border: '#5eead4' },
+  frog: { icon: '🐸', label: 'Ếch cốm', bg: '#dcfce7', border: '#86efac' },
+  turtle: { icon: '🐢', label: 'Rùa con', bg: '#dcfce7', border: '#86efac' },
+  lion: { icon: '🦁', label: 'Sư tử', bg: '#fef3c7', border: '#f59e0b' },
+  elephant: { icon: '🐘', label: 'Voi con', bg: '#f1f5f9', border: '#cbd5e1' },
+  monkey: { icon: '🐒', label: 'Khỉ nâu', bg: '#ffedd5', border: '#fdba74' },
+
+  // School & Study Tools
   book: { icon: '📖', label: 'Quyển sách', bg: '#e0e7ff', border: '#a5b4fc' },
   books: { icon: '📚', label: 'Chồng sách', bg: '#ede9fe', border: '#c4b5fd' },
   pencil: { icon: '✏️', label: 'Cây bút', bg: '#fef3c7', border: '#fcd34d' },
-  school: { icon: '🏫', label: 'Ngôi trường', bg: '#fee2e2', border: '#fca5a5' },
-  desk: { icon: '🪑', label: 'Bàn học', bg: '#ffedd5', border: '#fdba74' },
   ruler: { icon: '📐', label: 'Thước kẻ', bg: '#e0f2fe', border: '#7dd3fc' },
   backpack: { icon: '🎒', label: 'Balo đi học', bg: '#fae8ff', border: '#e879f9' },
+  school: { icon: '🏫', label: 'Ngôi trường', bg: '#fee2e2', border: '#fca5a5' },
+  desk: { icon: '🪑', label: 'Bàn học', bg: '#ffedd5', border: '#fdba74' },
+  scissors: { icon: '✂️', label: 'Cây kéo', bg: '#f1f5f9', border: '#94a3b8' },
+  palette: { icon: '🎨', label: 'Hộp màu', bg: '#fdf4ff', border: '#d946ef' },
   calculator: { icon: '🧮', label: 'Bàn tính', bg: '#dcfce7', border: '#86efac' },
+  notebook: { icon: '📓', label: 'Quyển vở', bg: '#e0f2fe', border: '#38bdf8' },
+
+  // Fruits & Foods
+  apple: { icon: '🍎', label: 'Quả táo', bg: '#fee2e2', border: '#ef4444' },
+  strawberry: { icon: '🍓', label: 'Dâu tây', bg: '#ffe4e6', border: '#fb7185' },
+  orange: { icon: '🍊', label: 'Quả cam', bg: '#ffedd5', border: '#fb923c' },
+  banana: { icon: '🍌', label: 'Quả chuối', bg: '#fef9c3', border: '#facc15' },
+  watermelon: { icon: '🍉', label: 'Dưa hấu', bg: '#dcfce7', border: '#4ade80' },
+  icecream: { icon: '🍦', label: 'Cây kem', bg: '#fce7f3', border: '#f472b6' },
+  candy: { icon: '🍬', label: 'Kẹo ngọt', bg: '#fae8ff', border: '#c084fc' },
+  cake: { icon: '🎂', label: 'Bánh kem', bg: '#fef3c7', border: '#fcd34d' },
+  cooking: { icon: '🍲', label: 'Nấu ăn', bg: '#fef3c7', border: '#f59e0b' },
+
+  // Nature, Weather & Shapes
   flower: { icon: '🌸', label: 'Bông hoa', bg: '#fce7f3', border: '#f472b6' },
+  sunflower: { icon: '🌻', label: 'Hoa hướng dương', bg: '#fef08a', border: '#eab308' },
   tree: { icon: '🌳', label: 'Cây xanh', bg: '#dcfce7', border: '#86efac' },
   sun: { icon: '☀️', label: 'Mặt trời', bg: '#fef08a', border: '#eab308' },
   rainbow: { icon: '🌈', label: 'Cầu vồng', bg: '#fdf4ff', border: '#d946ef' },
-  apple: { icon: '🍎', label: 'Quả táo', bg: '#fee2e2', border: '#ef4444' },
-  soccer: { icon: '⚽', label: 'Quả bóng', bg: '#f1f5f9', border: '#94a3b8' },
-  car: { icon: '🚗', label: 'Ô tô', bg: '#e0f2fe', border: '#0284c7' },
-  clock: { icon: '⏰', label: 'Đồng hồ', bg: '#fef3c7', border: '#f59e0b' },
-  earth: { icon: '🌍', label: 'Trái Đất', bg: '#e0f2fe', border: '#3b82f6' },
-  runner: { icon: '🏃‍♂️', label: 'Hoạt động', bg: '#ffedd5', border: '#f97316' },
-  cooking: { icon: '🍲', label: 'Nấu ăn', bg: '#fef3c7', border: '#f59e0b' },
+  cloud: { icon: '☁️', label: 'Mây trắng', bg: '#f0f9ff', border: '#bae6fd' },
   star: { icon: '⭐', label: 'Ngôi sao', bg: '#fef9c3', border: '#eab308' },
+  moon: { icon: '🌙', label: 'Mặt trăng', bg: '#fef3c7', border: '#facc15' },
+  earth: { icon: '🌍', label: 'Trái Đất', bg: '#e0f2fe', border: '#3b82f6' },
+  triangle: { icon: '🔺', label: 'Hình tam giác', bg: '#fee2e2', border: '#f87171' },
+  circle: { icon: '🔴', label: 'Hình tròn', bg: '#fee2e2', border: '#ef4444' },
+  square: { icon: '🟦', label: 'Hình vuông', bg: '#e0f2fe', border: '#60a5fa' },
+  rectangle: { icon: '🟧', label: 'Hình chữ nhật', bg: '#ffedd5', border: '#fb923c' },
+
+  // Actions & Sports
+  runner: { icon: '🏃‍♂️', label: 'Hoạt động', bg: '#ffedd5', border: '#f97316' },
+  soccer: { icon: '⚽', label: 'Quả bóng', bg: '#f1f5f9', border: '#94a3b8' },
+  swim: { icon: '🏊‍♂️', label: 'Bơi lội', bg: '#e0f2fe', border: '#38bdf8' },
+  sing: { icon: '🎤', label: 'Ca hát', bg: '#fae8ff', border: '#e879f9' },
+  car: { icon: '🚗', label: 'Ô tô', bg: '#e0f2fe', border: '#0284c7' },
+  bicycle: { icon: '🚲', label: 'Xe đạp', bg: '#dcfce7', border: '#4ade80' },
+  balloon: { icon: '🎈', label: 'Bóng bay', bg: '#fee2e2', border: '#f87171' },
+  clock: { icon: '⏰', label: 'Đồng hồ', bg: '#fef3c7', border: '#f59e0b' },
   question: { icon: '❓', label: 'Dấu hỏi', bg: '#e0f2fe', border: '#38bdf8' }
 };
 
@@ -69,23 +103,84 @@ function getIllustration(text = '', explicit = '') {
   const t = (text || '').toLowerCase();
   if (t.includes('mèo') || t.includes('cat')) return CUTE_ILLUSTRATIONS_MAP.cat;
   if (t.includes('cún') || t.includes('chó') || t.includes('dog')) return CUTE_ILLUSTRATIONS_MAP.dog;
+  if (t.includes('thỏ') || t.includes('bunny')) return CUTE_ILLUSTRATIONS_MAP.bunny;
+  if (t.includes('gấu') || t.includes('bear')) return CUTE_ILLUSTRATIONS_MAP.bear;
+  if (t.includes('chim') || t.includes('bay') || t.includes('bird')) return CUTE_ILLUSTRATIONS_MAP.bird;
+  if (t.includes('vịt') || t.includes('duck')) return CUTE_ILLUSTRATIONS_MAP.duck;
+  if (t.includes('cá') || t.includes('fish')) return CUTE_ILLUSTRATIONS_MAP.fish;
+  if (t.includes('ếch') || t.includes('frog')) return CUTE_ILLUSTRATIONS_MAP.frog;
+  if (t.includes('rùa') || t.includes('turtle')) return CUTE_ILLUSTRATIONS_MAP.turtle;
+  if (t.includes('sư tử') || t.includes('lion')) return CUTE_ILLUSTRATIONS_MAP.lion;
   if (t.includes('sách') || t.includes('đọc') || t.includes('book')) return CUTE_ILLUSTRATIONS_MAP.book;
+  if (t.includes('vở') || t.includes('tập') || t.includes('notebook')) return CUTE_ILLUSTRATIONS_MAP.notebook;
   if (t.includes('bút') || t.includes('viết') || t.includes('pencil')) return CUTE_ILLUSTRATIONS_MAP.pencil;
+  if (t.includes('thước') || t.includes('ruler')) return CUTE_ILLUSTRATIONS_MAP.ruler;
+  if (t.includes('kéo') || t.includes('cắt')) return CUTE_ILLUSTRATIONS_MAP.scissors;
+  if (t.includes('cặp') || t.includes('balo') || t.includes('backpack')) return CUTE_ILLUSTRATIONS_MAP.backpack;
+  if (t.includes('trường') || t.includes('lớp') || t.includes('school')) return CUTE_ILLUSTRATIONS_MAP.school;
+  if (t.includes('bàn') || t.includes('ghế') || t.includes('desk')) return CUTE_ILLUSTRATIONS_MAP.desk;
+  if (t.includes('bóng bay') || t.includes('balloon')) return CUTE_ILLUSTRATIONS_MAP.balloon;
   if (t.includes('bóng') || t.includes('đá bóng') || t.includes('soccer')) return CUTE_ILLUSTRATIONS_MAP.soccer;
+  if (t.includes('hoa hướng dương')) return CUTE_ILLUSTRATIONS_MAP.sunflower;
   if (t.includes('hoa') || t.includes('bông') || t.includes('flower')) return CUTE_ILLUSTRATIONS_MAP.flower;
   if (t.includes('mặt trời') || t.includes('nắng') || t.includes('sun')) return CUTE_ILLUSTRATIONS_MAP.sun;
+  if (t.includes('cầu vồng') || t.includes('rainbow')) return CUTE_ILLUSTRATIONS_MAP.rainbow;
   if (t.includes('cây') || t.includes('rừng') || t.includes('tree')) return CUTE_ILLUSTRATIONS_MAP.tree;
-  if (t.includes('trường') || t.includes('lớp') || t.includes('school')) return CUTE_ILLUSTRATIONS_MAP.school;
+  if (t.includes('táo') || t.includes('apple')) return CUTE_ILLUSTRATIONS_MAP.apple;
+  if (t.includes('dâu') || t.includes('strawberry')) return CUTE_ILLUSTRATIONS_MAP.strawberry;
+  if (t.includes('cam') || t.includes('orange')) return CUTE_ILLUSTRATIONS_MAP.orange;
+  if (t.includes('chuối') || t.includes('banana')) return CUTE_ILLUSTRATIONS_MAP.banana;
+  if (t.includes('dưa hấu') || t.includes('watermelon')) return CUTE_ILLUSTRATIONS_MAP.watermelon;
+  if (t.includes('kem') || t.includes('ice cream')) return CUTE_ILLUSTRATIONS_MAP.icecream;
+  if (t.includes('kẹo') || t.includes('candy')) return CUTE_ILLUSTRATIONS_MAP.candy;
+  if (t.includes('bánh') || t.includes('cake')) return CUTE_ILLUSTRATIONS_MAP.cake;
   if (t.includes('chạy') || t.includes('nhảy') || t.includes('hoạt động') || t.includes('runner')) return CUTE_ILLUSTRATIONS_MAP.runner;
-  if (t.includes('cơm') || t.includes('nấu') || t.includes('món ăn') || t.includes('cooking')) return CUTE_ILLUSTRATIONS_MAP.cooking;
-  if (t.includes('táo') || t.includes('quả') || t.includes('trái cây') || t.includes('dâu')) return CUTE_ILLUSTRATIONS_MAP.apple;
-  if (t.includes('ô tô') || t.includes('xe') || t.includes('car')) return CUTE_ILLUSTRATIONS_MAP.car;
+  if (t.includes('bơi') || t.includes('swim')) return CUTE_ILLUSTRATIONS_MAP.swim;
+  if (t.includes('hát') || t.includes('ca hát') || t.includes('sing')) return CUTE_ILLUSTRATIONS_MAP.sing;
+  if (t.includes('xe đạp') || t.includes('bicycle')) return CUTE_ILLUSTRATIONS_MAP.bicycle;
+  if (t.includes('ô tô') || t.includes('xe máy') || t.includes('xe') || t.includes('car')) return CUTE_ILLUSTRATIONS_MAP.car;
   if (t.includes('giờ') || t.includes('thời gian') || t.includes('tuần') || t.includes('đồng hồ')) return CUTE_ILLUSTRATIONS_MAP.clock;
-  if (t.includes('chim') || t.includes('bay') || t.includes('bird')) return CUTE_ILLUSTRATIONS_MAP.bird;
-  if (t.includes('thỏ') || t.includes('bunny')) return CUTE_ILLUSTRATIONS_MAP.bunny;
+  if (t.includes('tam giác')) return CUTE_ILLUSTRATIONS_MAP.triangle;
+  if (t.includes('tròn')) return CUTE_ILLUSTRATIONS_MAP.circle;
+  if (t.includes('vuông')) return CUTE_ILLUSTRATIONS_MAP.square;
+  if (t.includes('chữ nhật')) return CUTE_ILLUSTRATIONS_MAP.rectangle;
+  if (t.includes('đỏ')) return CUTE_ILLUSTRATIONS_MAP.circle;
+  if (t.includes('xanh lá')) return CUTE_ILLUSTRATIONS_MAP.tree;
+  if (t.includes('xanh') || t.includes('biển')) return CUTE_ILLUSTRATIONS_MAP.square;
+  if (t.includes('vàng')) return CUTE_ILLUSTRATIONS_MAP.sunflower;
   if (t.includes('bản đồ') || t.includes('châu lục') || t.includes('trái đất') || t.includes('địa lí')) return CUTE_ILLUSTRATIONS_MAP.earth;
   if (t.includes('phép tính') || t.includes('cộng') || t.includes('trừ') || t.includes('toán')) return CUTE_ILLUSTRATIONS_MAP.calculator;
   return CUTE_ILLUSTRATIONS_MAP.star;
+}
+
+const CUTE_OPTION_THEMES = [
+  ['🍎', '🍓', '🍊', '🍇'],
+  ['🐱', '🐶', '🐰', '🐻'],
+  ['✏️', '📖', '📏', '🎒'],
+  ['🌸', '🌻', '🌷', '🌺'],
+  ['⭐', '🌟', '✨', '💫'],
+  ['🚗', '🚲', '✈️', '⛵'],
+  ['🎈', '🎁', '🎨', '🧩'],
+  ['🔺', '🔴', '🟦', '🟧']
+];
+
+function getOptionIllustration(item, opt, optIdx, itemIdx) {
+  // 1. If item has explicit optionIcons
+  if (item?.optionIcons && item.optionIcons[optIdx]) {
+    return item.optionIcons[optIdx];
+  }
+  if (typeof opt === 'object' && opt?.icon) {
+    return opt.icon;
+  }
+  const optStr = typeof opt === 'string' ? opt : (opt?.text || '');
+  // 2. Semantic matching from keyword
+  const matched = getIllustration(optStr);
+  if (matched && matched.icon && matched.icon !== '⭐') {
+    return matched.icon;
+  }
+  // 3. Fallback theme by question index so all options get vibrant distinct icons
+  const theme = CUTE_OPTION_THEMES[itemIdx % CUTE_OPTION_THEMES.length];
+  return theme[optIdx % theme.length];
 }
 
 function CuteIllustrationBadge({ item, text, isPrimaryCute }) {
@@ -120,10 +215,10 @@ function CuteIllustrationBadge({ item, text, isPrimaryCute }) {
 function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
   const optionLetters = ['A', 'B', 'C', 'D'];
   const optionPillColors = [
-    { bg: '#e0f2fe', text: '#0284c7', border: '#7dd3fc' }, // A: Blue
-    { bg: '#dcfce7', text: '#15803d', border: '#86efac' }, // B: Green
-    { bg: '#fef3c7', text: '#b45309', border: '#fde047' }, // C: Amber
-    { bg: '#f3e8ff', text: '#7e22ce', border: '#d8b4fe' }  // D: Purple
+    { bgLight: '#f0f9ff', badgeBg: '#e0f2fe', text: '#0284c7', border: '#7dd3fc' }, // A: Blue
+    { bgLight: '#f0fdf4', badgeBg: '#dcfce7', text: '#15803d', border: '#86efac' }, // B: Green
+    { bgLight: '#fffbeb', badgeBg: '#fef3c7', text: '#b45309', border: '#fde047' }, // C: Amber
+    { bgLight: '#faf5ff', badgeBg: '#f3e8ff', text: '#7e22ce', border: '#d8b4fe' }  // D: Purple
   ];
 
   return (
@@ -138,7 +233,7 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
           alignItems: 'center',
           gap: '6px'
         }}>
-          {isPrimaryCute && <span style={{ fontSize: '1.1rem' }}>🌈</span>}
+          {isPrimaryCute && <span style={{ fontSize: '1.15rem' }}>🌈</span>}
           {section.title}
         </h4>
         <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b' }}>
@@ -151,76 +246,114 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
         </p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {section.items?.map((item, itemIdx) => (
-          <div 
-            key={item.id || itemIdx}
-            style={{
-              padding: '10px 14px',
-              borderRadius: isPrimaryCute ? '12px' : '8px',
-              backgroundColor: '#f8fafc',
-              border: isPrimaryCute ? '1.5px dashed #7dd3fc' : '1px dashed #cbd5e1'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                <CuteIllustrationBadge item={item} isPrimaryCute={isPrimaryCute} />
-                <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.4 }}>
-                  Câu {itemIdx + 1}: {item.question}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {section.items?.map((item, itemIdx) => {
+          const numOptions = item.options?.length || 4;
+          return (
+            <div 
+              key={item.id || itemIdx}
+              style={{
+                padding: '10px 14px',
+                borderRadius: isPrimaryCute ? '14px' : '8px',
+                backgroundColor: isPrimaryCute ? '#f8fafc' : '#ffffff',
+                border: isPrimaryCute ? '1.5px dashed #7dd3fc' : '1px dashed #cbd5e1',
+                boxShadow: isPrimaryCute ? '0 2px 6px rgba(56, 189, 248, 0.08)' : 'none'
+              }}
+            >
+              {/* Question line with Illustration */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                  <CuteIllustrationBadge item={item} isPrimaryCute={isPrimaryCute} />
+                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.4 }}>
+                    Câu {itemIdx + 1}: {item.question}
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>
+                  [{item.points || '1.0 đ'}]
                 </span>
               </div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7', whiteSpace: 'nowrap' }}>
-                [{item.points || '1.0 đ'}]
-              </span>
-            </div>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-              gap: '6px', 
-              marginTop: '8px' 
-            }}>
-              {item.options?.map((opt, optIdx) => {
-                const colorTheme = optionPillColors[optIdx % optionPillColors.length];
-                return (
-                  <div 
-                    key={optIdx}
-                    style={{
-                      fontSize: '0.82rem',
-                      padding: '6px 10px',
-                      borderRadius: isPrimaryCute ? '8px' : '6px',
-                      backgroundColor: '#ffffff',
-                      border: isPrimaryCute ? `1px solid ${colorTheme.border}` : '1px solid #e2e8f0',
-                      color: '#334155',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    {isPrimaryCute && (
+              {/* 1-ROW HORIZONTAL OPTIONS (ABCD NẰM TRÊN 1 HÀNG CHUẨN ĐẸP) */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: `repeat(${numOptions}, minmax(0, 1fr))`, 
+                gap: '8px', 
+                marginTop: '10px',
+                width: '100%'
+              }}>
+                {item.options?.map((opt, optIdx) => {
+                  const colorTheme = optionPillColors[optIdx % optionPillColors.length];
+                  const optStr = typeof opt === 'string' ? opt : (opt?.text || '');
+                  // Clean redundant leading "A. ", "B. ", "a. "
+                  const optCleanText = optStr.replace(/^[A-Da-d0-9][\.\:\)\s]+/, '').trim() || optStr;
+                  const optIcon = getOptionIllustration(item, opt, optIdx, itemIdx);
+
+                  return (
+                    <div 
+                      key={optIdx}
+                      style={{
+                        padding: isPrimaryCute ? '8px 10px' : '6px 10px',
+                        borderRadius: isPrimaryCute ? '10px' : '6px',
+                        backgroundColor: isPrimaryCute ? colorTheme.bgLight : '#ffffff',
+                        border: isPrimaryCute ? `1.5px solid ${colorTheme.border}` : '1px solid #e2e8f0',
+                        color: '#1e293b',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: isPrimaryCute ? '0 1px 3px rgba(0,0,0,0.04)' : 'none',
+                        minWidth: 0,
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {/* Option Letter Pill */}
                       <span style={{
-                        width: '20px',
-                        height: '20px',
+                        width: '22px',
+                        height: '22px',
                         borderRadius: '50%',
-                        backgroundColor: colorTheme.bg,
+                        backgroundColor: colorTheme.badgeBg,
                         color: colorTheme.text,
-                        fontWeight: 800,
-                        fontSize: '0.75rem',
+                        fontWeight: 900,
+                        fontSize: '0.78rem',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0
+                        flexShrink: 0,
+                        border: `1px solid ${colorTheme.border}`
                       }}>
                         {optionLetters[optIdx]}
                       </span>
-                    )}
-                    <span>{opt}</span>
-                  </div>
-                );
-              })}
+
+                      {/* Option Illustration Image/Icon for Elementary Worksheet */}
+                      {isPrimaryCute && (
+                        <span style={{
+                          fontSize: '1.2rem',
+                          lineHeight: 1,
+                          flexShrink: 0,
+                          filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+                        }}>
+                          {optIcon}
+                        </span>
+                      )}
+
+                      {/* Option Text */}
+                      <span style={{ 
+                        fontSize: '0.82rem', 
+                        fontWeight: isPrimaryCute ? 700 : 600, 
+                        color: '#1e293b',
+                        lineHeight: 1.3,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }} title={optCleanText}>
+                        {optCleanText}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

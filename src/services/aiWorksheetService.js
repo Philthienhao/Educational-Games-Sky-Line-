@@ -90,7 +90,8 @@ export function generateCurriculumFallbackWorksheet({
           {
             id: 1,
             question: 'Số liền sau của số 49 là số nào?',
-            options: ['A. 48', 'B. 50', 'C. 51', 'D. 40'],
+            options: ['48', '50', '51', '40'],
+            optionIcons: ['🔢', '🔟', '⭐', '✨'],
             answer: 'B',
             illustration: 'calculator',
             icon: '🧮',
@@ -99,7 +100,8 @@ export function generateCurriculumFallbackWorksheet({
           {
             id: 2,
             question: 'Kết quả của phép tính: 35 + 24 = ?',
-            options: ['A. 59', 'B. 69', 'C. 58', 'D. 60'],
+            options: ['59', '69', '58', '60'],
+            optionIcons: ['🍎', '🍓', '🍊', '🍇'],
             answer: 'A',
             illustration: 'apple',
             icon: '🍎',
@@ -108,7 +110,8 @@ export function generateCurriculumFallbackWorksheet({
           {
             id: 3,
             question: 'Một tuần lễ có bao nhiêu ngày?',
-            options: ['A. 5 ngày', 'B. 6 ngày', 'C. 7 ngày', 'D. 8 ngày'],
+            options: ['5 ngày', '6 ngày', '7 ngày', '8 ngày'],
+            optionIcons: ['📅', '⏰', '📆', '🗓️'],
             answer: 'C',
             illustration: 'clock',
             icon: '⏰',
@@ -317,33 +320,31 @@ export function generateCurriculumFallbackWorksheet({
           {
             id: 1,
             question: 'Trong các từ sau, từ nào là từ chỉ hoạt động của học sinh?',
-            options: ['A. cái bảng', 'B. đọc sách', 'C. màu xanh', 'D. ngôi trường'],
+            options: ['cái bảng', 'đọc sách', 'màu xanh', 'ngôi trường'],
+            optionIcons: ['🪑', '📖', '🎨', '🏫'],
             answer: 'B',
             illustration: 'runner',
-            icon: '🏃',
+            icon: '🏃‍♂️',
             points: '1.0 đ'
           },
           {
             id: 2,
-            question: 'Câu nào dưới đây được đặt theo mẫu câu "Ai làm gì?"',
-            options: [
-              'A. Bạn Nam là học sinh chăm chỉ.',
-              'B. Bông hoa hồng thơm ngát.',
-              'C. Đàn chim én đang chao liệng trên bầu trời.',
-              'D. Bầu trời hôm nay rất trong xanh.'
-            ],
-            answer: 'C',
-            illustration: 'bird',
-            icon: '🕊️',
+            question: 'Từ nào dưới đây là từ chỉ con vật nuôi trong gia đình?',
+            options: ['Chú mèo', 'Cún con', 'Thỏ trắng', 'Gấu con'],
+            optionIcons: ['🐱', '🐶', '🐰', '🐻'],
+            answer: 'A',
+            illustration: 'cat',
+            icon: '🐱',
             points: '1.0 đ'
           },
           {
             id: 3,
-            question: 'Dấu câu nào thích hợp nhất để điền vào cuối câu: "Hôm nay bạn có đi học không[ __ ]"',
-            options: ['A. Dấu chấm (.)', 'B. Dấu chấm hỏi (?)', 'C. Dấu chấm than (!)', 'D. Dấu phẩy (,)'],
-            answer: 'B',
-            illustration: 'question',
-            icon: '❓',
+            question: 'Đồ dùng nào giúp em viết bài sạch đẹp hàng ngày?',
+            options: ['Cây bút chì', 'Cục tẩy', 'Thước kẻ', 'Hộp màu'],
+            optionIcons: ['✏️', '🧼', '📐', '🎨'],
+            answer: 'A',
+            illustration: 'pencil',
+            icon: '✏️',
             points: '1.0 đ'
           }
         ]

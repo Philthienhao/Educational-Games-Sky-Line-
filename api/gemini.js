@@ -88,9 +88,13 @@ YÊU CẦU BẮT BUỘC:
    - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
    - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
-2. ĐẶC BIỆT DÀNH CHO TIỂU HỌC: Thêm trường "illustration" (tên biểu tượng gần gũi như: cat, dog, book, pencil, soccer, flower, tree, sun, school, apple, car, clock, bird, runner, star, calculator) cho từng câu hỏi và "leftIcon" cho từng cặp nối ở Phần 3 để hệ thống tự động gắn hình vẽ minh họa chibi siêu dễ thương.
+2. ĐẶC BIỆT DÀNH CHO TIỂU HỌC:
+   - Các đáp án trắc nghiệm ("options") phải ngắn gọn, súc tích để nằm vừa vặn trên 1 HÀNG NGANG duy nhất.
+   - Luôn kèm trường "optionIcons": ["icon1", "icon2", "icon3", "icon4"] chứa 4 biểu tượng/hình vẽ minh họa tương ứng với 4 đáp án (ví dụ: ["🍎", "🍓", "🍊", "🍇"] hoặc ["🐱", "🐶", "🐰", "🐻"] hoặc các icon gợi ý đồ vật, con số, hành động) để bài tập có hình ảnh đi kèm sinh động.
+   - Thêm trường "illustration" (cat, dog, bunny, bear, book, pencil, apple, soccer, flower, tree, sun, school, car, clock, runner, star, calculator...) cho từng câu hỏi.
+   - Cung cấp "leftIcon" cho từng cặp nối ở Phần 3 để làm thẻ tranh hình ảnh minh họa to rõ.
 3. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
-4. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh \`\`\`json).
+4. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
 
 Cấu trúc JSON bắt buộc:
 {
@@ -109,9 +113,10 @@ Cấu trúc JSON bắt buộc:
         {
           "id": 1,
           "question": "Nội dung câu hỏi trắc nghiệm?",
-          "options": ["A. Đáp án 1", "B. Đáp án 2", "C. Đáp án 3", "D. Đáp án 4"],
+          "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
+          "optionIcons": ["🐱", "🐶", "🐰", "🐻"],
           "answer": "A",
-          "illustration": "book",
+          "illustration": "cat",
           "points": "0.5 đ"
         }
       ]
