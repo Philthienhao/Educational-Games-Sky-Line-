@@ -84,7 +84,7 @@ export function generateCurriculumFallbackWorksheet({
     if (selectedTypes.includes('multiple_choice')) {
       sections.push({
         type: 'multiple_choice',
-        title: 'I. TRẮC NGHIỆM KHÁCH QUAN',
+        title: 'I. TRẮC NGHIỆM PHÉP TÍNH VUI HỌC',
         instruction: 'Khoanh tròn vào chữ cái đặt trước câu trả lời đúng:',
         items: [
           {
@@ -92,6 +92,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Số liền sau của số 49 là số nào?',
             options: ['A. 48', 'B. 50', 'C. 51', 'D. 40'],
             answer: 'B',
+            illustration: 'calculator',
+            icon: '🧮',
             points: '1.0 đ'
           },
           {
@@ -99,6 +101,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Kết quả của phép tính: 35 + 24 = ?',
             options: ['A. 59', 'B. 69', 'C. 58', 'D. 60'],
             answer: 'A',
+            illustration: 'apple',
+            icon: '🍎',
             points: '1.0 đ'
           },
           {
@@ -106,6 +110,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Một tuần lễ có bao nhiêu ngày?',
             options: ['A. 5 ngày', 'B. 6 ngày', 'C. 7 ngày', 'D. 8 ngày'],
             answer: 'C',
+            illustration: 'clock',
+            icon: '⏰',
             points: '1.0 đ'
           }
         ]
@@ -123,6 +129,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Dãy số tăng dần: 10, 15, 20, [ ____ ], 30, [ ____ ].',
             wordBank: ['25', '35'],
             answer: '25 và 35',
+            illustration: 'ruler',
+            icon: '📏',
             points: '1.5 đ'
           },
           {
@@ -130,6 +138,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Phép so sánh: 48 cm + 12 cm [ ____ ] 60 cm (Điền >, < hoặc =).',
             wordBank: ['>', '<', '='],
             answer: '=',
+            illustration: 'ruler',
+            icon: '📐',
             points: '1.0 đ'
           }
         ]
@@ -139,13 +149,13 @@ export function generateCurriculumFallbackWorksheet({
     if (selectedTypes.includes('matching')) {
       sections.push({
         type: 'matching',
-        title: 'III. NỐI PHÉP TÍNH VỚI KẾT QUẢ TƯƠNG ỨNG',
-        instruction: 'Em hãy nối phép tính ở cột bên trái với kết quả đúng ở cột bên phải:',
+        title: 'III. NỐI PHÉP TÍNH VỚI HÌNH ẢNH MINH HỌA',
+        instruction: 'Em hãy nối phép tính ở Cột A với kết quả ở Cột B:',
         pairs: [
-          { left: '4 × 5', right: '20' },
-          { left: '18 : 2', right: '9' },
-          { left: '100 - 30', right: '70' },
-          { left: '25 + 25', right: '50' }
+          { left: '25 + 15', leftIcon: '🍎', right: '40 quả táo ngọt' },
+          { left: '60 - 20', leftIcon: '🍓', right: '40 quả dâu tây' },
+          { left: '12 + 18', leftIcon: '⭐', right: '30 ngôi sao sáng' },
+          { left: '50 - 15', leftIcon: '🎈', right: '35 quả bóng bay' }
         ],
         points: '2.0 đ'
       });
@@ -309,6 +319,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Trong các từ sau, từ nào là từ chỉ hoạt động của học sinh?',
             options: ['A. cái bảng', 'B. đọc sách', 'C. màu xanh', 'D. ngôi trường'],
             answer: 'B',
+            illustration: 'runner',
+            icon: '🏃',
             points: '1.0 đ'
           },
           {
@@ -321,6 +333,8 @@ export function generateCurriculumFallbackWorksheet({
               'D. Bầu trời hôm nay rất trong xanh.'
             ],
             answer: 'C',
+            illustration: 'bird',
+            icon: '🕊️',
             points: '1.0 đ'
           },
           {
@@ -328,6 +342,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Dấu câu nào thích hợp nhất để điền vào cuối câu: "Hôm nay bạn có đi học không[ __ ]"',
             options: ['A. Dấu chấm (.)', 'B. Dấu chấm hỏi (?)', 'C. Dấu chấm than (!)', 'D. Dấu phẩy (,)'],
             answer: 'B',
+            illustration: 'question',
+            icon: '❓',
             points: '1.0 đ'
           }
         ]
@@ -345,6 +361,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Mẹ em nấu cơm rất [ ________ ]. (ngon / chạy / bàn)',
             wordBank: ['ngon', 'chạy', 'bàn'],
             answer: 'ngon',
+            illustration: 'cooking',
+            icon: '🍲',
             points: '1.0 đ'
           },
           {
@@ -352,6 +370,8 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Mặt trời chiếu những tia nắng [ ________ ] xuống sân trường. (ấm áp / lạnh buốt / bay)',
             wordBank: ['ấm áp', 'lạnh buốt', 'bay'],
             answer: 'ấm áp',
+            illustration: 'sun',
+            icon: '☀️',
             points: '1.0 đ'
           }
         ]
@@ -361,13 +381,13 @@ export function generateCurriculumFallbackWorksheet({
     if (selectedTypes.includes('matching')) {
       sections.push({
         type: 'matching',
-        title: 'III. NỐI TỪ VỚI NGHĨA PHÙ HỢP',
-        instruction: 'Em hãy nối từ ngữ ở cột A với nội dung giải nghĩa ở cột B:',
+        title: 'III. NỐI TỪ VỚI HÌNH MINH HỌA PHÙ HỢP',
+        instruction: 'Em hãy quan sát tranh minh họa ở Cột A và nối với nội dung ý nghĩa ở Cột B:',
         pairs: [
-          { left: 'Chăm chỉ', right: 'Luôn cố gắng làm việc đều đặn, không ngại khó' },
-          { left: 'Dũng cảm', right: 'Dám đương đầu với khó khăn, nguy hiểm' },
-          { left: 'Trung thực', right: 'Thẳng thắn, tôn trọng sự thật, không dối trá' },
-          { left: 'Thân thiện', right: 'Dễ gần, cởi mở và tốt bụng với mọi người' }
+          { left: 'Con mèo', leftIcon: '🐱', right: 'Bắt chuột, kêu meo meo' },
+          { left: 'Quyển sách', leftIcon: '📖', right: 'Chứa đựng tri thức, em đọc mỗi ngày' },
+          { left: 'Cây bút', leftIcon: '✏️', right: 'Giúp em viết chữ nắn nót, sạch đẹp' },
+          { left: 'Ngôi trường', leftIcon: '🏫', right: 'Nơi em học tập và vui chơi cùng thầy cô, bạn bè' }
         ],
         points: '2.0 đ'
       });

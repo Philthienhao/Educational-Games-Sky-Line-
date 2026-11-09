@@ -84,16 +84,17 @@ YÊU CẦU BẮT BUỘC:
 1. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''}:
    - Phần 1: Trắc nghiệm khách quan (3-4 câu, khoanh tròn đáp án đúng A, B, C, D)
    - Phần 2: Điền khuyết / Điền từ vào chỗ trống (2-3 câu, có kho từ gợi ý wordBank nếu là cấp tiểu học)
-   - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải)
+   - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải; với tiểu học hãy tạo dạng nối hình ảnh/từ ngữ sinh động)
    - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
    - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
-2. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
-3. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh \`\`\`json).
+2. ĐẶC BIỆT DÀNH CHO TIỂU HỌC: Thêm trường "illustration" (tên biểu tượng gần gũi như: cat, dog, book, pencil, soccer, flower, tree, sun, school, apple, car, clock, bird, runner, star, calculator) cho từng câu hỏi và "leftIcon" cho từng cặp nối ở Phần 3 để hệ thống tự động gắn hình vẽ minh họa chibi siêu dễ thương.
+3. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
+4. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh \`\`\`json).
 
 Cấu trúc JSON bắt buộc:
 {
-  "title": "PHIẾU BÀI TẬP CUỐI TUẦN",
+  "title": "PHIẾU BÀI TẬP VUI HỌC",
   "subtitle": "Chủ đề: ...",
   "school": "TRƯỜNG SKY-LINE",
   "subject": "${subject || 'Kiến thức chung'}",
@@ -110,6 +111,7 @@ Cấu trúc JSON bắt buộc:
           "question": "Nội dung câu hỏi trắc nghiệm?",
           "options": ["A. Đáp án 1", "B. Đáp án 2", "C. Đáp án 3", "D. Đáp án 4"],
           "answer": "A",
+          "illustration": "book",
           "points": "0.5 đ"
         }
       ]
@@ -124,16 +126,18 @@ Cấu trúc JSON bắt buộc:
           "question": "Câu có chỗ trống ________ cần điền.",
           "wordBank": ["từ 1", "từ 2", "từ 3"],
           "answer": "từ 1",
+          "illustration": "pencil",
           "points": "1.0 đ"
         }
       ]
     },
     {
       "type": "matching",
-      "title": "III. NỐI CỘT TƯƠNG ỨNG",
-      "instruction": "Em hãy nối ô ở cột A với ô phù hợp ở cột B:",
+      "title": "III. NỐI TỪ VỚI HÌNH MINH HỌA PHÙ HỢP",
+      "instruction": "Em hãy quan sát hình vẽ và nối với từ ngữ tương ứng:",
       "pairs": [
-        { "left": "Vế cột A", "right": "Vế cột B tương ứng" }
+        { "left": "Từ ngữ 1", "leftIcon": "🐱", "right": "Đặc điểm / Lời giải nghĩa 1" },
+        { "left": "Từ ngữ 2", "leftIcon": "📖", "right": "Đặc điểm / Lời giải nghĩa 2" }
       ],
       "points": "1.5 đ"
     },
@@ -142,7 +146,7 @@ Cấu trúc JSON bắt buộc:
       "title": "IV. ĐÚNG GHI Đ, SAI GHI S",
       "instruction": "Đọc kĩ các nhận định sau và ghi Đ (Đúng) hoặc S (Sai) vào ô trống:",
       "items": [
-        { "statement": "Nhận định kiến thức...", "answer": "Đ", "points": "1.0 đ" }
+        { "statement": "Nhận định kiến thức...", "answer": "Đ", "illustration": "star", "points": "1.0 đ" }
       ]
     },
     {
