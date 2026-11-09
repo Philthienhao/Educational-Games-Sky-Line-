@@ -6,6 +6,7 @@ import {
   ZoomOut, RotateCw, FileUp, Layers, MoveHorizontal
 } from 'lucide-react';
 import { AITextbookGameModal } from './AITextbookGameModal';
+import { AITextbookWorksheetModal } from './AITextbookWorksheetModal';
 import catalogData from '../services/textbookCatalog.json';
 
 const GOOGLE_DRIVE_FOLDER_ID = '1pCBvcvkADMVeaNWGMylxwQTToYC9PJHZ';
@@ -73,6 +74,10 @@ export function TextbookDownloadManager({
   const [aiGameModalBook, setAiGameModalBook] = useState(null);
   const [isAiGameModalOpen, setIsAiGameModalOpen] = useState(false);
 
+  // AI Worksheet Creator Modal State
+  const [aiWorksheetModalBook, setAiWorksheetModalBook] = useState(null);
+  const [isAiWorksheetModalOpen, setIsAiWorksheetModalOpen] = useState(false);
+
   const handleOpenAiGameCreator = (book) => {
     if (!book) return;
     if (onCheckTrialOrRun && !onCheckTrialOrRun('ai:game_from_textbook', `AI Tạo Game: ${book.title}`)) {
@@ -80,6 +85,15 @@ export function TextbookDownloadManager({
     }
     setAiGameModalBook(book);
     setIsAiGameModalOpen(true);
+  };
+
+  const handleOpenAiWorksheetCreator = (book) => {
+    if (!book) return;
+    if (onCheckTrialOrRun && !onCheckTrialOrRun('ai:worksheet_from_textbook', `AI Soạn Phiếu Học Tập: ${book.title}`)) {
+      return;
+    }
+    setAiWorksheetModalBook(book);
+    setIsAiWorksheetModalOpen(true);
   };
 
   // Pre-warm browser cache in background for high-speed instant PDF opening
@@ -1308,7 +1322,7 @@ export function TextbookDownloadManager({
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '6px',
-                      padding: '12px 12px',
+                      padding: '12px 10px',
                       borderRadius: '14px',
                       background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
                       color: '#ffffff',
@@ -1321,6 +1335,31 @@ export function TextbookDownloadManager({
                     }}
                   >
                     <Sparkles size={16} /> AI Tạo Game
+                  </button>
+
+                  {/* AI Worksheet Creator Button directly on book card */}
+                  <button
+                    onClick={() => handleOpenAiWorksheetCreator(book)}
+                    title={`AI tự động soạn Phiếu bài tập / Phiếu học tập chuẩn Bộ GD&ĐT từ sách ${book.title}`}
+                    style={{
+                      flex: 1.15,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '12px 10px',
+                      borderRadius: '14px',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <FileText size={16} /> AI Phiếu Bài Tập
                   </button>
 
                   {/* Download Button */}
@@ -1655,6 +1694,28 @@ export function TextbookDownloadManager({
                   }}
                 >
                   <Sparkles size={15} /> ✨ AI Tạo Game
+                </button>
+
+                {/* AI Worksheet Creator inside Reader Toolbar */}
+                <button
+                  onClick={() => handleOpenAiWorksheetCreator(readingBook)}
+                  title="AI tự động soạn Phiếu học tập & Bài tập A4 từ cuốn sách này"
+                  style={{
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    fontWeight: 900,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 12px rgba(2, 132, 199, 0.35)'
+                  }}
+                >
+                  <FileText size={15} /> 📄 AI Soạn Phiếu Bài Tập
                 </button>
 
                 {/* Open in New Window / Tab */}
@@ -2359,6 +2420,28 @@ export function TextbookDownloadManager({
                         <Sparkles size={14} /> ✨ AI Tạo Game Từ Bài Này
                       </button>
 
+                      {/* AI Worksheet Creator from Text Extract */}
+                      <button
+                        onClick={() => handleOpenAiWorksheetCreator(readingBook)}
+                        title="AI phân tích bài học này để soạn Phiếu bài tập & Phiếu học tập A4"
+                        style={{
+                          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '7px 14px',
+                          borderRadius: '10px',
+                          fontWeight: 800,
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+                        }}
+                      >
+                        <FileText size={14} /> 📄 AI Soạn Phiếu Bài Tập
+                      </button>
+
                       {onOpenVirtualLab && (
                         <button
                           onClick={onOpenVirtualLab}
@@ -2487,6 +2570,15 @@ export function TextbookDownloadManager({
           setToastMessage(`💾 Đã tạo thành công game "${gameObj.title}" và lưu vào Game Của Tôi!`);
           setTimeout(() => setToastMessage(null), 4500);
         }}
+      />
+
+      {/* AI Worksheet Creator Modal from Textbook */}
+      <AITextbookWorksheetModal
+        isOpen={isAiWorksheetModalOpen}
+        onClose={() => setIsAiWorksheetModalOpen(false)}
+        book={aiWorksheetModalBook}
+        bookText={readerText}
+        currentUser={currentUser}
       />
 
     </div>

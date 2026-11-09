@@ -43,7 +43,10 @@ export default async function handler(req, res) {
       gameType = 'tug-of-war-dual',
       grade = '',
       subject = '',
-      apiKey = ''
+      apiKey = '',
+      mode = 'game',
+      worksheetTheme = 'primary_cute',
+      worksheetTypes = []
     } = body || {};
 
     const effectiveApiKey = (apiKey && apiKey.trim().length > 15) ? apiKey.trim() : GEMINI_API_KEY;
@@ -52,13 +55,130 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Chưa cấu hình API Key Gemini trên hệ thống.' });
     }
 
+    const isWorksheet = mode === 'worksheet';
     const isHeadTilt = gameType === 'head-tilt';
     const numQuestions = Math.min(30, Math.max(3, parseInt(targetCount, 10) || 10));
 
     // Truncate textbook text to avoid context token limits
     const safeText = (textbookText || '').slice(0, 35000);
 
-    const systemPrompt = `Bạn là trợ lý AI chuyên gia sư phạm & thiết kế trò chơi giáo dục chuẩn Bộ GD&ĐT Việt Nam (Chương trình GDPT 2018).
+    let systemPrompt = '';
+
+    if (isWorksheet) {
+      systemPrompt = `Bạn là trợ lý AI chuyên gia sư phạm & thiết kế Phiếu bài tập / Phiếu học tập chuẩn Bộ GD&ĐT Việt Nam (Chương trình GDPT 2018).
+
+Nhiệm vụ của bạn là đọc tài liệu Sách Giáo Khoa dưới đây và biên soạn một PHIẾU BÀI TẬP / PHIẾU HỌC TẬP hoàn chỉnh, sư phạm, hấp dẫn theo phong cách giáo dục Việt Nam.
+
+--- THÔNG TIN SÁCH & BÀI HỌC ---
+• Tên sách: ${textbookTitle || 'Sách Giáo Khoa'}
+• Khối lớp: ${grade || 'Lớp 2'}
+• Môn học: ${subject || 'Tiếng Việt'}
+• Phong cách mẫu: ${worksheetTheme || 'primary_cute'} (primary_cute: Tiểu học sắc màu vui tươi, standard_secondary: THCS/THPT tiêu chuẩn trang nhã, eco_bw: Tối giản đen trắng in ấn A4)
+• Yêu cầu từ giáo viên: "${promptCommand || 'Tạo phiếu bài tập / phiếu học tập ôn luyện bài học'}"
+
+--- NỘI DUNG TÀI LIỆU / BÀI HỌC TRONG SÁCH ---
+${safeText ? safeText : `Sách ${textbookTitle} môn ${subject} ${grade}. Hãy bám sát kiến thức trọng tâm chuẩn GDPT 2018.`}
+---------------------------------------------
+
+YÊU CẦU BẮT BUỘC:
+1. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''}:
+   - Phần 1: Trắc nghiệm khách quan (3-4 câu, khoanh tròn đáp án đúng A, B, C, D)
+   - Phần 2: Điền khuyết / Điền từ vào chỗ trống (2-3 câu, có kho từ gợi ý wordBank nếu là cấp tiểu học)
+   - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải)
+   - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
+   - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
+   - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
+2. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
+3. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh \`\`\`json).
+
+Cấu trúc JSON bắt buộc:
+{
+  "title": "PHIẾU BÀI TẬP CUỐI TUẦN",
+  "subtitle": "Chủ đề: ...",
+  "school": "TRƯỜNG SKY-LINE",
+  "subject": "${subject || 'Kiến thức chung'}",
+  "grade": "${grade || 'Tiểu học'}",
+  "timeAllowed": "35 - 40 phút",
+  "sections": [
+    {
+      "type": "multiple_choice",
+      "title": "I. TRẮC NGHIỆM KHÁCH QUAN",
+      "instruction": "Khoanh vào chữ cái đặt trước câu trả lời đúng nhất:",
+      "items": [
+        {
+          "id": 1,
+          "question": "Nội dung câu hỏi trắc nghiệm?",
+          "options": ["A. Đáp án 1", "B. Đáp án 2", "C. Đáp án 3", "D. Đáp án 4"],
+          "answer": "A",
+          "points": "0.5 đ"
+        }
+      ]
+    },
+    {
+      "type": "fill_blank",
+      "title": "II. ĐIỀN KHUYẾT",
+      "instruction": "Chọn từ thích hợp trong ngoặc để điền vào chỗ trống:",
+      "items": [
+        {
+          "id": 2,
+          "question": "Câu có chỗ trống ________ cần điền.",
+          "wordBank": ["từ 1", "từ 2", "từ 3"],
+          "answer": "từ 1",
+          "points": "1.0 đ"
+        }
+      ]
+    },
+    {
+      "type": "matching",
+      "title": "III. NỐI CỘT TƯƠNG ỨNG",
+      "instruction": "Em hãy nối ô ở cột A với ô phù hợp ở cột B:",
+      "pairs": [
+        { "left": "Vế cột A", "right": "Vế cột B tương ứng" }
+      ],
+      "points": "1.5 đ"
+    },
+    {
+      "type": "true_false",
+      "title": "IV. ĐÚNG GHI Đ, SAI GHI S",
+      "instruction": "Đọc kĩ các nhận định sau và ghi Đ (Đúng) hoặc S (Sai) vào ô trống:",
+      "items": [
+        { "statement": "Nhận định kiến thức...", "answer": "Đ", "points": "1.0 đ" }
+      ]
+    },
+    {
+      "type": "table_matrix",
+      "title": "V. BẢNG TỔNG HỢP KIẾN THỨC BÀI HỌC",
+      "instruction": "Hoàn thành bảng phân loại kiến thức dưới đây:",
+      "headers": ["Nhóm đối tượng / Tiêu chí", "Đặc điểm / Ứng dụng thực tế"],
+      "rows": [
+        { "col1": "Mục 1", "col2": "Nội dung tóm tắt..." },
+        { "col1": "Mục 2", "col2": "" }
+      ],
+      "points": "2.0 đ"
+    },
+    {
+      "type": "short_answer",
+      "title": "VI. TỰ LUẬN & VẬN DỤNG THỰC TẾ",
+      "instruction": "Trả lời câu hỏi sau bằng 2-3 câu hoàn chỉnh:",
+      "items": [
+        {
+          "id": 6,
+          "question": "Câu hỏi tự luận vận dụng thực tế từ bài học?",
+          "lines": 3,
+          "suggestedAnswer": "Gợi ý đáp án đầy đủ...",
+          "points": "2.0 đ"
+        }
+      ]
+    }
+  ],
+  "teacherGuide": {
+    "totalPoints": "10 điểm",
+    "answerKey": "Tóm tắt đáp án chi tiết các phần...",
+    "notes": "Lưu ý phương pháp khi nhận xét bài làm của học sinh."
+  }
+}`;
+    } else {
+      systemPrompt = `Bạn là trợ lý AI chuyên gia sư phạm & thiết kế trò chơi giáo dục chuẩn Bộ GD&ĐT Việt Nam (Chương trình GDPT 2018).
 
 Nhiệm vụ của bạn là đọc tài liệu Sách Giáo Khoa dưới đây và soạn bộ câu hỏi trắc nghiệm để chuyển thành trò chơi giáo dục tương tác cho học sinh.
 
@@ -92,6 +212,7 @@ Cấu trúc từng câu hỏi:
     "explanation": "Căn cứ theo bài học trong sách giáo khoa..."
   }
 ]`;
+    }
 
     let lastError = null;
     let candidatesData = null;
@@ -141,12 +262,32 @@ Cấu trúc từng câu hỏi:
       });
     }
 
-    // Clean & Parse JSON
+    // Clean JSON String
     let cleanJsonStr = candidatesData
       .replace(/^```json\s*/i, '')
       .replace(/^```\s*/i, '')
       .replace(/```\s*$/i, '')
       .trim();
+
+    if (isWorksheet) {
+      const jsonMatch = cleanJsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        cleanJsonStr = jsonMatch[0];
+      }
+      const parsedWorksheet = JSON.parse(cleanJsonStr);
+
+      return res.status(200).json({
+        success: true,
+        mode: 'worksheet',
+        worksheet: parsedWorksheet,
+        meta: {
+          textbookTitle,
+          grade,
+          subject,
+          theme: worksheetTheme
+        }
+      });
+    }
 
     const jsonMatch = cleanJsonStr.match(/\[\s*\{[\s\S]*\}\s*\]/);
     if (jsonMatch) {
