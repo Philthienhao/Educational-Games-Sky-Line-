@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   X, Sparkles, BookOpen, Layers, CheckCircle2, 
-  Printer, Download, Copy, Edit3, Plus, Trash2, Eye, 
+  Printer, Download, Copy, Edit2, Edit3, Plus, Trash2, Eye, 
   FileText, Check, Layout, Award, RefreshCw, AlertCircle
 } from 'lucide-react';
 import { SoundFX } from '../utils/sound';
@@ -9,7 +9,8 @@ import {
   WORKSHEET_THEMES, 
   EXERCISE_TYPES, 
   generateAITextbookWorksheet,
-  generateCurriculumFallbackWorksheet 
+  generateCurriculumFallbackWorksheet,
+  extractWorksheetLesson
 } from '../services/aiWorksheetService';
 
 const safePlaySound = (type = 'click') => {
@@ -40,25 +41,38 @@ const CUTE_ILLUSTRATIONS_MAP = {
   bear: { icon: '🐻', label: 'Gấu bông', bg: '#ffedd5', border: '#fdba74' },
   bird: { icon: '🐦', label: 'Chim nhỏ', bg: '#e0f2fe', border: '#7dd3fc' },
   duck: { icon: '🦆', label: 'Vịt con', bg: '#fef9c3', border: '#fde047' },
+  chicken: { icon: '🐔', label: 'Gà mái', bg: '#fee2e2', border: '#fca5a5' },
+  chick: { icon: '🐥', label: 'Gà con', bg: '#fef9c3', border: '#fde047' },
+  pig: { icon: '🐷', label: 'Lợn con', bg: '#fce7f3', border: '#f472b6' },
+  cow: { icon: '🐮', label: 'Bò sữa', bg: '#f1f5f9', border: '#cbd5e1' },
+  horse: { icon: '🐴', label: 'Ngựa gỗ', bg: '#ffedd5', border: '#fdba74' },
+  sheep: { icon: '🐑', label: 'Cừu non', bg: '#f1f5f9', border: '#cbd5e1' },
+  bee: { icon: '🐝', label: 'Ong mật', bg: '#fef9c3', border: '#facc15' },
+  butterfly: { icon: '🦋', label: 'Bướm hoa', bg: '#e0f2fe', border: '#7dd3fc' },
   fish: { icon: '🐟', label: 'Cá bơi', bg: '#ccfbf1', border: '#5eead4' },
   frog: { icon: '🐸', label: 'Ếch cốm', bg: '#dcfce7', border: '#86efac' },
   turtle: { icon: '🐢', label: 'Rùa con', bg: '#dcfce7', border: '#86efac' },
   lion: { icon: '🦁', label: 'Sư tử', bg: '#fef3c7', border: '#f59e0b' },
   elephant: { icon: '🐘', label: 'Voi con', bg: '#f1f5f9', border: '#cbd5e1' },
   monkey: { icon: '🐒', label: 'Khỉ nâu', bg: '#ffedd5', border: '#fdba74' },
+  mouse: { icon: '🐭', label: 'Chuột nhắt', bg: '#f1f5f9', border: '#cbd5e1' },
 
   // School & Study Tools
   book: { icon: '📖', label: 'Quyển sách', bg: '#e0e7ff', border: '#a5b4fc' },
   books: { icon: '📚', label: 'Chồng sách', bg: '#ede9fe', border: '#c4b5fd' },
   pencil: { icon: '✏️', label: 'Cây bút', bg: '#fef3c7', border: '#fcd34d' },
+  eraser: { icon: '🧽', label: 'Cục tẩy', bg: '#fce7f3', border: '#f472b6' },
   ruler: { icon: '📐', label: 'Thước kẻ', bg: '#e0f2fe', border: '#7dd3fc' },
   backpack: { icon: '🎒', label: 'Balo đi học', bg: '#fae8ff', border: '#e879f9' },
   school: { icon: '🏫', label: 'Ngôi trường', bg: '#fee2e2', border: '#fca5a5' },
-  desk: { icon: '🪑', label: 'Bàn học', bg: '#ffedd5', border: '#fdba74' },
+  desk: { icon: '🪑', label: 'Bàn ghế', bg: '#ffedd5', border: '#fdba74' },
   scissors: { icon: '✂️', label: 'Cây kéo', bg: '#f1f5f9', border: '#94a3b8' },
-  palette: { icon: '🎨', label: 'Hộp màu', bg: '#fdf4ff', border: '#d946ef' },
-  calculator: { icon: '🧮', label: 'Bàn tính', bg: '#dcfce7', border: '#86efac' },
+  palette: { icon: '🎨', label: 'Hộp màu vẽ', bg: '#fdf4ff', border: '#d946ef' },
+  calculator: { icon: '🧮', label: 'Bàn tính / Toán', bg: '#dcfce7', border: '#86efac' },
   notebook: { icon: '📓', label: 'Quyển vở', bg: '#e0f2fe', border: '#38bdf8' },
+  board: { icon: '📋', label: 'Bảng học', bg: '#e0e7ff', border: '#a5b4fc' },
+  teacher: { icon: '👩‍🏫', label: 'Cô giáo', bg: '#fee2e2', border: '#fca5a5' },
+  student: { icon: '🧒', label: 'Học sinh', bg: '#e0f2fe', border: '#7dd3fc' },
 
   // Fruits & Foods
   apple: { icon: '🍎', label: 'Quả táo', bg: '#fee2e2', border: '#ef4444' },
@@ -66,18 +80,25 @@ const CUTE_ILLUSTRATIONS_MAP = {
   orange: { icon: '🍊', label: 'Quả cam', bg: '#ffedd5', border: '#fb923c' },
   banana: { icon: '🍌', label: 'Quả chuối', bg: '#fef9c3', border: '#facc15' },
   watermelon: { icon: '🍉', label: 'Dưa hấu', bg: '#dcfce7', border: '#4ade80' },
+  grape: { icon: '🍇', label: 'Chùm nho', bg: '#f3e8ff', border: '#c084fc' },
+  mango: { icon: '🥭', label: 'Quả xoài', bg: '#fef3c7', border: '#fcd34d' },
+  peach: { icon: '🍑', label: 'Quả đào', bg: '#ffe4e6', border: '#fb7185' },
   icecream: { icon: '🍦', label: 'Cây kem', bg: '#fce7f3', border: '#f472b6' },
   candy: { icon: '🍬', label: 'Kẹo ngọt', bg: '#fae8ff', border: '#c084fc' },
   cake: { icon: '🎂', label: 'Bánh kem', bg: '#fef3c7', border: '#fcd34d' },
-  cooking: { icon: '🍲', label: 'Nấu ăn', bg: '#fef3c7', border: '#f59e0b' },
+  milk: { icon: '🥛', label: 'Ly sữa', bg: '#f1f5f9', border: '#cbd5e1' },
+  rice: { icon: '🍚', label: 'Bát cơm', bg: '#fef9c3', border: '#fde047' },
 
   // Nature, Weather & Shapes
   flower: { icon: '🌸', label: 'Bông hoa', bg: '#fce7f3', border: '#f472b6' },
   sunflower: { icon: '🌻', label: 'Hoa hướng dương', bg: '#fef08a', border: '#eab308' },
+  rose: { icon: '🌹', label: 'Hoa hồng', bg: '#ffe4e6', border: '#fb7185' },
   tree: { icon: '🌳', label: 'Cây xanh', bg: '#dcfce7', border: '#86efac' },
+  leaf: { icon: '🍃', label: 'Chiếc lá', bg: '#dcfce7', border: '#86efac' },
   sun: { icon: '☀️', label: 'Mặt trời', bg: '#fef08a', border: '#eab308' },
   rainbow: { icon: '🌈', label: 'Cầu vồng', bg: '#fdf4ff', border: '#d946ef' },
   cloud: { icon: '☁️', label: 'Mây trắng', bg: '#f0f9ff', border: '#bae6fd' },
+  rain: { icon: '🌧️', label: 'Cơn mưa', bg: '#e0f2fe', border: '#7dd3fc' },
   star: { icon: '⭐', label: 'Ngôi sao', bg: '#fef9c3', border: '#eab308' },
   moon: { icon: '🌙', label: 'Mặt trăng', bg: '#fef3c7', border: '#facc15' },
   earth: { icon: '🌍', label: 'Trái Đất', bg: '#e0f2fe', border: '#3b82f6' },
@@ -86,101 +107,144 @@ const CUTE_ILLUSTRATIONS_MAP = {
   square: { icon: '🟦', label: 'Hình vuông', bg: '#e0f2fe', border: '#60a5fa' },
   rectangle: { icon: '🟧', label: 'Hình chữ nhật', bg: '#ffedd5', border: '#fb923c' },
 
-  // Actions & Sports
-  runner: { icon: '🏃‍♂️', label: 'Hoạt động', bg: '#ffedd5', border: '#f97316' },
-  soccer: { icon: '⚽', label: 'Quả bóng', bg: '#f1f5f9', border: '#94a3b8' },
-  swim: { icon: '🏊‍♂️', label: 'Bơi lội', bg: '#e0f2fe', border: '#38bdf8' },
-  sing: { icon: '🎤', label: 'Ca hát', bg: '#fae8ff', border: '#e879f9' },
+  // Objects & Daily Life
+  house: { icon: '🏠', label: 'Ngôi nhà', bg: '#fee2e2', border: '#fca5a5' },
+  bed: { icon: '🛏️', label: 'Cái giường', bg: '#e0e7ff', border: '#a5b4fc' },
+  light: { icon: '💡', label: 'Bóng đèn', bg: '#fef9c3', border: '#facc15' },
+  kite: { icon: '🪁', label: 'Cánh diều', bg: '#fce7f3', border: '#f472b6' },
+  umbrella: { icon: '🌂', label: 'Cái ô / dù', bg: '#e0f2fe', border: '#7dd3fc' },
+  hat: { icon: '🧢', label: 'Cái mũ', bg: '#ffedd5', border: '#fdba74' },
   car: { icon: '🚗', label: 'Ô tô', bg: '#e0f2fe', border: '#0284c7' },
+  bus: { icon: '🚌', label: 'Xe buýt', bg: '#fef9c3', border: '#facc15' },
   bicycle: { icon: '🚲', label: 'Xe đạp', bg: '#dcfce7', border: '#4ade80' },
+  train: { icon: '🚂', label: 'Tàu hỏa', bg: '#fee2e2', border: '#f87171' },
+  plane: { icon: '✈️', label: 'Máy bay', bg: '#e0f2fe', border: '#38bdf8' },
+  boat: { icon: '⛵', label: 'Thuyền buồm', bg: '#ccfbf1', border: '#5eead4' },
   balloon: { icon: '🎈', label: 'Bóng bay', bg: '#fee2e2', border: '#f87171' },
+  soccer: { icon: '⚽', label: 'Quả bóng', bg: '#f1f5f9', border: '#94a3b8' },
   clock: { icon: '⏰', label: 'Đồng hồ', bg: '#fef3c7', border: '#f59e0b' },
-  question: { icon: '❓', label: 'Dấu hỏi', bg: '#e0f2fe', border: '#38bdf8' }
+  defaultTask: { icon: '📝', label: 'Bài tập', bg: '#f0f9ff', border: '#bae6fd', isDefault: true }
 };
 
 function getIllustration(text = '', explicit = '') {
   if (explicit && CUTE_ILLUSTRATIONS_MAP[explicit]) return CUTE_ILLUSTRATIONS_MAP[explicit];
-  const t = (text || '').toLowerCase();
+  const t = (text || '').toLowerCase().trim();
+  if (!t) return CUTE_ILLUSTRATIONS_MAP.defaultTask;
+
+  // Animals
   if (t.includes('mèo') || t.includes('cat')) return CUTE_ILLUSTRATIONS_MAP.cat;
   if (t.includes('cún') || t.includes('chó') || t.includes('dog')) return CUTE_ILLUSTRATIONS_MAP.dog;
   if (t.includes('thỏ') || t.includes('bunny')) return CUTE_ILLUSTRATIONS_MAP.bunny;
   if (t.includes('gấu') || t.includes('bear')) return CUTE_ILLUSTRATIONS_MAP.bear;
-  if (t.includes('chim') || t.includes('bay') || t.includes('bird')) return CUTE_ILLUSTRATIONS_MAP.bird;
+  if (t.includes('gà con') || t.includes('chú gà con')) return CUTE_ILLUSTRATIONS_MAP.chick;
+  if (t.includes('gà') || t.includes('con gà')) return CUTE_ILLUSTRATIONS_MAP.chicken;
+  if (t.includes('chim') || t.includes('bird')) return CUTE_ILLUSTRATIONS_MAP.bird;
   if (t.includes('vịt') || t.includes('duck')) return CUTE_ILLUSTRATIONS_MAP.duck;
+  if (t.includes('lợn') || t.includes('heo') || t.includes('pig')) return CUTE_ILLUSTRATIONS_MAP.pig;
+  if (t.includes('bò sữa') || t.includes('con bò') || t.includes('cow')) return CUTE_ILLUSTRATIONS_MAP.cow;
+  if (t.includes('ngựa') || t.includes('horse')) return CUTE_ILLUSTRATIONS_MAP.horse;
+  if (t.includes('cừu') || t.includes('sheep')) return CUTE_ILLUSTRATIONS_MAP.sheep;
+  if (t.includes('ong') || t.includes('bee')) return CUTE_ILLUSTRATIONS_MAP.bee;
+  if (t.includes('bướm') || t.includes('butterfly')) return CUTE_ILLUSTRATIONS_MAP.butterfly;
   if (t.includes('cá') || t.includes('fish')) return CUTE_ILLUSTRATIONS_MAP.fish;
   if (t.includes('ếch') || t.includes('frog')) return CUTE_ILLUSTRATIONS_MAP.frog;
   if (t.includes('rùa') || t.includes('turtle')) return CUTE_ILLUSTRATIONS_MAP.turtle;
   if (t.includes('sư tử') || t.includes('lion')) return CUTE_ILLUSTRATIONS_MAP.lion;
-  if (t.includes('sách') || t.includes('đọc') || t.includes('book')) return CUTE_ILLUSTRATIONS_MAP.book;
-  if (t.includes('vở') || t.includes('tập') || t.includes('notebook')) return CUTE_ILLUSTRATIONS_MAP.notebook;
-  if (t.includes('bút') || t.includes('viết') || t.includes('pencil')) return CUTE_ILLUSTRATIONS_MAP.pencil;
+  if (t.includes('voi') || t.includes('elephant')) return CUTE_ILLUSTRATIONS_MAP.elephant;
+  if (t.includes('khỉ') || t.includes('monkey')) return CUTE_ILLUSTRATIONS_MAP.monkey;
+  if (t.includes('chuột') || t.includes('mouse')) return CUTE_ILLUSTRATIONS_MAP.mouse;
+
+  // School & Study Tools
+  if (t.includes('sách') || t.includes('đọc sách') || t.includes('book')) return CUTE_ILLUSTRATIONS_MAP.book;
+  if (t.includes('vở') || t.includes('tập viết') || t.includes('notebook')) return CUTE_ILLUSTRATIONS_MAP.notebook;
+  if (t.includes('bút') || t.includes('pencil') || t.includes('viết chữ')) return CUTE_ILLUSTRATIONS_MAP.pencil;
+  if (t.includes('tẩy') || t.includes('cục tẩy') || t.includes('gôm')) return CUTE_ILLUSTRATIONS_MAP.eraser;
   if (t.includes('thước') || t.includes('ruler')) return CUTE_ILLUSTRATIONS_MAP.ruler;
   if (t.includes('kéo') || t.includes('cắt')) return CUTE_ILLUSTRATIONS_MAP.scissors;
   if (t.includes('cặp') || t.includes('balo') || t.includes('backpack')) return CUTE_ILLUSTRATIONS_MAP.backpack;
   if (t.includes('trường') || t.includes('lớp') || t.includes('school')) return CUTE_ILLUSTRATIONS_MAP.school;
   if (t.includes('bàn') || t.includes('ghế') || t.includes('desk')) return CUTE_ILLUSTRATIONS_MAP.desk;
-  if (t.includes('bóng bay') || t.includes('balloon')) return CUTE_ILLUSTRATIONS_MAP.balloon;
-  if (t.includes('bóng') || t.includes('đá bóng') || t.includes('soccer')) return CUTE_ILLUSTRATIONS_MAP.soccer;
-  if (t.includes('hoa hướng dương')) return CUTE_ILLUSTRATIONS_MAP.sunflower;
-  if (t.includes('hoa') || t.includes('bông') || t.includes('flower')) return CUTE_ILLUSTRATIONS_MAP.flower;
-  if (t.includes('mặt trời') || t.includes('nắng') || t.includes('sun')) return CUTE_ILLUSTRATIONS_MAP.sun;
-  if (t.includes('cầu vồng') || t.includes('rainbow')) return CUTE_ILLUSTRATIONS_MAP.rainbow;
-  if (t.includes('cây') || t.includes('rừng') || t.includes('tree')) return CUTE_ILLUSTRATIONS_MAP.tree;
+  if (t.includes('màu') || t.includes('vẽ') || t.includes('tô màu') || t.includes('palette')) return CUTE_ILLUSTRATIONS_MAP.palette;
+  if (t.includes('cô giáo') || t.includes('thầy giáo') || t.includes('giáo viên')) return CUTE_ILLUSTRATIONS_MAP.teacher;
+  if (t.includes('học sinh') || t.includes('em bé') || t.includes('bạn nhỏ')) return CUTE_ILLUSTRATIONS_MAP.student;
+  if (t.includes('bảng') || t.includes('bảng con')) return CUTE_ILLUSTRATIONS_MAP.board;
+
+  // Fruits & Foods
   if (t.includes('táo') || t.includes('apple')) return CUTE_ILLUSTRATIONS_MAP.apple;
   if (t.includes('dâu') || t.includes('strawberry')) return CUTE_ILLUSTRATIONS_MAP.strawberry;
   if (t.includes('cam') || t.includes('orange')) return CUTE_ILLUSTRATIONS_MAP.orange;
   if (t.includes('chuối') || t.includes('banana')) return CUTE_ILLUSTRATIONS_MAP.banana;
   if (t.includes('dưa hấu') || t.includes('watermelon')) return CUTE_ILLUSTRATIONS_MAP.watermelon;
+  if (t.includes('nho') || t.includes('grape')) return CUTE_ILLUSTRATIONS_MAP.grape;
+  if (t.includes('xoài') || t.includes('mango')) return CUTE_ILLUSTRATIONS_MAP.mango;
+  if (t.includes('đào') || t.includes('peach')) return CUTE_ILLUSTRATIONS_MAP.peach;
   if (t.includes('kem') || t.includes('ice cream')) return CUTE_ILLUSTRATIONS_MAP.icecream;
   if (t.includes('kẹo') || t.includes('candy')) return CUTE_ILLUSTRATIONS_MAP.candy;
   if (t.includes('bánh') || t.includes('cake')) return CUTE_ILLUSTRATIONS_MAP.cake;
-  if (t.includes('chạy') || t.includes('nhảy') || t.includes('hoạt động') || t.includes('runner')) return CUTE_ILLUSTRATIONS_MAP.runner;
-  if (t.includes('bơi') || t.includes('swim')) return CUTE_ILLUSTRATIONS_MAP.swim;
-  if (t.includes('hát') || t.includes('ca hát') || t.includes('sing')) return CUTE_ILLUSTRATIONS_MAP.sing;
-  if (t.includes('xe đạp') || t.includes('bicycle')) return CUTE_ILLUSTRATIONS_MAP.bicycle;
-  if (t.includes('ô tô') || t.includes('xe máy') || t.includes('xe') || t.includes('car')) return CUTE_ILLUSTRATIONS_MAP.car;
-  if (t.includes('giờ') || t.includes('thời gian') || t.includes('tuần') || t.includes('đồng hồ')) return CUTE_ILLUSTRATIONS_MAP.clock;
-  if (t.includes('tam giác')) return CUTE_ILLUSTRATIONS_MAP.triangle;
-  if (t.includes('tròn')) return CUTE_ILLUSTRATIONS_MAP.circle;
-  if (t.includes('vuông')) return CUTE_ILLUSTRATIONS_MAP.square;
-  if (t.includes('chữ nhật')) return CUTE_ILLUSTRATIONS_MAP.rectangle;
-  if (t.includes('đỏ')) return CUTE_ILLUSTRATIONS_MAP.circle;
-  if (t.includes('xanh lá')) return CUTE_ILLUSTRATIONS_MAP.tree;
-  if (t.includes('xanh') || t.includes('biển')) return CUTE_ILLUSTRATIONS_MAP.square;
-  if (t.includes('vàng')) return CUTE_ILLUSTRATIONS_MAP.sunflower;
-  if (t.includes('bản đồ') || t.includes('châu lục') || t.includes('trái đất') || t.includes('địa lí')) return CUTE_ILLUSTRATIONS_MAP.earth;
-  if (t.includes('phép tính') || t.includes('cộng') || t.includes('trừ') || t.includes('toán')) return CUTE_ILLUSTRATIONS_MAP.calculator;
-  return CUTE_ILLUSTRATIONS_MAP.star;
+  if (t.includes('sữa') || t.includes('milk')) return CUTE_ILLUSTRATIONS_MAP.milk;
+  if (t.includes('cơm') || t.includes('bát cơm')) return CUTE_ILLUSTRATIONS_MAP.rice;
+
+  // Nature & Shapes
+  if (t.includes('hướng dương')) return CUTE_ILLUSTRATIONS_MAP.sunflower;
+  if (t.includes('hoa hồng')) return CUTE_ILLUSTRATIONS_MAP.rose;
+  if (t.includes('hoa') || t.includes('bông hoa') || t.includes('flower')) return CUTE_ILLUSTRATIONS_MAP.flower;
+  if (t.includes('chiếc lá') || t.includes('lá cây')) return CUTE_ILLUSTRATIONS_MAP.leaf;
+  if (t.includes('cây xanh') || t.includes('cây cổ thụ') || t.includes('rừng')) return CUTE_ILLUSTRATIONS_MAP.tree;
+  if (t.includes('mặt trời') || t.includes('ánh nắng') || t.includes('nắng')) return CUTE_ILLUSTRATIONS_MAP.sun;
+  if (t.includes('cầu vồng') || t.includes('rainbow')) return CUTE_ILLUSTRATIONS_MAP.rainbow;
+  if (t.includes('mây') || t.includes('đám mây')) return CUTE_ILLUSTRATIONS_MAP.cloud;
+  if (t.includes('mưa') || t.includes('cơn mưa')) return CUTE_ILLUSTRATIONS_MAP.rain;
+  if (t.includes('ngôi sao') || t.includes('sao sáng')) return CUTE_ILLUSTRATIONS_MAP.star;
+  if (t.includes('mặt trăng') || t.includes('vầng trăng') || t.includes('trăng')) return CUTE_ILLUSTRATIONS_MAP.moon;
+  if (t.includes('trái đất') || t.includes('địa cầu')) return CUTE_ILLUSTRATIONS_MAP.earth;
+
+  // Shapes
+  if (t.includes('hình tam giác') || t.includes('tam giác')) return CUTE_ILLUSTRATIONS_MAP.triangle;
+  if (t.includes('hình tròn')) return CUTE_ILLUSTRATIONS_MAP.circle;
+  if (t.includes('hình vuông')) return CUTE_ILLUSTRATIONS_MAP.square;
+  if (t.includes('hình chữ nhật')) return CUTE_ILLUSTRATIONS_MAP.rectangle;
+
+  // Objects & Daily Life
+  if (t.includes('ngôi nhà') || t.includes('mái nhà')) return CUTE_ILLUSTRATIONS_MAP.house;
+  if (t.includes('giường')) return CUTE_ILLUSTRATIONS_MAP.bed;
+  if (t.includes('bóng đèn') || t.includes('đèn học')) return CUTE_ILLUSTRATIONS_MAP.light;
+  if (t.includes('cánh diều') || t.includes('thả diều')) return CUTE_ILLUSTRATIONS_MAP.kite;
+  if (t.includes('cái ô') || t.includes('cái dù')) return CUTE_ILLUSTRATIONS_MAP.umbrella;
+  if (t.includes('cái mũ') || t.includes('chiếc mũ') || t.includes('cái nón')) return CUTE_ILLUSTRATIONS_MAP.hat;
+  if (t.includes('ô tô') || t.includes('xe con')) return CUTE_ILLUSTRATIONS_MAP.car;
+  if (t.includes('xe buýt')) return CUTE_ILLUSTRATIONS_MAP.bus;
+  if (t.includes('xe đạp')) return CUTE_ILLUSTRATIONS_MAP.bicycle;
+  if (t.includes('tàu hỏa') || t.includes('xe lửa')) return CUTE_ILLUSTRATIONS_MAP.train;
+  if (t.includes('máy bay')) return CUTE_ILLUSTRATIONS_MAP.plane;
+  if (t.includes('thuyền') || t.includes('tàu thủy')) return CUTE_ILLUSTRATIONS_MAP.boat;
+  if (t.includes('bóng bay') || t.includes('bong bóng')) return CUTE_ILLUSTRATIONS_MAP.balloon;
+  if (t.includes('quả bóng') || t.includes('đá bóng')) return CUTE_ILLUSTRATIONS_MAP.soccer;
+  if (t.includes('đồng hồ') || t.includes('thời gian') || t.includes('mấy giờ')) return CUTE_ILLUSTRATIONS_MAP.clock;
+  if (t.includes('phép tính') || t.includes('tính toán') || t.includes('cộng') || t.includes('trừ') || t.includes('toán')) return CUTE_ILLUSTRATIONS_MAP.calculator;
+
+  return CUTE_ILLUSTRATIONS_MAP.defaultTask;
 }
 
-const CUTE_OPTION_THEMES = [
-  ['🍎', '🍓', '🍊', '🍇'],
-  ['🐱', '🐶', '🐰', '🐻'],
-  ['✏️', '📖', '📏', '🎒'],
-  ['🌸', '🌻', '🌷', '🌺'],
-  ['⭐', '🌟', '✨', '💫'],
-  ['🚗', '🚲', '✈️', '⛵'],
-  ['🎈', '🎁', '🎨', '🧩'],
-  ['🔺', '🔴', '🟦', '🟧']
-];
-
-function getOptionIllustration(item, opt, optIdx, itemIdx) {
-  // 1. If item has explicit optionIcons
-  if (item?.optionIcons && item.optionIcons[optIdx]) {
+function getOptionIllustration(item, opt, optIdx) {
+  // 1. If item has explicit optionIcons array matching options 1-to-1
+  if (item?.optionIcons && Array.isArray(item.optionIcons) && item.optionIcons[optIdx]) {
     return item.optionIcons[optIdx];
   }
   if (typeof opt === 'object' && opt?.icon) {
     return opt.icon;
   }
   const optStr = typeof opt === 'string' ? opt : (opt?.text || '');
-  // 2. Semantic matching from keyword
-  const matched = getIllustration(optStr);
-  if (matched && matched.icon && matched.icon !== '⭐') {
+  const optCleanText = optStr.replace(/^[A-Da-d0-9][\.\:\)\s]+/, '').trim() || optStr;
+
+  // 2. Strict semantic matching from keyword
+  const matched = getIllustration(optCleanText);
+  if (matched && !matched.isDefault && matched.icon) {
     return matched.icon;
   }
-  // 3. Fallback theme by question index so all options get vibrant distinct icons
-  const theme = CUTE_OPTION_THEMES[itemIdx % CUTE_OPTION_THEMES.length];
-  return theme[optIdx % theme.length];
+
+  // 3. IMPORTANT: When option is abstract (e.g. "xinh xắn", "chăm chỉ") or numeric ("45", "59"),
+  // RETURN NULL so it renders clean text without random mismatched animal emojis!
+  return null;
 }
 
 function CuteIllustrationBadge({ item, text, isPrimaryCute }) {
@@ -324,7 +388,7 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
                       </span>
 
                       {/* Option Illustration Image/Icon for Elementary Worksheet */}
-                      {isPrimaryCute && (
+                      {isPrimaryCute && optIcon && (
                         <span style={{
                           fontSize: '1.2rem',
                           lineHeight: 1,
@@ -772,6 +836,7 @@ export function AITextbookWorksheetModal({
 
   const [selectedTheme, setSelectedTheme] = useState('primary_cute');
   const [promptCommand, setPromptCommand] = useState('Tạo phiếu bài tập cuối tuần ôn tập toàn diện bài học');
+  const [lessonTitle, setLessonTitle] = useState('');
   const [selectedTypes, setSelectedTypes] = useState([
     'multiple_choice', 'fill_blank', 'matching', 'true_false', 'table_matrix', 'short_answer'
   ]);
@@ -792,13 +857,17 @@ export function AITextbookWorksheetModal({
       const initialTheme = isKid ? 'primary_cute' : 'standard_secondary';
       setSelectedTheme(initialTheme);
       
+      const detectedLesson = extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand);
+      setLessonTitle(detectedLesson);
+
       // 1. Immediately create rich worksheet from curriculum engine so teacher NEVER faces empty screen
       const immediateWs = generateCurriculumFallbackWorksheet({
         textbookTitle: book.title || 'Sách Giáo Khoa',
         grade: book.grade || 'Lớp 2',
         subject: book.subject || 'Tiếng Việt',
         theme: initialTheme,
-        selectedTypes
+        selectedTypes,
+        promptCommand
       });
       setWorksheetData(immediateWs);
 
@@ -860,6 +929,9 @@ export function AITextbookWorksheetModal({
 
       if (result && result.worksheet) {
         setWorksheetData(result.worksheet);
+        if (result.worksheet.lesson) {
+          setLessonTitle(result.worksheet.lesson);
+        }
         safePlaySound('fanfare');
       }
     } catch (err) {
@@ -874,6 +946,9 @@ export function AITextbookWorksheetModal({
         promptCommand: commandToUse || promptCommand
       });
       setWorksheetData(fallback);
+      if (fallback.lesson) {
+        setLessonTitle(fallback.lesson);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -895,7 +970,12 @@ export function AITextbookWorksheetModal({
     if (!worksheetData) return;
     safePlaySound('click');
 
-    let text = `${worksheetData.title}\n${worksheetData.subtitle}\n`;
+    const effectiveLesson = lessonTitle || worksheetData.lesson || extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand);
+    let text = `${worksheetData.title}\n`;
+    if (effectiveLesson) {
+      text += `BÀI HỌC: ${effectiveLesson}\n`;
+    }
+    if (worksheetData.subtitle) text += `${worksheetData.subtitle}\n`;
     text += `Trường: ${worksheetData.school || 'Sky-Line'}\n`;
     text += `Họ và tên: ............................................ Lớp: ................. Ngày: .................\n`;
     text += `Thời gian làm bài: ${worksheetData.timeAllowed || '35 phút'}\n`;
@@ -953,6 +1033,7 @@ export function AITextbookWorksheetModal({
   };
 
   const activeThemeObj = WORKSHEET_THEMES.find(t => t.id === selectedTheme) || WORKSHEET_THEMES[0];
+  const effectiveLesson = lessonTitle || worksheetData?.lesson || (book ? extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand) : '');
 
   return (
     <div 
@@ -1201,10 +1282,82 @@ export function AITextbookWorksheetModal({
               </div>
             </div>
 
+            {/* Lesson / Topic Selector & Quick Suggestion Chips */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <BookOpen size={15} style={{ color: '#38bdf8' }} /> 2. Bài học SGK (In nổi bật trên phiếu)
+                </label>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Chỉnh sửa được</span>
+              </div>
+              <input 
+                type="text"
+                value={lessonTitle}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setLessonTitle(val);
+                  if (worksheetData) {
+                    setWorksheetData(prev => prev ? ({ ...prev, lesson: val }) : prev);
+                  }
+                }}
+                placeholder="Ví dụ: Bài 1: Tôi là học sinh lớp 1"
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  backgroundColor: '#0f172a',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  color: '#38bdf8',
+                  fontSize: '0.84rem',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+
+              {/* Quick Lesson Suggestion Chips */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                {[
+                  { label: 'Bài 1', cmd: 'Tạo phiếu bài tập cuối tuần ôn tập toàn diện Bài 1' },
+                  { label: 'Bài 2', cmd: 'Tạo phiếu bài tập cuối tuần ôn tập toàn diện Bài 2' },
+                  { label: 'Bài 3', cmd: 'Tạo phiếu bài tập cuối tuần ôn tập toàn diện Bài 3' },
+                  { label: 'Bài 4', cmd: 'Tạo phiếu bài tập cuối tuần ôn tập toàn diện Bài 4' },
+                  { label: 'Ôn tập Tuần', cmd: 'Tạo phiếu bài tập ôn tập kiến thức trọng tâm cuối tuần' }
+                ].map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      safePlaySound('click');
+                      const detected = extractWorksheetLesson(book.title, book.subject, book.grade, chip.cmd);
+                      setLessonTitle(detected);
+                      setPromptCommand(chip.cmd);
+                      if (worksheetData) {
+                        setWorksheetData(prev => prev ? ({ ...prev, lesson: detected }) : prev);
+                      }
+                    }}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '14px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      backgroundColor: promptCommand.includes(chip.label) ? 'rgba(2, 132, 199, 0.3)' : 'rgba(255, 255, 255, 0.05)',
+                      color: promptCommand.includes(chip.label) ? '#38bdf8' : '#cbd5e1',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    📖 {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Prompt Instruction */}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginBottom: '6px' }}>
-                ✍️ 2. Yêu cầu biên soạn từ giáo viên
+                ✍️ 3. Yêu cầu chi tiết từ giáo viên
               </label>
               <textarea 
                 value={promptCommand}
@@ -1230,7 +1383,7 @@ export function AITextbookWorksheetModal({
             {/* Exercise Types Selector */}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginBottom: '8px' }}>
-                📋 3. Các dạng bài tập xuất hiện trên phiếu
+                📋 4. Các dạng bài tập xuất hiện trên phiếu
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {EXERCISE_TYPES.map(type => {
@@ -1497,6 +1650,32 @@ export function AITextbookWorksheetModal({
                           </div>
                         </div>
 
+                        {/* Prominent Lesson Ribbon Badge */}
+                        {effectiveLesson && (
+                          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                            <div 
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '5px 18px',
+                                borderRadius: '20px',
+                                backgroundColor: '#fffbeb',
+                                border: '1.5px solid #f59e0b',
+                                color: '#b45309',
+                                fontSize: '0.92rem',
+                                fontWeight: 900,
+                                boxShadow: '0 2px 6px rgba(245, 158, 11, 0.15)',
+                                letterSpacing: '0.5px',
+                                textTransform: 'uppercase'
+                              }}
+                            >
+                              <span style={{ fontSize: '1.15rem' }}>📖</span>
+                              <span>BÀI HỌC: {effectiveLesson}</span>
+                            </div>
+                          </div>
+                        )}
+
                         {/* 3D Bubble Title Pill */}
                         <div style={{ textAlign: 'center', marginBottom: '14px' }}>
                           <div 
@@ -1621,6 +1800,18 @@ export function AITextbookWorksheetModal({
 
                         {/* Worksheet Main Title */}
                         <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+                          {effectiveLesson && (
+                            <div style={{ 
+                              fontSize: '0.96rem', 
+                              fontWeight: 900, 
+                              color: selectedTheme === 'eco_bw' ? '#000000' : '#0284c7', 
+                              textTransform: 'uppercase', 
+                              marginBottom: '6px',
+                              letterSpacing: '0.5px'
+                            }}>
+                              📖 BÀI HỌC: {effectiveLesson}
+                            </div>
+                          )}
                           <h2 
                             style={{
                               margin: 0,

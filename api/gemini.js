@@ -81,25 +81,32 @@ ${safeText ? safeText : `Sách ${textbookTitle} môn ${subject} ${grade}. Hãy b
 ---------------------------------------------
 
 YÊU CẦU BẮT BUỘC:
-1. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''}:
+1. XÁC ĐỊNH RÕ RÀNG TÊN BÀI HỌC VÀ TIÊU ĐỀ PHIẾU:
+   - Trường "lesson": BẮT BUỘC ghi rõ BÀI HỌC CỤ THỂ theo đúng yêu cầu từ giáo viên và mục lục SGK (Ví dụ: giáo viên yêu cầu "bài 1" sách Tiếng Việt 1 Tập 2 -> "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1"; sách Tiếng Việt 1 Tập 1 -> "lesson": "BÀI 1: A a"; sách Toán 1 -> "lesson": "BÀI 1: CÁC SỐ TRONG PHẠM VI 20"). TUYỆT ĐỐI KHÔNG được để trống trường này!
+   - Trường "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1" hoặc "PHIẾU HỌC TẬP BÀI 1").
+   - Trường "subtitle": Phải ghi rõ: "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
+   - Toàn bộ nội dung câu hỏi, từ ngữ, bài tập BẮT BUỘC bám sát chính xác các từ vựng, bài đọc, câu văn của đúng BÀI HỌC ĐÓ trong sách giáo khoa!
+2. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''}:
    - Phần 1: Trắc nghiệm khách quan (3-4 câu, khoanh tròn đáp án đúng A, B, C, D)
    - Phần 2: Điền khuyết / Điền từ vào chỗ trống (2-3 câu, có kho từ gợi ý wordBank nếu là cấp tiểu học)
    - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải; với tiểu học hãy tạo dạng nối hình ảnh/từ ngữ sinh động)
    - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
    - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
-2. ĐẶC BIỆT DÀNH CHO TIỂU HỌC:
+3. QUY TẮC MINH HỌA HÌNH ẢNH & ICON (ĐẶC BIỆT DÀNH CHO TIỂU HỌC):
    - Các đáp án trắc nghiệm ("options") phải ngắn gọn, súc tích để nằm vừa vặn trên 1 HÀNG NGANG duy nhất.
-   - Luôn kèm trường "optionIcons": ["icon1", "icon2", "icon3", "icon4"] chứa 4 biểu tượng/hình vẽ minh họa tương ứng với 4 đáp án (ví dụ: ["🍎", "🍓", "🍊", "🍇"] hoặc ["🐱", "🐶", "🐰", "🐻"] hoặc các icon gợi ý đồ vật, con số, hành động) để bài tập có hình ảnh đi kèm sinh động.
-   - Thêm trường "illustration" (cat, dog, bunny, bear, book, pencil, apple, soccer, flower, tree, sun, school, car, clock, runner, star, calculator...) cho từng câu hỏi.
-   - Cung cấp "leftIcon" cho từng cặp nối ở Phần 3 để làm thẻ tranh hình ảnh minh họa to rõ.
-3. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
-4. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
+   - QUY TẮC KHỚP NGHĨA 100%: Trường "optionIcons" CHỈ CUNG CẤP khi 4 phương án là 4 sự vật/con vật/đồ vật/hoa quả cụ thể và ICON PHẢI KHỚP 100% VỚI NỘI DUNG TỪNG ĐÁP ÁN (Ví dụ: options = ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"] -> optionIcons = ["✏️", "🐱", "⚽", "🌸"]).
+   - NẾU các đáp án là từ ngữ trừu tượng, từ chỉ đặc điểm, âm vần, hoặc câu dài (ví dụ: "chăm chỉ", "ngoan ngoãn", "khéo léo"): HÃY ĐỂ TRỐNG "optionIcons": []. TUYỆT ĐỐI KHÔNG gán bừa icon con vật hay hoa quả không liên quan!
+   - Thêm trường "illustration" (book, pencil, school, cat, dog, duck, bird, fish, apple, flower, tree, sun, car, clock, runner, star, calculator...) cho từng câu hỏi khớp đúng với nội dung câu hỏi.
+   - Cung cấp "leftIcon" cho từng cặp nối ở Phần 3 để làm thẻ tranh hình ảnh minh họa to rõ, khớp đúng với từ ngữ ở Cột A.
+4. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
+5. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
 
 Cấu trúc JSON bắt buộc:
 {
-  "title": "PHIẾU BÀI TẬP VUI HỌC",
-  "subtitle": "Chủ đề: ...",
+  "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1",
+  "title": "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1",
+  "subtitle": "Bài 1: Tôi là học sinh lớp 1 · Chủ đề: Rèn kĩ năng đọc hiểu & chính tả",
   "school": "TRƯỜNG SKY-LINE",
   "subject": "${subject || 'Kiến thức chung'}",
   "grade": "${grade || 'Tiểu học'}",
@@ -112,11 +119,11 @@ Cấu trúc JSON bắt buộc:
       "items": [
         {
           "id": 1,
-          "question": "Nội dung câu hỏi trắc nghiệm?",
-          "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-          "optionIcons": ["🐱", "🐶", "🐰", "🐻"],
+          "question": "Đồ dùng học tập nào giúp em viết những dòng chữ sạch đẹp hàng ngày?",
+          "options": ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"],
+          "optionIcons": ["✏️", "🐱", "⚽", "🌸"],
           "answer": "A",
-          "illustration": "cat",
+          "illustration": "pencil",
           "points": "0.5 đ"
         }
       ]

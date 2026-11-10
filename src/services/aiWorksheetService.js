@@ -52,6 +52,139 @@ export const EXERCISE_TYPES = [
 ];
 
 /**
+ * Detect & Extract Lesson details from promptCommand and Textbook metadata
+ */
+export function extractWorksheetLesson(bookTitle = '', subject = '', grade = '', promptCommand = '') {
+  const normPrompt = (promptCommand || '').trim();
+  const normTitle = (bookTitle || '').toLowerCase();
+  
+  // 1. Detect lesson match from prompt
+  const matchLesson = normPrompt.match(/(?:bài|tiết|unit|chủ đề|tuần)\s*([0-9a-zA-Z\-_]+(?:\s*[:\-–]\s*[^\n,\.]+)?)/i);
+  let requestedNum = '';
+  let requestedCustomName = '';
+  
+  if (matchLesson) {
+    const raw = matchLesson[1].trim();
+    const numMatch = raw.match(/^\d+/);
+    if (numMatch) requestedNum = numMatch[0];
+    if (raw.includes(':') || raw.includes('-') || raw.includes('–')) {
+      requestedCustomName = raw.replace(/^[\d\s:\-–]+/, '').trim();
+    }
+  }
+
+  // 2. Standard curriculum map for popular textbooks
+  const isTV1_2 = normTitle.includes('tiếng việt 1') && (normTitle.includes('tập 2') || normTitle.includes('tập hai') || normTitle.includes('tap 2'));
+  const isTV1_1 = normTitle.includes('tiếng việt 1') && (normTitle.includes('tập 1') || normTitle.includes('tập một') || normTitle.includes('tap 1'));
+  const isToan1_2 = normTitle.includes('toán 1') && (normTitle.includes('tập 2') || normTitle.includes('tập hai') || normTitle.includes('tap 2'));
+  const isToan1_1 = normTitle.includes('toán 1') && (normTitle.includes('tập 1') || normTitle.includes('tập một') || normTitle.includes('tap 1'));
+
+  if (isTV1_2) {
+    if (requestedNum === '1' || normPrompt.toLowerCase().includes('bài 1')) {
+      return {
+        lesson: 'BÀI 1: TÔI LÀ HỌC SINH LỚP 1',
+        title: 'PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1',
+        subtitle: 'Bài 1: Tôi là học sinh lớp 1 · Chủ đề: Đọc hiểu & Luyện từ và câu',
+        topic: 'Tôi là học sinh lớp 1'
+      };
+    }
+    if (requestedNum === '2') {
+      return {
+        lesson: 'BÀI 2: ĐÔI TAI XẤU XÍ',
+        title: 'PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 2',
+        subtitle: 'Bài 2: Đôi tai xấu xí · Chủ đề: Kỹ năng đọc hiểu & Từ chỉ đặc điểm',
+        topic: 'Đôi tai xấu xí'
+      };
+    }
+    if (requestedNum === '3') {
+      return {
+        lesson: 'BÀI 3: BẠN CỦA GIÓ',
+        title: 'PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 3',
+        subtitle: 'Bài 3: Bạn của gió · Chủ đề: Đọc thơ & Nhận biết vần',
+        topic: 'Bạn của gió'
+      };
+    }
+  }
+
+  if (isTV1_1) {
+    if (requestedNum === '1' || normPrompt.toLowerCase().includes('bài 1')) {
+      return {
+        lesson: 'BÀI 1: A a',
+        title: 'PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1',
+        subtitle: 'Bài 1: Làm quen âm A a · Rèn kỹ năng nhận biết âm chữ',
+        topic: 'Làm quen âm A a'
+      };
+    }
+  }
+
+  if (isToan1_2) {
+    if (requestedNum === '1' || normPrompt.toLowerCase().includes('bài 1')) {
+      return {
+        lesson: 'BÀI 1: CÁC SỐ TRONG PHẠM VI 20',
+        title: 'PHIẾU BÀI TẬP TOÁN - BÀI 1',
+        subtitle: 'Bài 1: Các số trong phạm vi 20 · Đếm, đọc, viết & so sánh số',
+        topic: 'Các số trong phạm vi 20'
+      };
+    }
+  }
+
+  if (requestedNum) {
+    const formattedTitle = requestedCustomName ? `BÀI ${requestedNum}: ${requestedCustomName.toUpperCase()}` : `BÀI ${requestedNum}: ÔN TẬP BÀI HỌC ${requestedNum}`;
+    return {
+      lesson: formattedTitle,
+      title: `PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI ${requestedNum}`,
+      subtitle: `Bài ${requestedNum}: Rèn luyện kiến thức trọng tâm SGK`,
+      topic: `Bài ${requestedNum}`
+    };
+  }
+
+  return {
+    lesson: 'BÀI HỌC TRỌNG TÂM SGK',
+    title: 'PHIẾU BÀI TẬP VÀ ÔN LUYỆN',
+    subtitle: `Chủ đề bài học: ${bookTitle ? bookTitle.replace(/\.pdf$/i, '') : 'Kiến thức GDPT 2018'}`,
+    topic: 'Ôn tập kiến thức'
+  };
+}
+
+/**
+ * Guarantee Worksheet always possesses explicit Lesson name & Number
+ */
+export function enrichWorksheetWithLesson(worksheet, promptCommand = '', book = null) {
+  if (!worksheet) return worksheet;
+  const bookTitle = book?.title || '';
+  const subject = book?.subject || '';
+  const grade = book?.grade || '';
+  
+  const extracted = extractWorksheetLesson(bookTitle, subject, grade, promptCommand);
+  
+  let finalLesson = worksheet.lesson;
+  if (!finalLesson || finalLesson === 'BÀI HỌC TRỌNG TÂM SGK' || !finalLesson.toLowerCase().includes('bài')) {
+    if (extracted.lesson && extracted.lesson !== 'BÀI HỌC TRỌNG TÂM SGK') {
+      finalLesson = extracted.lesson;
+    } else {
+      finalLesson = worksheet.lesson || extracted.lesson;
+    }
+  }
+
+  let finalTitle = worksheet.title || extracted.title;
+  if (extracted.lesson && extracted.lesson.startsWith('BÀI ') && !finalTitle.toLowerCase().includes('bài')) {
+    const bàiTag = extracted.lesson.split(':')[0].trim();
+    finalTitle = `${finalTitle} - ${bàiTag}`;
+  }
+
+  let finalSubtitle = worksheet.subtitle || extracted.subtitle;
+  if (extracted.lesson && extracted.lesson.startsWith('BÀI ') && !finalSubtitle.toLowerCase().includes('bài')) {
+    finalSubtitle = `${extracted.lesson} · ${finalSubtitle}`;
+  }
+
+  return {
+    ...worksheet,
+    lesson: finalLesson,
+    title: finalTitle,
+    subtitle: finalSubtitle
+  };
+}
+
+/**
  * Generate Smart Curriculum Fallback Worksheet based on Subject and Grade
  */
 export function generateCurriculumFallbackWorksheet({
@@ -67,14 +200,17 @@ export function generateCurriculumFallbackWorksheet({
   const cleanTitle = textbookTitle ? textbookTitle.replace(/\.pdf$/i, '') : 'Bài Học Sách Giáo Khoa';
   const cleanGrade = grade || 'Tiểu học';
 
+  // Extract precise lesson details
+  const lessonDetails = extractWorksheetLesson(textbookTitle, subject, grade, promptCommand);
+  const defaultLesson = lessonDetails.lesson;
+  let defaultTitle = lessonDetails.title;
+  let defaultSubtitle = lessonDetails.subtitle;
+
   // Customized content sets by subject
   const isMath = normSubject.includes('toán') || normSubject.includes('math');
   const isGeoOrHist = normSubject.includes('địa') || normSubject.includes('sử') || normSubject.includes('lsdl');
   const isScience = normSubject.includes('khtn') || normSubject.includes('khoa học') || normSubject.includes('sinh') || normSubject.includes('hóa') || normSubject.includes('lý');
   const isEnglish = normSubject.includes('anh') || normSubject.includes('english');
-
-  let defaultTitle = `PHIẾU BÀI TẬP VÀ ÔN LUYỆN CUỐI TUẦN`;
-  let defaultSubtitle = `Chủ đề bài học: ${cleanTitle}`;
   let sections = [];
 
   if (isMath) {
@@ -101,10 +237,10 @@ export function generateCurriculumFallbackWorksheet({
             id: 2,
             question: 'Kết quả của phép tính: 35 + 24 = ?',
             options: ['59', '69', '58', '60'],
-            optionIcons: ['🍎', '🍓', '🍊', '🍇'],
+            optionIcons: [],
             answer: 'A',
-            illustration: 'apple',
-            icon: '🍎',
+            illustration: 'calculator',
+            icon: '🧮',
             points: '1.0 đ'
           },
           {
@@ -319,32 +455,32 @@ export function generateCurriculumFallbackWorksheet({
         items: [
           {
             id: 1,
-            question: 'Trong các từ sau, từ nào là từ chỉ hoạt động của học sinh?',
-            options: ['cái bảng', 'đọc sách', 'màu xanh', 'ngôi trường'],
-            optionIcons: ['🪑', '📖', '🎨', '🏫'],
-            answer: 'B',
-            illustration: 'runner',
-            icon: '🏃‍♂️',
+            question: 'Đồ dùng học tập nào giúp em viết những dòng chữ sạch đẹp hàng ngày?',
+            options: ['Cây bút chì', 'Cục tẩy', 'Thước kẻ', 'Hộp màu'],
+            optionIcons: ['✏️', '🧽', '📐', '🎨'],
+            answer: 'A',
+            illustration: 'pencil',
+            icon: '✏️',
             points: '1.0 đ'
           },
           {
             id: 2,
-            question: 'Từ nào dưới đây là từ chỉ con vật nuôi trong gia đình?',
-            options: ['Chú mèo', 'Cún con', 'Thỏ trắng', 'Gấu con'],
-            optionIcons: ['🐱', '🐶', '🐰', '🐻'],
+            question: 'Từ nào dưới đây là từ chỉ hoạt động học tập trong giờ học Tiếng Việt?',
+            options: ['Đọc sách', 'Cái bàn', 'Ngôi trường', 'Màu đỏ'],
+            optionIcons: ['📖', '🪑', '🏫', '🎨'],
             answer: 'A',
-            illustration: 'cat',
-            icon: '🐱',
+            illustration: 'book',
+            icon: '📖',
             points: '1.0 đ'
           },
           {
             id: 3,
-            question: 'Đồ dùng nào giúp em viết bài sạch đẹp hàng ngày?',
-            options: ['Cây bút chì', 'Cục tẩy', 'Thước kẻ', 'Hộp màu'],
-            optionIcons: ['✏️', '🧼', '📐', '🎨'],
+            question: 'Con vật nuôi nào trong gia đình biết bắt chuột và kêu meo meo?',
+            options: ['Chú mèo', 'Cún con', 'Thỏ trắng', 'Chú vịt'],
+            optionIcons: ['🐱', '🐶', '🐰', '🦆'],
             answer: 'A',
-            illustration: 'pencil',
-            icon: '✏️',
+            illustration: 'cat',
+            icon: '🐱',
             points: '1.0 đ'
           }
         ]
@@ -440,6 +576,7 @@ export function generateCurriculumFallbackWorksheet({
   }
 
   return {
+    lesson: defaultLesson,
     title: defaultTitle,
     subtitle: defaultSubtitle,
     school: 'HỆ THỐNG GIÁO DỤC SKY-LINE',
@@ -492,11 +629,12 @@ export async function generateAITextbookWorksheet({
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.worksheet && Array.isArray(data.worksheet.sections)) {
+        const enriched = enrichWorksheetWithLesson(data.worksheet, promptCommand, book);
         return {
           success: true,
           source: 'api_serverless',
           worksheet: {
-            ...data.worksheet,
+            ...enriched,
             theme
           }
         };
@@ -515,16 +653,29 @@ export async function generateAITextbookWorksheet({
 Yêu cầu giáo viên: "${promptCommand}".
 Phong cách: ${theme}.
 Nội dung tài liệu: ${(bookText || textbookTitle).slice(0, 20000)}.
+
+QUY TẮC BẮT BUỘC:
+1. XÁC ĐỊNH RÕ RÀNG TÊN BÀI HỌC VÀ TIÊU ĐỀ:
+   - "lesson": BẮT BUỘC ghi rõ BÀI HỌC CỤ THỂ theo đúng yêu cầu từ giáo viên (Ví dụ khi giáo viên yêu cầu "bài 1" sách Tiếng Việt 1 Tập 2 -> "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1"; sách Toán 1 -> "lesson": "BÀI 1: CÁC SỐ TRONG PHẠM VI 20"). TUYỆT ĐỐI KHÔNG để trống!
+   - "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1").
+   - "subtitle": "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
+   - Nội dung bài tập bám sát kiến thức của đúng BÀI HỌC ĐÓ trong SGK!
+2. MINH HỌA HÌNH ẢNH & ICON:
+   - Các đáp án trắc nghiệm ("options") nằm vừa trên 1 HÀNG NGANG.
+   - Trường "optionIcons": CHỈ cung cấp khi 4 phương án là 4 đồ vật, con vật, hoa quả cụ thể VÀ KHỚP 100% VỚI TỪNG ĐÁP ÁN (Ví dụ: ["✏️", "🐱", "⚽", "🌸"] khớp với ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"]). Nếu các phương án là từ trừu tượng, hãy để mảng rỗng "optionIcons": []. Tuyệt đối KHÔNG gán bừa icon con vật hay hoa quả không liên quan!
+   - Trường "illustration" của câu hỏi: book, pencil, school, cat, dog, duck, bird, fish, apple, flower, tree, sun, car, clock, runner, star, calculator... khớp với nội dung câu hỏi.
+
 Chỉ trả về JSON thuần túy (Object):
 {
-  "title": "PHIẾU BÀI TẬP VÀ ÔN LUYỆN",
-  "subtitle": "Chủ đề: ...",
+  "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1",
+  "title": "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1",
+  "subtitle": "Bài 1: Tôi là học sinh lớp 1 · Chủ đề: Rèn kĩ năng đọc hiểu & chính tả",
   "school": "TRƯỜNG SKY-LINE",
   "grade": "${grade}",
   "subject": "${subject}",
   "timeAllowed": "35 phút",
   "sections": [
-    { "type": "multiple_choice", "title": "I. TRẮC NGHIỆM", "instruction": "Khoanh tròn đáp án đúng:", "items": [{ "id": 1, "question": "...", "options": ["A. ...", "B. ...", "C. ...", "D. ..."], "answer": "A", "points": "1.0 đ" }] },
+    { "type": "multiple_choice", "title": "I. TRẮC NGHIỆM", "instruction": "Khoanh tròn đáp án đúng:", "items": [{ "id": 1, "question": "...", "options": ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"], "optionIcons": ["✏️", "🐱", "⚽", "🌸"], "answer": "A", "illustration": "pencil", "points": "1.0 đ" }] },
     { "type": "fill_blank", "title": "II. ĐIỀN KHUYẾT", "instruction": "Điền từ thích hợp vào chỗ trống:", "items": [{ "id": 2, "question": "...", "wordBank": ["..."], "answer": "...", "points": "1.0 đ" }] },
     { "type": "matching", "title": "III. NỐI CỘT TƯƠNG ỨNG", "instruction": "Nối Cột A với Cột B:", "pairs": [{ "left": "...", "right": "..." }], "points": "2.0 đ" },
     { "type": "true_false", "title": "IV. ĐÚNG GHI Đ, SAI GHI S", "instruction": "Ghi Đ hoặc S:", "items": [{ "statement": "...", "answer": "Đ", "points": "1.0 đ" }] },
@@ -548,11 +699,12 @@ Chỉ trả về JSON thuần túy (Object):
             if (match) {
               const parsed = JSON.parse(match[0]);
               if (parsed && Array.isArray(parsed.sections)) {
+                const enriched = enrichWorksheetWithLesson(parsed, promptCommand, book);
                 return {
                   success: true,
                   source: 'google_direct_' + m,
                   worksheet: {
-                    ...parsed,
+                    ...enriched,
                     theme
                   }
                 };
@@ -582,6 +734,6 @@ Chỉ trả về JSON thuần túy (Object):
   return {
     success: true,
     source: 'curriculum_engine',
-    worksheet: fallbackData
+    worksheet: enrichWorksheetWithLesson(fallbackData, promptCommand, book)
   };
 }
