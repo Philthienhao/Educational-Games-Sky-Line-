@@ -144,7 +144,9 @@ function GameCardComponent({
           </span>
         ) : (
           <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 800, background: 'rgba(15, 23, 42, 0.85)', padding: '5px 12px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.25)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
-            {typeof game.playsCount === 'number' ? game.playsCount : 0} Lượt chơi
+            {(typeof game?.playsCount === 'number' && game.playsCount >= 100)
+              ? game.playsCount
+              : (StorageService?.getInitialPlaysCount ? StorageService.getInitialPlaysCount(game?.id, game?.title) : 135)} Lượt chơi
           </span>
         )}
 

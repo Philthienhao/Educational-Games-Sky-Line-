@@ -583,6 +583,16 @@ const HEART_2010_SAMPLE_QUESTIONS = [
   }
 ];
 
+// Deterministic realistic play count generator (> 100 plays per game)
+export function getInitialPlaysCount(gameId = '', title = '') {
+  let hash = 0;
+  const str = String(gameId || title || 'game_skyline_edu');
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) % 10000;
+  }
+  return 115 + (Math.abs(hash) % 271); // Stable, realistic number between 115 and 385 plays
+}
+
 const INITIAL_BASE_GAMES = [
   {
     id: 'heart-puzzle-2010-game',
@@ -1077,6 +1087,13 @@ const INITIAL_BASE_GAMES = [
   }
 ];
 
+// Seed realistic play count (> 100) for all initial base games
+INITIAL_BASE_GAMES.forEach(g => {
+  if (g && (!g.playsCount || g.playsCount < 100)) {
+    g.playsCount = getInitialPlaysCount(g.id, g.title);
+  }
+});
+
 // Sample Initial Saved Teacher Games
 // Sample Initial Saved Teacher Games (Admin & Seed Games)
 const INITIAL_SAVED_GAMES = [
@@ -1494,6 +1511,9 @@ let isCloudSyncRunning = false;
 let lastCloudSyncTime = 0;
 
 export const StorageService = {
+  // Deterministic realistic play count helper
+  getInitialPlaysCount: (gameId = '', title = '') => getInitialPlaysCount(gameId, title),
+
   // Safe helper to extract active user ID without invoking StorageService.init() recursively
   getEffectiveUserId: (userId) => {
     if (userId && typeof userId === 'string' && userId.trim()) return userId.trim();
@@ -1755,8 +1775,8 @@ export const StorageService = {
                 updated = true;
               }
             }
-            if (typeof g.playsCount !== 'number' || g.playsCount > 100) {
-              g.playsCount = 0;
+            if (typeof g.playsCount !== 'number' || g.playsCount < 100) {
+              g.playsCount = getInitialPlaysCount(g.id, g.title);
               updated = true;
             }
           });
@@ -3004,9 +3024,13 @@ export const StorageService = {
     // Remove classroom-timer-game from store catalog as it lives in dedicated "Đồng hồ bấm giờ" tab
     games = games.filter(g => g && g.id !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
 
-    // Ensure category and flags are synchronized with system definitions
+    // Ensure category, playsCount and flags are synchronized with system definitions
     games = games.map(g => {
       if (!g || typeof g !== 'object') return g;
+      if (typeof g.playsCount !== 'number' || g.playsCount < 100) {
+        g = { ...g, playsCount: getInitialPlaysCount(g.id, g.title) };
+        updated = true;
+      }
       const isPicker = g.isStudentPicker || 
                        ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
                        ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
@@ -3047,7 +3071,10 @@ export const StorageService = {
         let saved = JSON.parse(localStorage.getItem(SAVED_GAMES_KEY) || '[]');
         saved = saved.map(g => {
           if (g.id === gameId) {
-            return { ...g, playsCount: (typeof g.playsCount === 'number' ? g.playsCount : 0) + 1 };
+            const currentCount = (typeof g.playsCount === 'number' && g.playsCount >= 100)
+              ? g.playsCount
+              : getInitialPlaysCount(g.id, g.title);
+            return { ...g, playsCount: currentCount + 1 };
           }
           return g;
         });
@@ -3058,7 +3085,10 @@ export const StorageService = {
         let base = JSON.parse(localStorage.getItem(BASE_GAMES_KEY) || '[]');
         base = base.map(g => {
           if (g.id === gameId || g.engineType === gameId) {
-            return { ...g, playsCount: (typeof g.playsCount === 'number' ? g.playsCount : 0) + 1 };
+            const currentCount = (typeof g.playsCount === 'number' && g.playsCount >= 100)
+              ? g.playsCount
+              : getInitialPlaysCount(g.id, g.title);
+            return { ...g, playsCount: currentCount + 1 };
           }
           return g;
         });
