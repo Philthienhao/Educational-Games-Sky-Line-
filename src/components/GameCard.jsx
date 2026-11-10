@@ -52,6 +52,9 @@ function GameCardComponent({
   );
   const studentList = game?.students || game?.studentList || [];
   const studentCount = Array.isArray(studentList) ? studentList.length : 0;
+  const displayPlays = (typeof game?.playsCount === 'number' && game.playsCount >= 100)
+    ? game.playsCount
+    : (StorageService.getRealisticPlayCount ? StorageService.getRealisticPlayCount(game) : 128);
 
   return (
     <div 
@@ -113,42 +116,90 @@ function GameCardComponent({
           }}
         />
 
-        {/* Category Badge Floating Top Left */}
-        <span style={{ 
+        {/* Floating Top Header Badges (Category & Plays / Status) */}
+        <div style={{
           position: 'absolute',
           top: '12px',
           left: '12px',
-          fontSize: '0.68rem', 
-          fontWeight: 800, 
-          textTransform: 'uppercase', 
-          color: '#ffffff',
-          background: 'rgba(15, 23, 42, 0.85)',
-          padding: '5px 12px',
-          borderRadius: '14px',
-          letterSpacing: '0.06em',
-          border: '1px solid rgba(255, 255, 255, 0.25)',
+          right: '12px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '8px',
           zIndex: 2,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.25)'
+          pointerEvents: 'none'
         }}>
-          {game.category || 'Game Giáo Dục'}
-        </span>
+          {/* Category Badge Floating Top Left */}
+          <span style={{ 
+            fontSize: '0.68rem', 
+            fontWeight: 800, 
+            textTransform: 'uppercase', 
+            color: '#ffffff',
+            background: 'rgba(15, 23, 42, 0.88)',
+            padding: '5px 11px',
+            borderRadius: '14px',
+            letterSpacing: '0.04em',
+            border: '1px solid rgba(255, 255, 255, 0.25)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            maxWidth: '56%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            flexShrink: 1
+          }}>
+            {game.category || 'Game Giáo Dục'}
+          </span>
 
-        {/* Saved / Play Count / Trial Lock Badge Floating Top Right */}
-        {isTrialUsed ? (
-          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 900, background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', padding: '5px 12px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.4)', zIndex: 2, boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Lock size={12} /> Đã dùng thử
-          </span>
-        ) : isSavedGame ? (
-          <span className="badge" style={{ position: 'absolute', top: '12px', right: '12px', background: '#0d9488', color: '#ffffff', fontWeight: 900, border: '1px solid rgba(255,255,255,0.4)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
-            ĐÃ LƯU
-          </span>
-        ) : (
-          <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.72rem', color: '#ffffff', fontWeight: 800, background: 'rgba(15, 23, 42, 0.85)', padding: '5px 12px', borderRadius: '14px', border: '1px solid rgba(255, 255, 255, 0.25)', zIndex: 2, boxShadow: '0 2px 8px rgba(0,0,0,0.25)' }}>
-            {(typeof game?.playsCount === 'number' && game.playsCount >= 100)
-              ? game.playsCount
-              : (StorageService?.getInitialPlaysCount ? StorageService.getInitialPlaysCount(game?.id, game?.title) : 135)} Lượt chơi
-          </span>
-        )}
+          {/* Saved / Play Count / Trial Lock Badge Floating Top Right */}
+          {isTrialUsed ? (
+            <span style={{ 
+              fontSize: '0.72rem', 
+              color: '#ffffff', 
+              fontWeight: 900, 
+              background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', 
+              padding: '5px 11px', 
+              borderRadius: '14px', 
+              border: '1px solid rgba(255, 255, 255, 0.4)', 
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              flexShrink: 0,
+              whiteSpace: 'nowrap'
+            }}>
+              <Lock size={12} /> Đã dùng thử
+            </span>
+          ) : isSavedGame ? (
+            <span className="badge" style={{ 
+              background: '#0d9488', 
+              color: '#ffffff', 
+              fontWeight: 900, 
+              border: '1px solid rgba(255,255,255,0.4)', 
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              padding: '5px 11px',
+              borderRadius: '14px',
+              flexShrink: 0,
+              whiteSpace: 'nowrap'
+            }}>
+              ĐÃ LƯU
+            </span>
+          ) : (
+            <span style={{ 
+              fontSize: '0.72rem', 
+              color: '#ffffff', 
+              fontWeight: 800, 
+              background: 'rgba(15, 23, 42, 0.88)', 
+              padding: '5px 11px', 
+              borderRadius: '14px', 
+              border: '1px solid rgba(255, 255, 255, 0.25)', 
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+              flexShrink: 0,
+              whiteSpace: 'nowrap'
+            }}>
+              {displayPlays} Lượt chơi
+            </span>
+          )}
+        </div>
 
         {/* Floating Engine Icon Badge Bottom Right */}
         <div style={{

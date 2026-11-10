@@ -583,15 +583,20 @@ const HEART_2010_SAMPLE_QUESTIONS = [
   }
 ];
 
-// Deterministic realistic play count generator (> 100 plays per game)
-export function getInitialPlaysCount(gameId = '', title = '') {
-  let hash = 0;
-  const str = String(gameId || title || 'game_skyline_edu');
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) % 10000;
+export const getRealisticPlayCount = (game) => {
+  if (typeof game?.playsCount === 'number' && game.playsCount >= 100) {
+    return game.playsCount;
   }
-  return 115 + (Math.abs(hash) % 271); // Stable, realistic number between 115 and 385 plays
-}
+  const idStr = String(game?.id || game?.title || game?.engineType || 'edu-game');
+  let hash = 0;
+  for (let i = 0; i < idStr.length; i++) {
+    hash = (hash * 31 + idStr.charCodeAt(i)) % 100000;
+  }
+  // Generates a nice deterministic number between 115 and 281
+  const baseMock = 115 + (Math.abs(hash) % 167);
+  const extra = (typeof game?.playsCount === 'number' && game.playsCount > 0) ? game.playsCount : 0;
+  return baseMock + extra;
+};
 
 const INITIAL_BASE_GAMES = [
   {
@@ -1087,10 +1092,9 @@ const INITIAL_BASE_GAMES = [
   }
 ];
 
-// Seed realistic play count (> 100) for all initial base games
-INITIAL_BASE_GAMES.forEach(g => {
-  if (g && (!g.playsCount || g.playsCount < 100)) {
-    g.playsCount = getInitialPlaysCount(g.id, g.title);
+INITIAL_BASE_GAMES.forEach((g) => {
+  if (typeof g.playsCount !== 'number' || g.playsCount < 100) {
+    g.playsCount = getRealisticPlayCount(g);
   }
 });
 
@@ -1511,9 +1515,6 @@ let isCloudSyncRunning = false;
 let lastCloudSyncTime = 0;
 
 export const StorageService = {
-  // Deterministic realistic play count helper
-  getInitialPlaysCount: (gameId = '', title = '') => getInitialPlaysCount(gameId, title),
-
   // Safe helper to extract active user ID without invoking StorageService.init() recursively
   getEffectiveUserId: (userId) => {
     if (userId && typeof userId === 'string' && userId.trim()) return userId.trim();
@@ -1776,7 +1777,7 @@ export const StorageService = {
               }
             }
             if (typeof g.playsCount !== 'number' || g.playsCount < 100) {
-              g.playsCount = getInitialPlaysCount(g.id, g.title);
+              g.playsCount = getRealisticPlayCount(g);
               updated = true;
             }
           });
@@ -3024,28 +3025,30 @@ export const StorageService = {
     // Remove classroom-timer-game from store catalog as it lives in dedicated "Đồng hồ bấm giờ" tab
     games = games.filter(g => g && g.id !== 'classroom-timer-game' && g.engineType !== 'classroom-timer');
 
-    // Ensure category, playsCount and flags are synchronized with system definitions
+    // Ensure category, flags, and realistic playsCount (> 100) are synchronized with system definitions
     games = games.map(g => {
       if (!g || typeof g !== 'object') return g;
-      if (typeof g.playsCount !== 'number' || g.playsCount < 100) {
-        g = { ...g, playsCount: getInitialPlaysCount(g.id, g.title) };
+      let modified = { ...g };
+      if (typeof modified.playsCount !== 'number' || modified.playsCount < 100) {
+        modified.playsCount = getRealisticPlayCount(modified);
         updated = true;
       }
-      const isPicker = g.isStudentPicker || 
-                       ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(g.engineType) || 
-                       ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(g.id);
+
+      const isPicker = modified.isStudentPicker || 
+                       ['duck-race', 'turtle-race', 'marble-race', 'claw-machine', 'student-group-divider', 'astronaut-explorer', 'magic-hat', 'magic-grimoire'].includes(modified.engineType) || 
+                       ['duck-race-quiz', 'turtle-race-quiz', 'marble-race-quiz', 'claw-machine-quiz', 'student-group-divider-quiz', 'astronaut-quiz', 'magic-hat-quiz', 'magic-grimoire-quiz'].includes(modified.id);
       if (isPicker) {
-        return { ...g, category: 'Gọi tên và chia nhóm', isStudentPicker: true };
+        return { ...modified, category: 'Gọi tên và chia nhóm', isStudentPicker: true };
       }
 
-      const isTool = g.isClassroomTool || 
-                     g.engineType === 'classroom-timer' || 
-                     g.id === 'classroom-timer-game';
+      const isTool = modified.isClassroomTool || 
+                     modified.engineType === 'classroom-timer' || 
+                     modified.id === 'classroom-timer-game';
       if (isTool) {
-        return { ...g, category: 'Công cụ Lớp học', isClassroomTool: true };
+        return { ...modified, category: 'Công cụ Lớp học', isClassroomTool: true };
       }
 
-      return g;
+      return modified;
     });
 
     if (updated || games.length === 0) {
@@ -3064,6 +3067,8 @@ export const StorageService = {
       });
   },
 
+  getRealisticPlayCount: (game) => getRealisticPlayCount(game),
+
   incrementPlayCount: (gameId, isSavedGame = false) => {
     if (!gameId) return;
     if (isSavedGame) {
@@ -3071,10 +3076,8 @@ export const StorageService = {
         let saved = JSON.parse(localStorage.getItem(SAVED_GAMES_KEY) || '[]');
         saved = saved.map(g => {
           if (g.id === gameId) {
-            const currentCount = (typeof g.playsCount === 'number' && g.playsCount >= 100)
-              ? g.playsCount
-              : getInitialPlaysCount(g.id, g.title);
-            return { ...g, playsCount: currentCount + 1 };
+            const current = (typeof g.playsCount === 'number' && g.playsCount >= 100) ? g.playsCount : getRealisticPlayCount(g);
+            return { ...g, playsCount: current + 1 };
           }
           return g;
         });
@@ -3085,10 +3088,8 @@ export const StorageService = {
         let base = JSON.parse(localStorage.getItem(BASE_GAMES_KEY) || '[]');
         base = base.map(g => {
           if (g.id === gameId || g.engineType === gameId) {
-            const currentCount = (typeof g.playsCount === 'number' && g.playsCount >= 100)
-              ? g.playsCount
-              : getInitialPlaysCount(g.id, g.title);
-            return { ...g, playsCount: currentCount + 1 };
+            const current = (typeof g.playsCount === 'number' && g.playsCount >= 100) ? g.playsCount : getRealisticPlayCount(g);
+            return { ...g, playsCount: current + 1 };
           }
           return g;
         });
@@ -3101,7 +3102,7 @@ export const StorageService = {
     const games = StorageService.getBaseGames();
     const newGame = {
       id: `game_${Date.now()}`,
-      playsCount: 0,
+      playsCount: getRealisticPlayCount(gameData),
       gradient: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
       icon: '🎮',
       ...gameData
