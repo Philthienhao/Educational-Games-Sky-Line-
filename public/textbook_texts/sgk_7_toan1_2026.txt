@@ -1,0 +1,39 @@
+SÁCH GIÁO KHOA: Toán 7 Tập 1 (Từ năm 2026)
+Khối lớp: Lớp 7 - Môn học: Toán Học
+Loại sách: SGK
+
+NỘI DUNG CHƯƠNG TRÌNH VÀ BÀI HỌC CHI TIẾT:
+CHƯƠNG I: SỐ HỮU TỈ
+Bài 1: Tập hợp các số hữu tỉ
+Bài 2: Cộng, trừ, nhân, chia số hữu tỉ
+Bài 3: Lũy thừa với số mũ tự nhiên của một số hữu tỉ
+Bài 4: Quy tắc dấu ngoặc và quy tắc chuyển vế
+Luyện tập chung chương I
+Bài tập cuối chương I
+
+CHƯƠNG II: SỐ THỰC
+Bài 5: Làm quen với số thập phân vô hạn tuần hoàn
+Bài 6: Số vô tỉ. Căn bậc hai số học
+Bài 7: Tập hợp các số thực
+Bài tập cuối chương II
+
+CHƯƠNG III: GÓC VÀ ĐƯỜNG THẲNG SONG SONG
+Bài 8: Góc ở vị trí đặc biệt. Tia phân giác của một góc
+Bài 9: Hai đường thẳng song song và dấu hiệu nhận biết
+Bài 10: Tiên đề Euclid. Tính chất của hai đường thẳng song song
+Bài 11: Định lí và chứng minh định lí
+Bài tập cuối chương III
+
+CHƯƠNG IV: TAM GIÁC BẰNG NHAU
+Bài 12: Tổng các góc trong một tam giác
+Bài 13: Hai tam giác bằng nhau. Trường hợp bằng nhau thứ nhất của tam giác: cạnh - cạnh - cạnh
+Bài 14: Trường hợp bằng nhau thứ hai và thứ ba của tam giác
+Bài 15: Các trường hợp bằng nhau của tam giác vuông
+Bài 16: Tam giác cân. Đường trung trực của đoạn thẳng
+Bài tập cuối chương IV
+
+CHƯƠNG V: THU THẬP VÀ BIỂU DIỄN DỮ LIỆU
+Bài 17: Thu thập và phân loại dữ liệu
+Bài 18: Biểu đồ hình quạt tròn
+Bài 19: Biểu đồ đoạn thẳng
+Bài tập cuối chương V

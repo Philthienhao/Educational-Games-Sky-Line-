@@ -1,0 +1,37 @@
+SÁCH GIÁO KHOA: Toán 7 Tập 2 (Từ năm 2026)
+Khối lớp: Lớp 7 - Môn học: Toán Học
+Loại sách: SGK
+
+NỘI DUNG CHƯƠNG TRÌNH VÀ BÀI HỌC CHI TIẾT:
+CHƯƠNG VI: TỈ LỆ THỨC VÀ ĐẠI LƯỢNG TỈ LỆ
+Bài 20: Tỉ lệ thức
+Bài 21: Tính chất của dãy tỉ số bằng nhau
+Bài 22: Đại lượng tỉ lệ thuận
+Bài 23: Đại lượng tỉ lệ nghịch
+Bài tập cuối chương VI
+
+CHƯƠNG VII: BIỂU THỨC ĐẠI SỐ VÀ ĐA THỨC MỘT BIẾN
+Bài 24: Biểu thức đại số
+Bài 25: Đa thức một biến
+Bài 26: Phép cộng và phép trừ đa thức một biến
+Bài 27: Phép nhân đa thức một biến
+Bài 28: Phép chia đa thức một biến
+Bài tập cuối chương VII
+
+CHƯƠNG VIII: LÀM QUEN VỚI BIẾN CỐ VÀ XÁC SUẤT CỦA BIẾN CỐ
+Bài 29: Làm quen với biến cố
+Bài 30: Xác suất của biến cố
+Bài tập cuối chương VIII
+
+CHƯƠNG IX: QUAN HỆ GIỮA CÁC YẾU TỐ TRONG MỘT TAM GIÁC
+Bài 31: Quan hệ giữa góc và cạnh đối diện trong một tam giác
+Bài 32: Quan hệ giữa đường vuông góc và đường xiên
+Bài 33: Quan hệ giữa ba cạnh của một tam giác
+Bài 34: Sự đồng quy của ba đường trung tuyến, ba đường phân giác trong một tam giác
+Bài 35: Sự đồng quy của ba đường trung trực, ba đường cao trong một tam giác
+Bài tập cuối chương IX
+
+CHƯƠNG X: MỘT SỐ HÌNH KHỐI TRONG THỰC TIỄN
+Bài 36: Hình hộp chữ nhật và hình lập phương
+Bài 37: Hình lăng trụ đứng tam giác và hình lăng trụ đứng tứ giác
+Bài tập cuối chương X

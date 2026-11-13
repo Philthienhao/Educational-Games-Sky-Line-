@@ -21,7 +21,7 @@ GRADE_SOURCES = {
     4: [os.path.join(BASE_DIR, 'SGK', 'Lớp 4'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_4')],
     5: [os.path.join(BASE_DIR, 'SGK', 'Lớp 5'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_5')],
     6: [os.path.join(BASE_DIR, 'SGK', 'Lớp 6'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_6')],
-    7: [os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_7')],
+    7: [os.path.join(BASE_DIR, 'SGK', 'Lớp 7'), os.path.join(BASE_DIR, 'SGK', 'Lớp 7'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_7')],
     8: [os.path.join(BASE_DIR, 'SGK', 'Lớp 11'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_8')],
     9: [os.path.join(BASE_DIR, 'SGK', 'Lớp 12'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_9')],
     10: [os.path.join(BASE_DIR, 'SGK', 'Lớp 8'), os.path.join(BASE_DIR, 'textbooks_local_backup', 'SGK_lop_10')],
