@@ -1,3 +1,5 @@
+@import './gameThemes.css';
+
 /* Sky-Line Teal & AI Ocean Light Modern Design System */
 :root {
   --primary-teal: #0d9488;

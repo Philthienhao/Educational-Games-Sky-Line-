@@ -67,7 +67,7 @@ function GameCardComponent({
 
   return (
     <div 
-      className="card-3d-glow"
+      className={`card-3d-glow ${cardTheme === 'noel' ? 'game-card-theme-noel' : cardTheme === 'tet' ? 'game-card-theme-tet' : ''}`}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -75,7 +75,17 @@ function GameCardComponent({
         borderRadius: '22px',
         overflow: 'hidden',
         position: 'relative',
-        background: '#ffffff'
+        background: '#ffffff',
+        border: cardTheme === 'noel'
+          ? '2.5px solid #ef4444'
+          : cardTheme === 'tet'
+          ? '2.5px solid #eab308'
+          : '1px solid rgba(13, 148, 136, 0.18)',
+        boxShadow: cardTheme === 'noel'
+          ? '0 8px 24px rgba(220, 38, 38, 0.25)'
+          : cardTheme === 'tet'
+          ? '0 8px 24px rgba(234, 179, 8, 0.28)'
+          : undefined
       }}
     >
       {/* 3D HD Header Thumbnail Showcase Box */}
@@ -93,6 +103,31 @@ function GameCardComponent({
           overflow: 'hidden'
         }}
       >
+        {/* Floating Holiday Decorative Corner Icon */}
+        {cardTheme === 'noel' && (
+          <div style={{
+            position: 'absolute',
+            top: '4px',
+            right: '4px',
+            fontSize: '1.7rem',
+            zIndex: 10,
+            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))'
+          }}>
+            🎅
+          </div>
+        )}
+        {cardTheme === 'tet' && (
+          <div style={{
+            position: 'absolute',
+            top: '4px',
+            right: '4px',
+            fontSize: '1.7rem',
+            zIndex: 10,
+            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))'
+          }}>
+            🏮
+          </div>
+        )}
         {/* Full-bleed HD Image Thumbnail */}
         {thumbnailUrl && (
           <img 
@@ -389,17 +424,49 @@ function GameCardComponent({
               fontWeight: 800, 
               fontSize: '0.95rem',
               padding: '12px 20px',
-              background: isTrialUsed ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)' : 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-              boxShadow: isTrialUsed ? '0 4px 14px rgba(100, 116, 139, 0.3)' : '0 6px 18px rgba(13, 148, 136, 0.35)',
-              border: isTrialUsed ? '1.5px solid rgba(255, 255, 255, 0.25)' : 'none'
+              background: isTrialUsed
+                ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                : cardTheme === 'noel'
+                ? 'linear-gradient(135deg, #dc2626 0%, #166534 100%)'
+                : cardTheme === 'tet'
+                ? 'linear-gradient(135deg, #b91c1c 0%, #d97706 100%)'
+                : 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              boxShadow: isTrialUsed
+                ? '0 4px 14px rgba(100, 116, 139, 0.3)'
+                : cardTheme === 'noel'
+                ? '0 6px 18px rgba(220, 38, 38, 0.45)'
+                : cardTheme === 'tet'
+                ? '0 6px 18px rgba(234, 179, 8, 0.45)'
+                : '0 6px 18px rgba(13, 148, 136, 0.35)',
+              border: isTrialUsed
+                ? '1.5px solid rgba(255, 255, 255, 0.25)'
+                : cardTheme === 'noel'
+                ? '1.5px solid #f87171'
+                : cardTheme === 'tet'
+                ? '1.5px solid #facc15'
+                : 'none'
             }}
             onClick={() => {
               try { SoundFX.click(); } catch(e) {}
               if (handlePlay) handlePlay(game);
             }}
           >
-            {isTrialUsed ? <Lock size={18} color="#ffffff" /> : <Play size={18} fill="#fff" />}
-            <span>{isTrialUsed ? 'Đã Dùng Thử (Cần Nâng Cấp)' : (isSavedGame ? 'Bắt Đầu Trình Chiếu' : 'Chơi Ngay')}</span>
+            {isTrialUsed ? (
+              <Lock size={18} color="#ffffff" />
+            ) : cardTheme === 'noel' ? (
+              <span style={{ fontSize: '1.15rem', lineHeight: 1 }}>🎄</span>
+            ) : cardTheme === 'tet' ? (
+              <span style={{ fontSize: '1.15rem', lineHeight: 1 }}>🧧</span>
+            ) : (
+              <Play size={18} fill="#fff" />
+            )}
+            <span>
+              {isTrialUsed
+                ? 'Đã Dùng Thử (Cần Nâng Cấp)'
+                : isSavedGame
+                ? (cardTheme === 'noel' ? 'Trình Chiếu (Noel)' : cardTheme === 'tet' ? 'Trình Chiếu (Tết)' : 'Bắt Đầu Trình Chiếu')
+                : (cardTheme === 'noel' ? 'Chơi Ngay (Giáng Sinh)' : cardTheme === 'tet' ? 'Chơi Ngay (Tết Cổ Truyền)' : 'Chơi Ngay')}
+            </span>
             <ArrowRight size={16} />
           </button>
 

@@ -132,9 +132,30 @@ export function ClassroomPlayModal({
     return StorageService.getGameTheme(game?.id);
   });
 
+  const getThemeTeamNames = (theme) => {
+    if (theme === 'noel') {
+      return ['🦌 Tuần Lộc Tốc Độ', '⛄ Người Tuyết Vui Vẻ', '🎅 Ông Già Noel', '🎄 Cây Thông Xanh'];
+    }
+    if (theme === 'tet') {
+      return ['🌼 Mai Vàng Phú Quý', '🌸 Đào Hồng May Mắn', '🍘 Bánh Chưng Xanh', '🧧 Bao Lì Xì Đỏ'];
+    }
+    return ['Đội 1 (Đỏ)', 'Đội 2 (Xanh)', 'Đội 3 (Vàng)', 'Đội 4 (Lục)'];
+  };
+
   const handleThemeChange = (newTheme) => {
     setGameTheme(newTheme);
     StorageService.setGameTheme(newTheme, game?.id);
+
+    // Cập nhật tên các đội theo chủ đề nếu đang dùng tên mẫu mặc định
+    const themeNames = getThemeTeamNames(newTheme);
+    setTeams(prevTeams => {
+      return prevTeams.map((team, idx) => {
+        const isDefaultName = /đội \d|tuần lộc|người tuyết|ông già noel|cây thông|mai vàng|đào hồng|bánh chưng|bao lì xì/i.test(team.name);
+        if (!isDefaultName) return team;
+        return { ...team, name: themeNames[idx % themeNames.length] };
+      });
+    });
+
     try { SoundFX.correct(); } catch (e) {}
   };
 
@@ -188,19 +209,21 @@ export function ClassroomPlayModal({
 
   // Dynamic Teams Scoreboard State
   const [teams, setTeams] = useState(() => {
+    const currentTheme = StorageService.getGameTheme(game?.id);
+    const themeNames = getThemeTeamNames(currentTheme);
     if (isHomework && studentName) {
       return [
         { id: 't1', name: `${studentName} (Em)`, score: 0, color: '#ef4444' },
-        { id: 't2', name: 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
-        { id: 't3', name: 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
-        { id: 't4', name: 'Đội 4 (Lục)', score: 0, color: '#10b981' }
+        { id: 't2', name: themeNames[1] || 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
+        { id: 't3', name: themeNames[2] || 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
+        { id: 't4', name: themeNames[3] || 'Đội 4 (Lục)', score: 0, color: '#10b981' }
       ];
     }
     return [
-      { id: 't1', name: 'Đội 1 (Đỏ)', score: 0, color: '#ef4444' },
-      { id: 't2', name: 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
-      { id: 't3', name: 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
-      { id: 't4', name: 'Đội 4 (Lục)', score: 0, color: '#10b981' }
+      { id: 't1', name: themeNames[0] || 'Đội 1 (Đỏ)', score: 0, color: '#ef4444' },
+      { id: 't2', name: themeNames[1] || 'Đội 2 (Xanh)', score: 0, color: '#3b82f6' },
+      { id: 't3', name: themeNames[2] || 'Đội 3 (Vàng)', score: 0, color: '#f59e0b' },
+      { id: 't4', name: themeNames[3] || 'Đội 4 (Lục)', score: 0, color: '#10b981' }
     ];
   });
 
@@ -435,31 +458,37 @@ export function ClassroomPlayModal({
   if (engineType === 'duck-race' || engineType === 'turtle-race' || engineType === 'claw-machine' || engineType === 'jungle-rescue' || engineType === 'astronaut-explorer' || engineType === 'magic-hat' || engineType === 'magic-grimoire' || engineType === 'tower-builder' || engineType === 'mario-race' || engineType === 'indoor-pe-dance' || engineType === 'mosquito-slayer' || engineType === 'geo-3d-model' || engineType === 'geo_earth_structure' || engineType === 'geo-earth-structure-game' || engineType === 'geo_6_06' || engineType === 'exp_geo_6_06' || engineType === 'khtn-virtual-lab' || engineType === 'virtual-lab' || engineType === 'bouncing-words' || engineType === 'math-sack-race' || engineType === 'pirate-ship-battle' || engineType === 'classroom-timer' || engineType === 'student-group-divider' || engineType === 'marble-race' || engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') {
     return ReactDOM.createPortal(
       <GameErrorBoundary key={engineType}>
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: '100vw',
-          height: '100vh',
-          maxWidth: '100vw',
-          maxHeight: '100vh',
-          margin: 0,
-          padding: 0,
-          background: '#0f172a',
-          zIndex: 999999,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
+        <div 
+          className={`game-play-viewport ${gameTheme === 'noel' ? 'game-arena-theme-noel' : gameTheme === 'tet' ? 'game-arena-theme-tet' : ''}`}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            margin: 0,
+            padding: 0,
+            background: gameTheme === 'noel'
+              ? 'radial-gradient(ellipse at 50% 15%, #064e3b 0%, #022c22 45%, #091326 100%)'
+              : gameTheme === 'tet'
+              ? 'radial-gradient(ellipse at 50% 15%, #991b1b 0%, #7f1d1d 40%, #450a0a 100%)'
+              : '#0f172a',
+            zIndex: 999999,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
           {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
           <GameThemeDecorations theme={gameTheme} />
 
           {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Cho Arcade Games */}
           <div style={{
             position: 'fixed',
-            top: isHomework ? '60px' : '12px',
+            top: isHomework ? '60px' : (gameTheme !== 'default' ? '48px' : '12px'),
             right: isHomework ? '16px' : '14px',
             zIndex: 10000000,
             display: 'flex',
@@ -624,48 +653,59 @@ export function ClassroomPlayModal({
   }
 
   return ReactDOM.createPortal(
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      maxHeight: '100vh',
-      margin: 0,
-      padding: 0,
-      background: '#0b0f19',
-      backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-      zIndex: 999999,
-      display: 'flex',
-      flexDirection: 'column',
-      overflow: 'hidden'
-    }}>
+    <div 
+      className={`game-play-viewport ${gameTheme === 'noel' ? 'game-arena-theme-noel' : gameTheme === 'tet' ? 'game-arena-theme-tet' : ''}`}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        maxWidth: '100vw',
+        maxHeight: '100vh',
+        margin: 0,
+        padding: 0,
+        background: gameTheme === 'noel'
+          ? 'radial-gradient(ellipse at 50% 15%, #064e3b 0%, #022c22 45%, #091326 100%)'
+          : gameTheme === 'tet'
+          ? 'radial-gradient(ellipse at 50% 15%, #991b1b 0%, #7f1d1d 40%, #450a0a 100%)'
+          : '#0b0f19',
+        backgroundImage: gameTheme === 'default'
+          ? 'radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 70%)'
+          : undefined,
+        zIndex: 999999,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }}>
       
       {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
       <GameThemeDecorations theme={gameTheme} />
 
       {/* Top Presentation Header Controls */}
-      <div style={{
-        padding: '12px 24px',
-        background: gameTheme === 'noel'
-          ? 'linear-gradient(90deg, #7f1d1d 0%, #14532d 50%, #7f1d1d 100%)'
-          : gameTheme === 'tet'
-          ? 'linear-gradient(90deg, #7f1d1d 0%, #991b1b 50%, #854d0e 100%)'
-          : 'rgba(15, 23, 42, 0.95)',
-        borderBottom: gameTheme === 'noel'
-          ? '2px solid #ef4444'
-          : gameTheme === 'tet'
-          ? '2px solid #eab308'
-          : '1px solid rgba(255, 255, 255, 0.12)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
+      <div 
+        className={`theme-header-bar ${gameTheme === 'noel' ? 'game-arena-theme-noel' : gameTheme === 'tet' ? 'game-arena-theme-tet' : ''}`}
+        style={{
+          padding: '12px 24px',
+          background: gameTheme === 'noel'
+            ? 'linear-gradient(90deg, #7f1d1d 0%, #14532d 50%, #7f1d1d 100%)'
+            : gameTheme === 'tet'
+            ? 'linear-gradient(90deg, #7f1d1d 0%, #991b1b 50%, #854d0e 100%)'
+            : 'rgba(15, 23, 42, 0.95)',
+          borderBottom: gameTheme === 'noel'
+            ? '2.5px solid #ef4444'
+            : gameTheme === 'tet'
+            ? '2.5px solid #eab308'
+            : '1px solid rgba(255, 255, 255, 0.12)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginTop: gameTheme !== 'default' ? '42px' : 0
+        }}>
         {/* Game Title & Graduation Icon */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
@@ -875,9 +915,13 @@ export function ClassroomPlayModal({
       {engineType !== 'tug-of-war-dual' && engineType !== 'tug-of-war' && engineType !== 'head-tilt' && engineType !== 'pose-imitation' && engineType !== 'duck-race' && engineType !== 'picture-reveal' && (
         <div style={{
           padding: '12px 24px',
-          background: 'rgba(30, 41, 59, 0.6)',
+          background: gameTheme === 'noel'
+            ? 'linear-gradient(90deg, rgba(6, 78, 59, 0.85) 0%, rgba(2, 44, 34, 0.95) 50%, rgba(6, 78, 59, 0.85) 100%)'
+            : gameTheme === 'tet'
+            ? 'linear-gradient(90deg, rgba(153, 27, 27, 0.85) 0%, rgba(127, 29, 29, 0.95) 50%, rgba(153, 27, 27, 0.85) 100%)'
+            : 'rgba(30, 41, 59, 0.6)',
           backdropFilter: 'blur(8px)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: gameTheme === 'noel' ? '1.5px solid #10b981' : gameTheme === 'tet' ? '1.5px solid #eab308' : '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -892,6 +936,7 @@ export function ClassroomPlayModal({
                 key={team.id || idx}
                 onClick={() => setActiveTeamIndex(idx)}
                 title="Bấm để chọn lượt chơi cho đội này"
+                className={gameTheme === 'noel' ? 'theme-noel-snowcap' : (gameTheme === 'tet' ? 'theme-tet-gold-border' : '')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -899,11 +944,21 @@ export function ClassroomPlayModal({
                   padding: '8px 16px',
                   borderRadius: '16px',
                   background: isActive 
-                    ? `linear-gradient(135deg, ${team.color}35 0%, rgba(15, 23, 42, 0.95) 100%)`
-                    : 'rgba(15, 23, 42, 0.8)',
-                  border: isActive ? `2.5px solid ${team.color}` : `1.5px solid ${team.color}60`,
+                    ? (gameTheme === 'noel'
+                        ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(6, 78, 59, 0.95) 100%)'
+                        : gameTheme === 'tet'
+                        ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.5) 0%, rgba(127, 29, 29, 0.95) 100%)'
+                        : `linear-gradient(135deg, ${team.color}35 0%, rgba(15, 23, 42, 0.95) 100%)`)
+                    : (gameTheme === 'noel'
+                        ? 'rgba(6, 78, 59, 0.75)'
+                        : gameTheme === 'tet'
+                        ? 'rgba(127, 29, 29, 0.75)'
+                        : 'rgba(15, 23, 42, 0.8)'),
+                  border: isActive 
+                    ? (gameTheme === 'noel' ? '2.5px solid #ef4444' : gameTheme === 'tet' ? '2.5px solid #facc15' : `2.5px solid ${team.color}`) 
+                    : (gameTheme === 'noel' ? '1.5px solid rgba(16, 185, 129, 0.6)' : gameTheme === 'tet' ? '1.5px solid rgba(234, 179, 8, 0.6)' : `1.5px solid ${team.color}60`),
                   boxShadow: isActive 
-                    ? `0 0 22px ${team.color}, 0 4px 15px rgba(0,0,0,0.5)`
+                    ? (gameTheme === 'noel' ? '0 0 22px rgba(239, 68, 68, 0.8), 0 4px 15px rgba(0,0,0,0.5)' : gameTheme === 'tet' ? '0 0 22px rgba(250, 204, 21, 0.8), 0 4px 15px rgba(0,0,0,0.5)' : `0 0 22px ${team.color}, 0 4px 15px rgba(0,0,0,0.5)`)
                     : `0 4px 12px ${team.color}25`,
                   transform: isActive ? 'scale(1.08) translateY(-2px)' : 'scale(1)',
                   transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',

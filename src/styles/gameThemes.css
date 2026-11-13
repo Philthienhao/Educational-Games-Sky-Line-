@@ -1,0 +1,157 @@
+/* ==========================================================================
+   GAME THEMES SYSTEM - GIÁNG SINH & NOEL / TẾT CỔ TRUYỀN VIỆT NAM
+   Tuân thủ Rule 16: Không dùng filter/blur liên tục, 0% CPU khi idle
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CHỦ ĐỀ NOEL & GIÁNG SINH (CHRISTMAS THEME)
+   -------------------------------------------------------------------------- */
+.game-arena-theme-noel {
+  background: radial-gradient(ellipse at 50% 15%, #064e3b 0%, #022c22 45%, #091326 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Khung tiêu đề trên cùng Noel */
+.game-arena-theme-noel .theme-header-bar {
+  background: linear-gradient(90deg, #7f1d1d 0%, #064e3b 50%, #7f1d1d 100%) !important;
+  border-bottom: 2.5px solid #ef4444 !important;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4) !important;
+}
+
+/* Dải băng tuyết phủ (Snow Cap) trên các khung thẻ câu hỏi */
+.theme-noel-snowcap {
+  position: relative;
+}
+.theme-noel-snowcap::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: radial-gradient(circle at 10px 0, #ffffff 10px, transparent 11px),
+              radial-gradient(circle at 30px 0, #ffffff 14px, transparent 15px),
+              radial-gradient(circle at 50px 0, #ffffff 12px, transparent 13px);
+  background-size: 60px 16px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Tự động định dạng khung câu hỏi trong Noel */
+.game-arena-theme-noel .question-card,
+.game-arena-theme-noel div[style*="borderRadius: '24px'"],
+.game-arena-theme-noel div[style*="border-radius: 24px"],
+.game-arena-theme-noel div[style*="borderRadius: '20px'"] {
+  border-color: #ef4444 !important;
+  box-shadow: 0 8px 30px rgba(6, 78, 59, 0.45), 0 0 15px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Nút bấm giao diện Noel */
+.game-arena-theme-noel .btn-primary,
+.game-card-theme-noel .btn-primary {
+  background: linear-gradient(135deg, #dc2626 0%, #166534 100%) !important;
+  border: 1.5px solid #f87171 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45) !important;
+}
+
+.game-arena-theme-noel .btn-secondary {
+  background: rgba(6, 78, 59, 0.6) !important;
+  border: 1.5px solid #10b981 !important;
+  color: #a7f3d0 !important;
+}
+
+/* Thẻ game trên danh mục (Game Card Noel) */
+.game-card-theme-noel {
+  border: 2px solid #ef4444 !important;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.22) !important;
+  position: relative;
+}
+.game-card-theme-noel::before {
+  content: '🎄 MÙA GIÁNG SINH 🎁';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #dc2626 0%, #166534 100%);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 2px 14px;
+  border-radius: 0 0 10px 10px;
+  letter-spacing: 0.05em;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   2. CHỦ ĐỀ TẾT CỔ TRUYỀN VIỆT NAM (LUNAR NEW YEAR THEME)
+   -------------------------------------------------------------------------- */
+.game-arena-theme-tet {
+  background: radial-gradient(ellipse at 50% 15%, #991b1b 0%, #7f1d1d 40%, #450a0a 100%) !important;
+  color: #ffffff !important;
+}
+
+/* Khung tiêu đề trên cùng Tết */
+.game-arena-theme-tet .theme-header-bar {
+  background: linear-gradient(90deg, #7f1d1d 0%, #b91c1c 50%, #854d0e 100%) !important;
+  border-bottom: 2.5px solid #eab308 !important;
+  box-shadow: 0 4px 20px rgba(234, 179, 8, 0.4) !important;
+}
+
+/* Tự động định dạng khung câu hỏi trong Tết */
+.game-arena-theme-tet .question-card,
+.game-arena-theme-tet div[style*="borderRadius: '24px'"],
+.game-arena-theme-tet div[style*="border-radius: 24px"],
+.game-arena-theme-tet div[style*="borderRadius: '20px'"] {
+  border-color: #eab308 !important;
+  box-shadow: 0 8px 30px rgba(153, 27, 27, 0.45), 0 0 18px rgba(234, 179, 8, 0.35) !important;
+}
+
+/* Nút bấm giao diện Tết */
+.game-arena-theme-tet .btn-primary,
+.game-card-theme-tet .btn-primary {
+  background: linear-gradient(135deg, #b91c1c 0%, #d97706 100%) !important;
+  border: 1.5px solid #facc15 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.45) !important;
+}
+
+.game-arena-theme-tet .btn-secondary {
+  background: rgba(127, 29, 29, 0.6) !important;
+  border: 1.5px solid #eab308 !important;
+  color: #fef08a !important;
+}
+
+/* Thẻ game trên danh mục (Game Card Tết) */
+.game-card-theme-tet {
+  border: 2px solid #eab308 !important;
+  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.25) !important;
+  position: relative;
+}
+.game-card-theme-tet::before {
+  content: '🧧 TẾT CỔ TRUYỀN 🌸';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #b91c1c 0%, #d97706 100%);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 2px 14px;
+  border-radius: 0 0 10px 10px;
+  letter-spacing: 0.05em;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* Hiệu ứng khung hoàng gia Tết */
+.theme-tet-gold-border {
+  border: 2.5px solid #eab308 !important;
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.35) !important;
+}
