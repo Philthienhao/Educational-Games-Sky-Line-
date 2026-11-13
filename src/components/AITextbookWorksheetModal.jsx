@@ -225,49 +225,160 @@ function getIllustration(text = '', explicit = '') {
   return CUTE_ILLUSTRATIONS_MAP.defaultTask;
 }
 
-function getOptionIllustration(item, opt, optIdx) {
-  // 1. If item has explicit optionIcons array matching options 1-to-1
-  if (item?.optionIcons && Array.isArray(item.optionIcons) && item.optionIcons[optIdx]) {
-    return item.optionIcons[optIdx];
-  }
-  if (typeof opt === 'object' && opt?.icon) {
-    return opt.icon;
-  }
-  const optStr = typeof opt === 'string' ? opt : (opt?.text || '');
-  const optCleanText = optStr.replace(/^[A-Da-d0-9][\.\:\)\s]+/, '').trim() || optStr;
+// ==========================================
+// PEDAGOGICAL DIAGRAM RENDERER (Clean Crisp SVG)
+// ==========================================
 
-  // 2. Strict semantic matching from keyword
-  const matched = getIllustration(optCleanText);
-  if (matched && !matched.isDefault && matched.icon) {
-    return matched.icon;
+function EducationalDiagram({ diagram }) {
+  if (!diagram || !diagram.type) return null;
+  const { type, label = '', data = {} } = diagram;
+
+  if (type === 'geometry_triangle') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '8px 0', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <svg width="200" height="110" viewBox="0 0 200 110" style={{ overflow: 'visible' }}>
+          <polygon points="100,15 30,95 170,95" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2.5" strokeLinejoin="round" />
+          <text x="100" y="8" textAnchor="middle" fontWeight="800" fontSize="12" fill="#0369a1">A</text>
+          <text x="20" y="102" textAnchor="middle" fontWeight="800" fontSize="12" fill="#0369a1">B</text>
+          <text x="180" y="102" textAnchor="middle" fontWeight="800" fontSize="12" fill="#0369a1">C</text>
+          {data.base && <text x="100" y="108" textAnchor="middle" fontSize="11" fill="#475569">{data.base}</text>}
+          {data.side && <text x="55" y="55" textAnchor="middle" fontSize="11" fill="#475569">{data.side}</text>}
+        </svg>
+        {label && <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginTop: '6px' }}>{label}</span>}
+      </div>
+    );
   }
 
-  // 3. IMPORTANT: When option is abstract (e.g. "xinh xắn", "chăm chỉ") or numeric ("45", "59"),
-  // RETURN NULL so it renders clean text without random mismatched animal emojis!
+  if (type === 'geometry_rectangle' || type === 'geometry_square') {
+    const isSquare = type === 'geometry_square';
+    const width = isSquare ? 100 : 140;
+    const height = 75;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '8px 0', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <svg width="190" height="105" viewBox="0 0 190 105" style={{ overflow: 'visible' }}>
+          <rect x={95 - width/2} y="15" width={width} height={height} rx="2" fill="#f0fdf4" stroke="#16a34a" strokeWidth="2.5" />
+          <text x={95 - width/2 - 8} y="15" textAnchor="middle" fontWeight="800" fontSize="12" fill="#15803d">A</text>
+          <text x={95 + width/2 + 8} y="15" textAnchor="middle" fontWeight="800" fontSize="12" fill="#15803d">B</text>
+          <text x={95 + width/2 + 8} y={15 + height + 5} textAnchor="middle" fontWeight="800" fontSize="12" fill="#15803d">C</text>
+          <text x={95 - width/2 - 8} y={15 + height + 5} textAnchor="middle" fontWeight="800" fontSize="12" fill="#15803d">D</text>
+          {data.length && <text x="95" y={15 + height + 16} textAnchor="middle" fontSize="11" fill="#475569">{data.length}</text>}
+          {data.width && <text x={95 + width/2 + 20} y={15 + height/2 + 4} textAnchor="middle" fontSize="11" fill="#475569">{data.width}</text>}
+        </svg>
+        {label && <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginTop: '6px' }}>{label}</span>}
+      </div>
+    );
+  }
+
+  if (type === 'geometry_circle') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '8px 0', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <svg width="150" height="110" viewBox="0 0 150 110" style={{ overflow: 'visible' }}>
+          <circle cx="75" cy="55" r="42" fill="#fef3c7" stroke="#d97706" strokeWidth="2.5" />
+          <circle cx="75" cy="55" r="3" fill="#b45309" />
+          <line x1="75" y1="55" x2="117" y2="55" stroke="#b45309" strokeWidth="1.5" strokeDasharray="3 2" />
+          <text x="69" y="52" fontWeight="800" fontSize="11" fill="#b45309">O</text>
+          <text x="96" y="50" textAnchor="middle" fontSize="10" fill="#92400e">{data.radius || 'r'}</text>
+        </svg>
+        {label && <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginTop: '6px' }}>{label}</span>}
+      </div>
+    );
+  }
+
+  if (type === 'number_line') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '8px 0', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <svg width="270" height="48" viewBox="0 0 270 48">
+          <line x1="15" y1="20" x2="255" y2="20" stroke="#0284c7" strokeWidth="2" />
+          <polygon points="255,20 247,16 247,24" fill="#0284c7" />
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n, i) => (
+            <g key={i}>
+              <line x1={20 + i * 22} y1="15" x2={20 + i * 22} y2="25" stroke="#0284c7" strokeWidth="1.5" />
+              <text x={20 + i * 22} y="37" textAnchor="middle" fontSize="10" fill="#334155" fontWeight="600">{n}</text>
+            </g>
+          ))}
+        </svg>
+        {label && <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginTop: '6px' }}>{label}</span>}
+      </div>
+    );
+  }
+
+  if (type === 'clock') {
+    const hours = data.hours || 3;
+    const minutes = data.minutes || 0;
+    const hourAngle = (hours % 12 + minutes / 60) * 30;
+    const minuteAngle = minutes * 6;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '8px 0', padding: '10px', backgroundColor: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="42" fill="#fef9c3" stroke="#ca8a04" strokeWidth="2.5" />
+          <circle cx="48" cy="48" r="3" fill="#854d0e" />
+          <text x="48" y="20" textAnchor="middle" fontWeight="bold" fontSize="11" fill="#854d0e">12</text>
+          <text x="80" y="52" textAnchor="middle" fontWeight="bold" fontSize="11" fill="#854d0e">3</text>
+          <text x="48" y="83" textAnchor="middle" fontWeight="bold" fontSize="11" fill="#854d0e">6</text>
+          <text x="16" y="52" textAnchor="middle" fontWeight="bold" fontSize="11" fill="#854d0e">9</text>
+          <line x1="48" y1="48" 
+            x2={48 + 22 * Math.sin((hourAngle * Math.PI) / 180)} 
+            y2={48 - 22 * Math.cos((hourAngle * Math.PI) / 180)} 
+            stroke="#854d0e" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="48" y1="48" 
+            x2={48 + 32 * Math.sin((minuteAngle * Math.PI) / 180)} 
+            y2={48 - 32 * Math.cos((minuteAngle * Math.PI) / 180)} 
+            stroke="#b45309" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+        {label && <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#475569', marginTop: '6px' }}>{label}</span>}
+      </div>
+    );
+  }
+
   return null;
 }
 
-function CuteIllustrationBadge({ item, text, isPrimaryCute }) {
-  if (!isPrimaryCute) return null;
-  const illu = getIllustration(item?.question || text || '', item?.illustration || item?.icon);
+// Strict Option Illustration: ONLY when option explicitly provides an icon
+function getOptionIllustration(item, opt, optIdx, showIllustrations) {
+  if (!showIllustrations) return null;
+  if (item?.optionIcons && Array.isArray(item.optionIcons) && item.optionIcons[optIdx]) {
+    const icon = item.optionIcons[optIdx];
+    if (typeof icon === 'string' && icon.trim().length > 0) {
+      return icon.trim();
+    }
+  }
+  return null;
+}
+
+// Strict Educational Visual: Only when item has diagram or explicit valid illustration
+function EducationalVisual({ item, showIllustrations }) {
+  if (!showIllustrations || !item) return null;
+
+  // 1. Diagram takes priority
+  if (item.diagram) {
+    return <EducationalDiagram diagram={item.diagram} />;
+  }
+
+  // 2. Explicit illustration matched strictly (no random fallback or defaultTask)
+  const illuKey = item.illustration;
+  if (!illuKey || illuKey === 'defaultTask' || illuKey === 'null') return null;
+
+  const illu = CUTE_ILLUSTRATIONS_MAP[illuKey];
+  if (!illu || illu.isDefault) return null;
+
   return (
     <div 
       style={{
-        width: '38px',
-        height: '38px',
+        width: '36px',
+        height: '36px',
         borderRadius: '50%',
         backgroundColor: illu.bg,
-        border: `2px solid ${illu.border}`,
+        border: `1.5px solid ${illu.border}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '1.25rem',
-        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.06)',
         flexShrink: 0
       }}
-      title={illu.label}
+      title={`Hình minh họa: ${illu.label}`}
     >
-      {item?.icon || illu.icon}
+      {item.icon || illu.icon}
     </div>
   );
 }
@@ -276,7 +387,7 @@ function CuteIllustrationBadge({ item, text, isPrimaryCute }) {
 // TOP-LEVEL SUB-COMPONENTS (Rule 1 Compliance)
 // ==========================================
 
-function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
+function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute, showIllustrations }) {
   const optionLetters = ['A', 'B', 'C', 'D'];
   const optionPillColors = [
     { bgLight: '#f0f9ff', badgeBg: '#e0f2fe', text: '#0284c7', border: '#7dd3fc' }, // A: Blue
@@ -324,20 +435,38 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
                 boxShadow: isPrimaryCute ? '0 2px 6px rgba(56, 189, 248, 0.08)' : 'none'
               }}
             >
-              {/* Question line with Illustration */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                  <CuteIllustrationBadge item={item} isPrimaryCute={isPrimaryCute} />
-                  <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.4 }}>
-                    Câu {itemIdx + 1}: {item.question}
-                  </span>
+              {/* Question line with Question Badge & Strict Illustration */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                      padding: '2px 8px',
+                      borderRadius: isPrimaryCute ? '8px' : '4px',
+                      backgroundColor: isPrimaryCute ? '#e0f2fe' : '#f1f5f9',
+                      color: isPrimaryCute ? '#0284c7' : '#334155',
+                      fontWeight: 900,
+                      fontSize: '0.78rem',
+                      flexShrink: 0
+                    }}>
+                      Câu {itemIdx + 1}
+                    </span>
+                    <EducationalVisual item={item} showIllustrations={showIllustrations} />
+                    <span style={{ fontWeight: 800, fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.4 }}>
+                      {item.question}
+                    </span>
+                  </div>
+
+                  {/* Sơ đồ hình học / toán học nếu có */}
+                  {showIllustrations && item.diagram && (
+                    <EducationalDiagram diagram={item.diagram} />
+                  )}
                 </div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0284c7', whiteSpace: 'nowrap' }}>
                   [{item.points || '1.0 đ'}]
                 </span>
               </div>
 
-              {/* 1-ROW HORIZONTAL OPTIONS (ABCD NẰM TRÊN 1 HÀNG CHUẨN ĐẸP) */}
+              {/* 1-ROW HORIZONTAL OPTIONS */}
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: `repeat(${numOptions}, minmax(0, 1fr))`, 
@@ -348,9 +477,8 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
                 {item.options?.map((opt, optIdx) => {
                   const colorTheme = optionPillColors[optIdx % optionPillColors.length];
                   const optStr = typeof opt === 'string' ? opt : (opt?.text || '');
-                  // Clean redundant leading "A. ", "B. ", "a. "
                   const optCleanText = optStr.replace(/^[A-Da-d0-9][\.\:\)\s]+/, '').trim() || optStr;
-                  const optIcon = getOptionIllustration(item, opt, optIdx, itemIdx);
+                  const optIcon = getOptionIllustration(item, opt, optIdx, showIllustrations);
 
                   return (
                     <div 
@@ -387,8 +515,8 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
                         {optionLetters[optIdx]}
                       </span>
 
-                      {/* Option Illustration Image/Icon for Elementary Worksheet */}
-                      {isPrimaryCute && optIcon && (
+                      {/* Option Illustration only when strictly provided */}
+                      {showIllustrations && optIcon && (
                         <span style={{
                           fontSize: '1.2rem',
                           lineHeight: 1,
@@ -422,8 +550,7 @@ function MultipleChoiceSection({ section, sectionIdx, isPrimaryCute }) {
     </div>
   );
 }
-
-function FillBlankSection({ section, sectionIdx, isPrimaryCute }) {
+function FillBlankSection({ section, sectionIdx, isPrimaryCute, showIllustrations }) {
   return (
     <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ 
@@ -455,12 +582,29 @@ function FillBlankSection({ section, sectionIdx, isPrimaryCute }) {
               border: isPrimaryCute ? '1.5px dashed #7dd3fc' : '1px dashed #cbd5e1'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                <CuteIllustrationBadge item={item} isPrimaryCute={isPrimaryCute} />
-                <span style={{ fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.6 }}>
-                  <strong>Bài {itemIdx + 1}:</strong> {item.question}
-                </span>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    padding: '2px 8px',
+                    borderRadius: isPrimaryCute ? '8px' : '4px',
+                    backgroundColor: isPrimaryCute ? '#e0f2fe' : '#f1f5f9',
+                    color: isPrimaryCute ? '#0284c7' : '#334155',
+                    fontWeight: 900,
+                    fontSize: '0.78rem',
+                    flexShrink: 0
+                  }}>
+                    Bài {itemIdx + 1}
+                  </span>
+                  <EducationalVisual item={item} showIllustrations={showIllustrations} />
+                  <span style={{ fontSize: '0.88rem', color: '#0f172a', lineHeight: 1.6 }}>
+                    {item.question}
+                  </span>
+                </div>
+
+                {showIllustrations && item.diagram && (
+                  <EducationalDiagram diagram={item.diagram} />
+                )}
               </div>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7', whiteSpace: 'nowrap' }}>
                 [{item.points || '1.0 đ'}]
@@ -490,7 +634,9 @@ function FillBlankSection({ section, sectionIdx, isPrimaryCute }) {
   );
 }
 
-function MatchingSection({ section, isPrimaryCute }) {
+function MatchingSection({ section, isPrimaryCute, showIllustrations }) {
+  const hasAnyIcon = showIllustrations && section.pairs?.some(p => p.leftIcon && typeof p.leftIcon === 'string' && p.leftIcon.trim().length > 0);
+
   return (
     <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ 
@@ -520,18 +666,18 @@ function MatchingSection({ section, isPrimaryCute }) {
         backgroundColor: '#f8fafc',
         border: isPrimaryCute ? '2px dashed #7dd3fc' : '1.5px dashed #cbd5e1'
       }}>
-        {/* Column A: In Cute Theme, renders Picture Cards just like sample worksheets */}
+        {/* Column A */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ fontWeight: 800, fontSize: '0.82rem', color: isPrimaryCute ? '#0284c7' : '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {isPrimaryCute && <span>🖼️</span>} Cột A {isPrimaryCute && '(Hình ảnh minh họa)'}
+            {hasAnyIcon && <span>🖼️</span>} Cột A {hasAnyIcon ? '(Hình ảnh / Khái niệm)' : ''}
           </div>
           {section.pairs?.map((p, idx) => {
-            const illu = getIllustration(p.left, p.leftIcon);
+            const hasIcon = showIllustrations && p.leftIcon && typeof p.leftIcon === 'string' && p.leftIcon.trim().length > 0;
             return (
               <div 
                 key={idx}
                 style={{
-                  padding: isPrimaryCute ? '8px 12px' : '8px 12px',
+                  padding: '8px 12px',
                   borderRadius: isPrimaryCute ? '10px' : '6px',
                   backgroundColor: '#ffffff',
                   border: isPrimaryCute ? '1.5px solid #7dd3fc' : '1px solid #cbd5e1',
@@ -546,30 +692,23 @@ function MatchingSection({ section, isPrimaryCute }) {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {isPrimaryCute && (
+                  {hasIcon && (
                     <div style={{
-                      width: '36px',
-                      height: '36px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
-                      backgroundColor: illu.bg,
-                      border: `2px solid ${illu.border}`,
+                      backgroundColor: '#e0f2fe',
+                      border: '1.5px solid #bae6fd',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '1.3rem',
+                      fontSize: '1.2rem',
                       flexShrink: 0
                     }}>
-                      {p.leftIcon || illu.icon}
+                      {p.leftIcon}
                     </div>
                   )}
-                  <div>
-                    <span style={{ fontWeight: 800, color: '#0f172a' }}>{p.left}</span>
-                    {isPrimaryCute && (
-                      <div style={{ fontSize: '0.68rem', color: '#64748b' }}>
-                        Tranh: {illu.label}
-                      </div>
-                    )}
-                  </div>
+                  <span style={{ fontWeight: 700, color: '#0f172a' }}>{p.left}</span>
                 </div>
                 <span style={{ 
                   width: '12px', 
@@ -588,7 +727,7 @@ function MatchingSection({ section, isPrimaryCute }) {
         {/* Column B */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ fontWeight: 800, fontSize: '0.82rem', color: isPrimaryCute ? '#f59e0b' : '#64748b', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {isPrimaryCute && <span>📝</span>} Cột B {isPrimaryCute && '(Nội dung nối)'}
+            {isPrimaryCute && <span>📝</span>} Cột B
           </div>
           {section.pairs?.map((p, idx) => (
             <div 
@@ -662,9 +801,6 @@ function TrueFalseSection({ section, isPrimaryCute }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              {isPrimaryCute && (
-                <span style={{ fontSize: '1.1rem' }}>{idx % 2 === 0 ? '🌸' : '🍀'}</span>
-              )}
               <span style={{ fontSize: '0.86rem', color: '#0f172a' }}>
                 <strong>{idx + 1}.</strong> {item.statement}
               </span>
@@ -765,7 +901,7 @@ function TableMatrixSection({ section, isPrimaryCute }) {
   );
 }
 
-function ShortAnswerSection({ section, isPrimaryCute }) {
+function ShortAnswerSection({ section, isPrimaryCute, showIllustrations }) {
   return (
     <div className="worksheet-section" style={{ marginBottom: '22px', pageBreakInside: 'avoid', breakInside: 'avoid' }}>
       <h4 style={{ 
@@ -792,9 +928,14 @@ function ShortAnswerSection({ section, isPrimaryCute }) {
           return (
             <div key={item.id || idx}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.5 }}>
-                  Câu {idx + 1}: {item.question}
-                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.5 }}>
+                    Câu {idx + 1}: {item.question}
+                  </span>
+                  {showIllustrations && item.diagram && (
+                    <EducationalDiagram diagram={item.diagram} />
+                  )}
+                </div>
                 <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0284c7', whiteSpace: 'nowrap' }}>
                   [{item.points || '2.0 đ'}]
                 </span>
@@ -840,6 +981,7 @@ export function AITextbookWorksheetModal({
   const [selectedTypes, setSelectedTypes] = useState([
     'multiple_choice', 'fill_blank', 'matching', 'true_false', 'table_matrix', 'short_answer'
   ]);
+  const [showIllustrations, setShowIllustrations] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [worksheetData, setWorksheetData] = useState(null);
@@ -848,7 +990,7 @@ export function AITextbookWorksheetModal({
 
   const printAreaRef = useRef(null);
 
-  // Auto-init on opening
+  // Auto-init form defaults on opening - DO NOT auto-generate, wait for teacher to press button!
   useEffect(() => {
     if (isOpen && book) {
       setCopySuccess(false);
@@ -856,44 +998,26 @@ export function AITextbookWorksheetModal({
       const isKid = (book.grade || '').includes('1') || (book.grade || '').includes('2') || (book.grade || '').includes('3') || (book.grade || '').includes('4') || (book.grade || '').includes('5');
       const initialTheme = isKid ? 'primary_cute' : 'standard_secondary';
       setSelectedTheme(initialTheme);
+      setShowIllustrations(isKid);
       
-      const detectedLesson = extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand);
-      setLessonTitle(detectedLesson);
+      const detected = extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand);
+      const initialLesson = detected?.lesson || (typeof detected === 'string' ? detected : 'BÀI 1: BÀI HỌC TRỌNG TÂM SGK');
+      setLessonTitle(initialLesson);
 
-      // 1. Immediately create rich worksheet from curriculum engine so teacher NEVER faces empty screen
-      const immediateWs = generateCurriculumFallbackWorksheet({
-        textbookTitle: book.title || 'Sách Giáo Khoa',
-        grade: book.grade || 'Lớp 2',
-        subject: book.subject || 'Tiếng Việt',
-        theme: initialTheme,
-        selectedTypes,
-        promptCommand
-      });
-      setWorksheetData(immediateWs);
-
-      // 2. Then trigger asynchronous AI enhancement
-      performGeneration(initialTheme, selectedTypes, promptCommand);
+      // Keep worksheetData null until the teacher clicks "Tạo Phiếu Bài Tập"
+      setWorksheetData(null);
+      setIsLoading(false);
     }
   }, [isOpen, book?.id]);
 
   const handleToggleType = (typeId) => {
     safePlaySound('click');
-    const updatedTypes = selectedTypes.includes(typeId)
-      ? (selectedTypes.length === 1 ? selectedTypes : selectedTypes.filter(t => t !== typeId))
-      : [...selectedTypes, typeId];
-    
-    setSelectedTypes(updatedTypes);
-    
-    // Immediately refresh visible sections
-    const refreshedWs = generateCurriculumFallbackWorksheet({
-      textbookTitle: book.title || 'Sách Giáo Khoa',
-      grade: book.grade || 'Lớp 2',
-      subject: book.subject || 'Tiếng Việt',
-      theme: selectedTheme,
-      selectedTypes: updatedTypes,
-      promptCommand
+    setSelectedTypes(prev => {
+      const updated = prev.includes(typeId)
+        ? (prev.length === 1 ? prev : prev.filter(t => t !== typeId))
+        : [...prev, typeId];
+      return updated;
     });
-    setWorksheetData(refreshedWs);
   };
 
   const handleSelectTheme = (themeId) => {
@@ -1330,10 +1454,11 @@ export function AITextbookWorksheetModal({
                     onClick={() => {
                       safePlaySound('click');
                       const detected = extractWorksheetLesson(book.title, book.subject, book.grade, chip.cmd);
-                      setLessonTitle(detected);
+                      const detectedStr = detected?.lesson || (typeof detected === 'string' ? detected : chip.label);
+                      setLessonTitle(detectedStr);
                       setPromptCommand(chip.cmd);
                       if (worksheetData) {
-                        setWorksheetData(prev => prev ? ({ ...prev, lesson: detected }) : prev);
+                        setWorksheetData(prev => prev ? ({ ...prev, lesson: detectedStr }) : prev);
                       }
                     }}
                     style={{
@@ -1419,32 +1544,76 @@ export function AITextbookWorksheetModal({
               </div>
             </div>
 
-            {/* Re-generate Action Button */}
+            {/* Illustration & Diagram Toggle */}
+            <div 
+              onClick={() => setShowIllustrations(prev => !prev)}
+              style={{
+                padding: '10px 12px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(15, 23, 42, 0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px',
+                transition: 'all 0.15s'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.05rem' }}>🖼️</span>
+                <div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
+                    5. Hình ảnh & Sơ đồ minh họa
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: showIllustrations ? '#38bdf8' : '#94a3b8' }}>
+                    {showIllustrations ? 'Đang bật (khớp chuẩn kiến thức câu hỏi)' : 'Đang tắt (tiêu chuẩn văn bản sư phạm)'}
+                  </div>
+                </div>
+              </div>
+              <input 
+                type="checkbox"
+                checked={showIllustrations}
+                onChange={() => {}}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#0284c7' }}
+              />
+            </div>
+
+            {/* Generate Action Button */}
             <div style={{ marginTop: 'auto', paddingTop: '10px' }}>
               <button
                 onClick={handleGenerate}
                 disabled={isLoading}
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '13px 16px',
                   borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  background: isLoading 
+                    ? '#334155' 
+                    : worksheetData 
+                    ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' 
+                    : 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
                   color: '#ffffff',
                   border: 'none',
                   fontWeight: 900,
-                  fontSize: '0.9rem',
+                  fontSize: '0.92rem',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.4)',
+                  boxShadow: isLoading ? 'none' : '0 4px 16px rgba(2, 132, 199, 0.45)',
                   transition: 'all 0.2s'
                 }}
               >
-                {isLoading ? <RefreshCw size={17} className="animate-spin" /> : <Sparkles size={17} />}
-                {isLoading ? 'AI Đang Soạn Phiếu...' : '⚡ AI Soạn Lại Phiếu Này'}
+                {isLoading ? <RefreshCw size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                {isLoading ? 'AI Đang Soạn Phiếu...' : (worksheetData ? '🔄 AI Soạn Lại / Cập Nhật Phiếu' : '✨ BẮT ĐẦU TẠO PHIẾU BÀI TẬP')}
               </button>
+              {!worksheetData && (
+                <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '0.72rem', color: '#94a3b8' }}>
+                  👆 Bấm nút trên để bắt đầu soạn phiếu theo cài đặt
+                </div>
+              )}
             </div>
           </div>
 
@@ -1458,64 +1627,175 @@ export function AITextbookWorksheetModal({
               display: 'block'
             }}
           >
-            {/* View Mode Switcher Tabs */}
-            <div 
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                marginBottom: '20px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                padding: '4px',
-                borderRadius: '10px',
-                width: 'fit-content',
-                margin: '0 auto 20px auto'
-              }}
-            >
-              <button
-                onClick={() => {
-                  safePlaySound('click');
-                  setActiveTab('worksheet');
-                }}
+            {/* View Mode Switcher Tabs - Only visible when worksheetData exists */}
+            {worksheetData && (
+              <div 
                 style={{
-                  padding: '6px 14px',
-                  borderRadius: '8px',
-                  backgroundColor: activeTab === 'worksheet' ? '#0284c7' : 'transparent',
-                  color: activeTab === 'worksheet' ? '#ffffff' : '#94a3b8',
-                  border: 'none',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginBottom: '20px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  padding: '4px',
+                  borderRadius: '10px',
+                  width: 'fit-content',
+                  margin: '0 auto 20px auto'
                 }}
               >
-                <Layout size={14} /> Trang Phiếu Bài Tập (A4)
-              </button>
-              <button
-                onClick={() => {
-                  safePlaySound('click');
-                  setActiveTab('answer_key');
-                }}
+                <button
+                  onClick={() => {
+                    safePlaySound('click');
+                    setActiveTab('worksheet');
+                  }}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'worksheet' ? '#0284c7' : 'transparent',
+                    color: activeTab === 'worksheet' ? '#ffffff' : '#94a3b8',
+                    border: 'none',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Layout size={14} /> Trang Phiếu Bài Tập (A4)
+                </button>
+                <button
+                  onClick={() => {
+                    safePlaySound('click');
+                    setActiveTab('answer_key');
+                  }}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '8px',
+                    backgroundColor: activeTab === 'answer_key' ? '#0284c7' : 'transparent',
+                    color: activeTab === 'answer_key' ? '#ffffff' : '#94a3b8',
+                    border: 'none',
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Award size={14} /> Trang Đáp Án & Hướng Dẫn Chấm
+                </button>
+              </div>
+            )}
+
+            {/* INITIAL READY STATE: Waiting for teacher to press button */}
+            {!isLoading && !worksheetData && (
+              <div 
                 style={{
-                  padding: '6px 14px',
-                  borderRadius: '8px',
-                  backgroundColor: activeTab === 'answer_key' ? '#0284c7' : 'transparent',
-                  color: activeTab === 'answer_key' ? '#ffffff' : '#94a3b8',
-                  border: 'none',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
+                  maxWidth: '720px',
+                  margin: '40px auto',
+                  padding: '36px 32px',
+                  backgroundColor: '#1e293b',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+                  textAlign: 'center',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '16px'
                 }}
               >
-                <Award size={14} /> Trang Đáp Án & Hướng Dẫn Chấm
-              </button>
-            </div>
+                <div 
+                  style={{
+                    width: '68px',
+                    height: '68px',
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    boxShadow: '0 8px 24px rgba(2, 132, 199, 0.35)'
+                  }}
+                >
+                  <Sparkles size={34} />
+                </div>
+
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: '#f8fafc' }}>
+                    Sẵn Sàng Biên Soạn Phiếu Bài Tập SGK
+                  </h3>
+                  <p style={{ margin: '8px 0 0 0', fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.6, maxWidth: '560px' }}>
+                    Thầy/Cô hãy kiểm tra hoặc tùy chỉnh các thông số ở cột bên trái (tên bài học, dạng bài, phong cách, hình ảnh minh họa), sau đó nhấn nút bên dưới để AI bắt đầu soạn phiếu bài tập hoàn chỉnh.
+                  </p>
+                </div>
+
+                {/* Configuration summary card */}
+                <div 
+                  style={{
+                    width: '100%',
+                    padding: '16px 20px',
+                    borderRadius: '14px',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    border: '1px solid rgba(56, 189, 248, 0.25)',
+                    textAlign: 'left',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '12px',
+                    fontSize: '0.82rem'
+                  }}
+                >
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>📚 Sách đã chọn:</span>
+                    <div style={{ fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>
+                      {book.title} ({book.grade} • Môn {book.subject})
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>📖 Bài học dự kiến:</span>
+                    <div style={{ fontWeight: 800, color: '#f8fafc', marginTop: '2px' }}>
+                      {typeof lessonTitle === 'string' ? lessonTitle : (lessonTitle?.lesson || 'Ôn tập kiến thức bài học')}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>🎨 Phong cách phiếu:</span>
+                    <div style={{ fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
+                      {activeThemeObj.name} ({activeThemeObj.badge})
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#94a3b8' }}>📋 Dạng bài tập:</span>
+                    <div style={{ fontWeight: 800, color: '#10b981', marginTop: '2px' }}>
+                      {selectedTypes.length} / {EXERCISE_TYPES.length} dạng bài được chọn
+                    </div>
+                  </div>
+                </div>
+
+                {/* Big Center Action Button */}
+                <button
+                  onClick={handleGenerate}
+                  style={{
+                    marginTop: '10px',
+                    padding: '14px 36px',
+                    borderRadius: '14px',
+                    background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 900,
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    boxShadow: '0 6px 20px rgba(2, 132, 199, 0.45)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Sparkles size={20} /> Bấm Vào Đây Để Tạo Phiếu Bài Tập Bằng AI
+                </button>
+              </div>
+            )}
 
             {/* Loading Indicator */}
             {isLoading && (
@@ -1528,7 +1808,7 @@ export function AITextbookWorksheetModal({
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '12px',
-                  margin: '0 auto'
+                  margin: '40px auto'
                 }}
               >
                 <RefreshCw size={36} className="animate-spin" />
@@ -1833,21 +2113,21 @@ export function AITextbookWorksheetModal({
                       </>
                     )}
 
-                    {/* Content Sections - Passed with isPrimaryCute */}
+                    {/* Content Sections - Passed with isPrimaryCute & showIllustrations */}
                     {worksheetData.sections?.map((section, idx) => {
                       const isPrimaryCute = selectedTheme === 'primary_cute';
                       if (section.type === 'multiple_choice') {
-                        return <MultipleChoiceSection key={idx} section={section} sectionIdx={idx} isPrimaryCute={isPrimaryCute} />;
+                        return <MultipleChoiceSection key={idx} section={section} sectionIdx={idx} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       } else if (section.type === 'fill_blank') {
-                        return <FillBlankSection key={idx} section={section} sectionIdx={idx} isPrimaryCute={isPrimaryCute} />;
+                        return <FillBlankSection key={idx} section={section} sectionIdx={idx} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       } else if (section.type === 'matching') {
-                        return <MatchingSection key={idx} section={section} isPrimaryCute={isPrimaryCute} />;
+                        return <MatchingSection key={idx} section={section} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       } else if (section.type === 'true_false') {
-                        return <TrueFalseSection key={idx} section={section} isPrimaryCute={isPrimaryCute} />;
+                        return <TrueFalseSection key={idx} section={section} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       } else if (section.type === 'table_matrix') {
-                        return <TableMatrixSection key={idx} section={section} isPrimaryCute={isPrimaryCute} />;
+                        return <TableMatrixSection key={idx} section={section} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       } else if (section.type === 'short_answer') {
-                        return <ShortAnswerSection key={idx} section={section} isPrimaryCute={isPrimaryCute} />;
+                        return <ShortAnswerSection key={idx} section={section} isPrimaryCute={isPrimaryCute} showIllustrations={showIllustrations} />;
                       }
                       return null;
                     })}

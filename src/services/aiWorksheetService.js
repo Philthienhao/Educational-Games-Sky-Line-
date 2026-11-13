@@ -220,17 +220,16 @@ export function generateCurriculumFallbackWorksheet({
     if (selectedTypes.includes('multiple_choice')) {
       sections.push({
         type: 'multiple_choice',
-        title: 'I. TRẮC NGHIỆM PHÉP TÍNH VUI HỌC',
+        title: 'I. TRẮC NGHIỆM TOÁN HỌC',
         instruction: 'Khoanh tròn vào chữ cái đặt trước câu trả lời đúng:',
         items: [
           {
             id: 1,
             question: 'Số liền sau của số 49 là số nào?',
             options: ['48', '50', '51', '40'],
-            optionIcons: ['🔢', '🔟', '⭐', '✨'],
+            optionIcons: [],
             answer: 'B',
-            illustration: 'calculator',
-            icon: '🧮',
+            illustration: null,
             points: '1.0 đ'
           },
           {
@@ -239,18 +238,16 @@ export function generateCurriculumFallbackWorksheet({
             options: ['59', '69', '58', '60'],
             optionIcons: [],
             answer: 'A',
-            illustration: 'calculator',
-            icon: '🧮',
+            illustration: null,
             points: '1.0 đ'
           },
           {
             id: 3,
             question: 'Một tuần lễ có bao nhiêu ngày?',
             options: ['5 ngày', '6 ngày', '7 ngày', '8 ngày'],
-            optionIcons: ['📅', '⏰', '📆', '🗓️'],
+            optionIcons: [],
             answer: 'C',
             illustration: 'clock',
-            icon: '⏰',
             points: '1.0 đ'
           }
         ]
@@ -268,8 +265,7 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Dãy số tăng dần: 10, 15, 20, [ ____ ], 30, [ ____ ].',
             wordBank: ['25', '35'],
             answer: '25 và 35',
-            illustration: 'ruler',
-            icon: '📏',
+            illustration: null,
             points: '1.5 đ'
           },
           {
@@ -277,8 +273,7 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Phép so sánh: 48 cm + 12 cm [ ____ ] 60 cm (Điền >, < hoặc =).',
             wordBank: ['>', '<', '='],
             answer: '=',
-            illustration: 'ruler',
-            icon: '📐',
+            illustration: null,
             points: '1.0 đ'
           }
         ]
@@ -288,13 +283,13 @@ export function generateCurriculumFallbackWorksheet({
     if (selectedTypes.includes('matching')) {
       sections.push({
         type: 'matching',
-        title: 'III. NỐI PHÉP TÍNH VỚI HÌNH ẢNH MINH HỌA',
+        title: 'III. NỐI PHÉP TÍNH VỚI KẾT QUẢ TƯƠNG ỨNG',
         instruction: 'Em hãy nối phép tính ở Cột A với kết quả ở Cột B:',
         pairs: [
-          { left: '25 + 15', leftIcon: '🍎', right: '40 quả táo ngọt' },
-          { left: '60 - 20', leftIcon: '🍓', right: '40 quả dâu tây' },
-          { left: '12 + 18', leftIcon: '⭐', right: '30 ngôi sao sáng' },
-          { left: '50 - 15', leftIcon: '🎈', right: '35 quả bóng bay' }
+          { left: '25 + 15', right: '40' },
+          { left: '60 - 20', right: '40' },
+          { left: '12 + 18', right: '30' },
+          { left: '50 - 15', right: '35' }
         ],
         points: '2.0 đ'
       });
@@ -660,10 +655,14 @@ QUY TẮC BẮT BUỘC:
    - "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1").
    - "subtitle": "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
    - Nội dung bài tập bám sát kiến thức của đúng BÀI HỌC ĐÓ trong SGK!
-2. MINH HỌA HÌNH ẢNH & ICON:
-   - Các đáp án trắc nghiệm ("options") nằm vừa trên 1 HÀNG NGANG.
-   - Trường "optionIcons": CHỈ cung cấp khi 4 phương án là 4 đồ vật, con vật, hoa quả cụ thể VÀ KHỚP 100% VỚI TỪNG ĐÁP ÁN (Ví dụ: ["✏️", "🐱", "⚽", "🌸"] khớp với ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"]). Nếu các phương án là từ trừu tượng, hãy để mảng rỗng "optionIcons": []. Tuyệt đối KHÔNG gán bừa icon con vật hay hoa quả không liên quan!
-   - Trường "illustration" của câu hỏi: book, pencil, school, cat, dog, duck, bird, fish, apple, flower, tree, sun, car, clock, runner, star, calculator... khớp với nội dung câu hỏi.
+2. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM:
+   - HÌNH ẢNH MINH HỌA PHẢI KHỚP 100% VỚI NỘI DUNG KIẾN THỨC CÂU HỎI.
+   - TUYỆT ĐỐI KHÔNG tự tiện chèn icon con vật (mèo, cún, vịt...), hoa quả vào các câu hỏi không liên quan đến chúng.
+   - NẾU câu hỏi là câu trắc nghiệm kiến thức thông thường, đọc hiểu bài văn, bài thơ, phép tính đại số, ngữ pháp, lịch sử, địa lí, lý thuyết: BẮT BUỘC để "illustration": null và "optionIcons": [].
+   - CHỈ cung cấp "illustration" khi câu hỏi TRỰC TIẾP hỏi về hoặc mô tả đối tượng cụ thể đó (ví dụ: câu hỏi "Đồ dùng học tập nào dùng để viết?" -> "pencil"; câu hỏi "Đồng hồ chỉ mấy giờ?" -> "clock"; câu hỏi "Con vật nào bắt chuột kêu meo meo?" -> "cat"; câu hỏi hình học -> "triangle" / "rectangle").
+   - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
+   - Với các lựa chọn trắc nghiệm ("options"): BẮT BUỘC để "optionIcons": [] đối với các đáp án là số, chữ, câu văn. TUYỆT ĐỐI KHÔNG gán icon trang trí làm sai lệch nội dung bài tập.
+   - Ở Phần 3 (Nối cột): Chỉ gán "leftIcon" khi Cột A là hình ảnh cụ thể cần nối với từ ngữ. Nếu là kiến thức môn học nâng cao (lịch sử, địa lí, KHTN), để "leftIcon": null.
 
 Chỉ trả về JSON thuần túy (Object):
 {

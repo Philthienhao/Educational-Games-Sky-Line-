@@ -86,19 +86,21 @@ YÊU CẦU BẮT BUỘC:
    - Trường "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1" hoặc "PHIẾU HỌC TẬP BÀI 1").
    - Trường "subtitle": Phải ghi rõ: "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
    - Toàn bộ nội dung câu hỏi, từ ngữ, bài tập BẮT BUỘC bám sát chính xác các từ vựng, bài đọc, câu văn của đúng BÀI HỌC ĐÓ trong sách giáo khoa!
-2. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''}:
+2. Soạn nội dung phiếu gồm các phần đa dạng, thiết thực, chuẩn mực, phù hợp lứa tuổi học sinh ${grade || ''} và môn học ${subject || ''}:
    - Phần 1: Trắc nghiệm khách quan (3-4 câu, khoanh tròn đáp án đúng A, B, C, D)
    - Phần 2: Điền khuyết / Điền từ vào chỗ trống (2-3 câu, có kho từ gợi ý wordBank nếu là cấp tiểu học)
-   - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải; với tiểu học hãy tạo dạng nối hình ảnh/từ ngữ sinh động)
+   - Phần 3: Nối cột tương ứng (ghép nối 3-4 cặp ý logic hai cột Trái - Phải bám sát bài học)
    - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
    - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
-3. QUY TẮC MINH HỌA HÌNH ẢNH & ICON (ĐẶC BIỆT DÀNH CHO TIỂU HỌC):
-   - Các đáp án trắc nghiệm ("options") phải ngắn gọn, súc tích để nằm vừa vặn trên 1 HÀNG NGANG duy nhất.
-   - QUY TẮC KHỚP NGHĨA 100%: Trường "optionIcons" CHỈ CUNG CẤP khi 4 phương án là 4 sự vật/con vật/đồ vật/hoa quả cụ thể và ICON PHẢI KHỚP 100% VỚI NỘI DUNG TỪNG ĐÁP ÁN (Ví dụ: options = ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"] -> optionIcons = ["✏️", "🐱", "⚽", "🌸"]).
-   - NẾU các đáp án là từ ngữ trừu tượng, từ chỉ đặc điểm, âm vần, hoặc câu dài (ví dụ: "chăm chỉ", "ngoan ngoãn", "khéo léo"): HÃY ĐỂ TRỐNG "optionIcons": []. TUYỆT ĐỐI KHÔNG gán bừa icon con vật hay hoa quả không liên quan!
-   - Thêm trường "illustration" (book, pencil, school, cat, dog, duck, bird, fish, apple, flower, tree, sun, car, clock, runner, star, calculator...) cho từng câu hỏi khớp đúng với nội dung câu hỏi.
-   - Cung cấp "leftIcon" cho từng cặp nối ở Phần 3 để làm thẻ tranh hình ảnh minh họa to rõ, khớp đúng với từ ngữ ở Cột A.
+3. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA (QUAN TRỌNG NHẤT VỀ TÍNH SƯ PHẠM):
+   - HÌNH ẢNH MINH HỌA PHẢI KHỚP 100% VỚI NỘI DUNG KIẾN THỨC CÂU HỎI.
+   - TUYỆT ĐỐI KHÔNG tự tiện chèn icon con vật (mèo, cún, thỏ, vịt...), hoa quả vào các câu hỏi không hề nhắc đến hay liên quan đến chúng.
+   - NẾU câu hỏi là câu trắc nghiệm kiến thức thông thường, đọc hiểu bài văn, bài thơ, phép tính đại số, ngữ pháp, lịch sử, địa lí, lý thuyết: BẮT BUỘC để "illustration": null và "optionIcons": [].
+   - CHỈ cung cấp "illustration" khi câu hỏi TRỰC TIẾP hỏi về hoặc mô tả đối tượng cụ thể đó (ví dụ: câu hỏi "Đồ dùng học tập nào dùng để viết?" -> "pencil"; câu hỏi "Đồng hồ chỉ mấy giờ?" -> "clock"; câu hỏi "Con vật nào bắt chuột kêu meo meo?" -> "cat"; câu hỏi hình học -> "triangle" / "rectangle").
+   - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
+   - Với các lựa chọn trắc nghiệm ("options"): BẮT BUỘC để "optionIcons": [] đối với các đáp án là số, chữ, câu văn. TUYỆT ĐỐI KHÔNG gán icon trang trí làm sai lệch nội dung bài tập.
+   - Ở Phần 3 (Nối cột): Chỉ gán "leftIcon" khi Cột A là hình ảnh cụ thể cần nối với từ ngữ (ví dụ: bài học tiếng Việt nhận biết đồ vật). Nếu là kiến thức môn học nâng cao (lịch sử, địa lí, KHTN), để "leftIcon": null.
 4. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
 5. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
 
