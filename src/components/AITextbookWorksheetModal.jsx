@@ -41,8 +41,8 @@ const safePlaySound = (type = 'click') => {
 function WorksheetIllustrationRenderer({ name = '', size = 52 }) {
   const norm = (name || '').toLowerCase().trim();
 
-  // 0. UNICODE EMOJI HOẶC KÝ HIỆU HỌC TẬP (ví dụ: 🐱, 🥁, 📏, ✏️, 🔴, 🔺, 🟧, │, —, ╱...)
-  if (/^[\p{Emoji}\p{Symbol}\p{Punctuation}\s]+$/u.test(norm) && norm.length <= 4) {
+  // 0. UNICODE EMOJI HOẶC KÝ HIỆU HỌC TẬP (ví dụ: 👵, 🌿, 🥋, 🌱, 🐱, 🥁, 📏, ✏️, 🔴, 🔺, 🟧, │, —, ╱...)
+  if (/^[\p{Emoji}\p{Symbol}\p{Punctuation}\s]+$/u.test(norm) && norm.length <= 12) {
     return (
       <span style={{ fontSize: `${Math.round(size * 0.72)}px`, lineHeight: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
         {name}
@@ -871,6 +871,320 @@ function WorksheetIllustrationRenderer({ name = '', size = 52 }) {
     );
   }
 
+  // 7. CON NGƯỜI, GIA ĐÌNH & THÀNH VIÊN
+  if (norm === 'ba' || norm === 'nguoi_ba' || norm === 'grandma' || norm === 'bà' || norm.includes('người bà') || norm.includes('bà nội') || norm.includes('bà ngoại')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fdf4ff" stroke="#f0abfc" strokeWidth="1.5" />
+        {/* Hair Bun */}
+        <circle cx="32" cy="14" r="8" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.5" />
+        <ellipse cx="32" cy="13" rx="4" ry="2" fill="#f8fafc" />
+        {/* Head */}
+        <circle cx="32" cy="30" r="15" fill="#fde68a" stroke="#d97706" strokeWidth="1.5" />
+        {/* Gray hair framing */}
+        <path d="M 18 28 C 18 16 46 16 46 28 C 42 22 22 22 18 28 Z" fill="#94a3b8" />
+        {/* Glasses */}
+        <circle cx="26" cy="29" r="4.5" fill="none" stroke="#b45309" strokeWidth="1.5" />
+        <circle cx="38" cy="29" r="4.5" fill="none" stroke="#b45309" strokeWidth="1.5" />
+        <line x1="30.5" y1="29" x2="33.5" y2="29" stroke="#b45309" strokeWidth="1.5" />
+        <circle cx="26" cy="29" r="1.5" fill="#451a03" />
+        <circle cx="38" cy="29" r="1.5" fill="#451a03" />
+        {/* Cheeks */}
+        <ellipse cx="21" cy="34" rx="2.5" ry="1.5" fill="#f472b6" opacity="0.6" />
+        <ellipse cx="43" cy="34" rx="2.5" ry="1.5" fill="#f472b6" opacity="0.6" />
+        {/* Warm smile */}
+        <path d="M 28 36 Q 32 39 36 36" stroke="#b45309" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        {/* Body / Collar */}
+        <path d="M 20 44 C 20 42 44 42 44 44 L 48 58 L 16 58 Z" fill="#c084fc" stroke="#a855f7" strokeWidth="1.5" />
+        <path d="M 28 44 L 32 50 L 36 44 Z" fill="#ffffff" />
+      </svg>
+    );
+  }
+
+  if (norm === 'ong' || norm === 'nguoi_ong' || norm === 'grandpa' || norm === 'ông' || norm.includes('người ông') || norm.includes('ông nội') || norm.includes('ông ngoại')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="1.5" />
+        <circle cx="32" cy="30" r="15" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <path d="M 18 28 C 18 16 46 16 46 28 C 42 21 22 21 18 28 Z" fill="#e2e8f0" />
+        <rect x="22" y="26" width="8" height="7" rx="2" fill="none" stroke="#475569" strokeWidth="1.5" />
+        <rect x="34" y="26" width="8" height="7" rx="2" fill="none" stroke="#475569" strokeWidth="1.5" />
+        <line x1="30" y1="29" x2="34" y2="29" stroke="#475569" strokeWidth="1.5" />
+        <circle cx="26" cy="29" r="1.5" fill="#1e293b" />
+        <circle cx="38" cy="29" r="1.5" fill="#1e293b" />
+        <path d="M 26 36 Q 32 34 38 36 Q 32 39 26 36 Z" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1" />
+        <path d="M 29 38 Q 32 41 35 38" stroke="#ea580c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 20 44 C 20 42 44 42 44 44 L 48 58 L 16 58 Z" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  if (norm === 'me' || norm === 'nguoi_me' || norm === 'mother' || norm === 'mẹ' || norm.includes('người mẹ')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fdf2f8" stroke="#fbcfe8" strokeWidth="1.5" />
+        <circle cx="32" cy="30" r="14" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <path d="M 18 28 C 18 14 46 14 46 28 C 42 19 22 19 18 28 Z" fill="#334155" />
+        <circle cx="26" cy="30" r="1.8" fill="#1e293b" />
+        <circle cx="38" cy="30" r="1.8" fill="#1e293b" />
+        <ellipse cx="22" cy="34" rx="2.5" ry="1.5" fill="#f43f5e" opacity="0.6" />
+        <ellipse cx="42" cy="34" rx="2.5" ry="1.5" fill="#f43f5e" opacity="0.6" />
+        <path d="M 28 35 Q 32 39 36 35" stroke="#e11d48" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 20 44 C 20 42 44 42 44 44 L 48 58 L 16 58 Z" fill="#ec4899" stroke="#db2777" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  if (norm === 'bo' || norm === 'nguoi_bo' || norm === 'father' || norm === 'bố' || norm.includes('người bố') || norm.includes('người cha')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="1.5" />
+        <circle cx="32" cy="30" r="14" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <path d="M 18 26 C 18 16 46 16 46 26 C 42 18 22 18 18 26 Z" fill="#1e293b" />
+        <circle cx="26" cy="29" r="1.8" fill="#1e293b" />
+        <circle cx="38" cy="29" r="1.8" fill="#1e293b" />
+        <path d="M 28 35 Q 32 38 36 35" stroke="#b45309" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 20 44 C 20 42 44 42 44 44 L 48 58 L 16 58 Z" fill="#0284c7" stroke="#0369a1" strokeWidth="1.5" />
+        <polygon points="32,46 30,58 34,58" fill="#dc2626" />
+      </svg>
+    );
+  }
+
+  if (norm === 'be' || norm === 'em_be' || norm === 'baby' || norm === 'bé' || norm.includes('em bé') || norm.includes('trẻ em')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fefce8" stroke="#fef08a" strokeWidth="1.5" />
+        <circle cx="32" cy="32" r="18" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <path d="M 32 14 Q 30 8 36 10" stroke="#78350f" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <circle cx="25" cy="30" r="2.2" fill="#1e293b" />
+        <circle cx="39" cy="30" r="2.2" fill="#1e293b" />
+        <ellipse cx="20" cy="35" rx="3" ry="2" fill="#f43f5e" opacity="0.6" />
+        <ellipse cx="44" cy="35" rx="3" ry="2" fill="#f43f5e" opacity="0.6" />
+        <circle cx="32" cy="38" r="4" fill="#fb7185" stroke="#e11d48" strokeWidth="1.5" />
+        <circle cx="32" cy="38" r="1.5" fill="#ffffff" />
+      </svg>
+    );
+  }
+
+  // 8. ĐỜI SỐNG, THỂ THAO & HOẠT ĐỘNG
+  if (norm === 'vo_thuat' || norm === 'tap_vo' || norm === 'hoc_vo' || norm === 'vo' || norm === 'võ' || norm.includes('võ thuật') || norm.includes('tập võ')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fef2f2" stroke="#fecaca" strokeWidth="1.5" />
+        <circle cx="32" cy="18" r="9" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <rect x="23" y="14" width="18" height="4" rx="2" fill="#dc2626" />
+        <path d="M 40 16 L 46 14 M 40 17 L 46 19" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="28" cy="19" r="1.5" fill="#1e293b" />
+        <circle cx="36" cy="19" r="1.5" fill="#1e293b" />
+        <path d="M 30 23 Q 32 25 34 23" stroke="#ea580c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        <path d="M 22 28 L 42 28 L 45 44 L 19 44 Z" fill="#ffffff" stroke="#94a3b8" strokeWidth="1.5" />
+        <line x1="22" y1="28" x2="35" y2="38" stroke="#94a3b8" strokeWidth="1.5" />
+        <line x1="42" y1="28" x2="29" y2="38" stroke="#94a3b8" strokeWidth="1.5" />
+        <rect x="21" y="38" width="22" height="4" rx="1" fill="#0f172a" />
+        <line x1="30" y1="42" x2="30" y2="48" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="34" y1="42" x2="35" y2="47" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
+        <circle cx="50" cy="32" r="4.5" fill="#fed7aa" stroke="#ea580c" strokeWidth="1.5" />
+        <line x1="42" y1="32" x2="48" y2="32" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (norm === 'da_bong' || norm === 'bong_da' || norm === 'bong' || norm === 'bóng' || norm.includes('bóng đá') || norm.includes('đá bóng')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="22" fill="#ffffff" stroke="#0f172a" strokeWidth="2.5" />
+        <polygon points="32,24 26,29 28,36 36,36 38,29" fill="#0f172a" />
+        <line x1="32" y1="24" x2="32" y2="12" stroke="#0f172a" strokeWidth="2" />
+        <line x1="26" y1="29" x2="14" y2="26" stroke="#0f172a" strokeWidth="2" />
+        <line x1="28" y1="36" x2="18" y2="46" stroke="#0f172a" strokeWidth="2" />
+        <line x1="36" y1="36" x2="46" y2="46" stroke="#0f172a" strokeWidth="2" />
+        <line x1="38" y1="29" x2="50" y2="26" stroke="#0f172a" strokeWidth="2" />
+      </svg>
+    );
+  }
+
+  // 9. NÔNG NGHIỆP, THỰC VẬT & CÂY TRỒNG
+  if (norm === 'bui_co' || norm === 'co' || norm === 'cỏ' || norm.includes('bụi cỏ') || norm.includes('đồng cỏ')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="1.5" />
+        <path d="M 12 50 Q 32 46 52 50 L 52 54 L 12 54 Z" fill="#78350f" />
+        <path d="M 20 48 Q 16 32 10 26 Q 16 34 22 48" fill="#22c55e" stroke="#15803d" strokeWidth="1" />
+        <path d="M 24 48 Q 22 24 18 16 Q 26 28 27 48" fill="#4ade80" stroke="#16a34a" strokeWidth="1" />
+        <path d="M 28 48 Q 32 18 32 10 Q 34 22 36 48" fill="#16a34a" stroke="#15803d" strokeWidth="1" />
+        <path d="M 37 48 Q 42 22 46 16 Q 42 30 40 48" fill="#4ade80" stroke="#16a34a" strokeWidth="1" />
+        <path d="M 41 48 Q 48 30 54 26 Q 48 36 44 48" fill="#22c55e" stroke="#15803d" strokeWidth="1" />
+        <circle cx="32" cy="18" r="2" fill="#38bdf8" />
+      </svg>
+    );
+  }
+
+  if (norm === 'cay_ma' || norm === 'ma' || norm === 'mạ' || norm.includes('cây mạ') || norm.includes('cấy mạ') || norm.includes('ruộng mạ')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#ecfdf5" stroke="#a7f3d0" strokeWidth="1.5" />
+        <path d="M 10 50 Q 32 46 54 50 L 52 56 L 12 56 Z" fill="#854d0e" />
+        <path d="M 8 50 Q 32 48 56 50" stroke="#38bdf8" strokeWidth="2.5" fill="none" />
+        <line x1="32" y1="40" x2="32" y2="52" stroke="#ca8a04" strokeWidth="2.5" />
+        <path d="M 32 44 Q 24 28 16 20 Q 24 32 32 38" fill="#86efac" stroke="#16a34a" strokeWidth="1.2" />
+        <path d="M 32 40 Q 32 20 32 10 Q 36 24 33 40" fill="#22c55e" stroke="#15803d" strokeWidth="1.2" />
+        <path d="M 32 44 Q 40 28 48 20 Q 40 32 32 38" fill="#4ade80" stroke="#16a34a" strokeWidth="1.2" />
+        <circle cx="32" cy="46" r="3" fill="#ca8a04" />
+      </svg>
+    );
+  }
+
+  if (norm === 'bong_lua' || norm === 'lua' || norm === 'lúa' || norm.includes('bông lúa') || norm.includes('hạt gạo')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fffbeb" stroke="#fde68a" strokeWidth="1.5" />
+        <path d="M 20 54 Q 36 46 44 20" stroke="#ca8a04" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <ellipse cx="44" cy="18" rx="3.5" ry="5.5" fill="#facc15" stroke="#ca8a04" strokeWidth="1" transform="rotate(30 44 18)" />
+        <ellipse cx="40" cy="24" rx="3.5" ry="5.5" fill="#facc15" stroke="#ca8a04" strokeWidth="1" transform="rotate(-30 40 24)" />
+        <ellipse cx="45" cy="28" rx="3.5" ry="5.5" fill="#facc15" stroke="#ca8a04" strokeWidth="1" transform="rotate(35 45 28)" />
+        <ellipse cx="36" cy="34" rx="3.5" ry="5.5" fill="#facc15" stroke="#ca8a04" strokeWidth="1" transform="rotate(-35 36 34)" />
+        <ellipse cx="40" cy="39" rx="3.5" ry="5.5" fill="#facc15" stroke="#ca8a04" strokeWidth="1" transform="rotate(40 40 39)" />
+      </svg>
+    );
+  }
+
+  if (norm === 'qua_khe' || norm === 'khe' || norm === 'khế' || norm.includes('quả khế')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fefce8" stroke="#fef08a" strokeWidth="1.5" />
+        <polygon points="32,12 37,24 50,24 40,32 44,45 32,38 20,45 24,32 14,24 27,24" fill="#facc15" stroke="#ca8a04" strokeWidth="2.5" strokeLinejoin="round" />
+        <circle cx="32" cy="28" r="3" fill="#84cc16" />
+      </svg>
+    );
+  }
+
+  if (norm === 'qua_le' || norm === 'le' || norm === 'lê' || norm.includes('quả lê')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#fefce8" stroke="#fef08a" strokeWidth="1.5" />
+        <path d="M 32 14 L 32 8 Q 36 8 38 10" stroke="#78350f" strokeWidth="2" fill="none" strokeLinecap="round" />
+        <path d="M 32 14 C 26 14 24 24 22 34 C 20 44 24 52 32 52 C 40 52 44 44 42 34 C 40 24 38 14 32 14 Z" fill="#fde047" stroke="#ca8a04" strokeWidth="2" />
+        <ellipse cx="28" cy="34" rx="2" ry="4" fill="#fef08a" />
+      </svg>
+    );
+  }
+
+  if (norm === 'qua_nho' || norm === 'nho' || norm.includes('chùm nho') || norm.includes('quả nho')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#faf5ff" stroke="#e9d5ff" strokeWidth="1.5" />
+        <path d="M 32 12 L 32 16" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
+        <ellipse cx="38" cy="14" rx="6" ry="3" fill="#22c55e" />
+        <circle cx="26" cy="22" r="5" fill="#a855f7" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="34" cy="21" r="5" fill="#9333ea" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="42" cy="23" r="5" fill="#a855f7" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="23" cy="30" r="5" fill="#9333ea" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="31" cy="29" r="5" fill="#a855f7" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="39" cy="30" r="5" fill="#9333ea" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="28" cy="38" r="5" fill="#a855f7" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="36" cy="38" r="5" fill="#9333ea" stroke="#7e22ce" strokeWidth="1.2" />
+        <circle cx="32" cy="46" r="5" fill="#7e22ce" stroke="#6b21a8" strokeWidth="1.2" />
+      </svg>
+    );
+  }
+
+  // 10. ĐỒ VẬT, PHƯƠNG TIỆN
+  if (norm === 'chiec_o' || norm === 'cai_du' || norm === 'o' || norm === 'ô' || norm === 'dù' || norm.includes('chiếc ô') || norm.includes('cây dù')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="1.5" />
+        <path d="M 12 34 C 12 18 52 18 52 34 Q 42 30 32 34 Q 22 30 12 34 Z" fill="#f43f5e" stroke="#e11d48" strokeWidth="2" />
+        <line x1="32" y1="12" x2="32" y2="48" stroke="#475569" strokeWidth="2.5" />
+        <path d="M 32 48 C 32 54 26 54 26 50" stroke="#475569" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (norm === 'chiec_mu' || norm === 'mu' || norm === 'mũ' || norm.includes('chiếc mũ') || norm.includes('nón')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="1.5" />
+        <path d="M 16 38 C 16 22 42 22 44 38 Z" fill="#0284c7" stroke="#0369a1" strokeWidth="2" />
+        <path d="M 36 38 C 42 38 52 38 54 44 L 28 44" fill="#0369a1" stroke="#0284c7" strokeWidth="1.5" />
+        <circle cx="30" cy="22" r="2" fill="#facc15" />
+      </svg>
+    );
+  }
+
+  if (norm === 'thuyen' || norm.includes('thuyền') || norm.includes('buồm')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <circle cx="32" cy="32" r="28" fill="#e0f2fe" stroke="#7dd3fc" strokeWidth="1.5" />
+        <path d="M 14 44 L 50 44 L 44 54 L 20 54 Z" fill="#b45309" stroke="#78350f" strokeWidth="1.5" />
+        <line x1="32" y1="14" x2="32" y2="44" stroke="#78350f" strokeWidth="2" />
+        <polygon points="32,16 46,38 32,38" fill="#f87171" stroke="#dc2626" strokeWidth="1.2" />
+        <polygon points="32,22 22,38 32,38" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.2" />
+        <path d="M 8 54 Q 20 50 32 54 Q 44 58 56 54" stroke="#0284c7" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  // 11. THANH ĐIỆU TIẾNG VIỆT LỚP 1
+  if (norm === 'dau_huyen' || norm.includes('dấu huyền')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <rect x="6" y="6" width="52" height="52" rx="8" fill="#fef2f2" stroke="#fecaca" strokeWidth="1.5" />
+        <line x1="6" y1="32" x2="58" y2="32" stroke="#fecaca" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="32" y1="6" x2="32" y2="58" stroke="#fecaca" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="22" y1="20" x2="42" y2="38" stroke="#dc2626" strokeWidth="5.5" strokeLinecap="round" />
+        <text x="32" y="52" textAnchor="middle" fontWeight="bold" fontSize="9" fill="#991b1b">Dấu Huyền (\)</text>
+      </svg>
+    );
+  }
+
+  if (norm === 'dau_sac' || norm.includes('dấu sắc')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <rect x="6" y="6" width="52" height="52" rx="8" fill="#f0fdf4" stroke="#bbf7d0" strokeWidth="1.5" />
+        <line x1="6" y1="32" x2="58" y2="32" stroke="#bbf7d0" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="32" y1="6" x2="32" y2="58" stroke="#bbf7d0" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="22" y1="38" x2="42" y2="20" stroke="#16a34a" strokeWidth="5.5" strokeLinecap="round" />
+        <text x="32" y="52" textAnchor="middle" fontWeight="bold" fontSize="9" fill="#166534">Dấu Sắc (/)</text>
+      </svg>
+    );
+  }
+
+  if (norm === 'dau_hoi' || norm.includes('dấu hỏi')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <rect x="6" y="6" width="52" height="52" rx="8" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="1.5" />
+        <line x1="6" y1="32" x2="58" y2="32" stroke="#bfdbfe" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="32" y1="6" x2="32" y2="58" stroke="#bfdbfe" strokeWidth="1" strokeDasharray="3 3" />
+        <path d="M 26 22 C 26 16 38 16 38 24 C 38 30 32 30 32 36" stroke="#2563eb" strokeWidth="5" strokeLinecap="round" fill="none" />
+        <text x="32" y="52" textAnchor="middle" fontWeight="bold" fontSize="9" fill="#1e40af">Dấu Hỏi (?)</text>
+      </svg>
+    );
+  }
+
+  if (norm === 'dau_nga' || norm.includes('dấu ngã')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <rect x="6" y="6" width="52" height="52" rx="8" fill="#faf5ff" stroke="#e9d5ff" strokeWidth="1.5" />
+        <line x1="6" y1="32" x2="58" y2="32" stroke="#e9d5ff" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="32" y1="6" x2="32" y2="58" stroke="#e9d5ff" strokeWidth="1" strokeDasharray="3 3" />
+        <path d="M 20 28 Q 26 20 32 28 Q 38 36 44 28" stroke="#9333ea" strokeWidth="5" strokeLinecap="round" fill="none" />
+        <text x="32" y="52" textAnchor="middle" fontWeight="bold" fontSize="9" fill="#6b21a8">Dấu Ngã (~)</text>
+      </svg>
+    );
+  }
+
+  if (norm === 'dau_nang' || norm.includes('dấu nặng')) {
+    return (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+        <rect x="6" y="6" width="52" height="52" rx="8" fill="#fffbeb" stroke="#fde68a" strokeWidth="1.5" />
+        <line x1="6" y1="32" x2="58" y2="32" stroke="#fde68a" strokeWidth="1" strokeDasharray="3 3" />
+        <line x1="32" y1="6" x2="32" y2="58" stroke="#fde68a" strokeWidth="1" strokeDasharray="3 3" />
+        <circle cx="32" cy="28" r="6" fill="#d97706" />
+        <text x="32" y="52" textAnchor="middle" fontWeight="bold" fontSize="9" fill="#b45309">Dấu Nặng (.)</text>
+      </svg>
+    );
+  }
+
   // DEFAULT BRIGHT PENCIL / STUDY BADGE
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
@@ -933,10 +1247,7 @@ function OlyGridNotebook({ rows = 4, label = 'Bài giải' }) {
 // ==========================================
 
 function resolveIllustrationKey(item, subject = '', grade = '') {
-  const explicit = (item?.illustration || item?.leftIllustration || '').trim().toLowerCase();
-  if (explicit && explicit !== 'null' && explicit !== 'defaulttask' && explicit !== 'none') {
-    return explicit;
-  }
+  let explicit = (item?.illustration || item?.leftIllustration || '').trim().toLowerCase();
 
   const rawText = (
     (item?.left || '') + ' ' + 
@@ -945,12 +1256,18 @@ function resolveIllustrationKey(item, subject = '', grade = '') {
     (Array.isArray(item?.options) ? item.options.join(' ') : '')
   ).toLowerCase();
 
-  // 1. CÁC NÉT CƠ BẢN TRONG TIẾNG VIỆT LỚP 1 (Ưu tiên số 1 - Trước khi check chữ "viết" hay "bút")
+  // Helper matching whole words or terms bounded by spaces/punctuation
+  const hasWord = (word) => {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(^|[\\s,.;:!?()"-])${escaped}([\\s,.;:!?()"-]|$)`, 'i').test(rawText);
+  };
+
+  // 1. CÁC NÉT CƠ BẢN & THANH ĐIỆU TIẾNG VIỆT LỚP 1 (Ưu tiên số 1 tuyệt đối)
   if (rawText.includes('nét thẳng') || rawText.includes('nét sổ') || rawText.includes('thẳng đứng') || rawText.includes('đường thẳng')) return 'net_thang';
   if (rawText.includes('nét ngang') || rawText.includes('gạch ngang')) return 'net_ngang';
   if (rawText.includes('nét xiên phải') || rawText.includes('xiên phải')) return 'net_xien_phai';
   if (rawText.includes('nét xiên trái') || rawText.includes('xiên trái')) return 'net_xien_trai';
-  if (rawText.includes('nét xiên') || rawText.includes('xiên')) return 'net_xien';
+  if (rawText.includes('nét xiên') || rawText.includes('xiên')) return 'net_xien_phai';
   if (rawText.includes('móc xuôi') || rawText.includes('móc trên')) return 'net_moc_xuoi';
   if (rawText.includes('móc ngược') || rawText.includes('móc dưới')) return 'net_moc_nguoc';
   if (rawText.includes('móc hai đầu')) return 'net_moc_hai_dau';
@@ -961,8 +1278,73 @@ function resolveIllustrationKey(item, subject = '', grade = '') {
   if (rawText.includes('khuyết trên')) return 'net_khuyet_tren';
   if (rawText.includes('khuyết dưới')) return 'net_khuyet_duoi';
   if (rawText.includes('nét thắt') || rawText.includes('nét xoắn')) return 'net_that';
+  if (rawText.includes('dấu huyền')) return 'dau_huyen';
+  if (rawText.includes('dấu sắc')) return 'dau_sac';
+  if (rawText.includes('dấu hỏi')) return 'dau_hoi';
+  if (rawText.includes('dấu ngã')) return 'dau_nga';
+  if (rawText.includes('dấu nặng')) return 'dau_nang';
 
-  // 2. HÌNH HỌC & ĐO LƯỜNG TOÁN HỌC
+  // 2. CON NGƯỜI & GIA ĐÌNH (Khắc phục triệt để lỗi "bà" thành "ngôi nhà")
+  if (hasWord('bà') || rawText.includes('người bà') || rawText.includes('bà nội') || rawText.includes('bà ngoại')) return 'ba';
+  if (hasWord('ông') || rawText.includes('người ông') || rawText.includes('ông nội') || rawText.includes('ông ngoại')) return 'ong';
+  if (hasWord('mẹ') || hasWord('má') || rawText.includes('người mẹ')) return 'me';
+  if (hasWord('bố') || hasWord('ba') || rawText.includes('người bố') || rawText.includes('người cha')) return 'bo';
+  if (hasWord('bé') || rawText.includes('em bé') || rawText.includes('trẻ em')) return 'be';
+  if (rawText.includes('cô giáo')) return 'co_giao';
+  if (rawText.includes('thầy giáo')) return 'thay_giao';
+
+  // 3. ĐỜI SỐNG, THỂ THAO, HOẠT ĐỘNG (Khắc phục triệt để lỗi "võ" thành "nốt nhạc")
+  if (hasWord('võ') || rawText.includes('học võ') || rawText.includes('tập võ') || rawText.includes('võ thuật')) return 'vo_thuat';
+  if (rawText.includes('đá bóng') || rawText.includes('bóng đá') || hasWord('bóng')) return 'da_bong';
+  if (rawText.includes('bơi lội') || rawText.includes('bơi')) return 'boi_loi';
+  if (rawText.includes('quét nhà') || rawText.includes('quét') || rawText.includes('dọn dẹp')) return 'sweeping';
+  if (rawText.includes('nấu ăn') || rawText.includes('nấu cơm') || rawText.includes('nấu')) return 'cooking';
+
+  // 4. THỰC VẬT, NÔNG NGHIỆP & CÂY TRỒNG (Khắc phục triệt để lỗi "cỏ" / "mạ" thành bông hoa)
+  if (hasWord('cỏ') || rawText.includes('bụi cỏ') || rawText.includes('đồng cỏ')) return 'bui_co';
+  if (hasWord('mạ') || rawText.includes('cây mạ') || rawText.includes('cấy mạ') || rawText.includes('ruộng mạ')) return 'cay_ma';
+  if (hasWord('lúa') || rawText.includes('bông lúa') || rawText.includes('hạt thóc') || rawText.includes('cánh đồng lúa')) return 'bong_lua';
+  if (hasWord('sen') || rawText.includes('hoa sen')) return 'hoa_sen';
+  if (rawText.includes('cây xanh') || (hasWord('cây') && !hasWord('thước') && !hasWord('bút'))) return 'plant_growing';
+  if (rawText.includes('bông hoa') || hasWord('hoa')) return 'bong_hoa';
+  if (rawText.includes('chiếc lá') || hasWord('lá')) return 'chiec_la';
+
+  // 5. TRÁI CÂY & HOA QUẢ
+  if (hasWord('khế') || rawText.includes('quả khế')) return 'qua_khe';
+  if (hasWord('lê') || rawText.includes('quả lê')) return 'qua_le';
+  if (hasWord('nho') || rawText.includes('chùm nho') || rawText.includes('quả nho')) return 'qua_nho';
+  if (rawText.includes('đu đủ')) return 'qua_du_du';
+  if (rawText.includes('cà chua')) return 'ca_chua';
+  if (rawText.includes('cà rốt')) return 'cu_ca_rot';
+  if (hasWord('ngô') || rawText.includes('bắp ngô')) return 'bap_ngo';
+  if (hasWord('cam') || rawText.includes('quả cam')) return 'qua_cam';
+  if (hasWord('chuối') || rawText.includes('quả chuối')) return 'qua_chuoi';
+  if (hasWord('táo') || rawText.includes('quả táo')) return 'apple_counter';
+
+  // 6. ĐỘNG VẬT QUEN THUỘC
+  if (hasWord('cá') || rawText.includes('con cá')) return 'con_ca';
+  if (hasWord('gà') || rawText.includes('con gà')) return 'chicken_family';
+  if (hasWord('vịt') || rawText.includes('con vịt')) return 'duck_swimming';
+  if (hasWord('mèo') || rawText.includes('con mèo')) return 'cat_mouse';
+  if (hasWord('chó') || hasWord('cún') || rawText.includes('con chó')) return 'dog_loyal';
+  if (hasWord('thỏ') || rawText.includes('con thỏ')) return 'con_tho';
+  if (hasWord('chim') || rawText.includes('con chim')) return 'bird_flying';
+  if (hasWord('ong') || rawText.includes('con ong')) return 'con_ong';
+  if (hasWord('bướm') || rawText.includes('con bướm')) return 'con_buom';
+  if (hasWord('rùa') || rawText.includes('con rùa')) return 'con_rua';
+
+  // 7. ĐỒ VẬT, PHƯƠNG TIỆN
+  if (hasWord('ô') || hasWord('dù') || rawText.includes('chiếc ô') || rawText.includes('cây dù')) return 'chiec_o';
+  if (hasWord('mũ') || hasWord('nón') || rawText.includes('chiếc mũ') || rawText.includes('chiếc nón')) return 'chiec_mu';
+  if (hasWord('thuyền') || rawText.includes('chiếc thuyền') || rawText.includes('thuyền buồm')) return 'thuyen';
+  if (rawText.includes('xe đạp')) return 'xe_dap';
+  if (rawText.includes('xe buýt') || rawText.includes('ô tô')) return 'xe_buyt';
+  if (rawText.includes('xe máy')) return 'xe_may';
+  if (rawText.includes('máy bay') || rawText.includes('gấp giấy')) return 'paper_plane';
+  if (rawText.includes('ngôi nhà') || (hasWord('nhà') && !hasWord('bà') && !hasWord('quét'))) return 'family_home';
+  if (rawText.includes('cờ') || rawText.includes('tổ quốc') || rawText.includes('việt nam')) return 'vietnam_flag';
+
+  // 8. HÌNH HỌC & ĐO LƯỜNG TOÁN HỌC
   if (rawText.includes('hình vuông')) return 'hinh_vuong';
   if (rawText.includes('hình chữ nhật')) return 'hinh_chu_nhat';
   if (rawText.includes('hình tam giác') || rawText.includes('tam giác')) return 'hinh_tam_giac';
@@ -972,11 +1354,10 @@ function resolveIllustrationKey(item, subject = '', grade = '') {
   if (rawText.includes('đoạn thẳng')) return 'doan_thang';
   if (rawText.includes('đồng hồ') || rawText.includes('mấy giờ') || rawText.includes('thời gian') || rawText.includes('phút')) return 'clock_analog';
   if (rawText.includes('cân') || rawText.includes('kg') || rawText.includes('nặng')) return 'balance_scale';
-  if (rawText.includes('táo') || rawText.includes('quả') || rawText.includes('đếm')) return 'apple_counter';
   if (rawText.includes('bàn tính') || rawText.includes('que tính')) return 'abacus';
   if (rawText.includes('toán') || rawText.includes('phép tính') || rawText.includes('cộng') || rawText.includes('trừ') || rawText.includes('nhân') || rawText.includes('chia') || rawText.includes('số liền') || rawText.includes('dãy số')) return 'calculator_cute';
 
-  // 3. ĐỒ DÙNG HỌC TẬP
+  // 9. ĐỒ DÙNG HỌC TẬP
   if (rawText.includes('thước kẻ') || rawText.includes('chiếc thước') || rawText.includes('cây thước')) return 'thuoc_ke';
   if (rawText.includes('tẩy') || rawText.includes('gôm')) return 'cuc_tay';
   if (rawText.includes('kéo')) return 'keo_cat';
@@ -985,43 +1366,19 @@ function resolveIllustrationKey(item, subject = '', grade = '') {
   if (rawText.includes('vở') || rawText.includes('tập')) return 'books_stack';
   if (rawText.includes('bút') || rawText.includes('viết') || rawText.includes('chữ')) return 'pencil_cute';
 
-  // 4. THIÊN NHIÊN, HOA QUẢ & ĐỘNG THỰC VẬT
-  if (rawText.includes('mặt trời') || rawText.includes('nắng')) return 'mat_troi';
-  if (rawText.includes('mây') || rawText.includes('mưa')) return 'dam_may';
-  if (rawText.includes('cầu vồng')) return 'cau_vong';
-  if (rawText.includes('hoa')) return 'bong_hoa';
-  if (rawText.includes('lá')) return 'chiec_la';
-  if (rawText.includes('cá')) return 'con_ca';
-  if (rawText.includes('thỏ')) return 'con_tho';
-  if (rawText.includes('mèo') || rawText.includes('chuột')) return 'cat_mouse';
-  if (rawText.includes('cún') || rawText.includes('chó')) return 'dog_loyal';
-  if (rawText.includes('gà')) return 'chicken_family';
-  if (rawText.includes('vịt')) return 'duck_swimming';
-  if (rawText.includes('chim')) return 'bird_flying';
-  if (rawText.includes('cam')) return 'qua_cam';
-  if (rawText.includes('chuối')) return 'qua_chuoi';
-  if (rawText.includes('cây') || rawText.includes('mầm')) return 'plant_growing';
-
-  // 5. GIAO THÔNG, ĐỜI SỐNG
-  if (rawText.includes('xe đạp')) return 'xe_dap';
-  if (rawText.includes('xe buýt') || rawText.includes('ô tô')) return 'xe_buyt';
-  if (rawText.includes('giao thông') || rawText.includes('tín hiệu')) return 'den_giao_thong';
-  if (rawText.includes('quét nhà') || rawText.includes('quét') || rawText.includes('dọn dẹp')) return 'sweeping';
-  if (rawText.includes('máy bay') || rawText.includes('gấp giấy')) return 'paper_plane';
-  if (rawText.includes('cơm') || rawText.includes('nấu')) return 'cooking';
-  if (rawText.includes('nhà') || rawText.includes('gia đình') || rawText.includes('bố mẹ') || rawText.includes('ông bà')) return 'family_home';
-  if (rawText.includes('địa lí') || rawText.includes('trái đất') || rawText.includes('châu á') || rawText.includes('biển')) return 'earth_globe';
-  if (rawText.includes('làng') || rawText.includes('quê') || rawText.includes('núi') || rawText.includes('sông')) return 'village_scene';
-  if (rawText.includes('cờ') || rawText.includes('tổ quốc') || rawText.includes('việt nam')) return 'vietnam_flag';
-
-  // 6. ÂM NHẠC
+  // 10. ÂM NHẠC
   if (rawText.includes('trống')) return 'drum';
   if (rawText.includes('hát') || rawText.includes('ca hát') || rawText.includes('vui vẻ') || rawText.includes('yêu đời')) return 'singing_kids';
   if (rawText.includes('chuông')) return 'bell';
   if (rawText.includes('piano') || rawText.includes('đàn') || rawText.includes('phím')) return 'piano';
-  if (rawText.includes('âm nhạc') || rawText.includes('âm thanh') || rawText.includes('lắng nghe') || rawText.includes('tiếng') || rawText.includes('nhạc')) return 'music_notes';
+  if (rawText.includes('âm nhạc') || rawText.includes('âm thanh') || rawText.includes('lắng nghe') || rawText.includes('giai điệu')) return 'music_notes';
 
-  // Môn học mặc định
+  // 11. NẾU EXPLICIT ĐƯỢC CHỈ ĐỊNH VÀ HỢP LÝ THÌ SỬ DỤNG
+  if (explicit && explicit !== 'null' && explicit !== 'defaulttask' && explicit !== 'none' && explicit !== 'family_home' && explicit !== 'pencil_cute' && explicit !== 'music_notes') {
+    return explicit;
+  }
+
+  // 12. Mặc định theo môn học
   const s = (subject || '').toLowerCase();
   if (s.includes('nhạc')) return 'music_notes';
   if (s.includes('toán')) return 'calculator_cute';
@@ -1507,8 +1864,10 @@ function MatchingSection({ section, isPrimaryCute, showIllustrations, subject = 
             <span>🖼️</span> Cột A (Hình ảnh & Khái niệm)
           </div>
           {section.pairs?.map((p, idx) => {
-            const pairKey = p.leftIllustration || resolveIllustrationKey({ left: p.left, question: p.left, ...p }, subject, grade);
-            const iconToUse = (pairKey && pairKey !== 'pencil_cute') ? pairKey : (p.leftIcon || pairKey);
+            const resolved = resolveIllustrationKey({ left: p.left, question: p.left, ...p }, subject, grade);
+            const iconToUse = (resolved && resolved !== 'pencil_cute') 
+              ? resolved 
+              : (p.leftIcon || p.leftIllustration || resolved || 'pencil_cute');
             return (
               <div 
                 key={idx}
@@ -1867,6 +2226,13 @@ export function AITextbookWorksheetModal({
   const [worksheetData, setWorksheetData] = useState(null);
   const [activeTab, setActiveTab] = useState('worksheet'); // 'worksheet' | 'answer_key'
   const [copySuccess, setCopySuccess] = useState(false);
+  const [schoolName, setSchoolName] = useState(() => {
+    try {
+      return localStorage.getItem('gvd_worksheet_school_name') || currentUser?.school || 'TRƯỜNG TIỂU HỌC SKY-LINE';
+    } catch (e) {
+      return 'TRƯỜNG TIỂU HỌC SKY-LINE';
+    }
+  });
 
   const printAreaRef = useRef(null);
 
@@ -1880,6 +2246,15 @@ export function AITextbookWorksheetModal({
       setSelectedTheme(initialTheme);
       setShowIllustrations(isKid);
       
+      try {
+        const savedSchool = localStorage.getItem('gvd_worksheet_school_name');
+        if (savedSchool && savedSchool.trim()) {
+          setSchoolName(savedSchool.trim());
+        } else if (currentUser?.school && currentUser.school.trim()) {
+          setSchoolName(currentUser.school.trim());
+        }
+      } catch (e) {}
+
       const detected = extractWorksheetLesson(book.title, book.subject, book.grade, promptCommand);
       const initialLesson = detected?.lesson || (typeof detected === 'string' ? detected : 'BÀI 1: BÀI HỌC TRỌNG TÂM SGK');
       setLessonTitle(initialLesson);
@@ -1912,6 +2287,8 @@ export function AITextbookWorksheetModal({
     setIsLoading(true);
     setLoadingStep('🤖 Gemini AI đang phân tích bài học và soạn phiếu bài tập...');
 
+    const effectiveSchool = (schoolName || '').trim() || 'TRƯỜNG TIỂU HỌC SKY-LINE';
+
     try {
       let effectiveText = bookText;
       if (!effectiveText || effectiveText.length < 50) {
@@ -1928,10 +2305,12 @@ export function AITextbookWorksheetModal({
         bookText: effectiveText,
         promptCommand: commandToUse || promptCommand,
         theme: themeToUse || selectedTheme,
-        selectedTypes: typesToUse || selectedTypes
+        selectedTypes: typesToUse || selectedTypes,
+        schoolName: effectiveSchool
       });
 
       if (result && result.worksheet) {
+        result.worksheet.school = effectiveSchool;
         setWorksheetData(result.worksheet);
         if (result.worksheet.lesson) {
           setLessonTitle(result.worksheet.lesson);
@@ -1947,8 +2326,10 @@ export function AITextbookWorksheetModal({
         subject: book.subject || 'Tiếng Việt',
         theme: themeToUse || selectedTheme,
         selectedTypes: typesToUse || selectedTypes,
-        promptCommand: commandToUse || promptCommand
+        promptCommand: commandToUse || promptCommand,
+        schoolName: effectiveSchool
       });
+      fallback.school = effectiveSchool;
       setWorksheetData(fallback);
       if (fallback.lesson) {
         setLessonTitle(fallback.lesson);
@@ -1980,7 +2361,7 @@ export function AITextbookWorksheetModal({
       text += `BÀI HỌC: ${effectiveLesson}\n`;
     }
     if (worksheetData.subtitle) text += `${worksheetData.subtitle}\n`;
-    text += `Trường: ${worksheetData.school || 'Sky-Line'}\n`;
+    text += `Trường: ${schoolName || worksheetData.school || 'Sky-Line'}\n`;
     text += `Họ và tên: ............................................ Lớp: ................. Ngày: .................\n`;
     text += `Thời gian làm bài: ${worksheetData.timeAllowed || '35 phút'}\n`;
     text += `---------------------------------------------------------\n\n`;
@@ -2286,11 +2667,46 @@ export function AITextbookWorksheetModal({
               </div>
             </div>
 
+            {/* School Name Configuration */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🏫</span> 2. Tên trường học (In trên tiêu đề phiếu)
+                </label>
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Chỉnh sửa được</span>
+              </div>
+              <input 
+                type="text"
+                value={schoolName}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setSchoolName(val);
+                  try { localStorage.setItem('gvd_worksheet_school_name', val); } catch(err) {}
+                  if (worksheetData) {
+                    setWorksheetData(prev => prev ? ({ ...prev, school: val }) : prev);
+                  }
+                }}
+                placeholder="Ví dụ: TRƯỜNG TIỂU HỌC SKY-LINE"
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  backgroundColor: '#0f172a',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
+                  color: '#38bdf8',
+                  fontSize: '0.84rem',
+                  fontWeight: 700,
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
             {/* Lesson / Topic Selector & Quick Suggestion Chips */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <label style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <BookOpen size={15} style={{ color: '#38bdf8' }} /> 2. Bài học SGK (In nổi bật trên phiếu)
+                  <BookOpen size={15} style={{ color: '#38bdf8' }} /> 3. Bài học SGK (In nổi bật trên phiếu)
                 </label>
                 <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Chỉnh sửa được</span>
               </div>
@@ -2362,7 +2778,7 @@ export function AITextbookWorksheetModal({
             {/* Prompt Instruction */}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginBottom: '6px' }}>
-                ✍️ 3. Yêu cầu chi tiết từ giáo viên
+                ✍️ 4. Yêu cầu chi tiết từ giáo viên
               </label>
               <textarea 
                 value={promptCommand}
@@ -2388,7 +2804,7 @@ export function AITextbookWorksheetModal({
             {/* Exercise Types Selector */}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc', marginBottom: '8px' }}>
-                📋 4. Các dạng bài tập xuất hiện trên phiếu
+                📋 5. Các dạng bài tập xuất hiện trên phiếu
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {EXERCISE_TYPES.map(type => {
@@ -2444,7 +2860,7 @@ export function AITextbookWorksheetModal({
                 <span style={{ fontSize: '1.05rem' }}>🖼️</span>
                 <div>
                   <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
-                    5. Hình ảnh & Sơ đồ minh họa
+                    6. Hình ảnh & Sơ đồ minh họa
                   </div>
                   <div style={{ fontSize: '0.7rem', color: showIllustrations ? '#38bdf8' : '#94a3b8' }}>
                     {showIllustrations ? 'Đang bật (khớp chuẩn kiến thức câu hỏi)' : 'Đang tắt (tiêu chuẩn văn bản sư phạm)'}
@@ -2784,8 +3200,8 @@ export function AITextbookWorksheetModal({
                               👧🎒
                             </div>
                             <div>
-                              <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', color: '#0369a1', letterSpacing: '0.5px' }}>
-                                {worksheetData.school || 'HỆ THỐNG GIÁO DỤC SKY-LINE'}
+                              <div style={{ fontSize: '0.74rem', fontWeight: 900, textTransform: 'uppercase', color: '#0369a1', letterSpacing: '0.5px' }}>
+                                {schoolName || worksheetData.school || 'TRƯỜNG TIỂU HỌC SKY-LINE'}
                               </div>
                               <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
                                 Môn: {worksheetData.subject} • {worksheetData.grade}
@@ -2885,13 +3301,12 @@ export function AITextbookWorksheetModal({
                           }}
                         >
                           {/* Thông tin học sinh */}
-                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '8px' }}>
                             <div>✏️ <strong>Họ và tên:</strong> ............................................................................</div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                               <span>🏫 <strong>Lớp:</strong> ........................</span>
                               <span>📅 <strong>Ngày:</strong> ...../...../20.....</span>
                             </div>
-                            <div>🎓 <strong>Trường:</strong> ...........................................................................</div>
                           </div>
 
                           {/* Khung Lời khen & Nhận xét của cô giáo (Chừa 2 dòng kẻ chấm đơn rõ nét) */}
@@ -2944,8 +3359,8 @@ export function AITextbookWorksheetModal({
                         >
                           {/* School & Subject */}
                           <div>
-                            <div style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', color: '#64748b', letterSpacing: '0.5px' }}>
-                              {worksheetData.school || 'HỆ THỐNG GIÁO DỤC SKY-LINE'}
+                            <div style={{ fontSize: '0.82rem', fontWeight: 900, textTransform: 'uppercase', color: '#475569', letterSpacing: '0.5px' }}>
+                              {schoolName || worksheetData.school || 'TRƯỜNG TIỂU HỌC SKY-LINE'}
                             </div>
                             <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                               Môn: {worksheetData.subject} • {worksheetData.grade}

@@ -194,7 +194,8 @@ export function generateCurriculumFallbackWorksheet({
   promptCommand = '',
   theme = 'primary_cute',
   selectedTypes = ['multiple_choice', 'fill_blank', 'matching', 'true_false', 'table_matrix', 'short_answer'],
-  extractedText = ''
+  extractedText = '',
+  schoolName = ''
 }) {
   const normSubject = (subject || '').toLowerCase();
   const cleanTitle = textbookTitle ? textbookTitle.replace(/\.pdf$/i, '') : 'Bài Học Sách Giáo Khoa';
@@ -745,7 +746,7 @@ export function generateCurriculumFallbackWorksheet({
     lesson: defaultLesson,
     title: defaultTitle,
     subtitle: defaultSubtitle,
-    school: 'HỆ THỐNG GIÁO DỤC SKY-LINE',
+    school: (schoolName || '').trim() || 'TRƯỜNG TIỂU HỌC SKY-LINE',
     grade: cleanGrade,
     subject: subject || 'Kiến thức chung',
     timeAllowed: '35 - 40 phút',
@@ -768,7 +769,8 @@ export async function generateAITextbookWorksheet({
   promptCommand = '',
   theme = 'primary_cute',
   selectedTypes = ['multiple_choice', 'fill_blank', 'matching', 'true_false', 'table_matrix', 'short_answer'],
-  apiKey = ''
+  apiKey = '',
+  schoolName = ''
 }) {
   const grade = book?.grade || 'Lớp 2';
   const subject = book?.subject || 'Tiếng Việt';
@@ -788,6 +790,7 @@ export async function generateAITextbookWorksheet({
         textbookText: (bookText || '').slice(0, 30000),
         grade,
         subject,
+        schoolName: (schoolName || '').trim(),
         apiKey: apiKey || (typeof localStorage !== 'undefined' ? (localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key') || '') : '')
       })
     });
@@ -796,6 +799,9 @@ export async function generateAITextbookWorksheet({
       const data = await res.json();
       if (data.success && data.worksheet && Array.isArray(data.worksheet.sections)) {
         const enriched = enrichWorksheetWithLesson(data.worksheet, promptCommand, book);
+        if (schoolName && schoolName.trim()) {
+          enriched.school = schoolName.trim();
+        }
         return {
           success: true,
           source: 'api_serverless',
@@ -815,26 +821,34 @@ export async function generateAITextbookWorksheet({
     const effectiveKey = apiKey || (typeof localStorage !== 'undefined' ? (localStorage.getItem('user_gemini_api_key') || localStorage.getItem('gemini_api_key') || '') : '') || (typeof atob !== 'undefined' ? atob(FALLBACK_KEY_ENC) : '');
     if (effectiveKey && effectiveKey.length > 15) {
       const models = ['gemini-3.1-flash-lite-preview', 'gemini-3-flash-preview', 'gemini-3.8-flash', 'gemini-2.0-flash'];
+      const effectiveSchool = (schoolName || '').trim() || 'TRƯỜNG TIỂU HỌC SKY-LINE';
       const sysPrompt = `Bạn là trợ lý AI chuyên gia sư phạm Việt Nam. Soạn phiếu bài tập môn ${subject} ${grade} theo sách "${textbookTitle}".
+Tên trường học: "${effectiveSchool}".
 Yêu cầu giáo viên: "${promptCommand}".
 Phong cách: ${theme}.
 Nội dung tài liệu: ${(bookText || textbookTitle).slice(0, 20000)}.
 
 QUY TẮC BẮT BUỘC:
-1. XÁC ĐỊNH RÕ RÀNG TÊN BÀI HỌC VÀ TIÊU ĐỀ:
+1. XÁC ĐỊNH RÕ RÀNG TÊN BÀI HỌC, TIÊU ĐỀ VÀ TÊN TRƯỜNG:
+   - "school": BẮT BUỘC ghi đúng tên trường "${effectiveSchool}" do giáo viên yêu cầu. TUYỆT ĐỐI KHÔNG tự sáng tác hay bịa tên trường khác như "Trường Tiểu Học Hạnh Phúc"!
    - "lesson": BẮT BUỘC ghi rõ BÀI HỌC CỤ THỂ theo đúng yêu cầu từ giáo viên (Ví dụ khi giáo viên yêu cầu "bài 1" sách Tiếng Việt 1 Tập 2 -> "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1"; sách Toán 1 -> "lesson": "BÀI 1: CÁC SỐ TRONG PHẠM VI 20"). TUYỆT ĐỐI KHÔNG để trống!
    - "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1").
    - "subtitle": "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
    - Nội dung bài tập bám sát kiến thức của đúng BÀI HỌC ĐÓ trong SGK!
 2. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM (ĐẶC BIỆT QUAN TRỌNG ĐỂ PHIẾU BÀI TẬP ĐẸP MẮT, SINH ĐỘNG NHƯ PHIẾU MẪU TIỂU HỌC):
    - MỖI CÂU HỎI VÀ MỖI BÀI TẬP BẮT BUỘC PHẢI CÓ HÌNH ẢNH MINH HỌA ("illustration" hoặc "diagram") ĐI ĐÔI VỚI NỘI DUNG để phiếu bài tập trực quan, sinh động, bắt mắt, thu hút học sinh tiểu học (như các phiếu bài tập mẫu)!
-   - HÌNH ẢNH MINH HỌA VÀ BIỂU TƯỢNG PHẢI KHỚP 100% VỚI TỪ NGỮ VÀ NỘI DUNG CỤ THỂ CỦA CÂU HỎI / ĐỐI TƯỢNG ĐƯỢC HỎI. TUYỆT ĐỐI KHÔNG GÁN HÌNH ẢNH BỪA BÃI (Ví dụ: Hỏi nét thẳng thì hình phải là nét thẳng "net_thang" (hoặc │), hỏi nét ngang thì hình phải là nét ngang "net_ngang" (hoặc —), hỏi nét xiên thì hình phải là nét xiên "net_xien" (hoặc ╱), hỏi hình vuông thì hình "hinh_vuong", hỏi con mèo thì "cat_mouse", hỏi thước kẻ thì "thuoc_ke").
+   - HÌNH ẢNH MINH HỌA VÀ BIỂU TƯỢNG PHẢI KHỚP 100% VỚI TỪ NGỮ VÀ NỘI DUNG CỤ THỂ CỦA CÂU HỎI / ĐỐI TƯỢNG ĐƯỢC HỎI. TUYỆT ĐỐI KHÔNG GÁN HÌNH ẢNH BỪA BÃI (Ví dụ: Từ "Bà" thì hình phải là người bà "ba" (hoặc 👵), từ "Cỏ" thì hình phải là bụi cỏ "bui_co" (hoặc 🌿), từ "Võ" thì hình phải là võ thuật "vo_thuat" (hoặc 🥋), từ "Mạ" thì hình phải là cây mạ non "cay_ma" (hoặc 🌱), từ "Cá" thì hình "con_ca", hỏi nét thẳng thì hình phải là nét thẳng "net_thang" (hoặc │), hỏi nét ngang thì hình phải là nét ngang "net_ngang" (hoặc —), hỏi nét xiên thì hình phải là nét xiên "net_xien" (hoặc ╱), hỏi hình vuông thì hình "hinh_vuong", hỏi con mèo thì "con_meo", hỏi thước kẻ thì "thuoc_ke").
    - BẢNG TÊN KHÓA MINH HỌA CHUẨN XÁC:
-     • Nét chữ Tiểu học (Lớp 1 Tiếng Việt / Tập viết): "net_thang" (hoặc icon │), "net_ngang" (hoặc icon —), "net_xien" (hoặc icon ╱), "net_xien_trai" (hoặc icon ╲), "net_moc_xuoi", "net_moc_nguoc", "net_moc_hai_dau", "net_cong_kin", "net_cong_ho_phai", "net_cong_ho_trai", "net_khuyet_tren", "net_khuyet_duoi", "net_that".
+     • Con người & Gia đình: "ba" (người bà / 👵), "ong" (người ông / 👴), "me" (người mẹ / 👩), "bo" (người bố / 👨), "be" (em bé / 👶), "co_giao" (cô giáo / 👩‍🏫), "thay_giao" (thầy giáo / 👨‍🏫), "hoc_sinh" (học sinh / 🎒).
+     • Hoạt động, Đời sống & Thể thao: "vo_thuat" (võ / học võ / tập võ / 🥋), "da_bong" (đá bóng / ⚽), "boi_loi" (bơi lội / 🏊), "singing_kids" (ca hát / 🎤), "sweeping" (quét nhà / 🧹), "cooking" (nấu ăn / 🍳).
+     • Nông nghiệp, Tự nhiên & Cây cỏ: "bui_co" (cỏ / bụi cỏ / 🌿), "cay_ma" (mạ / cây mạ / cấy mạ / 🌱), "bong_lua" (lúa / bông lúa / 🌾), "cay_xanh" (cây xanh / 🌳), "bong_hoa" (bông hoa / 🌸), "chiec_la" (chiếc lá / 🍃), "hoa_sen" (hoa sen / 🪷).
+     • Động vật: "con_ga" (gà / 🐔), "con_vit" (vịt / 🦆), "con_meo" (mèo / 🐱), "con_cho" (chó / 🐶), "con_ca" (cá / 🐟), "con_tho" (thỏ / 🐰), "con_ho" (hổ / 🐯), "con_ngua" (ngựa / 🐴), "con_bo" (bò / 🐮), "con_de" (dê / 🐐), "con_chim" (chim / 🐦), "con_ong" (ong / 🐝), "con_buom" (bướm / 🦋), "con_rua" (rùa / 🐢), "con_ech" (ếch / 🐸), "con_khi" (khỉ / 🐵), "con_voi" (voi / 🐘).
+     • Trái cây & Nông sản: "qua_cam" (cam / 🍊), "qua_chuoi" (chuối / 🍌), "qua_tao" (táo / 🍎), "qua_khe" (khế / ⭐), "qua_le" (lê / 🍐), "qua_nho" (nho / 🍇), "qua_du_du" (đu đủ), "ca_chua" (cà chua / 🍅), "cu_ca_rot" (cà rốt / 🥕), "bap_ngo" (ngô / 🌽).
+     • Đồ vật & Phương tiện: "chiec_o" (ô / dù / ☂️), "chiec_mu" (mũ / 🧢), "chiec_non" (nón / 👒), "thuyen" (thuyền / ⛵), "cai_ban" (bàn), "cai_ghe" (ghế), "xe_dap" (xe đạp / 🚲), "xe_buyt" (xe buýt / 🚌), "xe_may" (xe máy / 🛵), "o_to" (ô tô / 🚗), "tau_hoa" (tàu hỏa / 🚂), "paper_plane" (máy bay / ✈️), "family_home" (ngôi nhà / 🏠).
+     • Nét chữ & Thanh điệu Lớp 1: "net_thang" (│), "net_ngang" (—), "net_xien" (╱), "net_xien_trai" (╲), "net_cong_kin" (○), "net_cong_ho_phai", "net_cong_ho_trai", "net_moc_xuoi", "net_moc_nguoc", "net_moc_hai_dau", "net_khuyet_tren", "net_khuyet_duoi", "net_that", "dau_huyen", "dau_sac", "dau_hoi", "dau_nga", "dau_nang".
      • Hình học & Đo lường: "hinh_vuong", "hinh_chu_nhat", "hinh_tam_giac", "hinh_tron", "hinh_thoi", "khoi_lap_phuong", "doan_thang", "calculator_cute", "abacus", "clock_analog", "apple_counter", "balance_scale".
      • Đồ dùng học tập: "thuoc_ke" (thước kẻ), "cuc_tay" (cục tẩy), "cap_sach" (cặp sách), "keo_cat" (kéo), "pencil_cute" (bút chì), "book_reading" (sách), "books_stack" (vở).
-     • Thiên nhiên, Động vật, Hoa quả: "mat_troi", "dam_may", "cau_vong", "bong_hoa", "chiec_la", "con_ca", "con_tho", "cat_mouse", "dog_loyal", "chicken_family", "duck_swimming", "bird_flying", "qua_cam", "qua_chuoi", "plant_growing".
-     • Giao thông & Đời sống: "xe_dap", "xe_buyt", "den_giao_thong", "paper_plane", "family_home", "sweeping", "cooking", "earth_globe", "village_scene", "vietnam_flag".
+     • Thiên nhiên & Thời tiết: "mat_troi", "dam_may", "cau_vong".
      • Âm nhạc: "music_notes", "drum", "singing_kids", "piano", "bell".
    - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
    - Ở Phần 3 (Nối cột):
@@ -846,7 +860,7 @@ Chỉ trả về JSON thuần túy (Object):
   "lesson": "BÀI 1: TÔI LÀ HỌC SINH LỚP 1",
   "title": "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1",
   "subtitle": "Bài 1: Tôi là học sinh lớp 1 · Chủ đề: Rèn kĩ năng đọc hiểu & chính tả",
-  "school": "TRƯỜNG SKY-LINE",
+  "school": "${effectiveSchool}",
   "grade": "${grade}",
   "subject": "${subject}",
   "timeAllowed": "35 phút",
@@ -880,6 +894,9 @@ Chỉ trả về JSON thuần túy (Object):
               const parsed = JSON.parse(match[0]);
               if (parsed && Array.isArray(parsed.sections)) {
                 const enriched = enrichWorksheetWithLesson(parsed, promptCommand, book);
+                if (schoolName && schoolName.trim()) {
+                  enriched.school = schoolName.trim();
+                }
                 return {
                   success: true,
                   source: 'google_direct_' + m,
@@ -908,12 +925,18 @@ Chỉ trả về JSON thuần túy (Object):
     promptCommand,
     theme,
     selectedTypes,
-    extractedText: bookText
+    extractedText: bookText,
+    schoolName
   });
+
+  const finalFallback = enrichWorksheetWithLesson(fallbackData, promptCommand, book);
+  if (schoolName && schoolName.trim()) {
+    finalFallback.school = schoolName.trim();
+  }
 
   return {
     success: true,
     source: 'curriculum_engine',
-    worksheet: enrichWorksheetWithLesson(fallbackData, promptCommand, book)
+    worksheet: finalFallback
   };
 }
