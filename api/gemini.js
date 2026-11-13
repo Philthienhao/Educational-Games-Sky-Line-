@@ -93,14 +93,17 @@ YÊU CẦU BẮT BUỘC:
    - Phần 4: Đúng / Sai (3 câu nhận định để học sinh điền Đ hoặc S)
    - Phần 5: Bảng phân tích / Bảng tổng hợp kiến thức (dạng ma trận 2 cột rõ ràng)
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
-3. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA (QUAN TRỌNG NHẤT VỀ TÍNH SƯ PHẠM):
-   - HÌNH ẢNH MINH HỌA PHẢI KHỚP 100% VỚI NỘI DUNG KIẾN THỨC CÂU HỎI.
-   - TUYỆT ĐỐI KHÔNG tự tiện chèn icon con vật (mèo, cún, thỏ, vịt...), hoa quả vào các câu hỏi không hề nhắc đến hay liên quan đến chúng.
-   - NẾU câu hỏi là câu trắc nghiệm kiến thức thông thường, đọc hiểu bài văn, bài thơ, phép tính đại số, ngữ pháp, lịch sử, địa lí, lý thuyết: BẮT BUỘC để "illustration": null và "optionIcons": [].
-   - CHỈ cung cấp "illustration" khi câu hỏi TRỰC TIẾP hỏi về hoặc mô tả đối tượng cụ thể đó (ví dụ: câu hỏi "Đồ dùng học tập nào dùng để viết?" -> "pencil"; câu hỏi "Đồng hồ chỉ mấy giờ?" -> "clock"; câu hỏi "Con vật nào bắt chuột kêu meo meo?" -> "cat"; câu hỏi hình học -> "triangle" / "rectangle").
+3. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM (ĐẶC BIỆT QUAN TRỌNG ĐỂ PHIẾU BÀI TẬP ĐẸP MẮT, SINH ĐỘNG NHƯ PHIẾU MẪU TIỂU HỌC):
+   - MỖI CÂU HỎI VÀ MỖI BÀI TẬP BẮT BUỘC PHẢI CÓ HÌNH ẢNH MINH HỌA ("illustration" hoặc "diagram") ĐI ĐÔI VỚI NỘI DUNG để phiếu bài tập trực quan, sinh động, bắt mắt, thu hút học sinh tiểu học (như các phiếu bài tập mẫu)!
+   - HÌNH ẢNH MINH HỌA PHẢI KHỚP VỚI NỘI DUNG BÀI HỌC VÀ CHỦ ĐỀ CÂU HỎI:
+     • Môn Âm nhạc (như câu hỏi lắng nghe âm thanh, bài hát, giai điệu, nhạc cụ, cảm xúc âm nhạc): BẮT BUỘC dùng "music_notes", "drum", "singing_kids", "piano", "bell", "guitar", "trumpet".
+     • Môn Tiếng Việt / Đọc hiểu / Từ vựng: Cung cấp illustration tương ứng với đối tượng, sự vật, hành động trong câu (ví dụ: "book_reading", "pencil_cute", "books_stack", "cat_mouse", "chicken_family", "duck_swimming", "dog_loyal", "sweeping", "cooking", "paper_plane", "family_home", "classroom", "school_bus").
+     • Môn Toán học: "calculator_cute", "abacus", "clock_analog", "apple_counter", "balance_scale", "geometry_shapes", "number_line". Hoặc diagram cho hình học.
+     • Môn Khoa học / Tự nhiên & Xã hội / Lịch sử & Địa lí: "plant_growing", "earth_globe", "village_scene", "vietnam_flag", "magnifier_science", "sun_clouds", "water_cycle".
+     • Môn Đạo đức / Kĩ năng: "helping_friends", "traffic_light", "family_home", "cleaning_room".
    - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
-   - Với các lựa chọn trắc nghiệm ("options"): BẮT BUỘC để "optionIcons": [] đối với các đáp án là số, chữ, câu văn. TUYỆT ĐỐI KHÔNG gán icon trang trí làm sai lệch nội dung bài tập.
-   - Ở Phần 3 (Nối cột): Chỉ gán "leftIcon" khi Cột A là hình ảnh cụ thể cần nối với từ ngữ (ví dụ: bài học tiếng Việt nhận biết đồ vật). Nếu là kiến thức môn học nâng cao (lịch sử, địa lí, KHTN), để "leftIcon": null.
+   - Ở Phần 3 (Nối cột): Cột A BẮT BUỘC có "leftIcon" hoặc "leftIllustration" (ví dụ: icon hoặc tên minh họa cụ thể) để học sinh nối hình ảnh với từ ngữ!
+   - TUYỆT ĐỐI KHÔNG để câu hỏi chỉ toàn chữ trơ trọi mà không có hình minh họa đi kèm!
 4. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
 5. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
 

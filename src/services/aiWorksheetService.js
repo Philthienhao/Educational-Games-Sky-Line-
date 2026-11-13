@@ -207,13 +207,128 @@ export function generateCurriculumFallbackWorksheet({
   let defaultSubtitle = lessonDetails.subtitle;
 
   // Customized content sets by subject
+  const isMusic = normSubject.includes('âm nhạc') || normSubject.includes('nhạc') || normSubject.includes('hát');
   const isMath = normSubject.includes('toán') || normSubject.includes('math');
   const isGeoOrHist = normSubject.includes('địa') || normSubject.includes('sử') || normSubject.includes('lsdl');
   const isScience = normSubject.includes('khtn') || normSubject.includes('khoa học') || normSubject.includes('sinh') || normSubject.includes('hóa') || normSubject.includes('lý');
   const isEnglish = normSubject.includes('anh') || normSubject.includes('english');
   let sections = [];
 
-  if (isMath) {
+  if (isMusic) {
+    defaultTitle = `PHIẾU BÀI TẬP ÂM NHẠC ${cleanGrade.toUpperCase()}`;
+    defaultSubtitle = `Khám phá thế giới âm thanh & Cảm thụ âm nhạc - ${cleanTitle}`;
+
+    if (selectedTypes.includes('multiple_choice')) {
+      sections.push({
+        type: 'multiple_choice',
+        title: 'I. TRẮC NGHIỆM ÂM NHẠC & LẮNG NGHE ÂM THANH',
+        instruction: 'Khoanh tròn vào chữ cái đặt trước câu trả lời đúng nhất:',
+        items: [
+          {
+            id: 1,
+            question: 'Trong cuộc sống hàng ngày, chúng ta được làm quen với việc lắng nghe âm thanh của những gì?',
+            options: ['Tiếng xe cộ và tiếng máy móc', 'Tiếng trống trường và tiếng cô giảng bài', 'Tiếng gió thổi và tiếng chim hót', 'Tất cả các âm thanh phong phú trên'],
+            optionIcons: ['🚗', '🥁', '🐦', '🎶'],
+            answer: 'D',
+            illustration: 'drum',
+            points: '1.0 đ'
+          },
+          {
+            id: 2,
+            question: 'Âm nhạc mang lại cho em cảm xúc và tinh thần như thế nào khi học tập và vui chơi?',
+            options: ['Buồn chán và uể oải', 'Mệt mỏi và lo lắng', 'Vui vẻ, hào hứng và yêu đời', 'Căng thẳng và bối rối'],
+            optionIcons: ['😔', '😫', '😄', '😰'],
+            answer: 'C',
+            illustration: 'singing_kids',
+            points: '1.0 đ'
+          },
+          {
+            id: 3,
+            question: 'Nhạc cụ gõ nào thường dùng để giữ nhịp điệu rộn ràng, tưng bừng trong trường học?',
+            options: ['Trống trường / Trống nhỏ', 'Kèn đồng lớn', 'Đàn piano lớn', 'Đàn nhị'],
+            optionIcons: ['🥁', '🎺', '🎹', '🎻'],
+            answer: 'A',
+            illustration: 'music_notes',
+            points: '1.0 đ'
+          }
+        ]
+      });
+    }
+
+    if (selectedTypes.includes('fill_blank')) {
+      sections.push({
+        type: 'fill_blank',
+        title: 'II. ĐIỀN TỪ THÍCH HỢP VÀO CHỖ TRỐNG',
+        instruction: 'Chọn từ gợi ý thích hợp trong khung để hoàn thành câu văn:',
+        items: [
+          {
+            id: 4,
+            question: 'Âm nhạc giống như một người bạn thân thiết, mang lại cho chúng ta nhiều niềm [ ________ ].',
+            wordBank: ['vui', 'buồn', 'sợ hãi'],
+            answer: 'vui',
+            illustration: 'music_notes',
+            points: '1.0 đ'
+          },
+          {
+            id: 5,
+            question: 'Khi cùng nhau hát vang bài hát yêu thích, các bạn học sinh cảm thấy vô cùng [ ________ ].',
+            wordBank: ['đoàn kết', 'xa cách', 'lo lắng'],
+            answer: 'đoàn kết',
+            illustration: 'singing_kids',
+            points: '1.0 đ'
+          }
+        ]
+      });
+    }
+
+    if (selectedTypes.includes('matching')) {
+      sections.push({
+        type: 'matching',
+        title: 'III. NỐI NGUỒN PHÁT ÂM THANH VỚI TIẾNG KÊU TƯƠNG ỨNG',
+        instruction: 'Em hãy nối hình ảnh ở Cột A với âm thanh tương ứng ở Cột B:',
+        pairs: [
+          { left: 'Tiếng trống trường khai giảng', leftIcon: '🥁', right: 'Tùng! Tùng! Tùng!' },
+          { left: 'Tiếng chim hót trên cành cây', leftIcon: '🐦', right: 'Líu lo, líu lo' },
+          { left: 'Tiếng suối trong rừng chảy', leftIcon: '🌊', right: 'Róc rách, róc rách' },
+          { left: 'Tiếng chuông nhỏ reo vang', leftIcon: '🔔', right: 'Leng keng, leng keng' }
+        ],
+        points: '2.0 đ'
+      });
+    }
+
+    if (selectedTypes.includes('true_false')) {
+      sections.push({
+        type: 'true_false',
+        title: 'IV. ĐÚNG GHI Đ, SAI GHI S VÀO Ô TRỐNG',
+        instruction: 'Đọc kĩ các nhận định về tư thế và kĩ năng hát, ghi Đ hoặc S:',
+        items: [
+          { statement: 'Khi hát, chúng ta cần ngồi hoặc đứng ngay ngắn, gương mặt tươi vui rạng rỡ.', answer: 'Đ', illustration: 'singing_kids', points: '0.5 đ' },
+          { statement: 'Cố gắng la hét thật to sẽ giúp giọng hát vang và hay hơn.', answer: 'S', illustration: 'bell', points: '0.5 đ' },
+          { statement: 'Gõ đệm theo nhịp điệu giúp bài hát thêm sinh động và hấp dẫn.', answer: 'Đ', illustration: 'drum', points: '0.5 đ' }
+        ]
+      });
+    }
+
+    if (selectedTypes.includes('short_answer')) {
+      sections.push({
+        type: 'short_answer',
+        title: 'V. TỰ LUẬN & CHIA SẺ CẢM XÚC ÂM NHẠC',
+        instruction: 'Em hãy viết câu trả lời vào khung ô ly dưới đây thật nắn nót nhé:',
+        items: [
+          {
+            id: 6,
+            question: 'Em hãy nêu tên 1 bài hát mà em yêu thích nhất và chia sẻ cảm xúc của em khi được lắng nghe hoặc hát bài hát đó:',
+            lines: 4,
+            useOlyGrid: true,
+            suggestedAnswer: 'Gợi ý: Em yêu thích bài hát "Em yêu trường em" vì bài hát mang giai điệu vui tươi, nhắc nhở em yêu quý thầy cô, bạn bè và mái trường.',
+            illustration: 'music_notes',
+            points: '2.0 đ'
+          }
+        ]
+      });
+    }
+
+  } else if (isMath) {
     defaultTitle = `PHIẾU BÀI TẬP TOÁN ${cleanGrade.toUpperCase()}`;
     defaultSubtitle = `Rèn luyện kĩ năng tính toán & Giải toán có lời văn - ${cleanTitle}`;
 
@@ -229,7 +344,7 @@ export function generateCurriculumFallbackWorksheet({
             options: ['48', '50', '51', '40'],
             optionIcons: [],
             answer: 'B',
-            illustration: null,
+            illustration: 'abacus',
             points: '1.0 đ'
           },
           {
@@ -238,7 +353,7 @@ export function generateCurriculumFallbackWorksheet({
             options: ['59', '69', '58', '60'],
             optionIcons: [],
             answer: 'A',
-            illustration: null,
+            illustration: 'calculator_cute',
             points: '1.0 đ'
           },
           {
@@ -247,7 +362,7 @@ export function generateCurriculumFallbackWorksheet({
             options: ['5 ngày', '6 ngày', '7 ngày', '8 ngày'],
             optionIcons: [],
             answer: 'C',
-            illustration: 'clock',
+            illustration: 'clock_analog',
             points: '1.0 đ'
           }
         ]
@@ -265,7 +380,7 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Dãy số tăng dần: 10, 15, 20, [ ____ ], 30, [ ____ ].',
             wordBank: ['25', '35'],
             answer: '25 và 35',
-            illustration: null,
+            illustration: 'apple_counter',
             points: '1.5 đ'
           },
           {
@@ -273,7 +388,7 @@ export function generateCurriculumFallbackWorksheet({
             question: 'Phép so sánh: 48 cm + 12 cm [ ____ ] 60 cm (Điền >, < hoặc =).',
             wordBank: ['>', '<', '='],
             answer: '=',
-            illustration: null,
+            illustration: 'balance_scale',
             points: '1.0 đ'
           }
         ]
@@ -286,10 +401,10 @@ export function generateCurriculumFallbackWorksheet({
         title: 'III. NỐI PHÉP TÍNH VỚI KẾT QUẢ TƯƠNG ỨNG',
         instruction: 'Em hãy nối phép tính ở Cột A với kết quả ở Cột B:',
         pairs: [
-          { left: '25 + 15', right: '40' },
-          { left: '60 - 20', right: '40' },
-          { left: '12 + 18', right: '30' },
-          { left: '50 - 15', right: '35' }
+          { left: '25 + 15', leftIcon: '🔢', right: '40' },
+          { left: '60 - 20', leftIcon: '➖', right: '40' },
+          { left: '12 + 18', leftIcon: '➕', right: '30' },
+          { left: '50 - 15', leftIcon: '🧮', right: '35' }
         ],
         points: '2.0 đ'
       });
@@ -301,9 +416,9 @@ export function generateCurriculumFallbackWorksheet({
         title: 'IV. ĐÚNG GHI Đ, SAI GHI S VÀO Ô TRỐNG',
         instruction: 'Đọc kĩ các khẳng định toán học sau và ghi Đ hoặc S vào ô vuông:',
         items: [
-          { statement: '1 mét bằng 100 xăng-ti-mét (cm).', answer: 'Đ', points: '0.5 đ' },
-          { statement: 'Hình vuông có 4 cạnh không bằng nhau.', answer: 'S', points: '0.5 đ' },
-          { statement: 'Số chẵn lớn nhất có 2 chữ số là 98.', answer: 'Đ', points: '0.5 đ' }
+          { statement: '1 mét bằng 100 xăng-ti-mét (cm).', answer: 'Đ', illustration: 'ruler', points: '0.5 đ' },
+          { statement: 'Hình vuông có 4 cạnh không bằng nhau.', answer: 'S', illustration: 'geometry_shapes', points: '0.5 đ' },
+          { statement: 'Số chẵn lớn nhất có 2 chữ số là 98.', answer: 'Đ', illustration: 'calculator_cute', points: '0.5 đ' }
         ]
       });
     }
@@ -326,13 +441,15 @@ export function generateCurriculumFallbackWorksheet({
       sections.push({
         type: 'short_answer',
         title: 'VI. GIẢI BÀI TOÁN CÓ LỜI VĂN',
-        instruction: 'Đọc kĩ đề bài, ghi rõ tóm tắt, câu lời giải, phép tính và đáp số:',
+        instruction: 'Đọc kĩ đề bài, ghi tóm tắt và trình bày bài giải vào khung ô ly:',
         items: [
           {
             id: 6,
             question: 'Lớp 2A có 18 bạn nam và 16 bạn nữ. Hỏi lớp 2A có tất cả bao nhiêu bạn học sinh?',
             lines: 4,
+            useOlyGrid: true,
             suggestedAnswer: 'Bài giải: Lớp 2A có tất cả số bạn là: 18 + 16 = 34 (bạn). Đáp số: 34 bạn học sinh.',
+            illustration: 'calculator_cute',
             points: '2.0 đ'
           }
         ]
@@ -655,14 +772,17 @@ QUY TẮC BẮT BUỘC:
    - "title": Phải kèm số bài học (Ví dụ: "PHIẾU BÀI TẬP VÀ ÔN LUYỆN - BÀI 1").
    - "subtitle": "Bài 1: [Tên bài học cụ thể] · Chủ đề: [Nội dung trọng tâm]".
    - Nội dung bài tập bám sát kiến thức của đúng BÀI HỌC ĐÓ trong SGK!
-2. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM:
-   - HÌNH ẢNH MINH HỌA PHẢI KHỚP 100% VỚI NỘI DUNG KIẾN THỨC CÂU HỎI.
-   - TUYỆT ĐỐI KHÔNG tự tiện chèn icon con vật (mèo, cún, vịt...), hoa quả vào các câu hỏi không liên quan đến chúng.
-   - NẾU câu hỏi là câu trắc nghiệm kiến thức thông thường, đọc hiểu bài văn, bài thơ, phép tính đại số, ngữ pháp, lịch sử, địa lí, lý thuyết: BẮT BUỘC để "illustration": null và "optionIcons": [].
-   - CHỈ cung cấp "illustration" khi câu hỏi TRỰC TIẾP hỏi về hoặc mô tả đối tượng cụ thể đó (ví dụ: câu hỏi "Đồ dùng học tập nào dùng để viết?" -> "pencil"; câu hỏi "Đồng hồ chỉ mấy giờ?" -> "clock"; câu hỏi "Con vật nào bắt chuột kêu meo meo?" -> "cat"; câu hỏi hình học -> "triangle" / "rectangle").
+2. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM (ĐẶC BIỆT QUAN TRỌNG ĐỂ PHIẾU BÀI TẬP ĐẸP MẮT, SINH ĐỘNG NHƯ PHIẾU MẪU TIỂU HỌC):
+   - MỖI CÂU HỎI VÀ MỖI BÀI TẬP BẮT BUỘC PHẢI CÓ HÌNH ẢNH MINH HỌA ("illustration" hoặc "diagram") ĐI ĐÔI VỚI NỘI DUNG để phiếu bài tập trực quan, sinh động, bắt mắt, thu hút học sinh tiểu học (như các phiếu bài tập mẫu)!
+   - HÌNH ẢNH MINH HỌA PHẢI KHỚP VỚI NỘI DUNG BÀI HỌC VÀ CHỦ ĐỀ CÂU HỎI:
+     • Môn Âm nhạc (như câu hỏi lắng nghe âm thanh, bài hát, giai điệu, nhạc cụ, cảm xúc âm nhạc): BẮT BUỘC dùng "music_notes", "drum", "singing_kids", "piano", "bell", "guitar", "trumpet".
+     • Môn Tiếng Việt / Đọc hiểu / Từ vựng: Cung cấp illustration tương ứng với đối tượng, sự vật, hành động trong câu (ví dụ: "book_reading", "pencil_cute", "books_stack", "cat_mouse", "chicken_family", "duck_swimming", "dog_loyal", "sweeping", "cooking", "paper_plane", "family_home", "classroom", "school_bus").
+     • Môn Toán học: "calculator_cute", "abacus", "clock_analog", "apple_counter", "balance_scale", "geometry_shapes", "number_line". Hoặc diagram cho hình học.
+     • Môn Khoa học / Tự nhiên & Xã hội / Lịch sử & Địa lí: "plant_growing", "earth_globe", "village_scene", "vietnam_flag", "magnifier_science", "sun_clouds", "water_cycle".
+     • Môn Đạo đức / Kĩ năng: "helping_friends", "traffic_light", "family_home", "cleaning_room".
    - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
-   - Với các lựa chọn trắc nghiệm ("options"): BẮT BUỘC để "optionIcons": [] đối với các đáp án là số, chữ, câu văn. TUYỆT ĐỐI KHÔNG gán icon trang trí làm sai lệch nội dung bài tập.
-   - Ở Phần 3 (Nối cột): Chỉ gán "leftIcon" khi Cột A là hình ảnh cụ thể cần nối với từ ngữ. Nếu là kiến thức môn học nâng cao (lịch sử, địa lí, KHTN), để "leftIcon": null.
+   - Ở Phần 3 (Nối cột): Cột A BẮT BUỘC có "leftIcon" hoặc "leftIllustration" (ví dụ: icon hoặc tên minh họa cụ thể) để học sinh nối hình ảnh với từ ngữ!
+   - TUYỆT ĐỐI KHÔNG để câu hỏi chỉ toàn chữ trơ trọi mà không có hình minh họa đi kèm!
 
 Chỉ trả về JSON thuần túy (Object):
 {
