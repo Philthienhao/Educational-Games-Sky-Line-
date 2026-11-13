@@ -1179,7 +1179,7 @@ export function TextbookDownloadManager({
       ) : (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))',
           gap: '20px',
           width: '100%'
         }}>
@@ -1196,12 +1196,14 @@ export function TextbookDownloadManager({
                   background: '#ffffff',
                   borderRadius: '24px',
                   border: hasLocalPdf ? '2px solid #10b981' : '1.5px solid #e2e8f0',
-                  padding: '22px',
+                  padding: '20px',
                   boxShadow: hasLocalPdf ? '0 8px 24px rgba(16, 185, 129, 0.15)' : '0 4px 15px rgba(0, 0, 0, 0.04)',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   gap: '16px',
+                  boxSizing: 'border-box',
+                  overflow: 'hidden',
                   transition: 'all 0.25s ease'
                 }}
               >
@@ -1284,131 +1286,159 @@ export function TextbookDownloadManager({
                   </div>
                 </div>
 
-                {/* Bottom Action Buttons */}
-                <div style={{ display: 'flex', gap: '8px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
-                  
-                  {/* Prominent Primary Button: Open Reader directly on web interface */}
-                  <button
-                    onClick={() => handleOpenReader(book)}
-                    title="Đọc trực tiếp sách giáo khoa trên hệ thống, không cần qua Google Drive"
-                    style={{
-                      flex: 1.3,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '7px',
-                      padding: '12px 14px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      fontWeight: 900,
-                      fontSize: '0.88rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 15px rgba(13, 148, 136, 0.35)',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <BookOpen size={17} /> Đọc Sách
-                  </button>
+                {/* Bottom Action Buttons (Sắp xếp 2 hàng gọn gàng, khớp 100% vào khung thẻ) */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  paddingTop: '12px',
+                  borderTop: '1px solid #f1f5f9',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}>
+                  {/* Hàng 1: Đọc Sách & Tải Về máy */}
+                  <div style={{ display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
+                    {/* Nút Đọc Sách chính */}
+                    <button
+                      onClick={() => handleOpenReader(book)}
+                      title="Đọc trực tiếp sách giáo khoa trên hệ thống, không cần qua Google Drive"
+                      style={{
+                        flex: 1.2,
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '10px 12px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #0d9488 0%, #059669 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: '0.84rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 3px 12px rgba(13, 148, 136, 0.28)',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <BookOpen size={16} /> Đọc Sách
+                    </button>
 
-                  {/* AI Game Creator Button directly on book card */}
-                  <button
-                    onClick={() => handleOpenAiGameCreator(book)}
-                    title={`AI tự động tạo trò chơi tương tác từ sách ${book.title}`}
-                    style={{
-                      flex: 1.1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      padding: '12px 10px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      fontWeight: 900,
-                      fontSize: '0.84rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(99, 102, 241, 0.3)',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <Sparkles size={16} /> AI Tạo Game
-                  </button>
+                    {/* Nút Tải Về PDF */}
+                    <button
+                      disabled={isDownloading}
+                      onClick={() => handleDownloadPdf(book)}
+                      title="Tải tệp PDF về máy tính"
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '5px',
+                        padding: '10px 10px',
+                        borderRadius: '12px',
+                        background: '#f8fafc',
+                        color: '#0f766e',
+                        border: '1.5px solid #ccfbf1',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        cursor: isDownloading ? 'wait' : 'pointer',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      {isDownloading ? <RefreshCw size={14} className="spin-icon" /> : <Download size={14} />} Tải Về
+                    </button>
 
-                  {/* AI Worksheet Creator Button directly on book card */}
-                  <button
-                    onClick={() => handleOpenAiWorksheetCreator(book)}
-                    title={`AI tự động soạn Phiếu bài tập / Phiếu học tập chuẩn Bộ GD&ĐT từ sách ${book.title}`}
-                    style={{
-                      flex: 1.15,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      padding: '12px 10px',
-                      borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      fontWeight: 900,
-                      fontSize: '0.84rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <FileText size={16} /> AI Phiếu Bài Tập
-                  </button>
+                    {/* Biểu tượng Mở Thư Mục Google Drive */}
+                    <a
+                      href={targetDriveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Mở trực tiếp thư mục Google Drive [${book.grade || 'Kho Sách'}] chứa file PDF gốc`}
+                      style={{
+                        flexShrink: 0,
+                        width: '38px',
+                        height: '38px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '12px',
+                        background: '#eff6ff',
+                        color: '#2563eb',
+                        border: '1px solid #bfdbfe',
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        boxSizing: 'border-box',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                  </div>
 
-                  {/* Download Button */}
-                  <button
-                    disabled={isDownloading}
-                    onClick={() => handleDownloadPdf(book)}
-                    title="Tải tệp PDF về máy tính"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '5px',
-                      padding: '12px 14px',
-                      borderRadius: '14px',
-                      background: '#f8fafc',
-                      color: '#0f766e',
-                      border: '1.5px solid #ccfbf1',
-                      fontWeight: 800,
-                      fontSize: '0.82rem',
-                      cursor: isDownloading ? 'wait' : 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    {isDownloading ? <RefreshCw size={15} className="spin-icon" /> : <Download size={15} />} Tải Về
-                  </button>
+                  {/* Hàng 2: Bộ đôi công cụ Trí Tuệ Nhân Tạo (AI Sư Phạm) */}
+                  <div style={{ display: 'flex', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
+                    {/* Nút AI Tạo Game */}
+                    <button
+                      onClick={() => handleOpenAiGameCreator(book)}
+                      title={`AI tự động tạo trò chơi tương tác từ sách ${book.title}`}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '10px 10px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 3px 12px rgba(99, 102, 241, 0.28)',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <Sparkles size={15} /> AI Tạo Game
+                    </button>
 
-
-                  {/* Google Drive Folder Direct Link Icon for this specific grade */}
-                  <a
-                    href={targetDriveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`Mở trực tiếp thư mục Google Drive [${book.grade || 'Kho Sách'}] chứa file PDF gốc`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '12px',
-                      borderRadius: '14px',
-                      background: '#eff6ff',
-                      color: '#2563eb',
-                      border: '1px solid #bfdbfe',
-                      cursor: 'pointer',
-                      textDecoration: 'none'
-                    }}
-                  >
-                    <ExternalLink size={16} />
-                  </a>
-
+                    {/* Nút AI Phiếu Bài Tập */}
+                    <button
+                      onClick={() => handleOpenAiWorksheetCreator(book)}
+                      title={`AI tự động soạn Phiếu bài tập / Phiếu học tập chuẩn Bộ GD&ĐT từ sách ${book.title}`}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '10px 10px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        fontWeight: 900,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 3px 12px rgba(2, 132, 199, 0.28)',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <FileText size={15} /> AI Phiếu Bài Tập
+                    </button>
+                  </div>
                 </div>
               </div>
             );
