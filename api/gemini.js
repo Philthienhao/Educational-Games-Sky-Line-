@@ -95,14 +95,17 @@ YÊU CẦU BẮT BUỘC:
    - Phần 6: Tự luận & Vận dụng thực tế (1-2 câu, kèm số dòng kẻ chừa sẵn cho học sinh viết)
 3. NGUYÊN TẮC HÌNH ẢNH & MINH HỌA SƯ PHẠM (ĐẶC BIỆT QUAN TRỌNG ĐỂ PHIẾU BÀI TẬP ĐẸP MẮT, SINH ĐỘNG NHƯ PHIẾU MẪU TIỂU HỌC):
    - MỖI CÂU HỎI VÀ MỖI BÀI TẬP BẮT BUỘC PHẢI CÓ HÌNH ẢNH MINH HỌA ("illustration" hoặc "diagram") ĐI ĐÔI VỚI NỘI DUNG để phiếu bài tập trực quan, sinh động, bắt mắt, thu hút học sinh tiểu học (như các phiếu bài tập mẫu)!
-   - HÌNH ẢNH MINH HỌA PHẢI KHỚP VỚI NỘI DUNG BÀI HỌC VÀ CHỦ ĐỀ CÂU HỎI:
-     • Môn Âm nhạc (như câu hỏi lắng nghe âm thanh, bài hát, giai điệu, nhạc cụ, cảm xúc âm nhạc): BẮT BUỘC dùng "music_notes", "drum", "singing_kids", "piano", "bell", "guitar", "trumpet".
-     • Môn Tiếng Việt / Đọc hiểu / Từ vựng: Cung cấp illustration tương ứng với đối tượng, sự vật, hành động trong câu (ví dụ: "book_reading", "pencil_cute", "books_stack", "cat_mouse", "chicken_family", "duck_swimming", "dog_loyal", "sweeping", "cooking", "paper_plane", "family_home", "classroom", "school_bus").
-     • Môn Toán học: "calculator_cute", "abacus", "clock_analog", "apple_counter", "balance_scale", "geometry_shapes", "number_line". Hoặc diagram cho hình học.
-     • Môn Khoa học / Tự nhiên & Xã hội / Lịch sử & Địa lí: "plant_growing", "earth_globe", "village_scene", "vietnam_flag", "magnifier_science", "sun_clouds", "water_cycle".
-     • Môn Đạo đức / Kĩ năng: "helping_friends", "traffic_light", "family_home", "cleaning_room".
+   - HÌNH ẢNH MINH HỌA VÀ BIỂU TƯỢNG PHẢI KHỚP 100% VỚI TỪ NGỮ VÀ NỘI DUNG CỤ THỂ CỦA CÂU HỎI / ĐỐI TƯỢNG ĐƯỢC HỎI. TUYỆT ĐỐI KHÔNG GÁN HÌNH ẢNH BỪA BÃI (Ví dụ: Hỏi nét thẳng thì hình phải là nét thẳng "net_thang" (hoặc │), hỏi nét ngang thì hình phải là nét ngang "net_ngang" (hoặc —), hỏi nét xiên thì hình phải là nét xiên "net_xien" (hoặc ╱), hỏi hình vuông thì hình "hinh_vuong", hỏi con mèo thì "cat_mouse", hỏi thước kẻ thì "thuoc_ke").
+   - BẢNG TÊN KHÓA MINH HỌA CHUẨN XÁC:
+     • Nét chữ Tiểu học (Lớp 1 Tiếng Việt / Tập viết): "net_thang" (hoặc icon │), "net_ngang" (hoặc icon —), "net_xien" (hoặc icon ╱), "net_xien_trai" (hoặc icon ╲), "net_moc_xuoi", "net_moc_nguoc", "net_moc_hai_dau", "net_cong_kin", "net_cong_ho_phai", "net_cong_ho_trai", "net_khuyet_tren", "net_khuyet_duoi", "net_that".
+     • Hình học & Đo lường: "hinh_vuong", "hinh_chu_nhat", "hinh_tam_giac", "hinh_tron", "hinh_thoi", "khoi_lap_phuong", "doan_thang", "calculator_cute", "abacus", "clock_analog", "apple_counter", "balance_scale".
+     • Đồ dùng học tập: "thuoc_ke" (thước kẻ), "cuc_tay" (cục tẩy), "cap_sach" (cặp sách), "keo_cat" (kéo), "pencil_cute" (bút chì), "book_reading" (sách), "books_stack" (vở).
+     • Thiên nhiên, Động vật, Hoa quả: "mat_troi", "dam_may", "cau_vong", "bong_hoa", "chiec_la", "con_ca", "con_tho", "cat_mouse", "dog_loyal", "chicken_family", "duck_swimming", "bird_flying", "qua_cam", "qua_chuoi", "plant_growing".
+     • Giao thông & Đời sống: "xe_dap", "xe_buyt", "den_giao_thong", "paper_plane", "family_home", "sweeping", "cooking", "earth_globe", "village_scene", "vietnam_flag".
+     • Âm nhạc: "music_notes", "drum", "singing_kids", "piano", "bell".
    - Với câu hỏi hình học hoặc sơ đồ Toán / Khoa học, có thể cung cấp "diagram": { "type": "geometry_triangle" | "geometry_rectangle" | "geometry_square" | "geometry_circle" | "number_line" | "clock", "label": "Hình vẽ minh họa", "data": {} }.
-   - Ở Phần 3 (Nối cột): Cột A BẮT BUỘC có "leftIcon" hoặc "leftIllustration" (ví dụ: icon hoặc tên minh họa cụ thể) để học sinh nối hình ảnh với từ ngữ!
+   - Ở Phần 3 (Nối cột):
+     Mỗi cặp { "left": "...", "right": "..." } BẮT BUỘC PHẢI CÓ CẢ "leftIllustration" (tên khóa minh họa chính xác ở trên) VÀ "leftIcon" (ký hiệu/emoji chuẩn) để hiển thị hình ảnh chuẩn xác đi đôi với từ ngữ!
    - TUYỆT ĐỐI KHÔNG để câu hỏi chỉ toàn chữ trơ trọi mà không có hình minh họa đi kèm!
 4. Kèm theo hướng dẫn chấm điểm & đáp án chi tiết cho giáo viên (teacherGuide).
 5. CHỈ TRẢ VỀ DUY NHẤT một đối tượng JSON thuần túy (Object), KHÔNG có bất kỳ lời mở đầu, kết luận hay markdown codeblock nào (tránh ```json).
@@ -128,7 +131,7 @@ Cấu trúc JSON bắt buộc:
           "options": ["Cây bút chì", "Con mèo", "Quả bóng", "Bông hoa"],
           "optionIcons": ["✏️", "🐱", "⚽", "🌸"],
           "answer": "A",
-          "illustration": "pencil",
+          "illustration": "pencil_cute",
           "points": "0.5 đ"
         }
       ]
@@ -140,21 +143,22 @@ Cấu trúc JSON bắt buộc:
       "items": [
         {
           "id": 2,
-          "question": "Câu có chỗ trống ________ cần điền.",
-          "wordBank": ["từ 1", "từ 2", "từ 3"],
-          "answer": "từ 1",
-          "illustration": "pencil",
+          "question": "Mẹ em nấu cơm rất [ ________ ]. (ngon / chạy / bàn)",
+          "wordBank": ["ngon", "chạy", "bàn"],
+          "answer": "ngon",
+          "illustration": "cooking",
           "points": "1.0 đ"
         }
       ]
     },
     {
       "type": "matching",
-      "title": "III. NỐI TỪ VỚI HÌNH MINH HỌA PHÙ HỢP",
-      "instruction": "Em hãy quan sát hình vẽ và nối với từ ngữ tương ứng:",
+      "title": "III. NỐI HÌNH VẼ VỚI TỪ NGỮ TƯƠNG ỨNG",
+      "instruction": "Em hãy quan sát hình vẽ ở Cột A và nối với từ ngữ phù hợp ở Cột B:",
       "pairs": [
-        { "left": "Từ ngữ 1", "leftIcon": "🐱", "right": "Đặc điểm / Lời giải nghĩa 1" },
-        { "left": "Từ ngữ 2", "leftIcon": "📖", "right": "Đặc điểm / Lời giải nghĩa 2" }
+        { "left": "Nét thẳng", "leftIllustration": "net_thang", "leftIcon": "│", "right": "Đường kẻ thẳng từ trên xuống" },
+        { "left": "Nét ngang", "leftIllustration": "net_ngang", "leftIcon": "—", "right": "Đường kẻ nằm ngang từ trái qua phải" },
+        { "left": "Nét xiên", "leftIllustration": "net_xien", "leftIcon": "╱", "right": "Đường kẻ xiên chéo nghiêng dốc" }
       ],
       "points": "1.5 đ"
     },
