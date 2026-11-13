@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock, Share2, Palette } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { GameThemeDecorations } from './themes/GameThemeDecorations';
-import { GameThemeSelectorModal } from './themes/GameThemeSelectorModal';
 // Code-Split Game Engines: dynamically loaded on demand with React.lazy
 const WheelOfFortuneGame = React.lazy(() => import('./games/WheelOfFortuneGame').then(m => ({ default: m.WheelOfFortuneGame || m.default })));
 const TugOfWarGame = React.lazy(() => import('./games/TugOfWarGame').then(m => ({ default: m.TugOfWarGame || m.default })));
@@ -132,11 +131,11 @@ export function ClassroomPlayModal({
   const [gameTheme, setGameTheme] = useState(() => {
     return StorageService.getGameTheme(game?.id);
   });
-  const [showThemeModal, setShowThemeModal] = useState(false);
 
-  const handleSelectTheme = (newTheme, applyToAll) => {
+  const handleThemeChange = (newTheme) => {
     setGameTheme(newTheme);
-    StorageService.setGameTheme(newTheme, game?.id, applyToAll);
+    StorageService.setGameTheme(newTheme, game?.id);
+    try { SoundFX.correct(); } catch (e) {}
   };
 
   useEffect(() => {
@@ -457,7 +456,7 @@ export function ClassroomPlayModal({
           {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
           <GameThemeDecorations theme={gameTheme} />
 
-          {/* Nút Chọn Giao Diện Lễ Hội Floating Cho Arcade Games */}
+          {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Cho Arcade Games */}
           <div style={{
             position: 'fixed',
             top: isHomework ? '60px' : '12px',
@@ -467,36 +466,56 @@ export function ClassroomPlayModal({
             alignItems: 'center',
             gap: '8px'
           }}>
-            <button
-              onClick={() => setShowThemeModal(true)}
-              style={{
-                background: gameTheme === 'noel'
-                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%)'
-                  : gameTheme === 'tet'
-                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(202, 138, 4, 0.95) 100%)'
-                  : 'rgba(15, 23, 42, 0.88)',
-                backdropFilter: 'blur(8px)',
-                border: gameTheme === 'noel'
-                  ? '1.5px solid #ef4444'
-                  : gameTheme === 'tet'
-                  ? '1.5px solid #eab308'
-                  : '1.5px solid rgba(255, 255, 255, 0.25)',
-                color: '#ffffff',
-                padding: '6px 14px',
-                borderRadius: '16px',
-                fontSize: '0.82rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
-                transition: 'all 0.2s'
-              }}
-              title="Đổi chủ đề giao diện: Mặc định / Noel / Tết"
-            >
-              <span>{gameTheme === 'noel' ? '🎄 Giao diện: Noel' : gameTheme === 'tet' ? '🧧 Giao diện: Tết' : '🎨 Đổi Giao Diện'}</span>
-            </button>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <select
+                value={gameTheme}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                style={{
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none',
+                  background: gameTheme === 'noel'
+                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%)'
+                    : gameTheme === 'tet'
+                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(202, 138, 4, 0.95) 100%)'
+                    : 'rgba(15, 23, 42, 0.88)',
+                  backdropFilter: 'blur(8px)',
+                  border: gameTheme === 'noel'
+                    ? '1.5px solid #ef4444'
+                    : gameTheme === 'tet'
+                    ? '1.5px solid #eab308'
+                    : '1.5px solid rgba(255, 255, 255, 0.25)',
+                  color: '#ffffff',
+                  padding: '6px 28px 6px 12px',
+                  borderRadius: '14px',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  outline: 'none',
+                  boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                  transition: 'all 0.2s'
+                }}
+                title="Chọn chủ đề giao diện: Mặc định / Noel / Tết"
+              >
+                <option value="default" style={{ background: '#0f172a', color: '#ffffff' }}>🎨 Giao diện: Mặc định</option>
+                <option value="noel" style={{ background: '#0f172a', color: '#fca5a5' }}>🎄 Giao diện: Noel</option>
+                <option value="tet" style={{ background: '#0f172a', color: '#fde047' }}>🧧 Giao diện: Tết</option>
+              </select>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                  fontSize: '0.65rem',
+                  color: '#ffffff',
+                  fontWeight: 900
+                }}
+              >
+                ▼
+              </span>
+            </div>
           </div>
 
           {isHomework && (
@@ -598,15 +617,6 @@ export function ClassroomPlayModal({
               renderGameEngine()
             )}
           </React.Suspense>
-
-          {showThemeModal && (
-            <GameThemeSelectorModal
-              currentTheme={gameTheme}
-              gameTitle={game.lessonTitle || game.title}
-              onSelectTheme={handleSelectTheme}
-              onClose={() => setShowThemeModal(false)}
-            />
-          )}
         </div>
       </GameErrorBoundary>,
       document.body
@@ -780,28 +790,51 @@ export function ClassroomPlayModal({
             </button>
           )}
 
-          {/* Nút Chọn Chủ Đề Lễ Hội (Mặc Định / Noel / Tết) */}
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={() => setShowThemeModal(true)}
-            style={{
-              background: gameTheme === 'noel'
-                ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(22, 101, 52, 0.45) 100%)'
-                : gameTheme === 'tet'
-                ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(202, 138, 4, 0.45) 100%)'
-                : 'rgba(255, 255, 255, 0.12)',
-              border: gameTheme === 'noel' ? '1.5px solid #ef4444' : gameTheme === 'tet' ? '1.5px solid #eab308' : '1px solid rgba(255, 255, 255, 0.25)',
-              color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#f8fafc',
-              fontWeight: 800,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-            title="Đổi chủ đề giao diện: Mặc định / Noel / Tết"
-          >
-            <Palette size={16} />
-            <span>{gameTheme === 'noel' ? '🎄 Giao diện: Noel' : gameTheme === 'tet' ? '🧧 Giao diện: Tết' : '🎨 Đổi Giao Diện'}</span>
-          </button>
+          {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Trong Trình Chiếu */}
+          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+            <select
+              value={gameTheme}
+              onChange={(e) => handleThemeChange(e.target.value)}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                background: gameTheme === 'noel'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(22, 101, 52, 0.45) 100%)'
+                  : gameTheme === 'tet'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(202, 138, 4, 0.45) 100%)'
+                  : 'rgba(255, 255, 255, 0.12)',
+                border: gameTheme === 'noel' ? '1.5px solid #ef4444' : gameTheme === 'tet' ? '1.5px solid #eab308' : '1px solid rgba(255, 255, 255, 0.25)',
+                color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#f8fafc',
+                borderRadius: '10px',
+                padding: '6px 26px 6px 12px',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                outline: 'none',
+                transition: 'all 0.2s'
+              }}
+              title="Chọn chủ đề giao diện: Mặc định / Noel / Tết"
+            >
+              <option value="default" style={{ background: '#0f172a', color: '#ffffff' }}>🎨 Giao diện: Mặc định</option>
+              <option value="noel" style={{ background: '#0f172a', color: '#fca5a5' }}>🎄 Giao diện: Noel</option>
+              <option value="tet" style={{ background: '#0f172a', color: '#fde047' }}>🧧 Giao diện: Tết</option>
+            </select>
+            <span
+              style={{
+                position: 'absolute',
+                right: '9px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+                fontSize: '0.65rem',
+                color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#cbd5e1',
+                fontWeight: 900
+              }}
+            >
+              ▼
+            </span>
+          </div>
 
           <button 
             className="btn btn-secondary btn-sm"
@@ -1067,15 +1100,6 @@ export function ClassroomPlayModal({
 
           </div>
         </div>
-      )}
-
-      {showThemeModal && (
-        <GameThemeSelectorModal
-          currentTheme={gameTheme}
-          gameTitle={game.lessonTitle || game.title}
-          onSelectTheme={handleSelectTheme}
-          onClose={() => setShowThemeModal(false)}
-        />
       )}
 
     </div>,

@@ -5,7 +5,6 @@ import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
 import { getGameThumbnail } from '../utils/gameThumbnails';
 import { StorageService } from '../services/storage';
-import { GameThemeSelectorModal } from './themes/GameThemeSelectorModal';
 
 function GameCardComponent({ 
   game, 
@@ -31,11 +30,11 @@ function GameCardComponent({
   const [cardTheme, setCardTheme] = useState(() => {
     return StorageService.getGameTheme(game?.id);
   });
-  const [showThemeModal, setShowThemeModal] = useState(false);
 
-  const handleSelectTheme = (newTheme, applyToAll) => {
+  const handleThemeChange = (newTheme) => {
     setCardTheme(newTheme);
-    StorageService.setGameTheme(newTheme, game?.id, applyToAll);
+    StorageService.setGameTheme(newTheme, game?.id);
+    try { SoundFX.click(); } catch(err) {}
   };
   const isTrialUsed = Boolean(
     currentUser &&
@@ -313,45 +312,72 @@ function GameCardComponent({
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           
-          {/* Quick Theme Selector Button on Game Card */}
+          {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Cho Game */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: '2px' }}>
-            <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <label 
+              htmlFor={`theme-select-${game.id}`}
+              style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+            >
               <Palette size={14} color="#0d9488" />
               Giao diện:
-            </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowThemeModal(true);
-              }}
-              style={{
-                background: cardTheme === 'noel'
-                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(22, 101, 52, 0.12) 100%)'
-                  : cardTheme === 'tet'
-                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(234, 179, 8, 0.12) 100%)'
-                  : 'rgba(15, 23, 42, 0.05)',
-                border: cardTheme === 'noel'
-                  ? '1.5px solid #ef4444'
-                  : cardTheme === 'tet'
-                  ? '1.5px solid #eab308'
-                  : '1.5px solid rgba(15, 23, 42, 0.12)',
-                color: cardTheme === 'noel' ? '#dc2626' : cardTheme === 'tet' ? '#b45309' : '#334155',
-                borderRadius: '10px',
-                padding: '4px 10px',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                transition: 'all 0.2s'
-              }}
-              title="Nhấp để đổi giao diện: Mặc định / Noel / Tết"
-            >
-              <span>{cardTheme === 'noel' ? '🎄 Noel' : cardTheme === 'tet' ? '🧧 Tết' : '🎨 Mặc định'}</span>
-              <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>▾</span>
-            </button>
+            </label>
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <select
+                id={`theme-select-${game.id}`}
+                value={cardTheme}
+                onChange={(e) => handleThemeChange(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'none',
+                  background: cardTheme === 'noel'
+                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(22, 101, 52, 0.15) 100%)'
+                    : cardTheme === 'tet'
+                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.15) 0%, rgba(234, 179, 8, 0.15) 100%)'
+                    : 'rgba(15, 23, 42, 0.05)',
+                  border: cardTheme === 'noel'
+                    ? '1.5px solid #ef4444'
+                    : cardTheme === 'tet'
+                    ? '1.5px solid #eab308'
+                    : '1.5px solid rgba(15, 23, 42, 0.15)',
+                  color: cardTheme === 'noel' ? '#dc2626' : cardTheme === 'tet' ? '#b45309' : '#0f172a',
+                  borderRadius: '10px',
+                  padding: '5px 26px 5px 10px',
+                  fontSize: '0.8rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  outline: 'none',
+                  boxShadow: cardTheme !== 'default' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
+                  transition: 'all 0.2s'
+                }}
+                title="Chọn giao diện: Mặc định / Noel / Tết"
+              >
+                <option value="default" style={{ background: '#ffffff', color: '#0f172a', fontWeight: 700 }}>
+                  🎨 Mặc định (Gốc)
+                </option>
+                <option value="noel" style={{ background: '#ffffff', color: '#dc2626', fontWeight: 800 }}>
+                  🎄 Noel & Giáng Sinh
+                </option>
+                <option value="tet" style={{ background: '#ffffff', color: '#b45309', fontWeight: 800 }}>
+                  🧧 Tết Cổ Truyền Việt Nam
+                </option>
+              </select>
+              <span
+                style={{
+                  position: 'absolute',
+                  right: '9px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                  fontSize: '0.65rem',
+                  color: cardTheme === 'noel' ? '#dc2626' : cardTheme === 'tet' ? '#b45309' : '#64748b',
+                  fontWeight: 900
+                }}
+              >
+                ▼
+              </span>
+            </div>
           </div>
 
           {/* Main Play Pill Button */}
@@ -503,15 +529,6 @@ function GameCardComponent({
 
         </div>
       </div>
-
-      {showThemeModal && (
-        <GameThemeSelectorModal
-          currentTheme={cardTheme}
-          gameTitle={game.lessonTitle || game.title}
-          onSelectTheme={handleSelectTheme}
-          onClose={() => setShowThemeModal(false)}
-        />
-      )}
     </div>
   );
 }
