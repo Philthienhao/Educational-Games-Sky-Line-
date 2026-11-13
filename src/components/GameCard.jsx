@@ -1,10 +1,11 @@
-import React from 'react';
-import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock, Share2, Users } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Upload, FileSpreadsheet, Trash2, Edit3, Download, ArrowRight, Lock, Share2, Users, Palette } from 'lucide-react';
 import { downloadExcelTemplate } from '../utils/excel';
 import { SoundFX } from '../utils/sound';
 import { exportGameToOfflineHtml } from '../utils/offlineExporter';
 import { getGameThumbnail } from '../utils/gameThumbnails';
 import { StorageService } from '../services/storage';
+import { GameThemeSelectorModal } from './themes/GameThemeSelectorModal';
 
 function GameCardComponent({ 
   game, 
@@ -27,6 +28,15 @@ function GameCardComponent({
   const thumbnailUrl = getGameThumbnail(game);
 
   const featureId = String(game?.engineType || game?.gameType || game?.id || 'game').toLowerCase().trim();
+  const [cardTheme, setCardTheme] = useState(() => {
+    return StorageService.getGameTheme(game?.id);
+  });
+  const [showThemeModal, setShowThemeModal] = useState(false);
+
+  const handleSelectTheme = (newTheme, applyToAll) => {
+    setCardTheme(newTheme);
+    StorageService.setGameTheme(newTheme, game?.id, applyToAll);
+  };
   const isTrialUsed = Boolean(
     currentUser &&
     StorageService.isGoogleUser(currentUser) &&
@@ -199,6 +209,35 @@ function GameCardComponent({
               {displayPlays} Lượt chơi
             </span>
           )}
+
+          {cardTheme === 'noel' && (
+            <span style={{
+              fontSize: '0.68rem',
+              color: '#ffffff',
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #dc2626 0%, #166534 100%)',
+              padding: '4px 9px',
+              borderRadius: '12px',
+              border: '1px solid #ef4444',
+              boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)'
+            }}>
+              🎄 Noel
+            </span>
+          )}
+          {cardTheme === 'tet' && (
+            <span style={{
+              fontSize: '0.68rem',
+              color: '#ffffff',
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #b91c1c 0%, #d97706 100%)',
+              padding: '4px 9px',
+              borderRadius: '12px',
+              border: '1px solid #eab308',
+              boxShadow: '0 2px 8px rgba(234, 179, 8, 0.4)'
+            }}>
+              🧧 Tết
+            </span>
+          )}
         </div>
 
         {/* Floating Engine Icon Badge Bottom Right */}
@@ -274,6 +313,47 @@ function GameCardComponent({
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           
+          {/* Quick Theme Selector Button on Game Card */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: '2px' }}>
+            <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Palette size={14} color="#0d9488" />
+              Giao diện:
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowThemeModal(true);
+              }}
+              style={{
+                background: cardTheme === 'noel'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(22, 101, 52, 0.12) 100%)'
+                  : cardTheme === 'tet'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.12) 0%, rgba(234, 179, 8, 0.12) 100%)'
+                  : 'rgba(15, 23, 42, 0.05)',
+                border: cardTheme === 'noel'
+                  ? '1.5px solid #ef4444'
+                  : cardTheme === 'tet'
+                  ? '1.5px solid #eab308'
+                  : '1.5px solid rgba(15, 23, 42, 0.12)',
+                color: cardTheme === 'noel' ? '#dc2626' : cardTheme === 'tet' ? '#b45309' : '#334155',
+                borderRadius: '10px',
+                padding: '4px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                transition: 'all 0.2s'
+              }}
+              title="Nhấp để đổi giao diện: Mặc định / Noel / Tết"
+            >
+              <span>{cardTheme === 'noel' ? '🎄 Noel' : cardTheme === 'tet' ? '🧧 Tết' : '🎨 Mặc định'}</span>
+              <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>▾</span>
+            </button>
+          </div>
+
           {/* Main Play Pill Button */}
           <button 
             className="btn btn-primary btn-lg"
@@ -423,6 +503,15 @@ function GameCardComponent({
 
         </div>
       </div>
+
+      {showThemeModal && (
+        <GameThemeSelectorModal
+          currentTheme={cardTheme}
+          gameTitle={game.lessonTitle || game.title}
+          onSelectTheme={handleSelectTheme}
+          onClose={() => setShowThemeModal(false)}
+        />
+      )}
     </div>
   );
 }

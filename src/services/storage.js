@@ -3066,6 +3066,41 @@ export const StorageService = {
 
   sortGamesAlphabetically: (list) => sortGamesAlphabetically(list),
 
+  // Lấy chủ đề giao diện trò chơi (Mặc định: 'default', Noel: 'noel', Tết: 'tet')
+  getGameTheme: (gameId = null) => {
+    try {
+      if (gameId) {
+        const specific = localStorage.getItem(`gvd_theme_${gameId}`);
+        if (specific) return specific;
+      }
+      return localStorage.getItem('gvd_active_theme') || 'default';
+    } catch (e) {
+      return 'default';
+    }
+  },
+
+  // Cài đặt chủ đề giao diện trò chơi (cho riêng game hoặc toàn hệ thống)
+  setGameTheme: (theme, gameId = null, applyToAll = false) => {
+    try {
+      if (applyToAll) {
+        localStorage.setItem('gvd_active_theme', theme);
+        // Xóa các override riêng để tất cả game nhận theme chung
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('gvd_theme_')) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+      } else if (gameId) {
+        localStorage.setItem(`gvd_theme_${gameId}`, theme);
+      } else {
+        localStorage.setItem('gvd_active_theme', theme);
+      }
+    } catch (e) {}
+  },
+
   getRealisticPlayCount: (game) => getRealisticPlayCount(game),
 
   incrementPlayCount: (gameId, isSavedGame = false) => {

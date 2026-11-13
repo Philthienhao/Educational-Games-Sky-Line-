@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock, Share2 } from 'lucide-react';
+import { X, Maximize, Minimize, Plus, Trash2, Edit3, Users, Settings, Trophy, Sparkles, GraduationCap, Clock, Share2, Palette } from 'lucide-react';
+import { StorageService } from '../services/storage';
+import { GameThemeDecorations } from './themes/GameThemeDecorations';
+import { GameThemeSelectorModal } from './themes/GameThemeSelectorModal';
 // Code-Split Game Engines: dynamically loaded on demand with React.lazy
 const WheelOfFortuneGame = React.lazy(() => import('./games/WheelOfFortuneGame').then(m => ({ default: m.WheelOfFortuneGame || m.default })));
 const TugOfWarGame = React.lazy(() => import('./games/TugOfWarGame').then(m => ({ default: m.TugOfWarGame || m.default })));
@@ -126,6 +129,15 @@ export function ClassroomPlayModal({
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showTeamManager, setShowTeamManager] = useState(false);
+  const [gameTheme, setGameTheme] = useState(() => {
+    return StorageService.getGameTheme(game?.id);
+  });
+  const [showThemeModal, setShowThemeModal] = useState(false);
+
+  const handleSelectTheme = (newTheme, applyToAll) => {
+    setGameTheme(newTheme);
+    StorageService.setGameTheme(newTheme, game?.id, applyToAll);
+  };
 
   useEffect(() => {
     document.body.classList.add('is-modal-open', 'is-game-playing', 'is-fullscreen');
@@ -294,7 +306,8 @@ export function ClassroomPlayModal({
     onRenameTeam: handleRenameTeam,
     activeTeamIndex,
     setActiveTeamIndex,
-    onClose
+    onClose,
+    gameTheme
   };
 
   const renderGameEngine = () => {
@@ -441,6 +454,51 @@ export function ClassroomPlayModal({
           flexDirection: 'column',
           overflow: 'hidden'
         }}>
+          {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
+          <GameThemeDecorations theme={gameTheme} />
+
+          {/* Nút Chọn Giao Diện Lễ Hội Floating Cho Arcade Games */}
+          <div style={{
+            position: 'fixed',
+            top: isHomework ? '60px' : '12px',
+            right: isHomework ? '16px' : '14px',
+            zIndex: 10000000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <button
+              onClick={() => setShowThemeModal(true)}
+              style={{
+                background: gameTheme === 'noel'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%)'
+                  : gameTheme === 'tet'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(202, 138, 4, 0.95) 100%)'
+                  : 'rgba(15, 23, 42, 0.88)',
+                backdropFilter: 'blur(8px)',
+                border: gameTheme === 'noel'
+                  ? '1.5px solid #ef4444'
+                  : gameTheme === 'tet'
+                  ? '1.5px solid #eab308'
+                  : '1.5px solid rgba(255, 255, 255, 0.25)',
+                color: '#ffffff',
+                padding: '6px 14px',
+                borderRadius: '16px',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                transition: 'all 0.2s'
+              }}
+              title="Đổi chủ đề giao diện: Mặc định / Noel / Tết"
+            >
+              <span>{gameTheme === 'noel' ? '🎄 Giao diện: Noel' : gameTheme === 'tet' ? '🧧 Giao diện: Tết' : '🎨 Đổi Giao Diện'}</span>
+            </button>
+          </div>
+
           {isHomework && (
             <div style={{
               position: 'fixed',
@@ -540,6 +598,15 @@ export function ClassroomPlayModal({
               renderGameEngine()
             )}
           </React.Suspense>
+
+          {showThemeModal && (
+            <GameThemeSelectorModal
+              currentTheme={gameTheme}
+              gameTitle={game.lessonTitle || game.title}
+              onSelectTheme={handleSelectTheme}
+              onClose={() => setShowThemeModal(false)}
+            />
+          )}
         </div>
       </GameErrorBoundary>,
       document.body
@@ -567,11 +634,22 @@ export function ClassroomPlayModal({
       overflow: 'hidden'
     }}>
       
+      {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
+      <GameThemeDecorations theme={gameTheme} />
+
       {/* Top Presentation Header Controls */}
       <div style={{
         padding: '12px 24px',
-        background: 'rgba(15, 23, 42, 0.95)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+        background: gameTheme === 'noel'
+          ? 'linear-gradient(90deg, #7f1d1d 0%, #14532d 50%, #7f1d1d 100%)'
+          : gameTheme === 'tet'
+          ? 'linear-gradient(90deg, #7f1d1d 0%, #991b1b 50%, #854d0e 100%)'
+          : 'rgba(15, 23, 42, 0.95)',
+        borderBottom: gameTheme === 'noel'
+          ? '2px solid #ef4444'
+          : gameTheme === 'tet'
+          ? '2px solid #eab308'
+          : '1px solid rgba(255, 255, 255, 0.12)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -701,6 +779,29 @@ export function ClassroomPlayModal({
               🚀 Giao Bài Về Nhà
             </button>
           )}
+
+          {/* Nút Chọn Chủ Đề Lễ Hội (Mặc Định / Noel / Tết) */}
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => setShowThemeModal(true)}
+            style={{
+              background: gameTheme === 'noel'
+                ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(22, 101, 52, 0.45) 100%)'
+                : gameTheme === 'tet'
+                ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.45) 0%, rgba(202, 138, 4, 0.45) 100%)'
+                : 'rgba(255, 255, 255, 0.12)',
+              border: gameTheme === 'noel' ? '1.5px solid #ef4444' : gameTheme === 'tet' ? '1.5px solid #eab308' : '1px solid rgba(255, 255, 255, 0.25)',
+              color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#f8fafc',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Đổi chủ đề giao diện: Mặc định / Noel / Tết"
+          >
+            <Palette size={16} />
+            <span>{gameTheme === 'noel' ? '🎄 Giao diện: Noel' : gameTheme === 'tet' ? '🧧 Giao diện: Tết' : '🎨 Đổi Giao Diện'}</span>
+          </button>
 
           <button 
             className="btn btn-secondary btn-sm"
@@ -966,6 +1067,15 @@ export function ClassroomPlayModal({
 
           </div>
         </div>
+      )}
+
+      {showThemeModal && (
+        <GameThemeSelectorModal
+          currentTheme={gameTheme}
+          gameTitle={game.lessonTitle || game.title}
+          onSelectTheme={handleSelectTheme}
+          onClose={() => setShowThemeModal(false)}
+        />
       )}
 
     </div>,
