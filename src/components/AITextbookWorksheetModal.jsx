@@ -2391,36 +2391,68 @@ export function AITextbookWorksheetModal({
                         <div 
                           style={{
                             padding: '10px 14px',
-                            borderRadius: '12px',
+                            borderRadius: '14px',
                             backgroundColor: '#ffffff',
                             border: '1.5px solid #bae6fd',
                             fontSize: '0.84rem',
                             display: 'grid',
-                            gridTemplateColumns: '1.8fr 1fr',
-                            gap: '8px',
-                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)'
+                            gridTemplateColumns: '1.25fr 1.15fr',
+                            gap: '12px',
+                            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.03)',
+                            boxSizing: 'border-box'
                           }}
                         >
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <div>✏️ <strong>Họ và tên:</strong> ................................................................</div>
-                            <div>🏫 <strong>Lớp:</strong> ........................ • <strong>Trường:</strong> .................................</div>
+                          {/* Thông tin học sinh */}
+                          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px' }}>
+                            <div>✏️ <strong>Họ và tên:</strong> ............................................................................</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
+                              <span>🏫 <strong>Lớp:</strong> ........................</span>
+                              <span>📅 <strong>Ngày:</strong> ...../...../20.....</span>
+                            </div>
+                            <div>🎓 <strong>Trường:</strong> ...........................................................................</div>
                           </div>
+
+                          {/* Khung Lời khen & Nhận xét của cô giáo (Chừa 2 dòng kẻ chấm nắn nót) */}
                           <div style={{ 
-                            padding: '4px 10px', 
-                            borderRadius: '8px', 
+                            padding: '6px 12px', 
+                            borderRadius: '10px', 
                             backgroundColor: '#fef9c3', 
-                            border: '1px solid #fde047',
+                            border: '1.5px solid #fde047',
                             display: 'flex', 
                             flexDirection: 'column', 
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            textAlign: 'center'
+                            justifyContent: 'space-between',
+                            gap: '4px',
+                            boxSizing: 'border-box'
                           }}>
-                            <div style={{ fontSize: '0.74rem', fontWeight: 800, color: '#854d0e' }}>
-                              🌟 LỜI KHEN CỦA CÔ GIÁO
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #fef08a', paddingBottom: '3px' }}>
+                              <span style={{ fontSize: '0.78rem', fontWeight: 900, color: '#854d0e', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                🌟 LỜI KHEN CỦA CÔ GIÁO
+                              </span>
+                              <span style={{ fontSize: '0.84rem', fontWeight: 900, color: '#d97706' }}>
+                                Điểm: ......... ⭐
+                              </span>
                             </div>
-                            <div style={{ fontSize: '0.86rem', fontWeight: 900, color: '#d97706', marginTop: '2px' }}>
-                              Điểm: ........... ⭐ ⭐ ⭐
+                            <div style={{ 
+                              borderBottom: '1px dotted #ca8a04', 
+                              height: '18px', 
+                              fontSize: '0.75rem', 
+                              color: '#a16207',
+                              fontStyle: 'italic',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>
+                              .....................................................................................................................
+                            </div>
+                            <div style={{ 
+                              borderBottom: '1px dotted #ca8a04', 
+                              height: '18px', 
+                              fontSize: '0.75rem', 
+                              color: '#a16207',
+                              fontStyle: 'italic',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>
+                              .....................................................................................................................
                             </div>
                           </div>
                         </div>
