@@ -808,6 +808,7 @@ export function App() {
                             gTags.some(t => String(t || '').toLowerCase().includes(sTerm));
       return matchesCategory && matchesSearch;
     });
+    return StorageService.sortGamesAlphabetically(filtered);
   }, [baseGames, selectedCategory, searchTerm]);
 
   // Direct Student Live Group Battle, Homework Mode or Marble Race Join (Bypasses Teacher Login completely)

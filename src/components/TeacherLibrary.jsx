@@ -138,6 +138,7 @@ export function TeacherLibrary({
       const d = (g.description || '').toLowerCase().normalize('NFC');
       return t.includes(term) || l.includes(term) || s.includes(term) || d.includes(term);
     });
+    return StorageService.sortGamesAlphabetically(filtered);
   }, [allGamesList, activeCategoryTab, searchTerm]);
 
   return (

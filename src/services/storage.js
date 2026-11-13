@@ -598,33 +598,35 @@ export const getRealisticPlayCount = (game) => {
   return baseMock + extra;
 };
 
+// Sắp xếp danh sách game theo thứ tự bảng chữ cái tiếng Việt (A -> Z)
+export const sortGamesAlphabetically = (list) => {
+  if (!Array.isArray(list)) return [];
+  const cleanTitle = (t) => String(t || '').replace(/^[\p{Emoji}\p{Extended_Pictographic}\s—–\-_.,!@#$%^&*()]+/u, '').trim();
+  const collator = typeof Intl !== 'undefined' && Intl.Collator 
+    ? new Intl.Collator('vi', { numeric: true, sensitivity: 'base' }) 
+    : null;
+  return [...list].sort((a, b) => {
+    const tA = cleanTitle(a?.title || a?.name || a?.lessonTitle || '');
+    const tB = cleanTitle(b?.title || b?.name || b?.lessonTitle || '');
+    if (collator) {
+      return collator.compare(tA, tB);
+    }
+    return tA.localeCompare(tB, 'vi', { numeric: true, sensitivity: 'base' });
+  });
+};
+
 const INITIAL_BASE_GAMES = [
   {
-    id: 'heart-puzzle-2010-game',
-    title: 'Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con',
-    subtitle: 'Tô Đỏ Trái Tim Tri Ân Mẹ - Chào Mừng 20/10',
-    category: 'Chủ đề 20/10',
-    icon: '💖',
-    gradient: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
-    description: 'Chào mừng ngày Phụ nữ Việt Nam 20/10! Trả lời đúng các câu hỏi để tô đỏ từng ô trong trái tim. Đội nào hoàn thành trước sẽ làm hiện ra bức tranh Mẹ Yêu Con ấm áp và giành chiến thắng!',
-    engineType: 'heart-reveal-2010',
+    id: 'millionaire',
+    title: 'Ai Là Triệu Phú',
+    subtitle: 'Đấu Trí 15 Câu Hỏi Kịch Tính',
+    category: 'Trắc nghiệm kịch tính',
+    icon: '💰',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
+    description: 'Chinh phục thang thưởng 15 mốc câu hỏi với đầy đủ âm thanh kịch tính và quyền trợ giúp.',
+    engineType: 'millionaire',
     playsCount: 0,
-    isFeatured: true,
-    badge: 'MỚI 20/10',
-    tags: ['20/10', '20-10', 'phụ nữ việt nam', 'mẹ yêu con', 'trái tim', 'giải mã', 'đối kháng', 'chủ đề 20/10'],
-    defaultQuestions: HEART_2010_SAMPLE_QUESTIONS
-  },
-  {
-    id: 'indoor-pe-dance-game',
-    title: 'Thử thách thể dục',
-    subtitle: 'AI Camera Nhận Diện & Chấm Điểm Thể Dục Lớp Học',
-    category: 'Tương tác AI Camera',
-    icon: '🏃‍♂️',
-    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-    description: 'Chiếu video bài tập thể dục / nhảy mẫu lên màn hình. AI Camera nhận diện chuyển động khung xương học sinh và chấm điểm thời gian thực trên thang điểm 100!',
-    engineType: 'indoor-pe-dance',
-    playsCount: 0,
-    defaultQuestions: []
+    defaultQuestions: SAMPLE_QUESTIONS
   },
   {
     id: 'pose-imitation-game',
@@ -655,32 +657,54 @@ const INITIAL_BASE_GAMES = [
     ]
   },
   {
-    id: 'head-tilt-quiz',
-    title: 'Nghiêng Đầu Chuẩn - Đáp Án Đúng',
-    subtitle: 'Nhận Diện Camera Nghiêng Đầu Chọn Đáp Án',
-    category: 'Tương tác AI Camera',
-    icon: '👤',
-    gradient: 'linear-gradient(135deg, #00a8ff 0%, #ff5252 100%)',
-    description: 'Bật camera máy tính, học sinh nghiêng đầu sang trái hoặc phải để lựa chọn đáp án đúng cực mượt!',
-    engineType: 'head-tilt',
+    id: 'fruit-ninja-quiz',
+    title: 'Chém Hoa Quả / Bắt Bong Bóng',
+    subtitle: 'Chém Trái Cây / Bong Bóng Mang Đáp Án Đúng Duy Nhất',
+    category: 'Hành động & Phản xạ',
+    icon: '🍉',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+    description: 'Nhiều quả bong bóng / trái cây chứa các đáp án khác nhau liên tục bay lên từ bên dưới. Nhanh tay chém đúng 1 đáp án đúng duy nhất!',
+    engineType: 'fruit-ninja',
     playsCount: 0,
-    defaultQuestions: [
-      {
-        question: 'Thủ đô của Nhật Bản là thành phố nào?',
-        options: ['Osaka', 'Tokyo'],
-        correct: 'B'
-      },
-      {
-        question: 'Sông Níl dài nhất thế giới nằm ở châu lục nào?',
-        options: ['Châu Phi', 'Châu Á'],
-        correct: 'A'
-      },
-      {
-        question: 'Số 17 là số nguyên tố hay hợp số?',
-        options: ['Số nguyên tố', 'Hợp số'],
-        correct: 'A'
-      }
-    ]
+    defaultQuestions: FRUIT_NINJA_SAMPLE_QUESTIONS
+  },
+  {
+    id: 'magic-hat-quiz',
+    title: 'Chiếc Mũ Ma Thuật — Hộp Quà Bí Mật',
+    subtitle: 'Mũ Ảo Thuật Gia Triệu Hồi Học Sinh Bất Ngờ',
+    category: 'Gọi tên và chia nhóm',
+    isStudentPicker: true,
+    icon: '🎩',
+    gradient: 'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
+    description: 'Chiếc mũ ma thuật rực rỡ và hộp quà bí mật. Khi thầy cô bấm triệu hồi, chiếc mũ rung rinh phát sáng và chú Thỏ Ma Thuật chui ra mang theo tên học sinh được gọi!',
+    engineType: 'magic-hat',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'magic-grimoire-quiz',
+    title: 'Cổ Thư Triệu Hồi — AI Nhận Diện Cử Chỉ Tay',
+    subtitle: 'Vẫy Tay Trước Camera AI Triệu Hồi Học Sinh',
+    category: 'Gọi tên và chia nhóm',
+    isStudentPicker: true,
+    icon: '📜',
+    gradient: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+    description: 'Tích hợp Camera Webcam AI nhận diện cử chỉ tay. Học sinh hoặc thầy cô vẫy tay trước camera, Cổ Thư Ma Thuật lật trang ảo diệu chọn ra học sinh may mắn!',
+    engineType: 'magic-grimoire',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'minesweeper-quiz',
+    title: 'Dò Mìn Phiêu Lưu',
+    subtitle: 'Vượt Bãi Mìn Giải Đố 3 Mạng',
+    category: 'Thử thách phiêu lưu',
+    icon: '💣',
+    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)',
+    description: 'Vượt bãi mìn phiêu lưu với 3 mạng sống. Chọn đúng ô an toàn và giải đố để tích điểm.',
+    engineType: 'minesweeper',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
   },
   {
     id: 'mosquito-slayer-game',
@@ -716,88 +740,29 @@ const INITIAL_BASE_GAMES = [
     ]
   },
   {
-    id: 'mario-race-game',
-    title: 'Mario Phiêu Lưu Tri Thức',
-    subtitle: 'Cuộc Đua Chướng Ngại Vật Retro 8-bit',
+    id: 'pirate-ship-battle-game',
+    title: 'Đại Chiến Tàu Cướp Biển',
+    subtitle: 'Bắn Đại Bác Bán Tùy Biến Giảm Máu Tàu Đối Phương',
     category: 'Đối kháng Đội nhóm',
-    icon: '🍄',
-    gradient: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 100%)',
-    description: '4 đội Mario xuất phát cùng lúc trên đường đua Super Mario retro. Trả lời đúng đập vỡ hộp bí ẩn (?) ăn nấm tăng tốc và ném mai rùa chặn đối thủ cán đích lâu đài!',
-    engineType: 'mario-race',
+    icon: '🏴‍☠️',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+    thumbnail: '/thumbnails/thumb_pirate_ship_battle.jpg',
+    description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
+    engineType: 'pirate-ship-battle',
     playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
+    defaultQuestions: []
   },
   {
-    id: 'tower-builder-game',
-    title: 'Kiến Trúc Sư Tri Thức',
-    subtitle: 'Thi Đấu Xây Nhà & Tháp Tri Thức',
+    id: 'jeopardy-quiz',
+    title: 'Đấu Trí Jeopardy',
+    subtitle: 'Ma Trận Bảng Điểm Jeopardy Kịch Tính',
     category: 'Đối kháng Đội nhóm',
-    icon: '🏗️',
-    gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
-    description: 'Trả lời đúng câu hỏi để lựa chọn Ngói, Gỗ hoặc Gạch xây từng tầng nhà cao vút. Đội xây tòa tháp cao nhất sẽ dành chiến thắng!',
-    engineType: 'tower-builder',
+    icon: '🟨',
+    gradient: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+    description: 'Đấu trí ma trận 20 ô thuộc 5 chủ đề. Đằng sau mỗi ô chứa câu hỏi trắc nghiệm hoặc các sự kiện bí ẩn: Thưởng điểm, Trừ điểm, Mất lượt, Nhân đôi (x2) hoặc Mất trắng điểm số!',
+    engineType: 'jeopardy',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'tug-of-war-dual-game',
-    title: 'Kéo Co Kiến Thức',
-    subtitle: 'Đội Kháng 2 Bên Trả Lời Đồng Thời',
-    category: 'Đối kháng Đội nhóm',
-    icon: '🪢',
-    gradient: 'linear-gradient(135deg, #2563eb 0%, #dc2626 100%)',
-    description: 'Hai đội tự trả lời riêng câu hỏi bên phần màn hình của mình cùng lúc, kéo dây nảy lửa về phía đội mình!',
-    engineType: 'tug-of-war-dual',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'millionaire',
-    title: 'Ai Là Triệu Phú',
-    subtitle: 'Đấu Trí 15 Câu Hỏi Kịch Tính',
-    category: 'Trắc nghiệm kịch tính',
-    icon: '💰',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
-    description: 'Chinh phục thang thưởng 15 mốc câu hỏi với đầy đủ âm thanh kịch tính và quyền trợ giúp.',
-    engineType: 'millionaire',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'mystery-gift',
-    title: 'Hộp Quà Bí Mật',
-    subtitle: 'Mở Hộp Quà & Nhận Điểm Thưởng',
-    category: 'Bất ngờ & May mắn',
-    icon: '🎁',
-    gradient: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)',
-    description: 'Học sinh chọn các hộp quà bí ẩn, trả lời câu hỏi đúng để mở điểm thưởng hoặc quà may mắn.',
-    engineType: 'mystery-box',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'picture-flip',
-    title: 'Lật Mảnh Ghép Bí Mật',
-    subtitle: 'Giải Ô Mở Tranh',
-    category: 'Khám phá bức ảnh',
-    icon: '🖼️',
-    gradient: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-    description: 'Trả lời đúng các ô câu hỏi để lật mở từng mảnh mảnh ghép của bức ảnh chủ đề đằng sau.',
-    engineType: 'picture-reveal',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'crossword-lock',
-    title: 'Ô Chữ Khóa Bí Mật',
-    subtitle: 'Giải Ô Chữ Tìm Từ Khóa',
-    category: 'Tư duy từ ngữ',
-    icon: '🧩',
-    gradient: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
-    description: 'Giải các câu hỏi hàng ngang để lật mở các chữ cái của Từ Khóa Bí Mật ở hàng dọc.',
-    engineType: 'crossword',
-    playsCount: 0,
-    defaultQuestions: CROSSWORD_SAMPLE_QUESTIONS
   },
   {
     id: 'knowledge-train',
@@ -808,78 +773,6 @@ const INITIAL_BASE_GAMES = [
     gradient: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)',
     description: 'Kéo thả các toa tàu theo đúng thứ tự logic hoặc nối chuỗi câu hỏi với đáp án tương ứng.',
     engineType: 'train',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'flashcard-match',
-    title: 'Thẻ Ghi Nhớ Flashcard',
-    subtitle: 'Lật Thẻ Ghép Cặp Khái Niệm',
-    category: 'Ghi nhớ & Ghép cặp',
-    icon: '🎴',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)',
-    description: 'Lật mở các thẻ để ghép đúng cặp Thuật ngữ - Định nghĩa hoặc Câu hỏi - Đáp án.',
-    engineType: 'flashcard',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'fruit-ninja-quiz',
-    title: 'Chém Hoa Quả / Bắt Bong Bóng',
-    subtitle: 'Chém Trái Cây / Bong Bóng Mang Đáp Án Đúng Duy Nhất',
-    category: 'Hành động & Phản xạ',
-    icon: '🍉',
-    gradient: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
-    description: 'Nhiều quả bong bóng / trái cây chứa các đáp án khác nhau liên tục bay lên từ bên dưới. Nhanh tay chém đúng 1 đáp án đúng duy nhất!',
-    engineType: 'fruit-ninja',
-    playsCount: 0,
-    defaultQuestions: FRUIT_NINJA_SAMPLE_QUESTIONS
-  },
-  {
-    id: 'car-race-quiz',
-    title: 'Đua Xe Kiến Thức',
-    subtitle: 'Cuộc Đua Xe Tốc Độ Đố Vui',
-    category: 'Đối kháng Đội nhóm',
-    icon: '🏎️',
-    gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-    description: 'Cuộc đua tốc độ 2-4 xe: Mỗi câu trả lời đúng giúp xe đua bứt phá tiến về đích.',
-    engineType: 'car-race',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'minesweeper-quiz',
-    title: 'Dò Mìn Phiêu Lưu',
-    subtitle: 'Vượt Bãi Mìn Giải Đố 3 Mạng',
-    category: 'Thử thách phiêu lưu',
-    icon: '💣',
-    gradient: 'linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)',
-    description: 'Vượt bãi mìn phiêu lưu với 3 mạng sống. Chọn đúng ô an toàn và giải đố để tích điểm.',
-    engineType: 'minesweeper',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'flying-words-quiz',
-    title: 'Từ Ngữ Biết Bay',
-    subtitle: 'Bắt Mây Chữ Ghép Thành Câu',
-    category: 'Tư duy ngữ pháp',
-    icon: '✈️',
-    gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
-    description: 'Bắt các mây từ đang bay trên bầu trời để sắp xếp đúng thứ tự ngữ pháp thành câu hoàn chỉnh.',
-    engineType: 'flying-words',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'matching-pairs-quiz',
-    title: 'Kéo Thả Nối Ý',
-    subtitle: 'Ghép Cặp Cột A & Cột B',
-    category: 'Ghi nhớ & Ghép cặp',
-    icon: '🔗',
-    gradient: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
-    description: 'Tạo bài trắc nghiệm kéo thả nối ý: Ghép khái niệm Cột A với giải thích tương ứng Cột B.',
-    engineType: 'matching-pairs',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
   },
@@ -897,17 +790,17 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
-    id: 'duck-race-quiz',
-    title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
-    subtitle: 'Cuộc Đua Vịt Gọi Tên / Chọn Học Sinh Nhận Thưởng',
-    category: 'Gọi tên và chia nhóm',
-    isStudentPicker: true,
-    icon: '🦆',
-    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-    description: 'Mỗi con vịt gắn với 1 học sinh. Khi bấm Đua!, các con vịt bơi nảy lửa trên sông về đích để chọn ra 1 hoặc nhiều học sinh may mắn nhận thưởng!',
-    engineType: 'duck-race',
+    id: 'math-sack-race-game',
+    title: 'Đua Nhảy Bao Bố Trắc Nghiệm',
+    subtitle: 'Thi Đấu Trắc Nghiệm 2 Đội Nhảy Bao Bố Về Đích',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🦘',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    thumbnail: '/thumbnails/thumb_math_sack_race.jpg',
+    description: 'Hai đội chơi thi đấu chọn đáp án trắc nghiệm A, B, C, D để nhảy bao bố tiến về đích!',
+    engineType: 'math-sack-race',
     playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
+    defaultQuestions: []
   },
   {
     id: 'turtle-race-quiz',
@@ -923,15 +816,27 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
-    id: 'claw-machine-quiz',
-    title: 'Gắp Thú Gọi Tên — Siêu Thị Gấu Bông',
-    subtitle: 'Gắp Thú Bông Ngẫu Nhiên Chọn Học Sinh May Mắn',
+    id: 'duck-race-quiz',
+    title: 'Đua Vịt Gọi Tên — Học Sinh May Mắn',
+    subtitle: 'Cuộc Đua Vịt Gọi Tên / Chọn Học Sinh Nhận Thưởng',
     category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
-    icon: '🧸',
-    gradient: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
-    description: 'Mô phỏng máy gắp thú bông siêu thị. Mỗi gấu bông gắn tên 1 học sinh, tay gắp cơ học sẽ hạ xuống gắp ngẫu nhiên gấu bông để chọn ra học sinh lên bảng nhận thưởng!',
-    engineType: 'claw-machine',
+    icon: '🦆',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+    description: 'Mỗi con vịt gắn với 1 học sinh. Khi bấm Đua!, các con vịt bơi nảy lửa trên sông về đích để chọn ra 1 hoặc nhiều học sinh may mắn nhận thưởng!',
+    engineType: 'duck-race',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'car-race-quiz',
+    title: 'Đua Xe Kiến Thức',
+    subtitle: 'Cuộc Đua Xe Tốc Độ Đố Vui',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🏎️',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+    description: 'Cuộc đua tốc độ 2-4 xe: Mỗi câu trả lời đúng giúp xe đua bứt phá tiến về đích.',
+    engineType: 'car-race',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
   },
@@ -949,41 +854,15 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
-    id: 'astronaut-quiz',
-    title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
-    subtitle: 'Lái Phi Thuyền Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
+    id: 'claw-machine-quiz',
+    title: 'Gắp Thú Gọi Tên — Siêu Thị Gấu Bông',
+    subtitle: 'Gắp Thú Bông Ngẫu Nhiên Chọn Học Sinh May Mắn',
     category: 'Gọi tên và chia nhóm',
     isStudentPicker: true,
-    icon: '🚀',
-    gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
-    description: 'Trò chơi lái phi thuyền vũ trụ không gian huyền ảo. Đếm ngược 5s kịch tính, tên lửa rực rỡ cất cánh và hạ cánh ngẫu nhiên xuống hành tinh gắn tên 1 học sinh may mắn!',
-    engineType: 'astronaut-explorer',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'magic-hat-quiz',
-    title: 'Chiếc Mũ Ma Thuật — Hộp Quà Bí Mật',
-    subtitle: 'Mũ Ảo Thuật Gia Triệu Hồi Học Sinh Bất Ngờ',
-    category: 'Gọi tên và chia nhóm',
-    isStudentPicker: true,
-    icon: '🎩',
-    gradient: 'linear-gradient(135deg, #ec4899 0%, #831843 100%)',
-    description: 'Chiếc mũ ma thuật rực rỡ và hộp quà bí mật. Khi thầy cô bấm triệu hồi, chiếc mũ rung rinh phát sáng và chú Thỏ Ma Thuật chui ra mang theo tên học sinh được gọi!',
-    engineType: 'magic-hat',
-    playsCount: 0,
-    defaultQuestions: SAMPLE_QUESTIONS
-  },
-  {
-    id: 'magic-grimoire-quiz',
-    title: 'Cổ Thư Triệu Hồi — AI Nhận Diện Cử Chỉ Tay',
-    subtitle: 'Vẫy Tay Trước Camera AI Triệu Hồi Học Sinh',
-    category: 'Gọi tên và chia nhóm',
-    isStudentPicker: true,
-    icon: '📜',
-    gradient: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-    description: 'Tích hợp Camera Webcam AI nhận diện cử chỉ tay. Học sinh hoặc thầy cô vẫy tay trước camera, Cổ Thư Ma Thuật lật trang ảo diệu chọn ra học sinh may mắn!',
-    engineType: 'magic-grimoire',
+    icon: '🧸',
+    gradient: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
+    description: 'Mô phỏng máy gắp thú bông siêu thị. Mỗi gấu bông gắn tên 1 học sinh, tay gắp cơ học sẽ hạ xuống gắp ngẫu nhiên gấu bông để chọn ra học sinh lên bảng nhận thưởng!',
+    engineType: 'claw-machine',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
   },
@@ -1000,14 +879,89 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: SAMPLE_QUESTIONS
   },
   {
-    id: 'jeopardy-quiz',
-    title: 'Đấu Trí Jeopardy',
-    subtitle: 'Ma Trận Bảng Điểm Jeopardy Kịch Tính',
+    id: 'heart-puzzle-2010-game',
+    title: 'Giải Mã Bức Tranh 20/10 - Mẹ Yêu Con',
+    subtitle: 'Tô Đỏ Trái Tim Tri Ân Mẹ - Chào Mừng 20/10',
+    category: 'Chủ đề 20/10',
+    icon: '💖',
+    gradient: 'linear-gradient(135deg, #be123c 0%, #e11d48 50%, #9f1239 100%)',
+    description: 'Chào mừng ngày Phụ nữ Việt Nam 20/10! Trả lời đúng các câu hỏi để tô đỏ từng ô trong trái tim. Đội nào hoàn thành trước sẽ làm hiện ra bức tranh Mẹ Yêu Con ấm áp và giành chiến thắng!',
+    engineType: 'heart-reveal-2010',
+    playsCount: 0,
+    isFeatured: true,
+    badge: 'MỚI 20/10',
+    tags: ['20/10', '20-10', 'phụ nữ việt nam', 'mẹ yêu con', 'trái tim', 'giải mã', 'đối kháng', 'chủ đề 20/10'],
+    defaultQuestions: HEART_2010_SAMPLE_QUESTIONS
+  },
+  {
+    id: 'mystery-gift',
+    title: 'Hộp Quà Bí Mật',
+    subtitle: 'Mở Hộp Quà & Nhận Điểm Thưởng',
+    category: 'Bất ngờ & May mắn',
+    icon: '🎁',
+    gradient: 'linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)',
+    description: 'Học sinh chọn các hộp quà bí ẩn, trả lời câu hỏi đúng để mở điểm thưởng hoặc quà may mắn.',
+    engineType: 'mystery-box',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'tug-of-war-dual-game',
+    title: 'Kéo Co Kiến Thức',
+    subtitle: 'Đội Kháng 2 Bên Trả Lời Đồng Thời',
     category: 'Đối kháng Đội nhóm',
-    icon: '🟨',
-    gradient: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
-    description: 'Đấu trí ma trận 20 ô thuộc 5 chủ đề. Đằng sau mỗi ô chứa câu hỏi trắc nghiệm hoặc các sự kiện bí ẩn: Thưởng điểm, Trừ điểm, Mất lượt, Nhân đôi (x2) hoặc Mất trắng điểm số!',
-    engineType: 'jeopardy',
+    icon: '🪢',
+    gradient: 'linear-gradient(135deg, #2563eb 0%, #dc2626 100%)',
+    description: 'Hai đội tự trả lời riêng câu hỏi bên phần màn hình của mình cùng lúc, kéo dây nảy lửa về phía đội mình!',
+    engineType: 'tug-of-war-dual',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'matching-pairs-quiz',
+    title: 'Kéo Thả Nối Ý',
+    subtitle: 'Ghép Cặp Cột A & Cột B',
+    category: 'Ghi nhớ & Ghép cặp',
+    icon: '🔗',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+    description: 'Tạo bài trắc nghiệm kéo thả nối ý: Ghép khái niệm Cột A với giải thích tương ứng Cột B.',
+    engineType: 'matching-pairs',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'tower-builder-game',
+    title: 'Kiến Trúc Sư Tri Thức',
+    subtitle: 'Thi Đấu Xây Nhà & Tháp Tri Thức',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🏗️',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+    description: 'Trả lời đúng câu hỏi để lựa chọn Ngói, Gỗ hoặc Gạch xây từng tầng nhà cao vút. Đội xây tòa tháp cao nhất sẽ dành chiến thắng!',
+    engineType: 'tower-builder',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'picture-flip',
+    title: 'Lật Mảnh Ghép Bí Mật',
+    subtitle: 'Giải Ô Mở Tranh',
+    category: 'Khám phá bức ảnh',
+    icon: '🖼️',
+    gradient: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
+    description: 'Trả lời đúng các ô câu hỏi để lật mở từng mảnh mảnh ghép của bức ảnh chủ đề đằng sau.',
+    engineType: 'picture-reveal',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'mario-race-game',
+    title: 'Mario Phiêu Lưu Tri Thức',
+    subtitle: 'Cuộc Đua Chướng Ngại Vật Retro 8-bit',
+    category: 'Đối kháng Đội nhóm',
+    icon: '🍄',
+    gradient: 'linear-gradient(135deg, #ef4444 0%, #3b82f6 100%)',
+    description: '4 đội Mario xuất phát cùng lúc trên đường đua Super Mario retro. Trả lời đúng đập vỡ hộp bí ẩn (?) ăn nấm tăng tốc và ném mai rùa chặn đối thủ cán đích lâu đài!',
+    engineType: 'mario-race',
     playsCount: 0,
     defaultQuestions: SAMPLE_QUESTIONS
   },
@@ -1052,6 +1006,95 @@ const INITIAL_BASE_GAMES = [
     defaultQuestions: []
   },
   {
+    id: 'head-tilt-quiz',
+    title: 'Nghiêng Đầu Chuẩn - Đáp Án Đúng',
+    subtitle: 'Nhận Diện Camera Nghiêng Đầu Chọn Đáp Án',
+    category: 'Tương tác AI Camera',
+    icon: '👤',
+    gradient: 'linear-gradient(135deg, #00a8ff 0%, #ff5252 100%)',
+    description: 'Bật camera máy tính, học sinh nghiêng đầu sang trái hoặc phải để lựa chọn đáp án đúng cực mượt!',
+    engineType: 'head-tilt',
+    playsCount: 0,
+    defaultQuestions: [
+      {
+        question: 'Thủ đô của Nhật Bản là thành phố nào?',
+        options: ['Osaka', 'Tokyo'],
+        correct: 'B'
+      },
+      {
+        question: 'Sông Níl dài nhất thế giới nằm ở châu lục nào?',
+        options: ['Châu Phi', 'Châu Á'],
+        correct: 'A'
+      },
+      {
+        question: 'Số 17 là số nguyên tố hay hợp số?',
+        options: ['Số nguyên tố', 'Hợp số'],
+        correct: 'A'
+      }
+    ]
+  },
+  {
+    id: 'crossword-lock',
+    title: 'Ô Chữ Khóa Bí Mật',
+    subtitle: 'Giải Ô Chữ Tìm Từ Khóa',
+    category: 'Tư duy từ ngữ',
+    icon: '🧩',
+    gradient: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+    description: 'Giải các câu hỏi hàng ngang để lật mở các chữ cái của Từ Khóa Bí Mật ở hàng dọc.',
+    engineType: 'crossword',
+    playsCount: 0,
+    defaultQuestions: CROSSWORD_SAMPLE_QUESTIONS
+  },
+  {
+    id: 'astronaut-quiz',
+    title: 'Phi Hành Gia Lái Phi Thuyền — Thám Hiểm Vũ Trụ',
+    subtitle: 'Lái Phi Thuyền Vũ Trụ Hạ Cánh Chọn Học Sinh May Mắn',
+    category: 'Gọi tên và chia nhóm',
+    isStudentPicker: true,
+    icon: '🚀',
+    gradient: 'linear-gradient(135deg, #4f46e5 0%, #1e1b4b 100%)',
+    description: 'Trò chơi lái phi thuyền vũ trụ không gian huyền ảo. Đếm ngược 5s kịch tính, tên lửa rực rỡ cất cánh và hạ cánh ngẫu nhiên xuống hành tinh gắn tên 1 học sinh may mắn!',
+    engineType: 'astronaut-explorer',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'flashcard-match',
+    title: 'Thẻ Ghi Nhớ Flashcard',
+    subtitle: 'Lật Thẻ Ghép Cặp Khái Niệm',
+    category: 'Ghi nhớ & Ghép cặp',
+    icon: '🎴',
+    gradient: 'linear-gradient(135deg, #10b981 0%, #f59e0b 100%)',
+    description: 'Lật mở các thẻ để ghép đúng cặp Thuật ngữ - Định nghĩa hoặc Câu hỏi - Đáp án.',
+    engineType: 'flashcard',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
+    id: 'indoor-pe-dance-game',
+    title: 'Thử thách thể dục',
+    subtitle: 'AI Camera Nhận Diện & Chấm Điểm Thể Dục Lớp Học',
+    category: 'Tương tác AI Camera',
+    icon: '🏃‍♂️',
+    gradient: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+    description: 'Chiếu video bài tập thể dục / nhảy mẫu lên màn hình. AI Camera nhận diện chuyển động khung xương học sinh và chấm điểm thời gian thực trên thang điểm 100!',
+    engineType: 'indoor-pe-dance',
+    playsCount: 0,
+    defaultQuestions: []
+  },
+  {
+    id: 'flying-words-quiz',
+    title: 'Từ Ngữ Biết Bay',
+    subtitle: 'Bắt Mây Chữ Ghép Thành Câu',
+    category: 'Tư duy ngữ pháp',
+    icon: '✈️',
+    gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+    description: 'Bắt các mây từ đang bay trên bầu trời để sắp xếp đúng thứ tự ngữ pháp thành câu hoàn chỉnh.',
+    engineType: 'flying-words',
+    playsCount: 0,
+    defaultQuestions: SAMPLE_QUESTIONS
+  },
+  {
     id: 'bouncing-words-game',
     title: 'Từ Ơi, Đứng Lại!',
     subtitle: 'Thẻ Từ Vựng Bay & Ghép Câu Hoàn Chỉnh',
@@ -1063,33 +1106,8 @@ const INITIAL_BASE_GAMES = [
     engineType: 'bouncing-words',
     playsCount: 0,
     defaultQuestions: []
-  },
-  {
-    id: 'math-sack-race-game',
-    title: 'Đua Nhảy Bao Bố Trắc Nghiệm',
-    subtitle: 'Thi Đấu Trắc Nghiệm 2 Đội Nhảy Bao Bố Về Đích',
-    category: 'Đối kháng Đội nhóm',
-    icon: '🦘',
-    gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-    thumbnail: '/thumbnails/thumb_math_sack_race.jpg',
-    description: 'Hai đội chơi thi đấu chọn đáp án trắc nghiệm A, B, C, D để nhảy bao bố tiến về đích!',
-    engineType: 'math-sack-race',
-    playsCount: 0,
-    defaultQuestions: []
-  },
-  {
-    id: 'pirate-ship-battle-game',
-    title: 'Đại Chiến Tàu Cướp Biển',
-    subtitle: 'Bắn Đại Bác Bán Tùy Biến Giảm Máu Tàu Đối Phương',
-    category: 'Đối kháng Đội nhóm',
-    icon: '🏴‍☠️',
-    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-    thumbnail: '/thumbnails/thumb_pirate_ship_battle.jpg',
-    description: 'Hai thuyền cướp biển nghênh chiến trên biển. Trả lời đúng để bắn quả đại bác với đường bay cầu cầu đánh chìm tàu đối thủ!',
-    engineType: 'pirate-ship-battle',
-    playsCount: 0,
-    defaultQuestions: []
   }
+
 ];
 
 INITIAL_BASE_GAMES.forEach((g) => {
@@ -1717,19 +1735,8 @@ export const StorageService = {
           INITIAL_BASE_GAMES.forEach(bg => {
             const idx = storedGames.findIndex(g => g && g.id === bg.id);
             if (idx === -1) {
-              if (bg.id === 'heart-puzzle-2010-game') {
-                storedGames.unshift(bg); // Luôn đưa game 20/10 lên đầu tiên
-              } else {
-                storedGames.push(bg);
-              }
+              storedGames.push(bg);
               updated = true;
-            } else if (bg.id === 'heart-puzzle-2010-game') {
-              storedGames[idx] = { ...storedGames[idx], ...bg };
-              if (idx > 0) {
-                const [hg] = storedGames.splice(idx, 1);
-                storedGames.unshift(hg);
-                updated = true;
-              }
             } else {
               const existing = storedGames[idx];
               if (
@@ -1782,9 +1789,8 @@ export const StorageService = {
             }
           });
 
-          if (updated) {
-            localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(storedGames));
-          }
+          storedGames = sortGamesAlphabetically(storedGames);
+          localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(storedGames));
         } catch (e) {
           try { localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(INITIAL_BASE_GAMES)); } catch (e2) {}
         }
@@ -3005,20 +3011,8 @@ export const StorageService = {
     INITIAL_BASE_GAMES.forEach(bg => {
       const idx = games.findIndex(g => g && g.id === bg.id);
       if (idx === -1) {
-        if (bg.id === 'heart-puzzle-2010-game') {
-          games.unshift(bg); // Đưa game 20/10 lên vị trí số 1 ngay lập tức
-        } else {
-          games.push(bg);
-        }
+        games.push(bg);
         updated = true;
-      } else if (bg.id === 'heart-puzzle-2010-game') {
-        // Cập nhật thuộc tính mới nhất và đưa lên đầu danh sách
-        games[idx] = { ...games[idx], ...bg };
-        if (idx > 0) {
-          const [hg] = games.splice(idx, 1);
-          games.unshift(hg);
-          updated = true;
-        }
       }
     });
 
@@ -3051,21 +3045,26 @@ export const StorageService = {
       return modified;
     });
 
-    if (updated || games.length === 0) {
-      try {
-        localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(games.length > 0 ? games : INITIAL_BASE_GAMES));
-      } catch (e) {}
-    }
+    // Sắp xếp toàn bộ game theo thứ tự bảng chữ cái tiếng Việt (A -> Z)
+    const finalSortedGames = sortGamesAlphabetically(
+      games
+        .filter(g => g && g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game')
+        .map(g => {
+          if (g.id === 'tug-of-war-dual-game' || g.engineType === 'tug-of-war-dual') {
+            return { ...g, icon: '🪢' };
+          }
+          return g;
+        })
+    );
 
-    return games
-      .filter(g => g && g.id !== 'wheel-quiz' && g.engineType !== 'wheel' && g.id !== 'tug-of-war-game')
-      .map(g => {
-        if (g.id === 'tug-of-war-dual-game' || g.engineType === 'tug-of-war-dual') {
-          return { ...g, icon: '🪢' };
-        }
-        return g;
-      });
+    try {
+      localStorage.setItem(BASE_GAMES_KEY, JSON.stringify(finalSortedGames));
+    } catch (e) {}
+
+    return finalSortedGames;
   },
+
+  sortGamesAlphabetically: (list) => sortGamesAlphabetically(list),
 
   getRealisticPlayCount: (game) => getRealisticPlayCount(game),
 

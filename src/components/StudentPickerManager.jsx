@@ -115,16 +115,18 @@ export default function StudentPickerManager({ currentUser, onPlay, onCustomize,
     engineType: 'student-group-divider'
   };
 
-  const studentPickerGames = [
-    marbleRaceGame,
-    duckRaceGame,
-    turtleRaceGame,
-    clawMachineGame,
-    astronautExplorerGame,
-    magicHatGame,
-    magicGrimoireGame,
-    studentGroupDividerGame
-  ];
+  const studentPickerGames = useMemo(() => {
+    return StorageService.sortGamesAlphabetically([
+      marbleRaceGame,
+      duckRaceGame,
+      turtleRaceGame,
+      clawMachineGame,
+      astronautExplorerGame,
+      magicHatGame,
+      magicGrimoireGame,
+      studentGroupDividerGame
+    ]);
+  }, [marbleRaceGame, duckRaceGame, turtleRaceGame, clawMachineGame, astronautExplorerGame, magicHatGame, magicGrimoireGame, studentGroupDividerGame]);
 
   const studentsList = homeroomData?.students || [];
   const [remainingQuickStudents, setRemainingQuickStudents] = useState([]);
