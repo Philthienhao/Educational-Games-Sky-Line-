@@ -5,17 +5,10 @@ import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-// All Available Jeopardy Categories
-const ALL_CATEGORIES = [
-  { id: 'cat_a', code: 'A', name: 'SỬ DỤNG BẢN ĐỒ', icon: '🗺️' },
-  { id: 'cat_b', code: 'B', name: 'TỈ LỆ BẢN ĐỒ', icon: '📏' },
-  { id: 'cat_c', code: 'C', name: 'HỆ THỐNG GPS', icon: '🛰️' },
-  { id: 'cat_d', code: 'D', name: 'BẢN ĐỒ SỐ', icon: '📱' },
-  { id: 'cat_e', code: 'E', name: 'ỨNG DỤNG THỰC TIỄN', icon: '🌐' },
-  { id: 'cat_f', code: 'F', name: 'TỔNG HỢP KIẾN THỨC', icon: '🧠' }
-];
+// Column code letters for Jeopardy board
+const COLUMN_CODES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-// Special Mystery Event Types
+// Special Mystery Event Types (May mắn hoặc xui)
 const EVENT_TYPES = {
   QUESTION: 'question',         // Câu hỏi kiến thức
   BONUS: 'bonus',               // Thưởng điểm nóng (+)
@@ -61,9 +54,9 @@ function RulesModal({ isOpen, onClose }) {
           </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-          <p><strong>1. Chọn Ô Điểm:</strong> Các đội lần lượt chọn các ô theo chủ đề với mức điểm từ 100 đến 600 điểm.</p>
+          <p><strong>1. Chọn Ô Điểm:</strong> Các đội lần lượt chọn các ô trên bảng với mức điểm từ 100 đến 600 điểm.</p>
           <p><strong>2. Trả Lời Câu Hỏi:</strong> Trả lời đúng nhận nguyên số điểm của ô đó. Trả lời sai lượt chuyển sang đội tiếp theo.</p>
-          <p><strong>3. Ô Bí Ẩn Bất Ngờ (May Mắn hoặc Xui):</strong> Bên cạnh toàn bộ câu hỏi tải lên, bảng có các ô sự kiện kịch tính:</p>
+          <p><strong>3. Ô Bí Ẩn Bất Ngờ (May Mắn hoặc Xui):</strong> Bên cạnh toàn bộ câu hỏi bài học, bảng có các ô sự kiện kịch tính:</p>
           <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <li>🎁 <strong>Thưởng Điểm Nóng:</strong> Nhận điểm thưởng trực tiếp mà không cần trả lời câu hỏi!</li>
             <li>✨ <strong>Nhân Đôi Điểm (x2):</strong> Nhân đôi toàn bộ số điểm đội đang có!</li>
@@ -147,7 +140,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
       color: '#fff',
       overflowY: 'auto'
     }}>
-      {/* 1. Header Tile Banner */}
+      {/* 1. Header Tile Banner (Đã bỏ tiêu đề môn học đơn lẻ) */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -161,15 +154,12 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
             background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             color: '#000',
             fontWeight: 900,
-            fontSize: '1.05rem',
-            padding: '6px 16px',
+            fontSize: '1.1rem',
+            padding: '6px 18px',
             borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)'
           }}>
             Ô {tile.code} ({tile.points} ĐIỂM)
-          </span>
-          <span style={{ color: '#fde047', fontWeight: 800, fontSize: '1rem' }}>
-            Chủ đề: {tile.categoryName}
           </span>
         </div>
 
@@ -273,7 +263,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                 <div style={{ fontSize: '5rem', animation: 'pulse 1s infinite' }}>✨</div>
                 <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#38bdf8', margin: 0 }}>NHÂN ĐÔI SỐ ĐIỂM (x2)!</h3>
                 <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                  Phép màu kỳ diệu! <strong>{activeTeam.name}</strong> được <strong>x2 Nhân đôi toàn bộ số điểm</strong> hiện có của đội!
+                  Phép màu may mắn! <strong>{activeTeam.name}</strong> được <strong>x2 Nhân đôi toàn bộ số điểm</strong> hiện có của đội!
                 </p>
               </>
             )}
@@ -283,7 +273,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                 <div style={{ fontSize: '5rem' }}>💣</div>
                 <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#ef4444', margin: 0 }}>BẪY TRỪ ĐIỂM BẤT NGỜ!</h3>
                 <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
-                  Ôi không! <strong>{activeTeam.name}</strong> giẫm phải bẫy mìn và bị trừ <strong>-{tile.points} điểm</strong>!
+                  Ôi không! <strong>{activeTeam.name}</strong> giẫm phải bẫy và bị trừ <strong>-{tile.points} điểm</strong>!
                 </p>
               </>
             )}
@@ -363,7 +353,7 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
             {/* DÀN ĐÁP ÁN CÂN ĐỐI 2x2 (Hàng trên 2 đáp án, Hàng dưới 2 đáp án) */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: validOptions.length <= 2 ? 'repeat(2, 1fr)' : 'repeat(2, 1fr)',
+              gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '16px 20px',
               width: '100%'
             }}>
@@ -506,8 +496,9 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
 }
 
 /**
- * Thuật toán tạo bảng Jeopardy tự động mở rộng theo số lượng câu hỏi tải lên
- * Đảm bảo 100% câu hỏi tải lên đều có mặt trên bảng + Thêm đủ các ô may rủi!
+ * Thuật toán tạo bảng Jeopardy dạng ma trận chữ nhật HOÀN TOÀN ĐỀU ĐẶN
+ * Hàng ngang và hàng dọc xếp khít 100%, không bị chỗ đầy chỗ thiếu.
+ * Cam kết 100% câu hỏi tải lên đều có mặt trên bảng + Thêm đủ các ô may rủi!
  */
 function buildJeopardyBoard(questionsList = []) {
   const safeQuestions = Array.isArray(questionsList) && questionsList.length > 0
@@ -537,70 +528,75 @@ function buildJeopardyBoard(questionsList = []) {
     rows = Math.min(8, Math.ceil((qCount + 6) / 6)); // Tự động mở rộng thêm hàng
   }
 
-  const categories = ALL_CATEGORIES.slice(0, cols);
-  const pointLevels = Array.from({ length: rows }, (_, i) => (i + 1) * 100);
+  const colCodes = COLUMN_CODES.slice(0, cols);
   const totalTiles = cols * rows;
 
   const numQuestionsToPlace = Math.min(qCount > 0 ? qCount : 16, totalTiles);
   const numMysteryTiles = Math.max(0, totalTiles - numQuestionsToPlace);
 
-  // Vị trí các ô bí ẩn may rủi (Phân bổ đều theo từng cột)
-  const isMysteryCell = (colIdx, rowIdx) => {
+  // Vị trí các ô bí ẩn may rủi (Được xác định theo tọa độ col, row)
+  const isMysteryCell = (c, r) => {
     if (cols === 5 && rows === 6 && numMysteryTiles === 10) {
-      if (colIdx === 0) return rowIdx === 2 || rowIdx === 5;
-      if (colIdx === 1) return rowIdx === 0 || rowIdx === 3;
-      if (colIdx === 2) return rowIdx === 1 || rowIdx === 4;
-      if (colIdx === 3) return rowIdx === 2 || rowIdx === 5;
-      if (colIdx === 4) return rowIdx === 0 || rowIdx === 3;
+      if (c === 0) return r === 2 || r === 5; // A3, A6
+      if (c === 1) return r === 0 || r === 3; // B1, B4
+      if (c === 2) return r === 1 || r === 4; // C2, C5
+      if (c === 3) return r === 2 || r === 5; // D3, D6
+      if (c === 4) return r === 0 || r === 3; // E1, E4
     }
 
     if (numMysteryTiles <= 0) return false;
     const step = Math.max(2, Math.floor(totalTiles / numMysteryTiles));
-    const tileIndex = colIdx * rows + rowIdx;
+    const tileIndex = r * cols + c;
     return (tileIndex % step === 0);
   };
 
   // Kho sự kiện may mắn & xui xẻo (Cân đối 50% may mắn / 50% xui xẻo)
   const mysteryPool = [
-    { type: EVENT_TYPES.BONUS, points: 100 },         // 🎁 Thưởng điểm nóng +100
-    { type: EVENT_TYPES.DOUBLE_POINTS, points: 200 },  // ✨ Nhân đôi số điểm x2
-    { type: EVENT_TYPES.PENALTY, points: 100 },       // 💣 Trừ điểm bẫy -100
-    { type: EVENT_TYPES.LOSE_TURN, points: 0 },       // 🚫 Mất lượt chơi
-    { type: EVENT_TYPES.BONUS, points: 200 },         // 🎁 Thưởng điểm nóng +200
-    { type: EVENT_TYPES.BANKRUPT, points: 0 },        // 💥 Hố đen mất trắng điểm
-    { type: EVENT_TYPES.BONUS, points: 300 },         // 🎁 Thưởng điểm nóng +300
-    { type: EVENT_TYPES.DOUBLE_POINTS, points: 200 },  // ✨ Nhân đôi số điểm x2
-    { type: EVENT_TYPES.PENALTY, points: 200 },       // 💣 Trừ điểm bẫy -200
-    { type: EVENT_TYPES.LOSE_TURN, points: 0 }        // 🚫 Mất lượt chơi
+    EVENT_TYPES.DOUBLE_POINTS, // ✨ Nhân đôi số điểm (x2)
+    EVENT_TYPES.BONUS,         // 🎁 Thưởng điểm nóng (+)
+    EVENT_TYPES.BONUS,         // 🎁 Thưởng điểm nóng (+)
+    EVENT_TYPES.BONUS,         // 🎁 Thưởng điểm nóng (+)
+    EVENT_TYPES.PENALTY,       // 💣 Bẫy trừ điểm (-)
+    EVENT_TYPES.PENALTY,       // 💣 Bẫy trừ điểm (-)
+    EVENT_TYPES.LOSE_TURN,     // 🚫 Mất lượt chơi
+    EVENT_TYPES.LOSE_TURN,     // 🚫 Mất lượt chơi
+    EVENT_TYPES.BANKRUPT,      // 💥 Hố đen mất trắng điểm (0đ)
+    EVENT_TYPES.DOUBLE_POINTS  // ✨ Nhân đôi số điểm (x2)
   ];
 
   let qIndex = 0;
   let mysteryIndex = 0;
   const tiles = [];
 
-  for (let c = 0; c < cols; c++) {
-    for (let r = 0; r < rows; r++) {
-      const cat = categories[c];
-      const pts = pointLevels[r];
-      const tileCode = `${cat.code}${r + 1}`;
+  // Tạo ô THEO TỪNG HÀNG (Row by row):
+  // Hàng 1 (r = 0): A1, B1, C1, D1, E1 -> Điểm 100
+  // Hàng 2 (r = 1): A2, B2, C2, D2, E2 -> Điểm 200
+  // Hàng 3 (r = 2): A3, B3, C3, D3, E3 -> Điểm 300
+  // Hàng 4 (r = 3): A4, B4, C4, D4, E4 -> Điểm 400
+  // Hàng 5 (r = 4): A5, B5, C5, D5, E5 -> Điểm 500
+  // Hàng 6 (r = 5): A6, B6, C6, D6, E6 -> Điểm 600
+  for (let r = 0; r < rows; r++) {
+    const pts = (r + 1) * 100;
+    for (let c = 0; c < cols; c++) {
+      const code = `${colCodes[c]}${r + 1}`;
       const isMystery = isMysteryCell(c, r);
 
       if (isMystery && mysteryIndex < numMysteryTiles) {
-        const mObj = mysteryPool[mysteryIndex % mysteryPool.length];
+        const mType = mysteryPool[mysteryIndex % mysteryPool.length];
         mysteryIndex++;
 
         tiles.push({
-          id: `tile_${cat.code}_${r + 1}`,
-          code: tileCode,
-          categoryCode: cat.code,
-          categoryName: cat.name,
-          points: mObj.points || pts,
-          type: mObj.type,
+          id: `tile_${code}`,
+          code: code,
+          colIndex: c,
+          rowIndex: r,
+          points: pts, // Điểm số của ô luôn khớp chính xác với hàng
+          type: mType,
           opened: false
         });
       } else {
         const qObj = safeQuestions[qIndex] || {
-          question: `Câu hỏi ${tileCode}: Kiến thức trọng tâm liên quan đến ${cat.name}?`,
+          question: `Câu hỏi ${code}: Câu hỏi kiến thức bài học môn học?`,
           options: ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
           correct: 'A',
           explanation: 'Dựa trên sách giáo khoa bài học.'
@@ -608,11 +604,11 @@ function buildJeopardyBoard(questionsList = []) {
         qIndex++;
 
         tiles.push({
-          id: `tile_${cat.code}_${r + 1}`,
-          code: tileCode,
-          categoryCode: cat.code,
-          categoryName: cat.name,
-          points: pts,
+          id: `tile_${code}`,
+          code: code,
+          colIndex: c,
+          rowIndex: r,
+          points: pts, // Điểm số của ô luôn khớp chính xác với hàng
           type: EVENT_TYPES.QUESTION,
           question: qObj.question,
           image: qObj.image || null,
@@ -628,8 +624,6 @@ function buildJeopardyBoard(questionsList = []) {
   return {
     tiles,
     config: {
-      categories,
-      pointLevels,
       cols,
       rows,
       totalTiles,
@@ -658,10 +652,11 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
   // Board matrix and configuration state
   const [boardTiles, setBoardTiles] = useState([]);
   const [boardConfig, setBoardConfig] = useState({
-    categories: ALL_CATEGORIES.slice(0, 5),
-    pointLevels: [100, 200, 300, 400],
     cols: 5,
-    rows: 4
+    rows: 4,
+    totalTiles: 20,
+    questionCount: 16,
+    mysteryCount: 4
   });
 
   // Re-generate board whenever questions or uploaded questions change
@@ -681,7 +676,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
         try { SoundFX.correct(); } catch(err) {}
         const total = parsed.length >= 17 && parsed.length <= 20 ? 30 : Math.max(20, parsed.length + 5);
         const mystery = total - parsed.length;
-        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!\nBảng Đấu trí Jeopardy đã tự động mở rộng lên ${total} ô (${parsed.length} câu hỏi đều hiển thị + ${mystery} ô may rủi bí ẩn).`);
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!\nBảng Đấu trí Jeopardy gồm ${total} ô (${parsed.length} câu hỏi đều hiển thị + ${mystery} ô may rủi bí ẩn) đã được xếp đều đặn.`);
       } else {
         alert('Không tìm thấy câu hỏi hợp lệ trong file.');
       }
@@ -819,7 +814,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
               {title || 'JEOPARDY ĐẤU TRÍ THỨC'}
             </h1>
             <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '2px 0 0 0', fontWeight: 700 }}>
-              {subtitle || `Bảng gồm ${boardConfig.totalTiles} ô (${boardConfig.questionCount} câu hỏi bài học + ${boardConfig.mysteryCount} ô may rủi)`}
+              {subtitle || `Bảng gồm ${boardConfig.totalTiles} ô (${boardConfig.questionCount} câu hỏi bài học + ${boardConfig.mysteryCount} ô may rủi bí ẩn)`}
             </p>
           </div>
         </div>
@@ -880,103 +875,64 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
         </div>
       </div>
 
-      {/* 2. MAIN JEOPARDY BOARD MATRIX GRID */}
+      {/* 2. MAIN JEOPARDY BOARD MATRIX GRID (ĐÃ BỎ CÁC TIÊU ĐỀ THEO YÊU CẦU & DÀN ĐỀU 100%) */}
       <div style={{
         background: 'rgba(15, 23, 42, 0.85)',
         border: '1.5px solid rgba(255,255,255,0.12)',
         borderRadius: '24px',
-        padding: '20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
+        padding: '24px',
         boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
         width: '100%',
         boxSizing: 'border-box'
       }}>
-        {/* Category Header Row */}
+        {/* Ma trận các ô điểm xếp hoàn toàn thẳng hàng ngang và hàng dọc */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${boardConfig.categories.length}, 1fr)`,
-          gap: '12px',
-          marginBottom: '2px'
+          gridTemplateColumns: `repeat(${boardConfig.cols}, 1fr)`,
+          gap: '14px',
+          width: '100%'
         }}>
-          {boardConfig.categories.map(cat => (
-            <div
-              key={cat.code}
+          {boardTiles.map((tile) => (
+            <button
+              key={tile.id}
+              onClick={() => handleOpenTile(tile)}
+              disabled={tile.opened}
               style={{
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 100%)',
-                border: '1.5px solid rgba(245, 158, 11, 0.45)',
-                borderRadius: '14px',
-                padding: '8px 10px',
-                textAlign: 'center',
-                color: '#fde047',
-                fontWeight: 900,
-                fontSize: '0.85rem',
+                height: boardConfig.rows > 5 ? '78px' : '90px',
+                borderRadius: '18px',
+                background: tile.opened 
+                  ? 'rgba(30, 41, 59, 0.35)' 
+                  : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                border: tile.opened ? '1px solid rgba(255,255,255,0.06)' : '1.5px solid rgba(245, 158, 11, 0.45)',
+                color: tile.opened ? '#475569' : '#fde047',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.03em',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                gap: '2px',
+                cursor: tile.opened ? 'default' : 'pointer',
+                boxShadow: tile.opened ? 'none' : '0 6px 18px rgba(0,0,0,0.3)',
+                transition: 'all 0.2s ease',
+                opacity: tile.opened ? 0.35 : 1
               }}
             >
-              <span>{cat.icon || '📌'}</span>
-              <span>{cat.code}: {cat.name}</span>
-            </div>
+              <span style={{
+                fontSize: '0.74rem',
+                fontWeight: 900,
+                color: tile.opened ? '#475569' : '#94a3b8',
+                background: 'rgba(255,255,255,0.06)',
+                padding: '2px 8px',
+                borderRadius: '6px'
+              }}>
+                {tile.code}
+              </span>
+
+              <span style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>
+                {tile.opened ? '✓' : tile.points}
+              </span>
+            </button>
           ))}
         </div>
-
-        {/* Matrix Tiles Rows (Point levels: 100, 200, 300, 400, 500, 600...) */}
-        {boardConfig.pointLevels.map(pointVal => (
-          <div key={pointVal} style={{ display: 'grid', gridTemplateColumns: `repeat(${boardConfig.categories.length}, 1fr)`, gap: '12px' }}>
-            {boardConfig.categories.map(cat => {
-              const tile = boardTiles.find(t => t.categoryCode === cat.code && t.points === pointVal);
-              if (!tile) return null;
-
-              return (
-                <button
-                  key={tile.id}
-                  onClick={() => handleOpenTile(tile)}
-                  disabled={tile.opened}
-                  style={{
-                    height: boardConfig.pointLevels.length > 5 ? '72px' : '82px',
-                    borderRadius: '16px',
-                    background: tile.opened 
-                      ? 'rgba(30, 41, 59, 0.35)' 
-                      : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
-                    border: tile.opened ? '1px solid rgba(255,255,255,0.05)' : '1.5px solid rgba(245, 158, 11, 0.45)',
-                    color: tile.opened ? '#475569' : '#fde047',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '2px',
-                    cursor: tile.opened ? 'default' : 'pointer',
-                    boxShadow: tile.opened ? 'none' : '0 6px 15px rgba(0,0,0,0.3)',
-                    transition: 'all 0.2s ease',
-                    opacity: tile.opened ? 0.4 : 1
-                  }}
-                >
-                  <span style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 900,
-                    color: tile.opened ? '#475569' : '#94a3b8',
-                    background: 'rgba(255,255,255,0.06)',
-                    padding: '2px 8px',
-                    borderRadius: '6px'
-                  }}>
-                    {tile.code}
-                  </span>
-
-                  <span style={{ fontSize: '1.5rem', fontWeight: 900, lineHeight: 1 }}>
-                    {tile.opened ? '✓' : tile.points}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        ))}
       </div>
 
       {/* 3. TILE REVEAL MODAL */}
