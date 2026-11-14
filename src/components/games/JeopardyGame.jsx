@@ -5,23 +5,24 @@ import confetti from 'canvas-confetti';
 import { SoundFX } from '../../utils/sound';
 import { isOptionValidForQuestion, parseUploadedFile } from '../../utils/universalParser';
 
-// Default Jeopardy Categories matching teacher screenshot
-const DEFAULT_CATEGORIES = [
+// All Available Jeopardy Categories
+const ALL_CATEGORIES = [
   { id: 'cat_a', code: 'A', name: 'SỬ DỤNG BẢN ĐỒ', icon: '🗺️' },
   { id: 'cat_b', code: 'B', name: 'TỈ LỆ BẢN ĐỒ', icon: '📏' },
   { id: 'cat_c', code: 'C', name: 'HỆ THỐNG GPS', icon: '🛰️' },
   { id: 'cat_d', code: 'D', name: 'BẢN ĐỒ SỐ', icon: '📱' },
-  { id: 'cat_e', code: 'E', name: 'ỨNG DỤNG THỰC TIỄN', icon: '🌐' }
+  { id: 'cat_e', code: 'E', name: 'ỨNG DỤNG THỰC TIỄN', icon: '🌐' },
+  { id: 'cat_f', code: 'F', name: 'TỔNG HỢP KIẾN THỨC', icon: '🧠' }
 ];
 
 // Special Mystery Event Types
 const EVENT_TYPES = {
-  QUESTION: 'question',         // Standard Question
-  BONUS: 'bonus',               // Bonus Points
-  PENALTY: 'penalty',           // Penalty Deduction
-  LOSE_TURN: 'lose_turn',       // Lose Turn
-  DOUBLE_POINTS: 'double',      // Double Current Points (x2)
-  BANKRUPT: 'bankrupt'          // Bankrupt (Reset to 0)
+  QUESTION: 'question',         // Câu hỏi kiến thức
+  BONUS: 'bonus',               // Thưởng điểm nóng (+)
+  PENALTY: 'penalty',           // Bẫy trừ điểm (-)
+  LOSE_TURN: 'lose_turn',       // Mất lượt chơi
+  DOUBLE_POINTS: 'double',      // Nhân đôi số điểm (x2)
+  BANKRUPT: 'bankrupt'          // Hố đen mất trắng điểm (0đ)
 };
 
 /**
@@ -60,15 +61,15 @@ function RulesModal({ isOpen, onClose }) {
           </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-          <p><strong>1. Chọn Ô Điểm:</strong> Các đội lần lượt chọn các ô câu hỏi thuộc 5 chủ đề khác nhau với giá trị từ 100 đến 500 điểm.</p>
-          <p><strong>2. Trả Lời Câu Hỏi:</strong> Trả lời đúng nhận nguyên số điểm của ô đó. Trả lời sai lượt chuyển sang đội khác.</p>
-          <p><strong>3. Ô Bí Ẩn Bất Ngờ:</strong> Đằng sau mỗi ô có thể ẩn chứa các sự kiện đặc biệt:</p>
+          <p><strong>1. Chọn Ô Điểm:</strong> Các đội lần lượt chọn các ô theo chủ đề với mức điểm từ 100 đến 600 điểm.</p>
+          <p><strong>2. Trả Lời Câu Hỏi:</strong> Trả lời đúng nhận nguyên số điểm của ô đó. Trả lời sai lượt chuyển sang đội tiếp theo.</p>
+          <p><strong>3. Ô Bí Ẩn Bất Ngờ (May Mắn hoặc Xui):</strong> Bên cạnh toàn bộ câu hỏi tải lên, bảng có các ô sự kiện kịch tính:</p>
           <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <li>🎁 <strong>Thưởng Điểm Nóng:</strong> Nhận điểm thưởng trực tiếp mà không cần trả lời câu hỏi!</li>
-            <li>💣 <strong>Trừ Điểm Bất Ngờ:</strong> Bị bẫy và trừ số điểm tương ứng.</li>
-            <li>🚫 <strong>Mất Lượt:</strong> Bị mất lượt và chuyển sang đội tiếp theo.</li>
-            <li>✨ <strong>Nhân Đôi Số Điểm (x2):</strong> Nhân đôi toàn bộ số điểm đội đang có!</li>
-            <li>💥 <strong>Mất Trắng Điểm:</strong> Hố đen bí ẩn làm mất toàn bộ điểm về 0!</li>
+            <li>✨ <strong>Nhân Đôi Điểm (x2):</strong> Nhân đôi toàn bộ số điểm đội đang có!</li>
+            <li>💣 <strong>Bẫy Trừ Điểm:</strong> Bị trừ số điểm tương ứng của ô.</li>
+            <li>🚫 <strong>Mất Lượt:</strong> Bị mất lượt chơi và chuyển ngay sang đội tiếp theo.</li>
+            <li>💥 <strong>Hố Đen Mất Trắng:</strong> Mất toàn bộ số điểm đang có về 0!</li>
           </ul>
         </div>
         <button onClick={onClose} className="btn btn-primary" style={{ width: '100%', marginTop: '24px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#000', fontWeight: 900 }}>
@@ -81,6 +82,7 @@ function RulesModal({ isOpen, onClose }) {
 
 /**
  * Top-Level Helper Component: Tile Reveal Modal (Question or Mystery Event)
+ * Giao diện câu hỏi Full Màn Hình & Dàn đáp án 2x2 Cân Đối Tuyệt Đối
  */
 function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
   if (!tile) return null;
@@ -114,120 +116,194 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
   const handleSelectOption = (letter) => {
     if (showAnswerResult) return;
     setSelectedOpt(letter);
-    const correct = letter === (tile.correct || 'A');
+    const correct = String(letter).trim().toUpperCase() === String(tile.correct || 'A').trim().toUpperCase();
     setIsCorrect(correct);
     setShowAnswerResult(true);
 
     if (correct) {
       SoundFX.correct();
-      confetti({ particleCount: 60, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
     } else {
       SoundFX.wrong();
     }
   };
 
+  const rawOptions = Array.isArray(tile.options) ? tile.options : ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'];
+  const validOptions = rawOptions.filter((opt, idx) => isOptionValidForQuestion(rawOptions, idx));
+
   return ReactDOM.createPortal(
     <div style={{
       position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      inset: 0,
       width: '100vw',
       height: '100vh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      border: '8px solid #f59e0b',
+      background: 'radial-gradient(ellipse at 50% 25%, #1e293b 0%, #0f172a 65%, #020617 100%)',
+      border: '6px solid #f59e0b',
       zIndex: 9999999,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '36px 48px',
+      padding: '24px 36px',
       boxSizing: 'border-box',
       color: '#fff',
       overflowY: 'auto'
     }}>
-        {/* Header Tile Banner */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ background: '#f59e0b', color: '#000', fontWeight: 900, fontSize: '1rem', padding: '4px 14px', borderRadius: '10px' }}>
-              Ô {tile.code} ({tile.points} ĐIỂM)
-            </span>
-            <span style={{ color: '#94a3b8', fontWeight: 700, fontSize: '0.9rem' }}>
-              Chủ đề: {tile.categoryName}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            {tile.type === EVENT_TYPES.QUESTION && !showAnswerResult && (
-              <span style={{
-                background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
-                border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
-                color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
-                fontWeight: 900,
-                fontSize: '0.9rem',
-                padding: '4px 12px',
-                borderRadius: '10px',
-                animation: timeLeft <= 5 ? 'pulse 0.5s infinite' : 'none'
-              }}>
-                ⏱️ Thời gian: {timeLeft}s
-              </span>
-            )}
-
-            <div style={{ color: activeTeam.color, fontWeight: 900, fontSize: '0.95rem' }}>
-              Lượt chơi: {activeTeam.name}
-            </div>
-          </div>
+      {/* 1. Header Tile Banner */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingBottom: '16px',
+        borderBottom: '1.5px solid rgba(255,255,255,0.12)',
+        flexShrink: 0
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <span style={{
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+            color: '#000',
+            fontWeight: 900,
+            fontSize: '1.05rem',
+            padding: '6px 16px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)'
+          }}>
+            Ô {tile.code} ({tile.points} ĐIỂM)
+          </span>
+          <span style={{ color: '#fde047', fontWeight: 800, fontSize: '1rem' }}>
+            Chủ đề: {tile.categoryName}
+          </span>
         </div>
 
-        {/* 1. MYSTERY SPECIAL EVENTS */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {tile.type === EVENT_TYPES.QUESTION && !showAnswerResult && (
+            <span style={{
+              background: timeLeft <= 5 ? 'rgba(239, 68, 68, 0.25)' : 'rgba(2, 132, 199, 0.25)',
+              border: `1.5px solid ${timeLeft <= 5 ? '#ef4444' : '#38bdf8'}`,
+              color: timeLeft <= 5 ? '#fca5a5' : '#7dd3fc',
+              fontWeight: 900,
+              fontSize: '1rem',
+              padding: '5px 16px',
+              borderRadius: '12px',
+              animation: timeLeft <= 5 ? 'pulse 0.5s infinite' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              ⏱️ Thời gian: {timeLeft}s
+            </span>
+          )}
+
+          <div style={{
+            background: 'rgba(255,255,255,0.08)',
+            border: `1.5px solid ${activeTeam.color}`,
+            padding: '5px 14px',
+            borderRadius: '12px',
+            color: activeTeam.color,
+            fontWeight: 900,
+            fontSize: '0.98rem'
+          }}>
+            👑 Lượt chơi: {activeTeam.name}
+          </div>
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="btn btn-secondary btn-sm"
+              style={{
+                borderRadius: '50%',
+                width: '38px',
+                height: '38px',
+                padding: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: '#fff',
+                cursor: 'pointer'
+              }}
+              title="Đóng câu hỏi về bảng"
+            >
+              <X size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 2. BODY CONTENT: CENTERED FULL-SCREEN STAGE */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: '1350px',
+        margin: '0 auto',
+        padding: '24px 0',
+        gap: '24px'
+      }}>
+        {/* 2A. MYSTERY SPECIAL EVENTS */}
         {tile.type !== EVENT_TYPES.QUESTION ? (
-          <div style={{ padding: '30px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.92) 0%, rgba(15, 23, 42, 0.98) 100%)',
+            border: '2.5px solid #f59e0b',
+            borderRadius: '28px',
+            padding: '40px 48px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '18px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+            width: '100%',
+            maxWidth: '720px'
+          }}>
             {tile.type === EVENT_TYPES.BONUS && (
               <>
-                <div style={{ fontSize: '4rem', animation: 'bounce 1s infinite' }}>🎁</div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fde047', margin: 0 }}>THƯỞNG ĐIỂM NÓNG!</h3>
-                <p style={{ fontSize: '1.1rem', color: '#cbd5e1' }}>
-                  Chúc mừng <strong>{activeTeam.name}</strong> nhận ngay <strong>+{tile.points} điểm</strong> thưởng!
-                </p>
-              </>
-            )}
-
-            {tile.type === EVENT_TYPES.PENALTY && (
-              <>
-                <div style={{ fontSize: '4rem', animation: 'shake 0.5s' }}>💣</div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#ef4444', margin: 0 }}>TRỪ ĐIỂM BẤT NGỜ!</h3>
-                <p style={{ fontSize: '1.1rem', color: '#cbd5e1' }}>
-                  Bẫy bãi mìn! <strong>{activeTeam.name}</strong> bị trừ <strong>-{tile.points} điểm</strong>!
-                </p>
-              </>
-            )}
-
-            {tile.type === EVENT_TYPES.LOSE_TURN && (
-              <>
-                <div style={{ fontSize: '4rem' }}>🚫</div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fb923c', margin: 0 }}>MẤT LƯỢT CHƠI!</h3>
-                <p style={{ fontSize: '1.1rem', color: '#cbd5e1' }}>
-                  Rất tiếc! <strong>{activeTeam.name}</strong> bị mất lượt chơi này và chuyển sang đội tiếp theo.
+                <div style={{ fontSize: '5rem', animation: 'bounce 1s infinite' }}>🎁</div>
+                <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fde047', margin: 0 }}>THƯỞNG ĐIỂM NÓNG!</h3>
+                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                  Chúc mừng <strong>{activeTeam.name}</strong> mở trúng ô may mắn và nhận ngay <strong>+{tile.points} điểm</strong> thưởng!
                 </p>
               </>
             )}
 
             {tile.type === EVENT_TYPES.DOUBLE_POINTS && (
               <>
-                <div style={{ fontSize: '4rem', animation: 'pulse 1s infinite' }}>✨</div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#38bdf8', margin: 0 }}>NHÂN ĐÔI SỐ ĐIỂM!</h3>
-                <p style={{ fontSize: '1.1rem', color: '#cbd5e1' }}>
-                  Bùa phép thuật! <strong>{activeTeam.name}</strong> được <strong>x2 Nhân đôi toàn bộ số điểm</strong> hiện có!
+                <div style={{ fontSize: '5rem', animation: 'pulse 1s infinite' }}>✨</div>
+                <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#38bdf8', margin: 0 }}>NHÂN ĐÔI SỐ ĐIỂM (x2)!</h3>
+                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                  Phép màu kỳ diệu! <strong>{activeTeam.name}</strong> được <strong>x2 Nhân đôi toàn bộ số điểm</strong> hiện có của đội!
+                </p>
+              </>
+            )}
+
+            {tile.type === EVENT_TYPES.PENALTY && (
+              <>
+                <div style={{ fontSize: '5rem' }}>💣</div>
+                <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#ef4444', margin: 0 }}>BẪY TRỪ ĐIỂM BẤT NGỜ!</h3>
+                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                  Ôi không! <strong>{activeTeam.name}</strong> giẫm phải bẫy mìn và bị trừ <strong>-{tile.points} điểm</strong>!
+                </p>
+              </>
+            )}
+
+            {tile.type === EVENT_TYPES.LOSE_TURN && (
+              <>
+                <div style={{ fontSize: '5rem' }}>🚫</div>
+                <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fb923c', margin: 0 }}>MẤT LƯỢT CHƠI!</h3>
+                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                  Rất tiếc! <strong>{activeTeam.name}</strong> bị mất lượt chơi này và lượt sẽ chuyển ngay sang đội tiếp theo.
                 </p>
               </>
             )}
 
             {tile.type === EVENT_TYPES.BANKRUPT && (
               <>
-                <div style={{ fontSize: '4rem' }}>💥</div>
-                <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#f43f5e', margin: 0 }}>MẤT TRẮNG ĐIỂM SỐ!</h3>
-                <p style={{ fontSize: '1.1rem', color: '#cbd5e1' }}>
-                  Hố đen vũ trụ! <strong>{activeTeam.name}</strong> bị mất toàn bộ số điểm đang có về 0!
+                <div style={{ fontSize: '5rem' }}>💥</div>
+                <h3 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#f43f5e', margin: 0 }}>HỐ ĐEN MẤT TRẮNG ĐIỂM!</h3>
+                <p style={{ fontSize: '1.25rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+                  Hố đen vũ trụ nuốt chửng! <strong>{activeTeam.name}</strong> bị mất toàn bộ số điểm đang có về 0 điểm!
                 </p>
               </>
             )}
@@ -235,35 +311,66 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
             <button
               onClick={() => onCompleteMystery(tile)}
               className="btn btn-primary btn-lg"
-              style={{ marginTop: '16px', borderRadius: '16px', padding: '14px 40px', fontWeight: 900, background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#000' }}
+              style={{
+                marginTop: '16px',
+                borderRadius: '16px',
+                padding: '16px 48px',
+                fontSize: '1.15rem',
+                fontWeight: 900,
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#000',
+                boxShadow: '0 4px 18px rgba(245, 158, 11, 0.5)'
+              }}
             >
               Nhận Sự Kiện & Tiếp Tục
             </button>
           </div>
         ) : (
-          /* 2. STANDARD QUESTION MODAL */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {tile.image && (
-              <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-                <img 
-                  src={tile.image} 
-                  alt="Câu hỏi" 
-                  style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
-                />
-              </div>
-            )}
+          /* 2B. STANDARD QUESTION VIEW (FULL-SCREEN & DÀN ĐÁP ÁN 2x2 CÂN ĐỐI) */
+          <>
+            {/* Question Text Box */}
+            <div style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%)',
+              border: '2px solid rgba(245, 158, 11, 0.5)',
+              borderRadius: '24px',
+              padding: '28px 36px',
+              boxShadow: '0 12px 36px rgba(0,0,0,0.45)',
+              textAlign: 'center'
+            }}>
+              {tile.image && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                  <img 
+                    src={tile.image} 
+                    alt="Minh họa câu hỏi" 
+                    style={{ maxHeight: '220px', maxWidth: '100%', borderRadius: '16px', border: '2px solid rgba(255,255,255,0.2)', objectFit: 'contain' }} 
+                  />
+                </div>
+              )}
 
-            <h2 style={{ fontSize: '2.3rem', fontWeight: 900, color: '#ffffff', lineHeight: 1.45, margin: 0, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-              {tile.question}
-            </h2>
+              <h2 style={{
+                fontSize: 'clamp(1.5rem, 2.5vw, 2.3rem)',
+                fontWeight: 900,
+                color: '#ffffff',
+                lineHeight: 1.45,
+                margin: 0,
+                textShadow: '0 3px 10px rgba(0,0,0,0.6)'
+              }}>
+                {tile.question}
+              </h2>
+            </div>
 
-            {/* Options List */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
-              {(tile.options || ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D']).map((optText, idx) => {
-                if (!isOptionValidForQuestion(tile?.options, idx)) return null;
+            {/* DÀN ĐÁP ÁN CÂN ĐỐI 2x2 (Hàng trên 2 đáp án, Hàng dưới 2 đáp án) */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: validOptions.length <= 2 ? 'repeat(2, 1fr)' : 'repeat(2, 1fr)',
+              gap: '16px 20px',
+              width: '100%'
+            }}>
+              {validOptions.map((optText, idx) => {
                 const letter = ['A', 'B', 'C', 'D'][idx];
                 const isThisSelected = selectedOpt === letter;
-                const isThisCorrect = letter === tile.correct;
+                const isThisCorrect = String(letter).trim().toUpperCase() === String(tile.correct || 'A').trim().toUpperCase();
 
                 let btnBg = '#ffffff';
                 let btnBorder = '#cbd5e1';
@@ -290,27 +397,29 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                     onClick={() => handleSelectOption(letter)}
                     disabled={showAnswerResult}
                     style={{
-                      padding: '20px 24px',
+                      minHeight: '76px',
+                      padding: '16px 24px',
                       borderRadius: '20px',
                       background: btnBg,
                       border: `2.5px solid ${btnBorder}`,
                       color: textColor,
                       textAlign: 'left',
-                      fontSize: '1.3rem',
+                      fontSize: 'clamp(1.1rem, 1.6vw, 1.35rem)',
                       fontWeight: 900,
                       lineHeight: 1.4,
                       cursor: showAnswerResult ? 'default' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '14px',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                      transition: 'all 0.2s ease'
+                      gap: '16px',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                      transition: 'all 0.2s ease',
+                      transform: isThisSelected ? 'scale(1.02)' : 'none'
                     }}
                   >
                     <span style={{
-                      width: '38px',
-                      height: '38px',
-                      minWidth: '38px',
+                      width: '42px',
+                      height: '42px',
+                      minWidth: '42px',
                       borderRadius: '12px',
                       background: badgeBg,
                       display: 'flex',
@@ -318,59 +427,216 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
                       justifyContent: 'center',
                       fontWeight: 900,
                       color: '#fff',
-                      fontSize: '1.2rem',
-                      flexShrink: 0
+                      fontSize: '1.25rem',
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.25)'
                     }}>
                       {letter}
                     </span>
-                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>{optText}</span>
+                    <span style={{ flex: 1, color: textColor, fontWeight: 900 }}>
+                      {optText}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Answer Result Banner */}
+            {/* Answer Result & Confirmation Banner */}
             {showAnswerResult && (
               <div style={{
-                background: isCorrect ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                border: `1.5px solid ${isCorrect ? '#10b981' : '#ef4444'}`,
-                borderRadius: '16px',
-                padding: '16px 20px',
+                width: '100%',
+                background: isCorrect 
+                  ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.22) 100%)' 
+                  : 'linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(220, 38, 38, 0.22) 100%)',
+                border: `2px solid ${isCorrect ? '#10b981' : '#ef4444'}`,
+                borderRadius: '20px',
+                padding: '18px 24px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '16px'
+                gap: '20px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.35)'
               }}>
                 <div>
-                  <div style={{ fontWeight: 900, color: isCorrect ? '#6ee7b7' : '#fca5a5', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {isCorrect ? <Check size={20} /> : <X size={20} />}
-                    {isCorrect ? `CHÍNH XÁC! +${tile.points} ĐIỂMCHO ${activeTeam.name}` : `CHƯA ĐÚNG! CHUYỂN LƯỢT CHO ĐỘI TIẾP THEO`}
+                  <div style={{
+                    fontWeight: 900,
+                    color: isCorrect ? '#6ee7b7' : '#fca5a5',
+                    fontSize: '1.2rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}>
+                    {isCorrect ? <Check size={24} color="#10b981" /> : <X size={24} color="#ef4444" />}
+                    {isCorrect 
+                      ? `CHÍNH XÁC! +${tile.points} ĐIỂM CHO ${activeTeam.name} 👏` 
+                      : `CHƯA CHÍNH XÁC! Đáp án đúng là: ${tile.correct}. Lượt chơi chuyển sang đội tiếp theo.`}
                   </div>
                   {tile.explanation && (
-                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '4px' }}>
+                    <div style={{ fontSize: '0.92rem', color: '#cbd5e1', marginTop: '6px', fontWeight: 600 }}>
                       💡 Căn cứ SGK: {tile.explanation}
                     </div>
                   )}
                 </div>
+
                 <button
                   onClick={() => onAnswer(tile, isCorrect)}
                   className="btn btn-primary"
                   style={{
-                    borderRadius: '12px',
-                    padding: '10px 24px',
+                    borderRadius: '14px',
+                    padding: '12px 28px',
                     fontWeight: 900,
-                    background: isCorrect ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+                    fontSize: '1rem',
+                    flexShrink: 0,
+                    background: isCorrect 
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+                      : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                    boxShadow: isCorrect ? '0 4px 16px rgba(16, 185, 129, 0.4)' : '0 4px 16px rgba(239, 68, 68, 0.4)'
                   }}
                 >
                   Xác Nhận & Tiếp Tục <ArrowRight size={18} />
                 </button>
               </div>
             )}
-          </div>
+          </>
         )}
-      </div>,
-      document.body
+      </div>
+    </div>,
+    document.body
   );
+}
+
+/**
+ * Thuật toán tạo bảng Jeopardy tự động mở rộng theo số lượng câu hỏi tải lên
+ * Đảm bảo 100% câu hỏi tải lên đều có mặt trên bảng + Thêm đủ các ô may rủi!
+ */
+function buildJeopardyBoard(questionsList = []) {
+  const safeQuestions = Array.isArray(questionsList) && questionsList.length > 0
+    ? questionsList
+    : [];
+
+  const qCount = safeQuestions.length;
+
+  // Xác định số cột và số hàng của ma trận
+  let cols = 5;
+  let rows = 4;
+
+  if (qCount <= 16) {
+    cols = 5;
+    rows = 4; // 20 ô (Tối thiểu 4 ô may rủi)
+  } else if (qCount <= 20) {
+    cols = 5;
+    rows = 6; // 30 ô (20 câu hỏi + ĐÚNG 10 ô may rủi theo yêu cầu)
+  } else if (qCount <= 25) {
+    cols = 5;
+    rows = 6; // 30 ô (25 câu hỏi + 5 ô may rủi)
+  } else if (qCount <= 30) {
+    cols = 6;
+    rows = 6; // 36 ô (30 câu hỏi + 6 ô may rủi)
+  } else {
+    cols = 6;
+    rows = Math.min(8, Math.ceil((qCount + 6) / 6)); // Tự động mở rộng thêm hàng
+  }
+
+  const categories = ALL_CATEGORIES.slice(0, cols);
+  const pointLevels = Array.from({ length: rows }, (_, i) => (i + 1) * 100);
+  const totalTiles = cols * rows;
+
+  const numQuestionsToPlace = Math.min(qCount > 0 ? qCount : 16, totalTiles);
+  const numMysteryTiles = Math.max(0, totalTiles - numQuestionsToPlace);
+
+  // Vị trí các ô bí ẩn may rủi (Phân bổ đều theo từng cột)
+  const isMysteryCell = (colIdx, rowIdx) => {
+    if (cols === 5 && rows === 6 && numMysteryTiles === 10) {
+      if (colIdx === 0) return rowIdx === 2 || rowIdx === 5;
+      if (colIdx === 1) return rowIdx === 0 || rowIdx === 3;
+      if (colIdx === 2) return rowIdx === 1 || rowIdx === 4;
+      if (colIdx === 3) return rowIdx === 2 || rowIdx === 5;
+      if (colIdx === 4) return rowIdx === 0 || rowIdx === 3;
+    }
+
+    if (numMysteryTiles <= 0) return false;
+    const step = Math.max(2, Math.floor(totalTiles / numMysteryTiles));
+    const tileIndex = colIdx * rows + rowIdx;
+    return (tileIndex % step === 0);
+  };
+
+  // Kho sự kiện may mắn & xui xẻo (Cân đối 50% may mắn / 50% xui xẻo)
+  const mysteryPool = [
+    { type: EVENT_TYPES.BONUS, points: 100 },         // 🎁 Thưởng điểm nóng +100
+    { type: EVENT_TYPES.DOUBLE_POINTS, points: 200 },  // ✨ Nhân đôi số điểm x2
+    { type: EVENT_TYPES.PENALTY, points: 100 },       // 💣 Trừ điểm bẫy -100
+    { type: EVENT_TYPES.LOSE_TURN, points: 0 },       // 🚫 Mất lượt chơi
+    { type: EVENT_TYPES.BONUS, points: 200 },         // 🎁 Thưởng điểm nóng +200
+    { type: EVENT_TYPES.BANKRUPT, points: 0 },        // 💥 Hố đen mất trắng điểm
+    { type: EVENT_TYPES.BONUS, points: 300 },         // 🎁 Thưởng điểm nóng +300
+    { type: EVENT_TYPES.DOUBLE_POINTS, points: 200 },  // ✨ Nhân đôi số điểm x2
+    { type: EVENT_TYPES.PENALTY, points: 200 },       // 💣 Trừ điểm bẫy -200
+    { type: EVENT_TYPES.LOSE_TURN, points: 0 }        // 🚫 Mất lượt chơi
+  ];
+
+  let qIndex = 0;
+  let mysteryIndex = 0;
+  const tiles = [];
+
+  for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < rows; r++) {
+      const cat = categories[c];
+      const pts = pointLevels[r];
+      const tileCode = `${cat.code}${r + 1}`;
+      const isMystery = isMysteryCell(c, r);
+
+      if (isMystery && mysteryIndex < numMysteryTiles) {
+        const mObj = mysteryPool[mysteryIndex % mysteryPool.length];
+        mysteryIndex++;
+
+        tiles.push({
+          id: `tile_${cat.code}_${r + 1}`,
+          code: tileCode,
+          categoryCode: cat.code,
+          categoryName: cat.name,
+          points: mObj.points || pts,
+          type: mObj.type,
+          opened: false
+        });
+      } else {
+        const qObj = safeQuestions[qIndex] || {
+          question: `Câu hỏi ${tileCode}: Kiến thức trọng tâm liên quan đến ${cat.name}?`,
+          options: ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
+          correct: 'A',
+          explanation: 'Dựa trên sách giáo khoa bài học.'
+        };
+        qIndex++;
+
+        tiles.push({
+          id: `tile_${cat.code}_${r + 1}`,
+          code: tileCode,
+          categoryCode: cat.code,
+          categoryName: cat.name,
+          points: pts,
+          type: EVENT_TYPES.QUESTION,
+          question: qObj.question,
+          image: qObj.image || null,
+          options: qObj.options || ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'],
+          correct: qObj.correct || 'A',
+          explanation: qObj.explanation || '',
+          opened: false
+        });
+      }
+    }
+  }
+
+  return {
+    tiles,
+    config: {
+      categories,
+      pointLevels,
+      cols,
+      rows,
+      totalTiles,
+      questionCount: qIndex,
+      mysteryCount: mysteryIndex
+    }
+  };
 }
 
 /**
@@ -379,7 +645,31 @@ function TileModal({ tile, activeTeam, onAnswer, onCompleteMystery, onClose }) {
 export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, setActiveTeamIndex, onAddPoints, title = '', subtitle = '', onClose }) {
   const fileInputRef = useRef(null);
   const [loadedQuestions, setLoadedQuestions] = useState(null);
-  const activeQuestionsList = loadedQuestions || questions;
+
+  // Active question list prioritizes uploaded questions, then prop questions
+  const activeQuestionsList = (Array.isArray(loadedQuestions) && loadedQuestions.length > 0)
+    ? loadedQuestions
+    : ((Array.isArray(questions) && questions.length > 0) ? questions : []);
+
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [showRules, setShowRules] = useState(false);
+  const [activeTile, setActiveTile] = useState(null);
+
+  // Board matrix and configuration state
+  const [boardTiles, setBoardTiles] = useState([]);
+  const [boardConfig, setBoardConfig] = useState({
+    categories: ALL_CATEGORIES.slice(0, 5),
+    pointLevels: [100, 200, 300, 400],
+    cols: 5,
+    rows: 4
+  });
+
+  // Re-generate board whenever questions or uploaded questions change
+  useEffect(() => {
+    const { tiles, config } = buildJeopardyBoard(activeQuestionsList);
+    setBoardTiles(tiles);
+    setBoardConfig(config);
+  }, [loadedQuestions, questions]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -389,7 +679,9 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
       if (Array.isArray(parsed) && parsed.length > 0) {
         setLoadedQuestions(parsed);
         try { SoundFX.correct(); } catch(err) {}
-        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!`);
+        const total = parsed.length >= 17 && parsed.length <= 20 ? 30 : Math.max(20, parsed.length + 5);
+        const mystery = total - parsed.length;
+        alert(`Đã tải thành công ${parsed.length} câu hỏi từ file!\nBảng Đấu trí Jeopardy đã tự động mở rộng lên ${total} ô (${parsed.length} câu hỏi đều hiển thị + ${mystery} ô may rủi bí ẩn).`);
       } else {
         alert('Không tìm thấy câu hỏi hợp lệ trong file.');
       }
@@ -399,9 +691,6 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
     }
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [showRules, setShowRules] = useState(false);
-  const [activeTile, setActiveTile] = useState(null);
 
   // Local Editable Team Names & Scores State
   const [localTeams, setLocalTeams] = useState(() => {
@@ -416,81 +705,12 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
     ];
   });
 
-  // Generate 5x4 Grid Matrix of Tiles (A1-A4, B1-B4, C1-C4, D1-D4, E1-E4)
-  const [boardTiles, setBoardTiles] = useState([]);
-
-  // Initialize Jeopardy Board Matrix from questions or generator
-  useEffect(() => {
-    const categories = DEFAULT_CATEGORIES;
-    const tiles = [];
-    const pointLevels = [100, 200, 300, 400];
-
-    let questionIdx = 0;
-    categories.forEach((cat, colIdx) => {
-      pointLevels.forEach((pts, rowIdx) => {
-        const tileCode = `${cat.code}${rowIdx + 1}`;
-        const qObj = activeQuestionsList[questionIdx] || {
-          question: `Câu hỏi ${tileCode}: Kiến thức tổng hợp môn học liên quan đến ${cat.name}?`,
-          options: ['Phương án A', 'Phương án B', 'Phương án C', 'Phương án D'],
-          correct: 'A',
-          explanation: 'Dựa trên sách giáo khoa bài học.'
-        };
-
-        // Determine if this tile is a Mystery Event tile (approx 20% chance for mystery events)
-        let eventType = EVENT_TYPES.QUESTION;
-        const rand = (colIdx * 4 + rowIdx) % 10;
-        if (rand === 3) eventType = EVENT_TYPES.BONUS;
-        else if (rand === 6) eventType = EVENT_TYPES.PENALTY;
-        else if (rand === 8) eventType = EVENT_TYPES.DOUBLE_POINTS;
-        else if (rand === 9) eventType = EVENT_TYPES.BANKRUPT;
-
-        tiles.push({
-          id: `tile_${cat.code}_${rowIdx + 1}`,
-          code: tileCode,
-          categoryCode: cat.code,
-          categoryName: cat.name,
-          points: pts,
-          type: eventType,
-          question: qObj.question,
-          options: qObj.options || ['Đáp án A', 'Đáp án B', 'Đáp án C', 'Đáp án D'],
-          correct: qObj.correct || 'A',
-          explanation: qObj.explanation || '',
-          opened: false
-        });
-
-        questionIdx++;
-      });
-    });
-
-    setBoardTiles(tiles);
-  }, [questions]);
-
   // Sync external team updates if any
   useEffect(() => {
     if (teams && teams.length > 0) {
       setLocalTeams(teams.map(t => ({ ...t })));
     }
   }, [teams]);
-
-  // Handle Team Name Edit
-  const handleTeamNameChange = (idx, newName) => {
-    setLocalTeams(prev => prev.map((t, i) => i === idx ? { ...t, name: newName } : t));
-  };
-
-  // Handle Quick Adjust Score
-  const handleAdjustTeamScore = (idx, delta) => {
-    if (onAddPoints) {
-      onAddPoints(idx, delta);
-    }
-  };
-
-  // Handle Select Active Turn Team
-  const handleSetTurn = (idx) => {
-    if (setActiveTeamIndex) {
-      setActiveTeamIndex(idx);
-    }
-    SoundFX.click();
-  };
 
   // Handle Opening Tile Card
   const handleOpenTile = (tile) => {
@@ -566,7 +786,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
       padding: '20px 30px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '24px',
+      gap: '20px',
       boxSizing: 'border-box'
     }}>
       
@@ -599,7 +819,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
               {title || 'JEOPARDY ĐẤU TRÍ THỨC'}
             </h1>
             <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '2px 0 0 0', fontWeight: 700 }}>
-              {subtitle || 'Ôn tập kiến thức bài học & Mở ô điểm thưởng kịch tính'}
+              {subtitle || `Bảng gồm ${boardConfig.totalTiles} ô (${boardConfig.questionCount} câu hỏi bài học + ${boardConfig.mysteryCount} ô may rủi)`}
             </p>
           </div>
         </div>
@@ -617,8 +837,9 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
             onClick={() => fileInputRef.current?.click()}
             className="btn btn-secondary btn-sm"
             style={{ borderRadius: '12px', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38bdf8', color: '#7dd3fc', fontSize: '0.82rem', fontWeight: 700 }}
+            title="Tải câu hỏi từ file Excel hoặc Word lên trò chơi"
           >
-            <Upload size={16} /> Nhập File
+            <Upload size={16} /> Nhập File ({boardConfig.questionCount} câu)
           </button>
 
           <button
@@ -642,6 +863,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
             onClick={handleRestartBoard}
             className="btn btn-secondary btn-sm"
             style={{ borderRadius: '12px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', fontSize: '0.82rem', fontWeight: 700 }}
+            title="Làm mới lại toàn bộ các ô điểm trên bảng"
           >
             <RotateCcw size={16} /> Chơi lại
           </button>
@@ -660,19 +882,55 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
 
       {/* 2. MAIN JEOPARDY BOARD MATRIX GRID */}
       <div style={{
-        background: 'rgba(15, 23, 42, 0.8)',
+        background: 'rgba(15, 23, 42, 0.85)',
         border: '1.5px solid rgba(255,255,255,0.12)',
         borderRadius: '24px',
-        padding: '24px',
+        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
-        boxShadow: '0 15px 40px rgba(0,0,0,0.5)'
+        gap: '12px',
+        boxShadow: '0 15px 40px rgba(0,0,0,0.5)',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
-        {/* Matrix Tiles Rows (Point levels: 100, 200, 300, 400) */}
-        {[100, 200, 300, 400].map(pointVal => (
-          <div key={pointVal} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '14px' }}>
-            {DEFAULT_CATEGORIES.map(cat => {
+        {/* Category Header Row */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: `repeat(${boardConfig.categories.length}, 1fr)`,
+          gap: '12px',
+          marginBottom: '2px'
+        }}>
+          {boardConfig.categories.map(cat => (
+            <div
+              key={cat.code}
+              style={{
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 100%)',
+                border: '1.5px solid rgba(245, 158, 11, 0.45)',
+                borderRadius: '14px',
+                padding: '8px 10px',
+                textAlign: 'center',
+                color: '#fde047',
+                fontWeight: 900,
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.03em',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+              }}
+            >
+              <span>{cat.icon || '📌'}</span>
+              <span>{cat.code}: {cat.name}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Matrix Tiles Rows (Point levels: 100, 200, 300, 400, 500, 600...) */}
+        {boardConfig.pointLevels.map(pointVal => (
+          <div key={pointVal} style={{ display: 'grid', gridTemplateColumns: `repeat(${boardConfig.categories.length}, 1fr)`, gap: '12px' }}>
+            {boardConfig.categories.map(cat => {
               const tile = boardTiles.find(t => t.categoryCode === cat.code && t.points === pointVal);
               if (!tile) return null;
 
@@ -682,18 +940,18 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
                   onClick={() => handleOpenTile(tile)}
                   disabled={tile.opened}
                   style={{
-                    height: '90px',
-                    borderRadius: '18px',
+                    height: boardConfig.pointLevels.length > 5 ? '72px' : '82px',
+                    borderRadius: '16px',
                     background: tile.opened 
-                      ? 'rgba(30, 41, 59, 0.4)' 
-                      : 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)',
-                    border: tile.opened ? '1px solid rgba(255,255,255,0.05)' : '1.5px solid rgba(245, 158, 11, 0.4)',
+                      ? 'rgba(30, 41, 59, 0.35)' 
+                      : 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                    border: tile.opened ? '1px solid rgba(255,255,255,0.05)' : '1.5px solid rgba(245, 158, 11, 0.45)',
                     color: tile.opened ? '#475569' : '#fde047',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '4px',
+                    gap: '2px',
                     cursor: tile.opened ? 'default' : 'pointer',
                     boxShadow: tile.opened ? 'none' : '0 6px 15px rgba(0,0,0,0.3)',
                     transition: 'all 0.2s ease',
@@ -704,14 +962,14 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
                     fontSize: '0.72rem',
                     fontWeight: 900,
                     color: tile.opened ? '#475569' : '#94a3b8',
-                    background: 'rgba(255,255,255,0.05)',
+                    background: 'rgba(255,255,255,0.06)',
                     padding: '2px 8px',
                     borderRadius: '6px'
                   }}>
                     {tile.code}
                   </span>
 
-                  <span style={{ fontSize: '1.6rem', fontWeight: 900, lineHeight: 1 }}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 900, lineHeight: 1 }}>
                     {tile.opened ? '✓' : tile.points}
                   </span>
                 </button>
@@ -721,7 +979,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
         ))}
       </div>
 
-      {/* 4. TILE REVEAL MODAL */}
+      {/* 3. TILE REVEAL MODAL */}
       <TileModal
         tile={activeTile}
         activeTeam={activeTeamObj}
@@ -730,7 +988,7 @@ export function JeopardyGame({ questions = [], teams = [], activeTeamIndex = 0, 
         onClose={() => setActiveTile(null)}
       />
 
-      {/* 5. RULES MODAL */}
+      {/* 4. RULES MODAL */}
       <RulesModal
         isOpen={showRules}
         onClose={() => setShowRules(false)}
