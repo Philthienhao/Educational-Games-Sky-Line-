@@ -11,12 +11,18 @@ import { ParentMeetingManager } from './ParentMeetingManager';
 
 // Helper function to calculate conduct points for a student
 export function calculateStudentConductScore(student, pointRules) {
-  const base = typeof student.basePoints === 'number' ? student.basePoints : (pointRules?.basePoints ?? 100);
-  const rewardBonus = pointRules?.rewardBonus ?? 10;
-  const violationDeduction = pointRules?.violationDeduction ?? 5;
+  const ruleBase = typeof pointRules?.basePoints === 'number' ? pointRules.basePoints : 100;
+  // If student basePoints is explicitly set and non-zero, use it.
+  // If student basePoints is 0, but ruleBase is 100 (standard), fall back to ruleBase so students are not stuck at 0.
+  let base = typeof student?.basePoints === 'number' ? student.basePoints : ruleBase;
+  if (base === 0 && ruleBase === 100 && (!student?.violations || student.violations.length === 0) && (!student?.rewards || student.rewards.length === 0)) {
+    base = 100;
+  }
+  const rewardBonus = typeof pointRules?.rewardBonus === 'number' ? pointRules.rewardBonus : 10;
+  const violationDeduction = typeof pointRules?.violationDeduction === 'number' ? pointRules.violationDeduction : 5;
 
-  const totalRewardsPts = (student.rewards || []).reduce((sum, r) => sum + (typeof r.points === 'number' ? r.points : rewardBonus), 0);
-  const totalViolationsPts = (student.violations || []).reduce((sum, v) => sum + (typeof v.points === 'number' ? v.points : violationDeduction), 0);
+  const totalRewardsPts = (student?.rewards || []).reduce((sum, r) => sum + (typeof r.points === 'number' ? r.points : rewardBonus), 0);
+  const totalViolationsPts = (student?.violations || []).reduce((sum, v) => sum + (typeof v.points === 'number' ? v.points : violationDeduction), 0);
 
   return Math.max(0, base + totalRewardsPts - totalViolationsPts);
 }
@@ -221,31 +227,45 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
   // Quick Add Violation or Reward Execution
   const handleQuickAddSubmit = (e) => {
     e.preventDefault();
-    if (!quickStudentId || !quickTitle.trim()) {
-      alert('Vui lòng chọn học sinh và nhập nội dung.');
+    if (!quickTitle || !quickTitle.trim()) {
+      alert('Vui lòng nhập nội dung ' + (quickAddType === 'violation' ? 'vi phạm.' : 'khen thưởng.'));
       return;
     }
 
-    const updatedStudents = classData.students.map(st => {
-      if (st.id === quickStudentId) {
-        const today = new Date().toISOString().split('T')[0];
+    const targetStudentId = quickStudentId || classData.students[0]?.id;
+    if (!targetStudentId) {
+      alert('Chưa có học sinh trong danh sách. Vui lòng thêm học sinh trước.');
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const pointsNum = Number(quickPoints) || (quickAddType === 'violation' ? pointRules.violationDeduction : pointRules.rewardBonus);
+
+    let studentFound = false;
+    const updatedStudents = classData.students.map((st, idx) => {
+      const match = (st.id && String(st.id) === String(targetStudentId)) ||
+                    (st.studentId && String(st.studentId) === String(targetStudentId)) ||
+                    (String(idx) === String(targetStudentId)) ||
+                    (st.name && st.name.trim() === String(targetStudentId).trim());
+      if (match) {
+        studentFound = true;
         if (quickAddType === 'violation') {
           const newV = {
-            id: `v_${Date.now()}`,
+            id: `v_${Date.now()}_${idx}`,
             date: today,
             title: quickTitle.trim(),
             severity: 'Trung bình',
-            points: Number(quickPoints) || pointRules.violationDeduction,
+            points: pointsNum,
             note: quickNote.trim()
           };
           return { ...st, violations: [...(st.violations || []), newV] };
         } else {
           const newR = {
-            id: `r_${Date.now()}`,
+            id: `r_${Date.now()}_${idx}`,
             date: today,
             title: quickTitle.trim(),
-            bonus: `+${quickPoints} điểm nề nếp`,
-            points: Number(quickPoints) || pointRules.rewardBonus,
+            bonus: `+${pointsNum} điểm nề nếp`,
+            points: pointsNum,
             note: quickNote.trim()
           };
           return { ...st, rewards: [...(st.rewards || []), newR] };
@@ -254,7 +274,17 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
       return st;
     });
 
-    const updatedClass = { ...classData, students: updatedStudents };
+    if (!studentFound) {
+      alert('Không tìm thấy học sinh được chọn. Vui lòng thử lại.');
+      return;
+    }
+
+    const updatedClass = { 
+      ...classData, 
+      students: updatedStudents,
+      isCustomized: true,
+      updatedAt: new Date().toISOString()
+    };
     setClassData(updatedClass);
     if (!isReadOnlyAdmin) StorageService.saveTeacherHomeroom(teacherId, updatedClass);
 
@@ -276,16 +306,82 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
     setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
   };
 
-  // Save Point Rules Configuration
+  // Mở nhanh modal thêm vi phạm / khen thưởng cho đúng 1 học sinh cụ thể
+  const handleOpenQuickAddForStudent = (st, type) => {
+    const sId = st?.id || st?.studentId || '';
+    setQuickStudentId(sId);
+    setQuickAddType(type);
+    setQuickPoints(type === 'violation' ? pointRules.violationDeduction : pointRules.rewardBonus);
+  };
+
+  // Cài đặt chuẩn 100 điểm khởi điểm cho toàn bộ học sinh trong lớp ngay lập tức
+  const handleApply100PointsToAll = () => {
+    if (isReadOnlyAdmin) return;
+    if (!window.confirm('Bạn có chắc chắn muốn cài đặt điểm nề nếp 100 điểm chuẩn khởi điểm cho tất cả học sinh trong lớp?')) {
+      return;
+    }
+    const updatedStudents = (classData.students || []).map(st => ({
+      ...st,
+      basePoints: 100,
+      points: 100
+    }));
+    const updatedRules = {
+      ...(classData.pointRules || { rewardBonus: 10, violationDeduction: 5, topHonorsCount: 3 }),
+      basePoints: 100
+    };
+    const updatedClass = {
+      ...classData,
+      pointRules: updatedRules,
+      students: updatedStudents,
+      isCustomized: true,
+      updatedAt: new Date().toISOString()
+    };
+    setClassData(updatedClass);
+    StorageService.saveTeacherHomeroom(teacherId, updatedClass);
+    try { SoundFX.fanfare(); } catch(err) {}
+    try { confetti({ particleCount: 80, spread: 70 }); } catch(err) {}
+    setStatusMsg({
+      type: 'success',
+      text: `💯 Đã cài đặt thành công 100 điểm nề nếp chuẩn cho tất cả ${updatedStudents.length} học sinh!`
+    });
+    setTimeout(() => setStatusMsg({ type: '', text: '' }), 4000);
+  };
+
+  // Save Point Rules Configuration & Đồng bộ mức điểm khởi điểm cho cả lớp
   const handleSavePointRules = (e) => {
     e.preventDefault();
-    const updatedClass = { ...classData, pointRules: tempRules };
+    const newBase = Number(tempRules.basePoints) ?? 100;
+    const cleanRules = {
+      basePoints: newBase,
+      rewardBonus: Number(tempRules.rewardBonus) || 10,
+      violationDeduction: Number(tempRules.violationDeduction) || 5,
+      topHonorsCount: Number(tempRules.topHonorsCount) || 3
+    };
+
+    // ÁP DỤNG MỨC ĐIỂM KHỞI ĐIỂM NÀY ĐỒNG BỘ CHO TOÀN BỘ HỌC SINH TRONG LỚP
+    const updatedStudents = (classData.students || []).map(st => ({
+      ...st,
+      basePoints: newBase,
+      points: newBase
+    }));
+
+    const updatedClass = {
+      ...classData,
+      pointRules: cleanRules,
+      students: updatedStudents,
+      isCustomized: true,
+      updatedAt: new Date().toISOString()
+    };
     setClassData(updatedClass);
     if (!isReadOnlyAdmin) StorageService.saveTeacherHomeroom(teacherId, updatedClass);
     setShowPointRulesModal(false);
-    try { SoundFX.correct(); } catch(e) {}
-    setStatusMsg({ type: 'success', text: '⚙️ Đã cập nhật Quy Tắc Cộng/Trừ Điểm Nề Nếp cho toàn lớp!' });
-    setTimeout(() => setStatusMsg({ type: '', text: '' }), 3000);
+    try { SoundFX.fanfare(); } catch(e) {}
+    try { confetti({ particleCount: 70, spread: 60 }); } catch(e) {}
+    setStatusMsg({
+      type: 'success',
+      text: `⚙️ Đã cập nhật quy tắc và cài đặt ${newBase} điểm khởi điểm cho tất cả ${updatedStudents.length} học sinh!`
+    });
+    setTimeout(() => setStatusMsg({ type: '', text: '' }), 4000);
   };
 
   // Reset Homeroom Data & Monthly Competition Points
@@ -465,6 +561,8 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
       avatar: '',
       teacherNotes: '',
       academicProgress: 'Tiến bộ',
+      basePoints: typeof classData.pointRules?.basePoints === 'number' ? classData.pointRules.basePoints : 100,
+      points: typeof classData.pointRules?.basePoints === 'number' ? classData.pointRules.basePoints : 100,
       violations: [],
       rewards: []
     };
@@ -831,8 +929,25 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
             </button>
 
             <button
+              className="btn btn-success"
+              onClick={handleApply100PointsToAll}
+              style={{ fontWeight: 800, borderRadius: '14px', padding: '10px 18px', background: 'linear-gradient(135deg, #059669 0%, #047857 100%)', color: '#fff', boxShadow: '0 4px 15px rgba(5, 150, 105, 0.35)' }}
+              title="Cài đặt chuẩn 100 điểm khởi điểm cho tất cả học sinh trong lớp"
+            >
+              💯 Cài 100đ Cho Cả Lớp
+            </button>
+
+            <button
               className="btn btn-secondary"
-              onClick={() => setShowPointRulesModal(true)}
+              onClick={() => {
+                setTempRules({
+                  basePoints: typeof classData.pointRules?.basePoints === 'number' ? classData.pointRules.basePoints : 100,
+                  rewardBonus: classData.pointRules?.rewardBonus || 10,
+                  violationDeduction: classData.pointRules?.violationDeduction || 5,
+                  topHonorsCount: classData.pointRules?.topHonorsCount || 3
+                });
+                setShowPointRulesModal(true);
+              }}
               style={{ fontWeight: 800, borderRadius: '14px', padding: '10px 16px', background: 'rgba(167, 139, 250, 0.2)', border: '1.5px solid #a78bfa', color: '#c4b5fd' }}
             >
               <Settings size={18} /> ⚙️ Cài Đặt Quy Tắc Điểm
@@ -1180,49 +1295,91 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
                           📞 {st.phone || 'Chưa có SĐT'}
                         </div>
                       </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        {vCount > 0 ? (
-                          <span className="badge" style={{ 
-                            background: isHighAlert ? '#dc2626' : '#ffe4e6', 
-                            color: isHighAlert ? '#ffffff' : '#991b1b', 
-                            border: `2px solid ${isHighAlert ? '#991b1b' : '#ef4444'}`, 
-                            fontWeight: 900,
-                            fontSize: '0.88rem',
-                            padding: '6px 14px',
-                            borderRadius: '14px',
-                            whiteSpace: 'nowrap',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: isHighAlert ? '0 2px 8px rgba(220, 38, 38, 0.4)' : '0 2px 6px rgba(239, 68, 68, 0.2)'
-                          }}>
-                            {isHighAlert && '🚨 '} {vCount} LẦN
-                          </span>
-                        ) : (
-                          <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
-                        )}
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          {vCount > 0 ? (
+                            <span className="badge" style={{ 
+                              background: isHighAlert ? '#dc2626' : '#ffe4e6', 
+                              color: isHighAlert ? '#ffffff' : '#991b1b', 
+                              border: `2px solid ${isHighAlert ? '#991b1b' : '#ef4444'}`, 
+                              fontWeight: 900,
+                              fontSize: '0.88rem',
+                              padding: '6px 14px',
+                              borderRadius: '14px',
+                              whiteSpace: 'nowrap',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: isHighAlert ? '0 2px 8px rgba(220, 38, 38, 0.4)' : '0 2px 6px rgba(239, 68, 68, 0.2)'
+                            }}>
+                              {isHighAlert && '🚨 '} {vCount} LẦN
+                            </span>
+                          ) : (
+                            <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
+                          )}
+                          {!isReadOnlyAdmin && (
+                            <button
+                              onClick={() => handleOpenQuickAddForStudent(st, 'violation')}
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: '10px',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.4)',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                              }}
+                              title={`Ghi nhận vi phạm cho ${st.name}`}
+                            >
+                              + Phạt
+                            </button>
+                          )}
+                        </div>
                       </td>
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        {rCount > 0 ? (
-                          <span className="badge" style={{ 
-                            background: '#fef3c7', 
-                            color: '#92400e', 
-                            border: '2px solid #f59e0b', 
-                            fontWeight: 900,
-                            fontSize: '0.88rem',
-                            padding: '6px 14px',
-                            borderRadius: '14px',
-                            whiteSpace: 'nowrap',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)'
-                          }}>
-                            🏆 {rCount}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
-                        )}
+                      <td style={{ padding: '14px 16px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          {rCount > 0 ? (
+                            <span className="badge" style={{ 
+                              background: '#fef3c7', 
+                              color: '#92400e', 
+                              border: '2px solid #f59e0b', 
+                              fontWeight: 900,
+                              fontSize: '0.88rem',
+                              padding: '6px 14px',
+                              borderRadius: '14px',
+                              whiteSpace: 'nowrap',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)'
+                            }}>
+                              🏆 {rCount}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#64748b', fontSize: '0.92rem', fontWeight: 900 }}>0</span>
+                          )}
+                          {!isReadOnlyAdmin && (
+                            <button
+                              onClick={() => handleOpenQuickAddForStudent(st, 'reward')}
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: '10px',
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
+                                background: 'rgba(245, 158, 11, 0.15)',
+                                color: '#d97706',
+                                border: '1px solid rgba(245, 158, 11, 0.4)',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                              }}
+                              title={`Ghi nhận khen thưởng cho ${st.name}`}
+                            >
+                              + Thưởng
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td style={{ padding: '14px 16px', textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -1861,9 +2018,14 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
                   onChange={(e) => setQuickStudentId(e.target.value)}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700 }}
                 >
-                  {classData.students.map(st => (
-                    <option key={st.id} value={st.id}>{st.studentId} - {st.name}</option>
-                  ))}
+                  {classData.students.map((st, idx) => {
+                    const sId = st.id || st.studentId || idx;
+                    return (
+                      <option key={sId} value={sId}>
+                        #{idx + 1} - {st.name} {st.studentId ? `(${st.studentId})` : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -1948,10 +2110,15 @@ export function HomeroomManager({ currentUser, readOnlyAdminClass = null, onChec
                 </label>
                 <input
                   type="number"
+                  min="0"
+                  max="1000"
                   value={tempRules.basePoints}
                   onChange={(e) => setTempRules({ ...tempRules, basePoints: Number(e.target.value) })}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', background: '#1e293b', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontWeight: 800 }}
                 />
+                <span style={{ fontSize: '0.78rem', color: '#38bdf8', marginTop: '6px', display: 'block', fontWeight: 700 }}>
+                  💡 Khi bấm "Áp Dụng Cho Cả Lớp", hệ thống sẽ đồng bộ mức điểm khởi điểm này ({tempRules.basePoints}đ) cho tất cả học sinh trong lớp.
+                </span>
               </div>
 
               <div>

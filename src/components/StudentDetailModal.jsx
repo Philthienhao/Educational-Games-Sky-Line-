@@ -22,6 +22,18 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
     rewards: student.rewards || []
   });
 
+  // Keep formData in sync whenever student prop changes
+  useEffect(() => {
+    if (student) {
+      setFormData({
+        ...student,
+        avatar: student.avatar || AvatarStorageService.getAvatarSync(student.id),
+        violations: student.violations || [],
+        rewards: student.rewards || []
+      });
+    }
+  }, [student]);
+
   const [newViolation, setNewViolation] = useState({ title: '', severity: 'Nhẹ', note: '' });
   const [newReward, setNewReward] = useState({ title: '', bonus: '' });
   const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'violations' | 'rewards'
@@ -40,50 +52,75 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
     e.preventDefault();
     if (!newViolation.title.trim()) return;
 
+    let pts = 5;
+    if (newViolation.severity === 'Nghiêm trọng') pts = 15;
+    else if (newViolation.severity === 'Trung bình') pts = 10;
+
     const violation = {
       id: `v_${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
+      points: pts,
       ...newViolation
     };
 
-    setFormData(prev => ({
-      ...prev,
-      violations: [...prev.violations, violation]
-    }));
+    const updatedViolations = [...(formData.violations || []), violation];
+    const updatedForm = {
+      ...formData,
+      violations: updatedViolations
+    };
+
+    setFormData(updatedForm);
     setNewViolation({ title: '', severity: 'Nhẹ', note: '' });
-    SoundFX.correct();
+    try { SoundFX.correct(); } catch(err) {}
+
+    // Tự động lưu ngay lập tức để không bao giờ bị mất dữ liệu khi đóng modal
+    if (onSave) onSave(updatedForm);
   };
 
   const handleDeleteViolation = (vId) => {
-    setFormData(prev => ({
-      ...prev,
-      violations: prev.violations.filter(v => v.id !== vId)
-    }));
+    const updatedViolations = (formData.violations || []).filter(v => v.id !== vId);
+    const updatedForm = { ...formData, violations: updatedViolations };
+    setFormData(updatedForm);
+    if (onSave) onSave(updatedForm);
   };
 
   const handleAddReward = (e) => {
     e.preventDefault();
     if (!newReward.title.trim()) return;
 
+    let pts = 10;
+    const bonusNumMatch = (newReward.bonus || '').match(/\d+/);
+    if (bonusNumMatch) {
+      pts = parseInt(bonusNumMatch[0], 10);
+    }
+
     const reward = {
       id: `r_${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
+      points: pts,
+      bonus: newReward.bonus || `+${pts} điểm thi đua`,
       ...newReward
     };
 
-    setFormData(prev => ({
-      ...prev,
-      rewards: [...prev.rewards, reward]
-    }));
+    const updatedRewards = [...(formData.rewards || []), reward];
+    const updatedForm = {
+      ...formData,
+      rewards: updatedRewards
+    };
+
+    setFormData(updatedForm);
     setNewReward({ title: '', bonus: '' });
-    SoundFX.win();
+    try { SoundFX.win(); } catch(err) {}
+
+    // Tự động lưu ngay lập tức để không bao giờ bị mất dữ liệu khi đóng modal
+    if (onSave) onSave(updatedForm);
   };
 
   const handleDeleteReward = (rId) => {
-    setFormData(prev => ({
-      ...prev,
-      rewards: prev.rewards.filter(r => r.id !== rId)
-    }));
+    const updatedRewards = (formData.rewards || []).filter(r => r.id !== rId);
+    const updatedForm = { ...formData, rewards: updatedRewards };
+    setFormData(updatedForm);
+    if (onSave) onSave(updatedForm);
   };
 
   const handleFormSubmit = async (e) => {
@@ -171,7 +208,7 @@ export function StudentDetailModal({ isOpen, onClose, student, onSave, onDelete 
                 </span>
 
                 <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.25)', color: '#6ee7b7', border: '1px solid #10b981', fontWeight: 900, fontSize: '0.75rem' }}>
-                  💯 Điểm Nề Nếp: {Math.max(0, (formData.basePoints || 100) + (formData.rewards || []).length * 10 - (formData.violations || []).length * 5)}đ
+                  💯 Điểm Nề Nếp: {Math.max(0, (typeof formData.basePoints === 'number' && formData.basePoints > 0 ? formData.basePoints : 100) + (formData.rewards || []).reduce((sum, r) => sum + (typeof r.points === 'number' ? r.points : 10), 0) - (formData.violations || []).reduce((sum, v) => sum + (typeof v.points === 'number' ? v.points : 5), 0))}đ
                 </span>
 
                 {isOverTwoViolations && (

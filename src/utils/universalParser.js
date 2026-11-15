@@ -801,6 +801,8 @@ export async function parseStudentRosterFile(file) {
         avatar: '',
         teacherNotes: noteCol !== -1 ? String(row[noteCol] || '').trim() : '',
         academicProgress: progCol !== -1 ? String(row[progCol] || 'Khá - Giỏi').trim() : 'Khá - Giỏi',
+        basePoints: 100,
+        points: 100,
         violations: [],
         rewards: []
       });
@@ -849,6 +851,8 @@ export async function parseStudentRosterFile(file) {
         avatar: '',
         teacherNotes: line,
         academicProgress: 'Tiến bộ',
+        basePoints: 100,
+        points: 100,
         violations: [],
         rewards: []
       });
