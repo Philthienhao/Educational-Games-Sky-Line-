@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UserCheck, Sparkles, Play, Users, Settings, Dices, Award, RefreshCw } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { GameCard } from './GameCard';
