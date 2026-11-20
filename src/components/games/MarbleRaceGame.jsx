@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Trophy, RotateCcw, Volume2, VolumeX, Maximize, X, 
+  Trophy, RotateCcw, Volume2, VolumeX, Maximize, Minimize, X, 
   Play, FastForward, Clock, Users, ArrowRight, Award, 
   Sparkles, CheckCircle, RefreshCw, Zap, Shield, HelpCircle,
   UserPlus, FileText, Upload, Check, Edit3, Trash2,
@@ -47,10 +47,38 @@ const DEFAULT_STUDENT_ROSTERS = {
   ]
 };
 
-export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questions }) {
+export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questions, gameTheme = 'default', onThemeChange }) {
   // --- Audio Synthesis Setup ---
   const audioCtxRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    try {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement || document.webkitFullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFsChange);
+      document.removeEventListener('webkitfullscreenchange', handleFsChange);
+    };
+  }, []);
 
   const playSynthSound = (type) => {
     if (isMuted) return;
@@ -222,6 +250,33 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
       })));
     }
   };
+
+  const handleLoadHomeroom = () => {
+    try {
+      const hr = StorageService.getTeacherHomeroom(currentUser?.id);
+      if (hr && Array.isArray(hr.students) && hr.students.length > 0) {
+        const cleanStudents = hr.students.filter(s => !isUnwantedTestStudent(s));
+        setHomeroom({ ...hr, students: cleanStudents });
+        setSelectedClassName(hr.className || 'Lớp Chủ Nhiệm');
+        setStudents(cleanStudents.map((s, idx) => ({
+          id: s.id || `s_${idx}`,
+          name: typeof s === 'string' ? s : (s.name || s.studentName || `Học sinh ${idx + 1}`),
+          avatar: s.avatar || null,
+          number: idx + 1,
+          color: MARBLE_COLORS[idx % MARBLE_COLORS.length]
+        })));
+        alert(`Đã tải thành công ${cleanStudents.length} học sinh từ Lớp Chủ Nhiệm (${hr.className || 'Lớp của bạn'})!`);
+      } else {
+        alert('Chưa có danh sách học sinh trong Lớp Chủ Nhiệm! Thầy/cô vui lòng vào mục Lớp Chủ Nhiệm ở thanh menu để tạo danh sách học sinh.');
+      }
+    } catch (e) {
+      console.error('Error loading homeroom:', e);
+    }
+  };
+
+  const displayClassName = (!selectedClassName || selectedClassName.includes('Đua Bi') || selectedClassName === 'Danh Sách Bài Game')
+    ? (homeroom?.className || 'Lớp Học')
+    : selectedClassName;
 
   useEffect(() => {
     loadStudents();
@@ -1634,151 +1689,192 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
       overflow: 'hidden',
       userSelect: 'none'
     }}>
-      {/* 1. Header Toolbar matching video finish_62s.jpg */}
+      {/* 1. Header Toolbar */}
       <div style={{
         height: '56px',
-        background: '#0f172a',
-        borderBottom: '1px solid #1e293b',
+        background: gameTheme === 'noel' 
+          ? 'linear-gradient(90deg, #0f231c 0%, #064e3b 50%, #0f231c 100%)' 
+          : gameTheme === 'tet' 
+          ? 'linear-gradient(90deg, #2a0808 0%, #7f1d1d 50%, #2a0808 100%)' 
+          : '#0f172a',
+        borderBottom: gameTheme === 'noel' 
+          ? '1.5px solid rgba(239, 68, 68, 0.4)' 
+          : gameTheme === 'tet' 
+          ? '1.5px solid rgba(234, 179, 8, 0.4)' 
+          : '1px solid #1e293b',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 20px',
-        zIndex: 50
+        padding: '0 16px',
+        gap: '12px',
+        zIndex: 50,
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        flexShrink: 0
       }}>
-        {/* Title & Class Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Left Section: Branding, Class Badge & Roster Tools */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flexShrink: 1 }}>
+          {/* Title Badge */}
           <div style={{
             background: 'linear-gradient(135deg, #f43f5e 0%, #be123c 100%)',
-            padding: '6px 12px',
-            borderRadius: '10px',
+            padding: '5px 10px',
+            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             fontWeight: 900,
-            fontSize: '1rem',
+            fontSize: '0.86rem',
             color: '#ffffff',
-            boxShadow: '0 2px 10px rgba(244, 63, 94, 0.4)'
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(244, 63, 94, 0.35)'
           }}>
             🏁 Đua Bi
             <span style={{
-              background: '#be123c',
-              fontSize: '0.72rem',
-              padding: '2px 6px',
-              borderRadius: '6px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              background: 'rgba(0,0,0,0.25)',
+              fontSize: '0.68rem',
+              padding: '2px 5px',
+              borderRadius: '5px',
+              letterSpacing: '0.3px',
+              fontWeight: 800
             }}>
-              VỀ NHẤT LÊN BẢNG
+              GỌI TÊN
             </span>
           </div>
+
+          {/* Class & Student Count Pill */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '6px',
             background: '#1e293b',
-            padding: '4px 12px',
-            borderRadius: '10px',
-            border: '1px solid #334155'
+            padding: '4px 10px',
+            borderRadius: '8px',
+            border: '1px solid #334155',
+            fontSize: '0.8rem',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}>
-            <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Lớp:</span>
-            <strong style={{ color: '#38bdf8', fontSize: '0.92rem' }}>{selectedClassName}</strong>
+            <span style={{ color: '#94a3b8' }}>Lớp:</span>
+            <strong 
+              title={selectedClassName}
+              style={{ 
+                color: '#38bdf8', 
+                maxWidth: '120px', 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis', 
+                whiteSpace: 'nowrap',
+                display: 'inline-block'
+              }}
+            >
+              {displayClassName}
+            </strong>
             <span style={{
               background: '#0f172a',
-              color: '#a5f3fc',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              fontSize: '0.78rem',
+              color: '#38bdf8',
+              padding: '1px 6px',
+              borderRadius: '10px',
+              fontSize: '0.74rem',
               fontWeight: 800
             }}>
               {students.length} HS
             </span>
           </div>
 
-          {/* Button 1: Nhập nhanh danh sách lớp chủ nhiệm */}
+          {/* Separator */}
+          <div style={{ width: '1px', height: '22px', background: 'rgba(255,255,255,0.12)', margin: '0 2px', flexShrink: 0 }} />
+
+          {/* Roster Tool 1: Homeroom Sync */}
           <button
-            onClick={loadStudents}
-            title="Nhập nhanh danh sách từ Lớp Chủ Nhiệm"
+            onClick={handleLoadHomeroom}
+            title="Đồng bộ danh sách từ Lớp Chủ Nhiệm"
             style={{
-              background: '#1e293b',
+              background: 'rgba(56, 189, 248, 0.1)',
               color: '#38bdf8',
-              border: '1px solid #38bdf8',
-              padding: '6px 13px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              padding: '5px 10px',
+              borderRadius: '7px',
+              fontSize: '0.78rem',
               fontWeight: 800,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               transition: 'all 0.15s ease'
             }}
           >
-            <RefreshCw size={14} />
-            DS Lớp Chủ Nhiệm
+            <RefreshCw size={13} />
+            Lớp Chủ Nhiệm
           </button>
 
-          {/* Button 2: Khung nhập danh sách học sinh theo mong muốn */}
+          {/* Roster Tool 2: Custom input & Excel import */}
           <button
             onClick={handleOpenRosterModal}
-            title="Mở khung nhập danh sách học sinh theo mong muốn"
+            title="Nhập danh sách tùy chọn hoặc tải file Excel"
             style={{
-              background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
-              color: '#ffffff',
-              border: '1px solid #34d399',
-              padding: '6px 14px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 900,
+              background: 'rgba(16, 185, 129, 0.12)',
+              color: '#34d399',
+              border: '1px solid rgba(52, 211, 153, 0.35)',
+              padding: '5px 10px',
+              borderRadius: '7px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 10px rgba(5, 150, 105, 0.4)',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               transition: 'all 0.15s ease'
             }}
           >
-            <Edit3 size={15} />
-            Khung Nhập DS Theo Mong Muốn
+            <Edit3 size={13} />
+            Nhập DS / Excel
           </button>
 
-          {/* Button 3: Quét QR Điền Tên Nhanh */}
+          {/* Roster Tool 3: QR Code Registration */}
           <button
             onClick={() => setShowQrModal(true)}
-            title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên vào game"
+            title="Mở mã QR cho học sinh quét điện thoại tự điền tên vào game"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
-              color: '#ffffff',
-              border: '1px solid #c084fc',
-              padding: '6px 14px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 900,
+              background: 'rgba(168, 85, 247, 0.12)',
+              color: '#c084fc',
+              border: '1px solid rgba(192, 132, 252, 0.35)',
+              padding: '5px 10px',
+              borderRadius: '7px',
+              fontSize: '0.78rem',
+              fontWeight: 800,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 2px 12px rgba(124, 58, 237, 0.45)',
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               transition: 'all 0.15s ease'
             }}
           >
-            <QrCode size={15} />
-            📱 Quét QR Điền Tên Nhanh
+            <QrCode size={13} />
+            Quét QR Tự Điền
           </button>
         </div>
 
-        {/* Controls: Speed, Sync, Sound, Fullscreen, Close */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {/* Speed selector */}
+        {/* Right Section: Speed, Theme, Sound, Restart, Fullscreen, Close */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {/* Speed Selector */}
           <div style={{
             background: '#1e293b',
-            padding: '3px 6px',
-            borderRadius: '20px',
-            display: 'flex',
+            padding: '2px 4px',
+            borderRadius: '16px',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '2px',
+            border: '1px solid #334155',
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8', padding: '0 6px' }}>
-              TỐC ĐỘ:
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', padding: '0 5px' }}>
+              ⚡ TỐC ĐỘ:
             </span>
             {[0.5, 0.75, 1, 1.5, 2, 3].map(spd => (
               <button
@@ -1788,9 +1884,9 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                   background: simSpeed === spd ? '#ef4444' : 'transparent',
                   color: simSpeed === spd ? '#ffffff' : '#94a3b8',
                   border: 'none',
-                  padding: '4px 8px',
-                  borderRadius: '14px',
-                  fontSize: '0.78rem',
+                  padding: '3px 7px',
+                  borderRadius: '12px',
+                  fontSize: '0.74rem',
                   fontWeight: 800,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
@@ -1801,46 +1897,73 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
             ))}
           </div>
 
-          {/* Sync Homeroom button */}
-          <button
-            onClick={loadStudents}
-            title="Đồng bộ lại danh sách từ Lớp Chủ Nhiệm"
-            style={{
-              background: '#1e293b',
-              color: '#38bdf8',
-              border: '1px solid #334155',
-              padding: '6px 12px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <RefreshCw size={14} />
-            Lớp Chủ Nhiệm
-          </button>
+          {/* Theme Dropdown */}
+          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+            <select
+              value={gameTheme || 'default'}
+              onChange={(e) => onThemeChange ? onThemeChange(e.target.value) : null}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                background: gameTheme === 'noel'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.5) 0%, rgba(22, 101, 52, 0.5) 100%)'
+                  : gameTheme === 'tet'
+                  ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.5) 0%, rgba(202, 138, 4, 0.5) 100%)'
+                  : '#1e293b',
+                border: gameTheme === 'noel' ? '1.5px solid #ef4444' : gameTheme === 'tet' ? '1.5px solid #eab308' : '1px solid #334155',
+                color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#f8fafc',
+                borderRadius: '8px',
+                padding: '5px 24px 5px 10px',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                outline: 'none',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s'
+              }}
+              title="Chọn chủ đề giao diện: Mặc định / Noel / Tết"
+            >
+              <option value="default" style={{ background: '#0f172a', color: '#ffffff' }}>🎨 Giao diện: Mặc định</option>
+              <option value="noel" style={{ background: '#0f172a', color: '#fca5a5' }}>🎄 Giao diện: Noel</option>
+              <option value="tet" style={{ background: '#0f172a', color: '#fde047' }}>🧧 Giao diện: Tết</option>
+            </select>
+            <span
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                pointerEvents: 'none',
+                fontSize: '0.62rem',
+                color: gameTheme === 'noel' ? '#fca5a5' : gameTheme === 'tet' ? '#fde047' : '#94a3b8',
+                fontWeight: 900
+              }}
+            >
+              ▼
+            </span>
+          </div>
 
           {/* Sound Toggle */}
           <button
             onClick={() => setIsMuted(!isMuted)}
             title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
             style={{
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: 'none',
-              width: '36px',
-              height: '36px',
+              background: isMuted ? 'rgba(239, 68, 68, 0.15)' : '#1e293b',
+              color: isMuted ? '#f87171' : '#f8fafc',
+              border: '1px solid #334155',
+              width: '32px',
+              height: '32px',
               borderRadius: '8px',
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 0.15s ease'
             }}
           >
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
           </button>
 
           {/* Reset Race */}
@@ -1851,38 +1974,70 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
               background: '#334155',
               color: '#f8fafc',
               border: 'none',
-              padding: '6px 14px',
+              padding: '5px 12px',
               borderRadius: '8px',
-              fontSize: '0.85rem',
-              fontWeight: 700,
+              fontSize: '0.8rem',
+              fontWeight: 800,
               cursor: 'pointer',
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '5px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'all 0.15s ease'
             }}
           >
-            <RotateCcw size={15} />
+            <RotateCcw size={13} />
             Đua Lại
+          </button>
+
+          {/* Fullscreen Button */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Thoát toàn màn hình' : 'Bật toàn màn hình'}
+            style={{
+              background: '#1e293b',
+              color: '#cbd5e1',
+              border: '1px solid #334155',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'all 0.15s ease'
+            }}
+          >
+            {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
           </button>
 
           {/* Close button */}
           {onClose && (
             <button
               onClick={onClose}
+              title="Đóng trò chơi"
               style={{
-                background: '#ef4444',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: '#ffffff',
                 border: 'none',
-                width: '36px',
-                height: '36px',
+                padding: '5px 12px',
                 borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: 800,
                 cursor: 'pointer',
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                gap: '5px',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+                transition: 'all 0.15s ease'
               }}
             >
-              <X size={20} />
+              <X size={14} />
+              Thoát
             </button>
           )}
         </div>
@@ -2196,12 +2351,12 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                 flexWrap: 'wrap'
               }}>
                 <button
-                  onClick={loadStudents}
+                  onClick={handleLoadHomeroom}
                   title="Nhập nhanh danh sách lớp chủ nhiệm"
                   style={{
-                    background: '#1e293b',
+                    background: 'rgba(56, 189, 248, 0.1)',
                     color: '#38bdf8',
-                    border: '1px solid #38bdf8',
+                    border: '1px solid rgba(56, 189, 248, 0.4)',
                     padding: '8px 14px',
                     borderRadius: '10px',
                     fontSize: '0.8rem',
@@ -2214,15 +2369,15 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                   }}
                 >
                   <RefreshCw size={14} />
-                  Nhập nhanh DS Lớp Chủ Nhiệm
+                  Lớp Chủ Nhiệm
                 </button>
                 <button
                   onClick={handleOpenRosterModal}
                   title="Mở khung nhập danh sách học sinh theo mong muốn"
                   style={{
-                    background: 'linear-gradient(135deg, #059669 0%, #0284c7 100%)',
-                    color: '#ffffff',
-                    border: '1px solid #34d399',
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    color: '#34d399',
+                    border: '1px solid rgba(52, 211, 153, 0.4)',
                     padding: '8px 16px',
                     borderRadius: '10px',
                     fontSize: '0.82rem',
@@ -2231,20 +2386,20 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.4)'
+                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.25)'
                   }}
                 >
                   <Edit3 size={14} />
-                  Khung Nhập DS Theo Mong Muốn
+                  Nhập DS / Excel
                 </button>
 
                 <button
                   onClick={() => setShowQrModal(true)}
                   title="Mở mã QR cho học sinh tự quét bằng điện thoại và điền tên vào game"
                   style={{
-                    background: 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
-                    color: '#ffffff',
-                    border: '1px solid #c084fc',
+                    background: 'rgba(168, 85, 247, 0.12)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(192, 132, 252, 0.4)',
                     padding: '8px 18px',
                     borderRadius: '10px',
                     fontSize: '0.84rem',
@@ -2253,11 +2408,11 @@ export function MarbleRaceGame({ onClose, currentUser, onAddPoints, game, questi
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    boxShadow: '0 4px 16px rgba(124, 58, 237, 0.45)'
+                    boxShadow: '0 4px 16px rgba(124, 58, 237, 0.25)'
                   }}
                 >
                   <QrCode size={16} />
-                  📱 Quét QR Điền Tên Nhanh (HS Tự Quét)
+                  Quét QR Tự Điền
                 </button>
               </div>
             </div>

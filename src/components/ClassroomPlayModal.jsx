@@ -329,7 +329,8 @@ export function ClassroomPlayModal({
     activeTeamIndex,
     setActiveTeamIndex,
     onClose,
-    gameTheme
+    gameTheme,
+    onThemeChange: handleThemeChange
   };
 
   const renderGameEngine = () => {
@@ -435,7 +436,7 @@ export function ClassroomPlayModal({
         component = <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />;
         break;
       case 'marble-race':
-        component = <MarbleRaceGame onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} />;
+        component = <MarbleRaceGame {...commonProps} game={game} onClose={onClose} currentUser={currentUser} onAddPoints={handleAddPoints} onThemeChange={handleThemeChange} />;
         break;
       case 'heart-reveal-2010':
       case 'heart-puzzle-2010':
@@ -485,67 +486,69 @@ export function ClassroomPlayModal({
           {/* Hiệu ứng không khí lễ hội (Tuyết rơi Noel / Hoa đào hoa mai Tết) */}
           <GameThemeDecorations theme={gameTheme} />
 
-          {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Cho Arcade Games */}
-          <div style={{
-            position: 'fixed',
-            top: isHomework ? '60px' : (gameTheme !== 'default' ? '48px' : '12px'),
-            right: isHomework ? '16px' : '14px',
-            zIndex: 10000000,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <select
-                value={gameTheme}
-                onChange={(e) => handleThemeChange(e.target.value)}
-                style={{
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  MozAppearance: 'none',
-                  background: gameTheme === 'noel'
-                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%)'
-                    : gameTheme === 'tet'
-                    ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(202, 138, 4, 0.95) 100%)'
-                    : 'rgba(15, 23, 42, 0.88)',
-                  backdropFilter: 'blur(8px)',
-                  border: gameTheme === 'noel'
-                    ? '1.5px solid #ef4444'
-                    : gameTheme === 'tet'
-                    ? '1.5px solid #eab308'
-                    : '1.5px solid rgba(255, 255, 255, 0.25)',
-                  color: '#ffffff',
-                  padding: '6px 28px 6px 12px',
-                  borderRadius: '14px',
-                  fontSize: '0.82rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  outline: 'none',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
-                  transition: 'all 0.2s'
-                }}
-                title="Chọn chủ đề giao diện: Mặc định / Noel / Tết"
-              >
-                <option value="default" style={{ background: '#0f172a', color: '#ffffff' }}>🎨 Giao diện: Mặc định</option>
-                <option value="noel" style={{ background: '#0f172a', color: '#fca5a5' }}>🎄 Giao diện: Noel</option>
-                <option value="tet" style={{ background: '#0f172a', color: '#fde047' }}>🧧 Giao diện: Tết</option>
-              </select>
-              <span
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none',
-                  fontSize: '0.65rem',
-                  color: '#ffffff',
-                  fontWeight: 900
-                }}
-              >
-                ▼
-              </span>
+          {/* Menu Thả Xuống Chọn Giao Diện Lễ Hội Cho Arcade Games (Trừ Marble Race vì đã tích hợp sẵn thanh điều khiển đồng bộ) */}
+          {engineType !== 'marble-race' && (
+            <div style={{
+              position: 'fixed',
+              top: isHomework ? '60px' : (gameTheme !== 'default' ? '48px' : '12px'),
+              right: isHomework ? '16px' : '14px',
+              zIndex: 10000000,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <select
+                  value={gameTheme}
+                  onChange={(e) => handleThemeChange(e.target.value)}
+                  style={{
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'none',
+                    background: gameTheme === 'noel'
+                      ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(22, 101, 52, 0.95) 100%)'
+                      : gameTheme === 'tet'
+                      ? 'linear-gradient(135deg, rgba(220, 38, 38, 0.95) 0%, rgba(202, 138, 4, 0.95) 100%)'
+                      : 'rgba(15, 23, 42, 0.88)',
+                    backdropFilter: 'blur(8px)',
+                    border: gameTheme === 'noel'
+                      ? '1.5px solid #ef4444'
+                      : gameTheme === 'tet'
+                      ? '1.5px solid #eab308'
+                      : '1.5px solid rgba(255, 255, 255, 0.25)',
+                    color: '#ffffff',
+                    padding: '6px 28px 6px 12px',
+                    borderRadius: '14px',
+                    fontSize: '0.82rem',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    outline: 'none',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                    transition: 'all 0.2s'
+                  }}
+                  title="Chọn chủ đề giao diện: Mặc định / Noel / Tết"
+                >
+                  <option value="default" style={{ background: '#0f172a', color: '#ffffff' }}>🎨 Giao diện: Mặc định</option>
+                  <option value="noel" style={{ background: '#0f172a', color: '#fca5a5' }}>🎄 Giao diện: Noel</option>
+                  <option value="tet" style={{ background: '#0f172a', color: '#fde047' }}>🧧 Giao diện: Tết</option>
+                </select>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    pointerEvents: 'none',
+                    fontSize: '0.65rem',
+                    color: '#ffffff',
+                    fontWeight: 900
+                  }}
+                >
+                  ▼
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {isHomework && (
             <div style={{
@@ -639,7 +642,7 @@ export function ClassroomPlayModal({
             ) : engineType === 'student-group-divider' ? (
               <StudentGroupDividerGame game={game} onClose={onClose} currentUser={currentUser} />
             ) : engineType === 'marble-race' ? (
-              <MarbleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} onAddPoints={handleAddPoints} />
+              <MarbleRaceGame {...commonProps} game={game} currentUser={currentUser} onClose={onClose} onAddPoints={handleAddPoints} onThemeChange={handleThemeChange} />
             ) : (engineType === 'heart-reveal-2010' || engineType === 'heart-puzzle-2010') ? (
               <HeartPuzzle2010Game {...commonProps} game={game} onClose={onClose} />
             ) : (
