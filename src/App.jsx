@@ -24,7 +24,7 @@ import {
   Lock,
   Play
 } from 'lucide-react';
-import { Sidebar } from './components/Sidebar';
+import { TopNavbar } from './components/TopNavbar';
 import { GameCard } from './components/GameCard';
 import { LoginModal } from './components/LoginModal';
 import { StorageService } from './services/storage';
@@ -850,8 +850,8 @@ export function App() {
   return (
     <div className="app-layout-wrapper">
       
-      {/* Sleek Vertical Glassmorphism Sidebar Navigation */}
-      <Sidebar 
+      {/* Modern Top Horizontal Navigation Bar */}
+      <TopNavbar 
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         currentUser={currentUser}
@@ -861,8 +861,6 @@ export function App() {
         onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         onLogout={handleLogout}
         myGamesCount={savedGames.length}
-        isMobileOpen={isMobileOpen}
-        setIsMobileOpen={setIsMobileOpen}
       />
 
       {/* Main Content Area - Spans 100% of remaining screen width */}
